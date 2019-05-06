@@ -3,16 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Sledge.Formats.Bsp.Objects;
+using Sledge.Formats.Id;
 
 namespace Sledge.Formats.Bsp.Lumps
 {
-    public class Textures : ILump, IList<Texture>
+    public class Textures : ILump, IList<MipTexture>
     {
-        private readonly IList<Texture> _textures;
+        private readonly IList<MipTexture> _textures;
 
         public Textures()
         {
-            _textures = new List<Texture>();
+            _textures = new List<MipTexture>();
         }
 
         public void Read(BinaryReader br, Blob blob, Version version)
@@ -23,7 +24,7 @@ namespace Sledge.Formats.Bsp.Lumps
             foreach (var offset in offsets)
             {
                 br.BaseStream.Seek(blob.Offset + offset, SeekOrigin.Begin);
-                var tex = Texture.ReadMipTexture(br, version);
+                var tex = MipTexture.Read(br, version == Version.Goldsource);
                 _textures.Add(tex);
             }
         }
@@ -50,7 +51,7 @@ namespace Sledge.Formats.Bsp.Lumps
             {
                 var tex = _textures[i];
                 offsets[i] = (int) (bw.BaseStream.Position - pos);
-                Texture.WriteMipTexture(bw, version, tex);
+                MipTexture.Write(bw, version == Version.Goldsource, tex);
             }
 
             var pos2 = bw.BaseStream.Position;
@@ -63,7 +64,7 @@ namespace Sledge.Formats.Bsp.Lumps
 
         #region IList
 
-        public IEnumerator<Texture> GetEnumerator()
+        public IEnumerator<MipTexture> GetEnumerator()
         {
             return _textures.GetEnumerator();
         }
@@ -73,7 +74,7 @@ namespace Sledge.Formats.Bsp.Lumps
             return ((IEnumerable) _textures).GetEnumerator();
         }
 
-        public void Add(Texture item)
+        public void Add(MipTexture item)
         {
             _textures.Add(item);
         }
@@ -83,17 +84,17 @@ namespace Sledge.Formats.Bsp.Lumps
             _textures.Clear();
         }
 
-        public bool Contains(Texture item)
+        public bool Contains(MipTexture item)
         {
             return _textures.Contains(item);
         }
 
-        public void CopyTo(Texture[] array, int arrayIndex)
+        public void CopyTo(MipTexture[] array, int arrayIndex)
         {
             _textures.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(Texture item)
+        public bool Remove(MipTexture item)
         {
             return _textures.Remove(item);
         }
@@ -102,12 +103,12 @@ namespace Sledge.Formats.Bsp.Lumps
 
         public bool IsReadOnly => _textures.IsReadOnly;
 
-        public int IndexOf(Texture item)
+        public int IndexOf(MipTexture item)
         {
             return _textures.IndexOf(item);
         }
 
-        public void Insert(int index, Texture item)
+        public void Insert(int index, MipTexture item)
         {
             _textures.Insert(index, item);
         }
@@ -117,7 +118,7 @@ namespace Sledge.Formats.Bsp.Lumps
             _textures.RemoveAt(index);
         }
 
-        public Texture this[int index]
+        public MipTexture this[int index]
         {
             get => _textures[index];
             set => _textures[index] = value;

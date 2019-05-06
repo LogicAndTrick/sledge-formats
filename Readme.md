@@ -27,14 +27,17 @@ Coming soon™
         - Currently, visibility data is not parsed, it is kept as a binary blob.
         - Editing of lightmap data is currently not well supported and must be done manually.
         - The library does no checking to ensure that the indexes and offsets are correct. Possibly a higher-level library could wrap around this format to provide developers with a more flexible BSP creation experience.
+- Sledge.Formats.Texture - Texture formats used by Quake and Half-Life
+    - Wad
+        - **WadFile** - The WAD format used by Quake 1 and Goldsource to store textures
+            - Currently supports Quake 1 (WAD2) and Goldsource (WAD3) formats
+            - The ColorMap and ColorMap2 will load, but won't contain any data. These lump types aren't used anywhere.
+            - Quake 1's gfx.wad contains a lump called "CONCHARS", which has an invalid type. There's special logic to handle this lump.
 
 ## Unsupported formats (may be added in the future)
 
 - **FGD**, used for entity definitions in Worldcraft and Valve Hammer Editor.
 - **JMF**, used for Jackhammer/JACK editor for map source files.
-- **WAD**, used for textures in Quake and Half-Life.
-    - **WAD2**, used in Quake for textures.
-    - **WAD3**, used in Half-Life for textures.
 - **VTF**, used in Source for texture data.
 - **PAK**, used in Quake and non-Steam Half-Life.
 - **VPK**, used in post-SteamPipe Source games.
