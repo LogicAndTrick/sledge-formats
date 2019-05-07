@@ -27,6 +27,9 @@ Coming soon™
         - Currently, visibility data is not parsed, it is kept as a binary blob.
         - Editing of lightmap data is currently not well supported and must be done manually.
         - The library does no checking to ensure that the indexes and offsets are correct. Possibly a higher-level library could wrap around this format to provide developers with a more flexible BSP creation experience.
+- Sledge.Formats.Packages - File package formats used by Quake/HL1/Source
+    - **PakPackage** - The PAK format used in Quake 1/2 and non-Steam Half-Life.
+    - **VpkPackage** - The VPK format used by post-SteamPipe Source engine games.
 - Sledge.Formats.Texture - Texture formats used by Quake and Half-Life
     - Wad
         - **WadFile** - The WAD format used by Quake 1 and Goldsource to store textures
@@ -39,8 +42,6 @@ Coming soon™
 - **FGD**, used for entity definitions in Worldcraft and Valve Hammer Editor.
 - **JMF**, used for Jackhammer/JACK editor for map source files.
 - **VTF**, used in Source for texture data.
-- **PAK**, used in Quake and non-Steam Half-Life.
-- **VPK**, used in post-SteamPipe Source games.
 - **MDL**, used for models in many Quake-based games.
     - **MDL v10** (IDSQ/IDST), used in Half-Life, which adds skeletal animation.
     - **MDL v44-49** (IDSQ/IDST), used in Source, along with VTX, VVD, ANI, and PHY files. This is a very complex format, so it's not high priority.
