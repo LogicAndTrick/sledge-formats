@@ -36,12 +36,14 @@ Coming soon™
             - Currently supports Quake 1 (WAD2) and Goldsource (WAD3) formats
             - The ColorMap and ColorMap2 will load, but won't contain any data. These lump types aren't used anywhere.
             - Quake 1's gfx.wad contains a lump called "CONCHARS", which has an invalid type. There's special logic to handle this lump.
+    - Vtf
+        - **VtfFile** - The VTF format used by the Source engine.
+            - Currently supports all formats that VtfLib supports (read only, not write)
 
 ## Unsupported formats (may be added in the future)
 
 - **FGD**, used for entity definitions in Worldcraft and Valve Hammer Editor.
 - **JMF**, used for Jackhammer/JACK editor for map source files.
-- **VTF**, used in Source for texture data.
 - **MDL**, used for models in many Quake-based games.
     - **MDL v10** (IDSQ/IDST), used in Half-Life, which adds skeletal animation.
     - **MDL v44-49** (IDSQ/IDST), used in Source, along with VTX, VVD, ANI, and PHY files. This is a very complex format, so it's not high priority.

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Sledge.Formats.Texture.Wad.Lumps
 {

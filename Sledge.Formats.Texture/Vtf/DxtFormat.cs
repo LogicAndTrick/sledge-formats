@@ -1,27 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-namespace Sledge.Formats.Texture.Vtf
+﻿namespace Sledge.Formats.Texture.Vtf
 {
     public static class DxtFormat
     {
-        public static void DecompressDxt1(byte[] buffer, BinaryReader br, uint width, uint height)
+        public static void DecompressDxt1(byte[] buffer, byte[] data, int width, int height)
         {
-            var num = ((width + 3) / 4) * ((height + 3) / 4) * 8;
-            var all = br.ReadBytes((int)num);
             var pos = 0;
             var c = new byte[16];
             for (var y = 0; y < height; y += 4)
             {
                 for (var x = 0; x < width; x += 4)
                 {
-                    int c0 = all[pos++];
-                    c0 |= all[pos++] << 8;
+                    int c0 = data[pos++];
+                    c0 |= data[pos++] << 8;
 
-                    int c1 = all[pos++];
-                    c1 |= all[pos++] << 8;
+                    int c1 = data[pos++];
+                    c1 |= data[pos++] << 8;
 
                     c[0] = (byte)((c0 & 0xF800) >> 8);
                     c[1] = (byte)((c0 & 0x07E0) >> 3);
@@ -61,10 +54,10 @@ namespace Sledge.Formats.Texture.Vtf
                         c[15] = 0;
                     }
 
-                    int bytes = all[pos++];
-                    bytes |= all[pos++] << 8;
-                    bytes |= all[pos++] << 16;
-                    bytes |= all[pos++] << 24;
+                    int bytes = data[pos++];
+                    bytes |= data[pos++] << 8;
+                    bytes |= data[pos++] << 16;
+                    bytes |= data[pos++] << 24;
 
                     for (var yy = 0; yy < 4; yy++)
                     {
@@ -89,10 +82,8 @@ namespace Sledge.Formats.Texture.Vtf
             }
         }
 
-        public static void DecompressDxt3(byte[] buffer, BinaryReader br, uint width, uint height)
+        public static void DecompressDxt3(byte[] buffer, byte[] data, int width, int height)
         {
-            var num = ((width + 3) / 4) * ((height + 3) / 4) * 16;
-            var all = br.ReadBytes((int)num);
             var pos = 0;
             var c = new byte[16];
             var a = new byte[8];
@@ -100,13 +91,13 @@ namespace Sledge.Formats.Texture.Vtf
             {
                 for (var x = 0; x < width; x += 4)
                 {
-                    for (var i = 0; i < 8; i++) a[i] = all[pos++];
+                    for (var i = 0; i < 8; i++) a[i] = data[pos++];
 
-                    int c0 = all[pos++];
-                    c0 |= all[pos++] << 8;
+                    int c0 = data[pos++];
+                    c0 |= data[pos++] << 8;
 
-                    int c1 = all[pos++];
-                    c1 |= all[pos++] << 8;
+                    int c1 = data[pos++];
+                    c1 |= data[pos++] << 8;
 
                     c[0] = (byte)((c0 & 0xF800) >> 8);
                     c[1] = (byte)((c0 & 0x07E0) >> 3);
@@ -128,10 +119,10 @@ namespace Sledge.Formats.Texture.Vtf
                     c[14] = (byte)((c[2] + 2 * c[6]) / 3);
                     c[15] = 255;
 
-                    int bytes = all[pos++];
-                    bytes |= all[pos++] << 8;
-                    bytes |= all[pos++] << 16;
-                    bytes |= all[pos++] << 24;
+                    int bytes = data[pos++];
+                    bytes |= data[pos++] << 8;
+                    bytes |= data[pos++] << 16;
+                    bytes |= data[pos++] << 24;
 
                     for (var yy = 0; yy < 4; yy++)
                     {
@@ -159,10 +150,8 @@ namespace Sledge.Formats.Texture.Vtf
             }
         }
 
-        public static void DecompressDxt5(byte[] buffer, BinaryReader br, uint width, uint height)
+        public static void DecompressDxt5(byte[] buffer, byte[] data, int width, int height)
         {
-            var num = ((width + 3) / 4) * ((height + 3) / 4) * 16;
-            var all = br.ReadBytes((int)num);
             var pos = 0;
             var c = new byte[16];
             var a = new int[8];
@@ -170,8 +159,8 @@ namespace Sledge.Formats.Texture.Vtf
             {
                 for (var x = 0; x < width; x += 4)
                 {
-                    var a0 = all[pos++];
-                    var a1 = all[pos++];
+                    var a0 = data[pos++];
+                    var a1 = data[pos++];
 
                     a[0] = a0;
                     a[1] = a1;
@@ -196,13 +185,13 @@ namespace Sledge.Formats.Texture.Vtf
                     }
 
                     var aindex = 0L;
-                    for (var i = 0; i < 6; i++) aindex |= ((long)all[pos++]) << (8 * i);
+                    for (var i = 0; i < 6; i++) aindex |= ((long)data[pos++]) << (8 * i);
 
-                    int c0 = all[pos++];
-                    c0 |= all[pos++] << 8;
+                    int c0 = data[pos++];
+                    c0 |= data[pos++] << 8;
 
-                    int c1 = all[pos++];
-                    c1 |= all[pos++] << 8;
+                    int c1 = data[pos++];
+                    c1 |= data[pos++] << 8;
 
                     c[0] = (byte)((c0 & 0xF800) >> 8);
                     c[1] = (byte)((c0 & 0x07E0) >> 3);
@@ -224,10 +213,10 @@ namespace Sledge.Formats.Texture.Vtf
                     c[14] = (byte)((c[2] + 2 * c[6]) / 3);
                     c[15] = 255;
 
-                    int bytes = all[pos++];
-                    bytes |= all[pos++] << 8;
-                    bytes |= all[pos++] << 16;
-                    bytes |= all[pos++] << 24;
+                    int bytes = data[pos++];
+                    bytes |= data[pos++] << 8;
+                    bytes |= data[pos++] << 16;
+                    bytes |= data[pos++] << 24;
 
                     for (var yy = 0; yy < 4; yy++)
                     {

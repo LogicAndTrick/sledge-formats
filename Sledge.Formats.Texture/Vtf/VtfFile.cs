@@ -5,8 +5,6 @@ using System.Text;
 
 namespace Sledge.Formats.Texture.Vtf
 {
-    // Uses a lot of code from the excellent VtfLib
-    // Re-created natively for flexibility and portability
     public class VtfFile
     {
         private const string VtfHeader = "VTF";
@@ -78,10 +76,9 @@ namespace Sledge.Formats.Texture.Vtf
                 var highResFormatInfo = VtfImageFormatInfo.FromFormat(highResImageFormat);
                 var lowResFormatInfo = VtfImageFormatInfo.FromFormat(lowResImageFormat);
 
-                var imageSize = highResFormatInfo.ComputeImageSize(width, height, depth, mipmapCount) * faces * numFrames;
                 var thumbnailSize = lowResImageFormat == VtfImageFormat.None
                     ? 0
-                    : lowResFormatInfo.ComputeImageSize(lowResWidth, lowResHeight, 1);
+                    : lowResFormatInfo.GetSize(lowResWidth, lowResHeight);
 
                 var thumbnailPos = headerSize;
                 var dataPos = headerSize + thumbnailSize;
@@ -105,6 +102,7 @@ namespace Sledge.Formats.Texture.Vtf
                         case VtfResourceType.TextureLodSettings:
                         case VtfResourceType.TextureSettingsEx:
                         case VtfResourceType.KeyValueData:
+                            // todo
                             Resources.Add(new VtfResource
                             {
                                 Type = type,
@@ -119,12 +117,13 @@ namespace Sledge.Formats.Texture.Vtf
                 if (lowResImageFormat != VtfImageFormat.None)
                 {
                     br.BaseStream.Position = thumbnailPos;
-                    var thumbImage = LoadImage(br, lowResWidth, lowResHeight, lowResImageFormat);
+                    var thumbSize = lowResFormatInfo.GetSize(lowResWidth, lowResHeight);
                     LowResImage = new VtfImage
                     {
+                        Format = lowResImageFormat,
                         Width = lowResWidth,
                         Height = lowResHeight,
-                        Data = thumbImage
+                        Data = br.ReadBytes(thumbSize)
                     };
                 }
 
@@ -139,17 +138,18 @@ namespace Sledge.Formats.Texture.Vtf
                             {
                                 var wid = GetMipSize(width, mip);
                                 var hei = GetMipSize(height, mip);
+                                var size = highResFormatInfo.GetSize(wid, hei);
 
-                                var img = LoadImage(br, (uint) wid, (uint) hei, highResImageFormat);
                                 Images.Add(new VtfImage
                                 {
+                                    Format = highResImageFormat,
                                     Width = wid,
                                     Height = hei,
                                     Mipmap = mip,
                                     Frame = frame,
                                     Face = face,
                                     Slice = slice,
-                                    Data = img
+                                    Data = br.ReadBytes(size)
                                 });
                             }
                         }
@@ -163,12 +163,6 @@ namespace Sledge.Formats.Texture.Vtf
             var res = input >> level;
             if (res < 1) res = 1;
             return res;
-        }
-
-        private static byte[] LoadImage(BinaryReader br, uint width, uint height, VtfImageFormat format)
-        {
-            var info = VtfImageFormatInfo.FromFormat(format);
-            return info.Read(br, width, height);
         }
     }
 }
