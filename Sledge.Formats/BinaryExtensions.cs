@@ -81,7 +81,6 @@ namespace Sledge.Formats
             return new string(chars).Trim('\0');
         }
 
-
         /// <summary>
         /// Write a length-prefixed string to the writer.
         /// </summary>
