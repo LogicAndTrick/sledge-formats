@@ -11,8 +11,12 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <Version>1.0.0</Version>
+    <PackageReleaseNotes>Included XML documentation</PackageReleaseNotes>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin/Sledge.Formats.Map.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -11,12 +11,12 @@
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <Version>1.0.0</Version>
+    <PackageReleaseNotes>Included XML documentation</PackageReleaseNotes>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>bin/Sledge.Formats.Packages.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
