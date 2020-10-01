@@ -38,10 +38,10 @@ namespace Sledge.Formats.Precision
 
             var verts = new List<Vector3>
             {
-                plane.PointOnPlane + right + up, // Top right
-                plane.PointOnPlane - right + up, // Top left
-                plane.PointOnPlane - right - up, // Bottom left
-                plane.PointOnPlane + right - up, // Bottom right
+                (plane.PointOnPlane + right) + up, // Top right
+                (plane.PointOnPlane - right) + up, // Top left
+                (plane.PointOnPlane - right) - up, // Bottom left
+                (plane.PointOnPlane + right) - up, // Bottom right
             };
             
             var origin = verts.Aggregate(Vector3.Zero, (x, y) => x + y) / verts.Count;
