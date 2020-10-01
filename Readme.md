@@ -4,7 +4,12 @@ These C# libraries parse the formats you'll find in your Half-Life install direc
 
 ## Install using NuGet
 
-Coming soon™
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats?color=23D132&label=Sledge.Formats&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats/)
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Bsp?color=FB6410&label=Sledge.Formats.Bsp&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Bsp/)
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Map?color=277ACE&label=Sledge.Formats.Map&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Map/)
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Packages?color=9C23D3&label=Sledge.Formats.Packages&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Packages/)
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Texture?color=06CCBB&label=Sledge.Formats.Texture&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Texture/)
+
 
 ## Currently Supported Formats
 
@@ -45,6 +50,7 @@ Coming soon™
 - **FGD**, used for entity definitions in Worldcraft and Valve Hammer Editor.
 - **JMF**, used for Jackhammer/JACK editor for map source files.
 - **MDL**, used for models in many Quake-based games.
+    - **MDL v6** (IDPO), used in Quake 1.
     - **MDL v10** (IDSQ/IDST), used in Half-Life, which adds skeletal animation.
     - **MDL v44-49** (IDSQ/IDST), used in Source, along with VTX, VVD, ANI, and PHY files. This is a very complex format, so it's not high priority.
 
@@ -53,5 +59,5 @@ Coming soon™
 - **GCF**, used by pre-SteamPipe Steam Half-Life - this format is no longer in use, so it's not really useful to create a library for it.
 - **PK3**, used in Quake 3 games - this format is just a zip file with a different extension. Other libraries (including .NET itself) already have good support for zip files.
 - **WAD1**, used in the Doom engine - this is a bit too far out of scope for this project, which is focused mostly on Half-Life 1.
-- **MDL v6** (IDPO), **MD2** and **MD3**, used for models in non-Valve Quake engines - MDL formats are extremely complex and not very well documented, so these are considered out of scope for this project for now.
+- **MD2** and **MD3**, used for models in non-Valve Quake engines - MDL formats are extremely complex and not very well documented, so these are considered out of scope for this project for now.
 - Anything introduced in Doom 3, Source 2 or newer engines.
