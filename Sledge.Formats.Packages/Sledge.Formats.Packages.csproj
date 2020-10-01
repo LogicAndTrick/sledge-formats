@@ -2,12 +2,31 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>LogicAndTrick</Authors>
+    <Description>Parsers for file package formats used by Quake, Half-Life, and the Source engine. Currently supported are the Quake PAK format, and the Source VPK format.</Description>
+    <PackageTags>half-life quake source valve pak vpk</PackageTags>
+    <Copyright>2020 LogicAndTrick</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
+    <PackageIcon>sledge-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Vpk\**" />
     <EmbeddedResource Remove="Vpk\**" />
     <None Remove="Vpk\**" />
+    <None Include="..\sledge-logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

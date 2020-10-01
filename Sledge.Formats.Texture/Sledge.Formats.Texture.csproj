@@ -2,10 +2,27 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>LogicAndTrick</Authors>
+    <Description>Parsers for texture formats used by Quake, Half-Life, and the Source engine. Currently supported formats are Quake's WAD2, Half-Life's WAD3, and Source's VTF.</Description>
+    <Copyright>2020 LogicAndTrick</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
+    <PackageIcon>sledge-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>half-life quake source valve wad vtf</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Sledge.Formats\Sledge.Formats.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\sledge-logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

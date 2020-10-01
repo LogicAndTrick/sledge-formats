@@ -2,10 +2,28 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>LogicAndTrick</Authors>
+    <Description>A BSP parser for Half-Life and Quake 1. Currently supports Quake 1 (v29), Quake 2 (IBSP v38), and Half-Life 1 (v30) BSP formats.</Description>
+    <Copyright>2020 LogicAndTrick</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
+    <PackageIcon>sledge-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>half-life quake valve bsp</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Sledge.Formats\Sledge.Formats.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\sledge-logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
