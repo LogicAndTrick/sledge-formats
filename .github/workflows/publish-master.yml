@@ -27,3 +27,18 @@ jobs:
       with:
           PROJECT_FILE_PATH: Sledge.Formats.Bsp/Sledge.Formats.Bsp.csproj
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish Sledge.Formats.Map
+      uses: brandedoutcast/publish-nuget@v2
+      with:
+          PROJECT_FILE_PATH: Sledge.Formats.Map/Sledge.Formats.Map.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish Sledge.Formats.Texture
+      uses: brandedoutcast/publish-nuget@v2
+      with:
+          PROJECT_FILE_PATH: Sledge.Formats.Texture/Sledge.Formats.Texture.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish Sledge.Formats.Packages
+      uses: brandedoutcast/publish-nuget@v2
+      with:
+          PROJECT_FILE_PATH: Sledge.Formats.Packages/Sledge.Formats.Packages.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
