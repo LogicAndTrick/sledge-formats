@@ -116,5 +116,27 @@ namespace Sledge.Formats.Bsp
             new GoldsourceBspWriter(),
             new Quake1BspWriter(), 
         };
+
+        public AreaPortals AreaPortals => GetLump<AreaPortals>();
+        public Areas Areas => GetLump<Areas>();
+        public Brushes Brushes => GetLump<Brushes>();
+        public BrushSides BrushSides => GetLump<BrushSides>();
+        public Clipnodes Clipnodes => GetLump<Clipnodes>();
+        public Edges Edges => GetLump<Edges>();
+        public Entities Entities => GetLump<Entities>();
+        public Faces Faces => GetLump<Faces>();
+        public LeafBrushes LeafBrushes => GetLump<LeafBrushes>();
+        public LeafFaces LeafFaces => GetLump<LeafFaces>();
+        public Leaves Leaves => GetLump<Leaves>();
+        public Lightmaps Lightmaps => GetLump<Lightmaps>();
+        public Models Models => GetLump<Models>();
+        public Nodes Nodes => GetLump<Nodes>();
+        public Planes Planes => GetLump<Planes>();
+        public Pop Pop => GetLump<Pop>();
+        public Surfedges Surfedges => GetLump<Surfedges>();
+        public Texinfo Texinfo => GetLump<Texinfo>();
+        public Textures Textures => GetLump<Textures>();
+        public Vertices Vertices => GetLump<Vertices>();
+        public Visibility Visibility => GetLump<Visibility>();
     }
 }
