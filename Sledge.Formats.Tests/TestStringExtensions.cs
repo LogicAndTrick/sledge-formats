@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Sledge.Formats.Tests
@@ -35,6 +37,35 @@ namespace Sledge.Formats.Tests
             CollectionAssert.AreEqual(
                 new  [] { "a b", "c" },
                 "\"a b\"\t\"c\"".SplitWithQuotes()
+            );
+        }
+
+        [TestMethod]
+        public void TestSplitWithQuotes_EscapedQuotes()
+        {
+            CollectionAssert.AreEqual(
+                new[] { "Simple" }, 
+                "Simple".SplitWithQuotes()
+            );
+            CollectionAssert.AreEqual(
+                new[] { "No", "Quotes" }, 
+                "No Quotes".SplitWithQuotes()
+            );
+            CollectionAssert.AreEqual(
+                new[] { "With", "Quotes" }, 
+                @"""With"" ""Quotes""".SplitWithQuotes()
+            );
+            CollectionAssert.AreEqual(
+                new[] { "Empty", "" }, 
+                @"""Empty"" """"".SplitWithQuotes()
+            );
+            CollectionAssert.AreEqual(
+                new[] { "With", @"""Escaped"" Quotes" }, 
+                @"""With"" ""\""Escaped\"" Quotes""".SplitWithQuotes()
+            );
+            CollectionAssert.AreEqual(
+                new[] { "Json", @"{ ""Key"": ""Value"" }" }, 
+                @"""Json"" ""{ \""Key\"": \""Value\"" }""".SplitWithQuotes()
             );
         }
     }

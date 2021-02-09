@@ -46,7 +46,7 @@ namespace Sledge.Formats.Valve
         {
             using (var reader = new StreamReader(serializationStream, Encoding.UTF8, true, 1024, true))
             {
-                return Parse(reader);
+                return Parse(reader).ToList();
             }
         }
 
