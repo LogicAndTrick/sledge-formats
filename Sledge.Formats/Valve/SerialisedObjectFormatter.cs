@@ -108,94 +108,63 @@ namespace Sledge.Formats.Valve
         /// <returns>The parsed structure</returns>
         public static IEnumerable<SerialisedObject> Parse(TextReader reader)
         {
-            string line;
-            while ((line = CleanLine(reader.ReadLine())) != null)
+            SerialisedObject current = null;
+            var stack = new Stack<SerialisedObject>();
+            
+            var tokens = ValveTokeniser.Tokenise(reader);
+            using (var it = tokens.GetEnumerator())
             {
-                if (ValidStructStartString(line))
+                while (it.MoveNext())
                 {
-                    yield return ParseStructure(reader, line);
+                    var t = it.Current;
+                    switch (t?.Type)
+                    {
+                        case ValveTokenType.Invalid:
+                            throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): {t.Value}");
+                        case ValveTokenType.Open:
+                            throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Structure must have a name");
+                        case ValveTokenType.Close:
+                            if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to close");
+                            if (stack.Count == 0)
+                            {
+                                yield return current;
+                                current = null;
+                            }
+                            else
+                            {
+                                var prev = stack.Pop();
+                                prev.Children.Add(current);
+                                current = prev;
+                            }
+                            break;
+                        case ValveTokenType.Name:
+                            if (!it.MoveNext() || it.Current == null || it.Current.Type != ValveTokenType.Open) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected structure open brace");
+                            var next = new SerialisedObject(t.Value);
+                            if (current == null)
+                            {
+                                current = next;
+                            }
+                            else
+                            {
+                                stack.Push(current);
+                                current = next;
+                            }
+                            break;
+                        case ValveTokenType.String:
+                            if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to add key/values to");
+                            var key = t.Value;
+                            if (!it.MoveNext() || it.Current == null || it.Current.Type != ValveTokenType.String) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected string value to follow key");
+                            var value = it.Current.Value;
+                            current.Properties.Add(new KeyValuePair<string, string>(key, value));
+                            break;
+                        case ValveTokenType.End:
+                            if (current != null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unterminated structure at end of file");
+                            yield break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
-        }
-
-        /// <summary>
-        /// Remove comments and excess whitespace from a line
-        /// </summary>
-        /// <param name="line">The unclean line</param>
-        /// <returns>The cleaned line</returns>
-        private static string CleanLine(string line)
-        {
-            if (line == null) return null;
-            var ret = line;
-            if (ret.Contains("//")) ret = ret.Substring(0, ret.IndexOf("//", StringComparison.Ordinal)); // Comments
-            return ret.Trim();
-        }
-
-        /// <summary>
-        /// Parse a structure, given the name of the structure
-        /// </summary>
-        /// <param name="reader">The TextReader to read from</param>
-        /// <param name="name">The structure's name</param>
-        /// <returns>The parsed structure</returns>
-        private static SerialisedObject ParseStructure(TextReader reader, string name)
-        {
-            var spl = name.SplitWithQuotes();
-            var gs = new SerialisedObject(spl[0]);
-            string line;
-            if (spl.Length != 2 || spl[1] != "{")
-            {
-                do
-                {
-                    line = CleanLine(reader.ReadLine());
-                } while (String.IsNullOrWhiteSpace(line));
-                if (line != "{")
-                {
-                    return gs;
-                }
-            }
-            while ((line = CleanLine(reader.ReadLine())) != null)
-            {
-                if (line == "}") break;
-
-                if (ValidStructPropertyString(line)) ParseProperty(gs, line);
-                else if (ValidStructStartString(line)) gs.Children.Add(ParseStructure(reader, line));
-            }
-            return gs;
-        }
-
-        /// <summary>
-        /// Check if the given string is a valid structure name
-        /// </summary>
-        /// <param name="s">The string to test</param>
-        /// <returns>True if this is a valid structure name, false otherwise</returns>
-        private static bool ValidStructStartString(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return false;
-            var split = s.SplitWithQuotes();
-            return split.Length == 1 || (split.Length == 2 && split[1] == "{");
-        }
-
-        /// <summary>
-        /// Check if the given string is a valid property string in the format: "key" "value"
-        /// </summary>
-        /// <param name="s">The string to test</param>
-        /// <returns>True if this is a valid property string, false otherwise</returns>
-        private static bool ValidStructPropertyString(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return false;
-            var split = s.SplitWithQuotes();
-            return split.Length == 2;
-        }
-
-        /// <summary>
-        /// Parse a property string in the format: "key" "value", and add it to the structure
-        /// </summary>
-        /// <param name="gs">The structure to add the property to</param>
-        /// <param name="prop">The property string to parse</param>
-        private static void ParseProperty(SerialisedObject gs, string prop)
-        {
-            var split = prop.SplitWithQuotes();
-            gs.Properties.Add(new KeyValuePair<string, string>(split[0], (split[1] ?? "").Replace('`', '"')));
         }
         #endregion
     }

@@ -141,5 +141,23 @@ Test4
             Assert.AreEqual("Key\"With\"Quotes", output[0].Properties[0].Key);
             Assert.AreEqual("Quoted\"Value", output[0].Properties[0].Value);
         }
+
+        [TestMethod]
+        public void TestCommentsInQuotes()
+        {
+            var fmt = new SerialisedObjectFormatter();
+            using var input = Streamify($@"Test
+{{
+    {Q}Key{Q} {Q}http://example.com{Q}
+}}
+");
+            var output = fmt.Deserialize(input).ToList();
+            Assert.AreEqual(1, output.Count);
+            Assert.AreEqual("Test", output[0].Name);
+            Assert.AreEqual(0, output[0].Children.Count);
+            Assert.AreEqual(1, output[0].Properties.Count);
+            Assert.AreEqual("Key", output[0].Properties[0].Key);
+            Assert.AreEqual("http://example.com", output[0].Properties[0].Value);
+        }
     }
 }
