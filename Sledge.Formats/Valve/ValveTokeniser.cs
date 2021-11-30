@@ -2,21 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace Sledge.Formats.Valve
 {
     internal static class ValveTokeniser
     {
-        public static IEnumerable<ValveToken> Tokenise(string text)
+        public static IEnumerable<ValveToken> Tokenise(string text, IEnumerable<char> symbols)
         {
             using (var reader = new StringReader(text))
             {
-                foreach (var t in Tokenise(reader)) yield return t;
+                foreach (var t in Tokenise(reader, symbols)) yield return t;
             }
         }
 
-        internal static IEnumerable<ValveToken> Tokenise(TextReader input)
+        internal static IEnumerable<ValveToken> Tokenise(TextReader input, IEnumerable<char> symbols)
         {
+            var symbolSet = new HashSet<int>(symbols.Select(x => (int) x));
             var line = 1;
             var col = 0;
             int b;
@@ -67,8 +69,7 @@ namespace Sledge.Formats.Valve
 
                 ValveToken t;
                 if (b == '"') t = TokenString(input);
-                else if (b == '{') t = new ValveToken(ValveTokenType.Open);
-                else if (b == '}') t = new ValveToken(ValveTokenType.Close);
+                else if (symbolSet.Contains(b)) t = new ValveToken(ValveTokenType.Symbol, ((char) b).ToString());
                 else if (b >= 'a' && b <= 'z' || (b >= 'A' && b <= 'Z') || b == '_') t = TokenName(b, input);
                 else t = new ValveToken(ValveTokenType.Invalid, $"Unexpected token: {(char) b}");
 

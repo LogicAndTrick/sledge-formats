@@ -101,6 +101,11 @@ namespace Sledge.Formats.Valve
 
         #region Parser
 
+        private static readonly char[] Symbols = {
+            ValveSymbols.OpenBrace,
+            ValveSymbols.CloseBrace
+        };
+
         /// <summary>
         /// Parse a structure from a stream
         /// </summary>
@@ -111,7 +116,7 @@ namespace Sledge.Formats.Valve
             SerialisedObject current = null;
             var stack = new Stack<SerialisedObject>();
             
-            var tokens = ValveTokeniser.Tokenise(reader);
+            var tokens = ValveTokeniser.Tokenise(reader, Symbols);
             using (var it = tokens.GetEnumerator())
             {
                 while (it.MoveNext())
@@ -121,24 +126,37 @@ namespace Sledge.Formats.Valve
                     {
                         case ValveTokenType.Invalid:
                             throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): {t.Value}");
-                        case ValveTokenType.Open:
-                            throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Structure must have a name");
-                        case ValveTokenType.Close:
-                            if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to close");
-                            if (stack.Count == 0)
+                        case ValveTokenType.Symbol:
+                            if (t.Symbol == ValveSymbols.OpenBrace)
                             {
-                                yield return current;
-                                current = null;
+                                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Structure must have a name");
+                            }
+                            else if (t.Symbol == ValveSymbols.CloseBrace)
+                            {
+                                if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to close");
+                                if (stack.Count == 0)
+                                {
+                                    yield return current;
+                                    current = null;
+                                }
+                                else
+                                {
+                                    var prev = stack.Pop();
+                                    prev.Children.Add(current);
+                                    current = prev;
+                                }
+
+                                break;
                             }
                             else
                             {
-                                var prev = stack.Pop();
-                                prev.Children.Add(current);
-                                current = prev;
+                                throw new ArgumentOutOfRangeException();
                             }
-                            break;
                         case ValveTokenType.Name:
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != ValveTokenType.Open) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected structure open brace");
+                            if (!it.MoveNext() || it.Current == null || it.Current.Type != ValveTokenType.Symbol || it.Current.Symbol != ValveSymbols.OpenBrace)
+                            {
+                                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected structure open brace");
+                            }
                             var next = new SerialisedObject(t.Value);
                             if (current == null)
                             {

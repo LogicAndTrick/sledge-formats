@@ -3,8 +3,7 @@
     internal enum ValveTokenType
     {
         Invalid,
-        Open,
-        Close,
+        Symbol,
         Name,
         String,
         End
