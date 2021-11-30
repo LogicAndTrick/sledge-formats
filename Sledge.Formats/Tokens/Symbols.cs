@@ -1,7 +1,7 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global
-namespace Sledge.Formats.Valve
+namespace Sledge.Formats.Tokens
 {
-    public static class ValveSymbols
+    public static class Symbols
     {
         public const char Bang = '!';
         public const char At = '@';
@@ -37,8 +37,8 @@ namespace Sledge.Formats.Valve
         public const char Greater = '>';
         public const char Question = '?';
         
-        public static char[] All = new []
-        {
+        // ReSharper disable once UnusedMember.Global
+        public static char[] All = {
             Bang, 
             At, 
             Hash, 

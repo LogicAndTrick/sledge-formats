@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Sledge.Formats.Tokens;
 
 namespace Sledge.Formats.Valve
 {
@@ -102,9 +103,11 @@ namespace Sledge.Formats.Valve
         #region Parser
 
         private static readonly char[] Symbols = {
-            ValveSymbols.OpenBrace,
-            ValveSymbols.CloseBrace
+            Tokens.Symbols.OpenBrace,
+            Tokens.Symbols.CloseBrace
         };
+
+        private static readonly Tokeniser Tokeniser = new Tokeniser(Symbols);
 
         /// <summary>
         /// Parse a structure from a stream
@@ -116,7 +119,7 @@ namespace Sledge.Formats.Valve
             SerialisedObject current = null;
             var stack = new Stack<SerialisedObject>();
             
-            var tokens = ValveTokeniser.Tokenise(reader, Symbols);
+            var tokens = Tokeniser.Tokenise(reader);
             using (var it = tokens.GetEnumerator())
             {
                 while (it.MoveNext())
@@ -124,14 +127,14 @@ namespace Sledge.Formats.Valve
                     var t = it.Current;
                     switch (t?.Type)
                     {
-                        case ValveTokenType.Invalid:
+                        case TokenType.Invalid:
                             throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): {t.Value}");
-                        case ValveTokenType.Symbol:
-                            if (t.Symbol == ValveSymbols.OpenBrace)
+                        case TokenType.Symbol:
+                            if (t.Symbol == Tokens.Symbols.OpenBrace)
                             {
                                 throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Structure must have a name");
                             }
-                            else if (t.Symbol == ValveSymbols.CloseBrace)
+                            else if (t.Symbol == Tokens.Symbols.CloseBrace)
                             {
                                 if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to close");
                                 if (stack.Count == 0)
@@ -152,8 +155,8 @@ namespace Sledge.Formats.Valve
                             {
                                 throw new ArgumentOutOfRangeException();
                             }
-                        case ValveTokenType.Name:
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != ValveTokenType.Symbol || it.Current.Symbol != ValveSymbols.OpenBrace)
+                        case TokenType.Name:
+                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.Symbol || it.Current.Symbol != Tokens.Symbols.OpenBrace)
                             {
                                 throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected structure open brace");
                             }
@@ -168,14 +171,14 @@ namespace Sledge.Formats.Valve
                                 current = next;
                             }
                             break;
-                        case ValveTokenType.String:
+                        case TokenType.String:
                             if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to add key/values to");
                             var key = t.Value;
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != ValveTokenType.String) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected string value to follow key");
+                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.String) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected string value to follow key");
                             var value = it.Current.Value;
                             current.Properties.Add(new KeyValuePair<string, string>(key, value));
                             break;
-                        case ValveTokenType.End:
+                        case TokenType.End:
                             if (current != null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unterminated structure at end of file");
                             yield break;
                         default:

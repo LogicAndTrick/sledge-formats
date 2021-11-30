@@ -1,11 +1,12 @@
-﻿namespace Sledge.Formats.Valve
+﻿namespace Sledge.Formats.Tokens
 {
-    internal enum ValveTokenType
+    public enum TokenType
     {
         Invalid,
         Symbol,
         Name,
         String,
+        Custom,
         End
     }
 }
