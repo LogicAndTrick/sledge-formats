@@ -9,6 +9,7 @@ These C# libraries parse the formats you'll find in your Half-Life install direc
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Map?color=277ACE&label=Sledge.Formats.Map&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Map/)
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Packages?color=9C23D3&label=Sledge.Formats.Packages&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Packages/)
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Texture?color=06CCBB&label=Sledge.Formats.Texture&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Texture/)
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.GameData?color=FF42D9&label=Sledge.Formats.GameData&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.GameData/)
 
 
 ## Currently Supported Formats
@@ -44,10 +45,12 @@ These C# libraries parse the formats you'll find in your Half-Life install direc
     - Vtf
         - **VtfFile** - The VTF format used by the Source engine.
             - Currently supports all formats that VtfLib supports (read only, not write)
+- Sledge.Formats.GameData - Game data formats used by level editors
+    - Fgd - The FGD format used by Worldcraft, Valve Hammer Editor, JACK, TrenchBroom, Sledge, and other editors
+        - Currently supports the above editors. Source 1 & 2 FGDs not supported yet.
 
 ## Unsupported formats (may be added in the future)
 
-- **FGD**, used for entity definitions in Worldcraft and Valve Hammer Editor.
 - **JMF**, used for Jackhammer/JACK editor for map source files.
 - **MDL**, used for models in many Quake-based games.
     - **MDL v6** (IDPO), used in Quake 1.
