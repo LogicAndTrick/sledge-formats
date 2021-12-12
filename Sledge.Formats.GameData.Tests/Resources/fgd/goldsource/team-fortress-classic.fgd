@@ -1,0 +1,2815 @@
+// Half-Life Team Fortress Classic Game Definition File (.fgd) 
+// Version 1.5f revision 5 for WorldCraft 3.3, Hammer 3.4+
+//
+// Last update: 12 Jul 2002, by Professional Victim
+//
+// For detailed TFC editing information, go to TFMapped!
+// http://tf.valve-erc.com/
+
+//   0712 - Release version 1.5f, revision 8
+//   0712 - Added a number of undocumented "artifact" entities that remained from the Quake days.
+//   0630 - Added TFCriteria fix that had somehow not been included in 1.5F r1 and had persisted through the revisions.
+//   0626 - Added missing "(Use Teamcheck Entity)" value to spawn points' Team Allowed... property (thanks to [WTF?]Snowdog)
+//   0626 - Added targetname to func_tankcontrols for killtargeting. (thanks to Dan Sheehan)
+//
+//   0620 - Release version 1.5f, revision 7
+//   0620 - Added deathtype property to trigger_hurt.
+//
+//   0604 - Release version 1.5f, revision 6
+//   0604 - Added goal activation to trigger_hurt (thanks Radish).
+//   0604 - Added new entities for ZHLT 2.5.3 (info_compile_parameters, info_texlights).
+//
+//   0517 - Release version 1.5f, revision 5
+//   0517 - Fixed property name of "Return Item #" to remove incorrect specification.
+//   0517 - Fixed various random capitalizations and spelling errors.
+//
+//   0329 - Release version 1.5f, revision 4
+//   0329 - Fixed name of skyname property.
+//
+//   0223 - Release version 1.5f, revision 3
+//   0223 - Fixed TriggerTarget key in Monster baseclass.
+//
+//   1213 - Release version 1.5f, revision 2
+//   1213 - Fixed bug with func_water not having certain baseclass (from 1.5e).
+//
+//   1209 - Release version 1.5f, revision 1
+//   1209 - Fixed bug with info_player_teamspawn's Angles key.  Thanks to TFM forum member Radish for pointing this out.
+//
+//   0703 - Release version 1.5f
+//   0703 - Added some spawnflags to Monster baseclass for turrets.
+//		Fixed env_beam and some other "missing" entities (baseclass error in last version).
+//		Fixed some miscellaneous stuff in various parts of the FGD.
+//		Restored the player_weaponstrip entity that had been removed for some reason (???).
+//		Added Angular Velocity (avelocity) to many entities.  Works with PYR angle sets.
+//		Removed ZLightflags base that had been added to the invisible func_tankcontrols and func_traincontrols.
+//		Fixed an incorrect capitalization of ZLightflags baseclass on func_illusionary.
+//		Removed TFCriteria and TFEffects5 from info_player_teamspawn and moved relevant properties to TFSpawnInfo.
+//		Removed TFItemStatus and TFEffects5 from func_button (WTF was it there for?!).
+//		Removed TFCriteria base from monster_* entities and moved relevant properties to Monster.
+//		Fixed some incorrect capitalizations, spelling errors, etc. left over from previous versions.
+//		Added 1.1.0.8 model replacement properties to item_tfgoal.
+//		Removed the (now unnecessary) ERC script comments.
+//		Removed TFItemStatus from a number of entities (as it served no purpose there).
+//		Release version 1.5f
+//
+//   1107 - Release version 1.5e
+//   1104 - Fix 'number_of_teams' in info_tfdetect. Added endround_team1 - 4 message strings.
+//		Changed several key descriptions. Removed itemstatus from item and i_p_t.
+//
+//   1028 - Release version 1.5d
+//   1027	Fix ZHLT light flag description. Additions from 1104 patch, func_nogrenades,
+//		info_areadef, info_tf_teamcheck, and info_tf_teamset. Added 'teamcheck' key to
+//		TF Criteria and 'no_of_teams' to info_tfdetect. Added targetname to tf goals.
+//		New endround keys added to tf goals.
+//		From PV, added Goal result to info_player_teamspawn so goals activated by it will
+//		apply results to player.
+	
+//   0823 - Release version 1.5c
+//   0822 - Redid grouping of BaseClasses for benefit of Entity Script. Replaced env_global.
+//		Replaced 'cycler', but renamed it 'Model Cycler', rather than 'Monster cycler'.
+
+//   0807 - Started adding Entity script formatting. Removed bounding boxes from TF goals which
+//		seemed defunct. Removed defunct properties from worldspawn for TFC.
+
+//   0717 - Added Zoners lightflags for brush based entities, you need Zoner's Compile Tools 2.2+
+//		for them to work.
+//		Following changes submitted by Pvt. Beavis. Removed bounding boxes from i_p_t.
+//		Change TF delay to 'Delay before activate(sec)' rather than 're-trigger'.
+//		Set TF goals 'wait' default to 0.
+
+//   0714 - Removed some abbreviations from Flaginfo sentences that caused bugs.
+//		Added TFCriteria to Trigger entities. Add TF effects to many of the
+//		triggers. Added TF criteria to additional Func_ entities.
+
+//   0704 - Replaced long name version of info_player_teamspawn and info_tfgoal_timer.
+//		Set func_water wave height default to 0
+
+//   0621 - FlintMan - Removed Trigger Conditions/Spawnflags from monster_ entities. 
+//		Release version 1.5a
+
+//   0619 - Additions by Ryan "Professional Victim" Desgroseilliers, TFMapped
+//          Added armor classes and comments to item_armor1, item_armor2, and item_armor3
+//          Added targetname to func_nobuild for killtargetting
+//		Removed ammo_medkit variable from TF entities.
+
+//   0617 - First beta version by FlintMan
+// 		Redo of original halflife-tfc.fgd created and contributed by Autolycus, Juddhunter,
+//		Ryan 'PV' Desgroseilliers, Paul 'MoOg' Samways, Decker, Sean 'Zoner' Cavanaugh,
+//		Curber, Mirar, Brad Rembielak.
+//		This version consists of reorganizing TF base classes, removing defunct HL entities
+//		and variables. Incorporated entity and key abbreviations.
+
+//
+// worldspawn
+//
+
+@SolidClass = worldspawn : "World entity"
+[
+	skyname(string) : "Environment map (sky box)" : "2desert"
+	sounds(integer) : "CD track to play" : 0
+	light(integer) : "Default light level"
+	WaveHeight(string) : "Default wave height" : 0
+	MaxRange(string) : "Max viewable distance" : "4096"
+	startdark(choices) : "Level Fade In" : 0 =
+	[	
+		0 : "No"
+		1 : "Yes"
+	]
+]
+
+//
+// BaseClasses
+//
+
+@BaseClass = TFSpawnInfo
+[
+	netname(string) : "Entity reference name (for logging)"
+	goal_no(integer) : "Spawn #"
+	group_no(integer) : "Spawn group #"
+	goal_state(choices) : "Initial state"  : 0 =
+	[
+		0 : "Ready to use"
+		1 : "Removed"
+	]
+
+	team_no(choices) : "Team allowed to spawn here" : 1 =
+	[
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+		0 : "(Use Teamcheck Entity)"
+	]
+
+	teamcheck(string) : "Targetname of teamcheck goal"
+
+	playerclass(choices) : "Player class allowed to spawn here" : 0 =
+	[
+		0 : "Any"
+		1 : "Scout"
+		2 : "Sniper"
+		3 : "Soldier"
+		4 : "Demolitions man"
+		5 : "Medic"
+		6 : "Heavy Weapons Guy"
+		7 : "Pyro"
+		8 : "Spy"
+		9 : "Engineer"
+	]
+
+	items_allowed(integer) : "Has item #"
+	h_i_g(integer) : "Has item from group #"
+	hasnt_item_from_group(integer) : "Hasn't item from group #"
+
+	if_item_has_moved(integer) : "If item # has moved"
+	if_item_hasnt_moved(integer) : "If item # hasn't moved"
+
+	if_goal_is_active(integer) : "If goal # active"
+	if_goal_is_inactive(integer) : "If goal # inactive"
+	if_goal_is_removed(integer) : "If goal # removed"
+
+	if_group_is_active(integer) : "If group # active"
+	if_group_is_inactive(integer) : "If group # inactive"
+	if_group_is_removed(integer) : "If group # removed"
+]
+
+@BaseClass = TFItemInfo
+[
+	netname(string) : "Entity reference name (for logging)"
+	goal_no(integer) : "Item #"
+	group_no(integer) : "Item group #"
+	targetname(target_source) : "Name (targetname)"
+]
+
+@BaseClass = TFInfo1
+[
+	netname(string) : "Entity reference name (for logging)"
+	goal_no(integer) : "Goal #"
+	group_no(integer) : "Goal group #"
+	targetname(target_source) : "Name (targetname)"
+]
+
+@BaseClass = TFInfo2
+[
+	goal_state(choices) : "Goal Initial State"  : 2 =
+	[
+		1 : "Active"
+		2 : "Inactive"
+		3 : "Removed"
+	]
+]
+
+@BaseClass = TFInfo3
+[
+	mdl(string) : "Model path/name.mdl"
+	skin(integer) : "Model skin-varies per model"
+]
+
+@BaseClass = TFCriteria
+[
+	team_no(choices) : "Team allowed to use goal" : 0 =
+	[
+		0 : "Any"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+
+	teamcheck(string) : "Targetname of teamcheck goal"
+
+	playerclass(choices) : "Player class allowed to use goal" : 0 =
+	[
+		0 : "Any"
+		1 : "Scout"
+		2 : "Sniper"
+		3 : "Soldier"
+		4 : "Demolitions man"
+		5 : "Medic"
+		6 : "Heavy Weapons Guy"
+		7 : "Pyro"
+		8 : "Spy"
+		9 : "Engineer"
+	]
+
+	items_allowed(integer) : "Has item #"
+	h_i_g(integer) : "Has item from group #"
+	hasnt_item_from_group(integer) : "Hasn't item from group #"
+
+	if_item_has_moved(integer) : "If item # has moved"
+	if_item_hasnt_moved(integer) : "If item # hasn't moved"
+
+	if_goal_is_active(integer) : "If goal # active"
+	if_goal_is_inactive(integer) : "If goal # inactive"
+	if_goal_is_removed(integer) : "If goal # removed"
+
+	if_group_is_active(integer) : "If group # active"
+	if_group_is_inactive(integer) : "If group # inactive"
+	if_group_is_removed(integer) : "If group # removed"
+]
+
+@BaseClass = TFItemCriteria
+[
+	team_no(choices) : "Team allowed to use item" : 0 =
+	[
+		0 : "Any"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+
+	teamcheck(string) : "Targetname of teamcheck goal"
+
+	playerclass(choices) : "Player class allowed to use item" : 0 =
+	[
+		0 : "Any"
+		1 : "Scout"
+		2 : "Sniper"
+		3 : "Soldier"
+		4 : "Demolitions man"
+		5 : "Medic"
+		6 : "Heavy Weapons Guy"
+		7 : "Pyro"
+		8 : "Spy"
+		9 : "Engineer"
+	]
+
+	items_allowed(integer) : "Has item #"
+	h_i_g(integer) : "Has item from group #"
+	hasnt_item_from_group(integer) : "Hasn't item from group #"
+
+	if_item_has_moved(integer) : "If item # has moved"
+	if_item_hasnt_moved(integer) : "If item # hasn't moved"
+
+	if_goal_is_active(integer) : "If goal # active"
+	if_goal_is_inactive(integer) : "If goal # inactive"
+	if_goal_is_removed(integer) : "If goal # removed"
+
+	if_group_is_active(integer) : "If group # active"
+	if_group_is_inactive(integer) : "If group # inactive"
+	if_group_is_removed(integer) : "If group # removed"
+]
+
+@BaseClass = TFButtonCriteria
+[
+	team_no(choices) : "Team allowed to activate entity" : 0 =
+	[
+		0 : "Any"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+
+	teamcheck(string) : "Targetname of teamcheck goal"
+
+	playerclass(choices) : "Player class allowed to activate entity" : 0 =
+	[
+		0 : "Any"
+		1 : "Scout"
+		2 : "Sniper"
+		3 : "Soldier"
+		4 : "Demolitions man"
+		5 : "Medic"
+		6 : "Heavy Weapons Guy"
+		7 : "Pyro"
+		8 : "Spy"
+		9 : "Engineer"
+	]
+
+	items_allowed(integer) : "Has item #"
+	h_i_g(integer) : "Has item from group #"
+	hasnt_item_from_group(integer) : "Hasn't item from group #"
+
+	if_item_has_moved(integer) : "If item # has moved"
+	if_item_hasnt_moved(integer) : "If item # hasn't moved"
+
+	if_goal_is_active(integer) : "If goal # active"
+	if_goal_is_inactive(integer) : "If goal # inactive"
+	if_goal_is_removed(integer) : "If goal # removed"
+
+	if_group_is_active(integer) : "If group # active"
+	if_group_is_inactive(integer) : "If group # inactive"
+	if_group_is_removed(integer) : "If group # removed"
+]
+
+@BaseClass = TFMessages
+[
+	owned_by(choices) : "Owned by-for msg & item glow" : 0 =
+	[
+		0 : "Not Owned"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+
+	owned_by_teamcheck(string) : "Owned by teamcheck"
+
+	deathtype(string) : "Death type"
+	b_b(string) : "Message to all"
+	message(string) : "Message to AP"
+	b_t(string) : "Message to AP team"
+	b_n(string) : "Message to non-AP team"
+	b_o(string) : "Message to owner team"
+	non_owners_team_broadcast(string) : "Message to non-owner team(s)"
+
+	n_b(string) : "Console msg. to all, %s = AP name"
+	n_t(string) : "Console msg to AP team"
+	n_n(string) : "Console msg. to non-AP team"
+	n_o(string) : "Console msg. to owner team"
+
+	speak(string) : "Speak (global)"
+	AP_speak(string) : "Speak (AP)"
+	team_speak(string) : "Speak (AP team)"
+	non_team_speak(string) : "Speak (non-AP team)"
+	owners_team_speak(string) : "Speak (owner team)"
+	non_owners_team_speak(string) : "Speak (non-owner teams)"
+]
+
+@BaseClass = TFItemStatus
+[
+	display_item_status1(integer) : "Item 1 no. for flaginfo"
+	display_item_status2(integer) : "Item 2 no. for flaginfo"
+	display_item_status3(integer) : "Item 3 no. for flaginfo"
+	display_item_status4(integer) : "Item 4 no. for flaginfo"
+
+	team_str_home(string) : "Item at origin message, owners"
+	t_s_m(string) : "Item dropped msg, owners"
+	t_s_c(string) : "Item carried msg owner, %s = AP name"
+
+	non_team_str_home(string) : "Item at origin msg, non owner"
+	non_team_str_moved(string) : "Item dropped msg, non owner"
+	n_s_c(string) : "Item carried msg, non owner, %s = AP name"
+]
+
+@BaseClass = TFOperations
+[
+	wait(integer) : "Stay active(sec), -1 stays" : 0
+	delay_time(integer) : "Delay before activate(sec)"
+]
+
+@BaseClass = TFOperat2
+[
+	maxammo_shells(Choices) : "Affect all on Team" : 0 =
+	[
+		0 : "Disabled"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+	maxammo_nails(Choices) : "Affect all not on Team" : 0 =
+	[
+		0 : "Disabled"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+	t_length(integer) : "Effect radius, 0=infinite" : 0
+
+]
+
+@BaseClass = TFEffects1
+[
+
+	// if criteria check fails, activate this goal instead
+	else_goal(integer) : "If criteria fails activate Goal #"
+
+	all_active(integer) : "If all goals in group # active..."
+	last_impulse(integer) : "...activate goal #"
+
+	activate_goal_no(integer) : "Activate goal #"
+	inactivate_goal_no(integer) : "Inactivate goal #"
+	rv_g(integer) : "Remove goal #"
+	rs_g(integer) : "Restore goal #"
+
+	activate_group_no(integer) : "Activate goals in group #"
+	inactivate_group_no(integer) : "Inactivate goals in group #"
+	rv_gr(integer) : "Remove goals in group #"
+	rs_gr(integer) : "Restore goals in group #"
+
+	remove_spawnpoint(integer) : "Remove Spawn point #"
+	restore_spawnpoint(integer) : "Restore Spawn point #"
+	rv_s_h(integer) : "Remove spawn group #"
+	rs_s_h(integer) : "Restore spawn group #"
+]
+
+@BaseClass = TFEffects2
+[
+	items(integer) : "Item to give"
+
+]
+
+@BaseClass = TFEffects3
+[
+	axhitme(integer) : "Remove item from APA"
+	return_item_no(integer) : "Return item #"
+	r_i_g(integer) : "Remove items in group #"
+]
+
+@BaseClass = TFEffects4
+[
+	target(target_destination) : "Target entity with this targetname"
+	killtarget(target_destination) : "Remove entity with this targetname"
+	noise(string) : "Play Sound Path/name.wav"
+]
+
+@BaseClass = TFEffects4b
+[
+
+	killtarget(target_destination) : "Remove entity with this targetname"
+	noise(string) : "Play Sound Path/name.wav"
+]
+
+@BaseClass = TFEffects5
+[
+	//	All the following attributes are applied to the attributes of
+	//	every player specified by the "goal_effect"(see above).
+
+	frags(integer) : "Add/Subtract frags"
+	lives(integer) : "Add/Subtract lives"
+	health(integer) : "Add/Subtract health"
+
+	armorvalue(integer) : "Armor Value %"
+
+// Armor classes: what they provide superior protection against
+// Add up values for multiple protections, e.g. 3 is good vs. all bullets, 20 is good vs explosions & fire.
+
+// 0 - Normal: Nothing
+// 1 - Kevlar: Shotgun, Super Shotgun, Sentry Gun, AssCan, trigger_hurt SHOT damage (?)
+// 2 - Wooden: Nailgun, Super Nailgun, Railgun, Tranquilizer Gun, Nail Grenade, trigger_hurt SLASH damage (?)
+// 4 - Blast: Pipebombs, GL grenades, Rockets, Regular & MIRV grenades, Detpack (still kills though), trigger_hurt BLAST damage (?)
+// 8 - Shock: trigger_hurt SHOCK damage (?)
+// 16 - Ceramic: Flamethrower, Incendiary Cannon, Napalm Grenade, trigger_hurt BURN damage, "lava" func_water (not very effective)
+
+	armorclass(choices) : "Armor Class" : 0 =
+	[
+		0 : "0 - Normal"
+		1 : "1 - Kevlar (shell resistant)"
+		2 : "2 - Wooden (nail resistant)"
+		4 : "4 - Blast (explosion resistant)"
+		8 : "8 - Shock (electricity resistant)"
+		16 : "16 - Ceramic (fire resistant)"
+	]
+
+	a_s(integer) : "Add/Subtract shells"
+	a_n(integer) : "Add/Subtract nails"
+	a_r(integer) : "Add/Subtract rockets"
+	a_c(integer) : "Add/Subtract cells"
+	ammo_detpack(integer) : "Add/Subtract detpack"
+
+//	Note A: After applying all these values to the player, the playerclass
+//		limitations of the player are applied. So if you set the health of
+//		the player over that allowed, by his/her playerclass, it will then
+//		be lowered to the max_health for that playerclass.
+//
+//	Note B: "lives" allows you to give/remove lives from players. This is only
+//		useful if the current map limits the number of lives each player
+//		has. See the Auto Detection section above.
+
+//	TeamFortress Grenades can be given/removed to/from the player by setting
+//	the following two variables.
+
+	no_grenades_1(integer) : "Add/subtract grenades #1"
+	no_grenades_2(integer) : "Add/subtract grenades #2"
+
+//	And finally, the following attributes are added to the global time
+//	and applied to every player specified by the "goal_effect"(see below).
+//	(e.g. if the goal's invincible_finished is 5, then the player will
+//	get invincibility for 5 seconds after activating the goal.)
+
+
+//	The following 9 items push the gamedata variable limit past 128 :(
+
+	invincible_finished(integer) : "Invincibility duration"
+	invisible_finished(integer) : "Invisibility duration"
+	super_damage_finished(integer) : "Quad duration"
+	radsuit_finished(integer) : "Rad Suit duration"
+
+	count(integer) : "Score to AP team"
+	increase_team(integer) : "Teamcheck team point gain"
+	increase_team1(integer) : "Blue point gain"
+	increase_team2(integer) : "Red point gain"
+	increase_team3(integer) : "Yellow point gain"
+	increase_team4(integer) : "Green point gain"
+]
+
+@BaseClass = TFArmor
+[
+
+//	The armorclass variable is a toggleflag style variable.  You can make
+//	any combination of armor type, but don't get carried away. :)
+	
+	respawn_delay(integer) : "Respawn delay" : 5
+
+// PV: see note in TFEffects5
+
+	armorclass(choices) : "Armor Class" : 0 =
+	[
+		0 : "0 - Normal"
+		1 : "1 - Kevlar (shell resistant)"
+		2 : "2 - Wooden (nail resistant)"
+		4 : "4 - Blast (explosion resistant)"
+		8 : "8 - Shock (electricity resistant)"
+		16 : "16 - Ceramic (fire resistant)"
+	]
+]
+
+@BaseClass = Endround
+[
+	endround_time(integer) : "Length of endround"
+	endround_owned_by(string) : "Owners endround message"
+	endround_non_owned_by(string) : "Non-owners endround message"
+	endround_team1(string) : "Endround message for team 1"
+	endround_team2(string) : "Endround message for team 2"
+	endround_team3(string) : "Endround message for team 3"
+	endround_team4(string) : "Endround message for team 4"
+]
+
+@BaseClass = Angles
+[
+	angles(string) : "Pitch yaw roll" : "0 0 0"
+]
+
+@BaseClass = Targetname
+[
+	targetname(target_source) : "Name (targetname)"
+]
+
+@BaseClass = Target 
+[
+	target(target_destination) : "Target"
+]
+
+@BaseClass = RenderFxChoices
+[
+	renderfx(choices) :"Render FX" : 0 =
+	[
+		0: "Normal"
+		1: "Slow Pulse"
+		2: "Fast Pulse"
+		3: "Slow Wide Pulse"
+		4: "Fast Wide Pulse"
+		9: "Slow Strobe"
+		10: "Fast Strobe"
+		11: "Faster Strobe"
+		12: "Slow Flicker"
+		13: "Fast Flicker"
+		5: "Slow Fade Away"
+		6: "Fast Fade Away"
+		7: "Slow Become Solid"
+		8: "Fast Become Solid"
+		14: "Constant Glow"
+		15: "Distort"
+		16: "Hologram (Distort + fade)"
+	]
+]
+
+@BaseClass = RenderFields 
+[
+	rendermode(choices) : "Render Mode" : 0 =
+	[
+		0: "Normal"
+		1: "Color"
+		2: "Texture"
+		3: "Glow"
+		4: "Solid"
+		5: "Additive"
+	]
+	renderamt(integer) : "FX Amount (1 - 255)"
+	rendercolor(color255) : "FX Color (R G B)" : "0 0 0"
+]
+
+@BaseClass = Button
+[
+	g_a(Choices) : "Goal Activation bitfields" : 1 =
+	[
+		0 : "0 - None"
+		4 : "4 - If AP fails criteria"
+		8 : "8 - Hit by engin. spanner"
+	]
+
+// what the goal affects
+	g_e(Choices) : "Goal Effects bitfields" : 1 =
+	[
+		0 : "0 - Nobody"
+		1 : "1 - Activating player (AP)"
+		2 : "2 - APs team"
+		4 : "4 - Not on APs team"
+		8 : "8 - Not the AP"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+		64 : "64 - Check APA individually"
+	]
+
+	goal_result(Choices) : "Goal result bitfields" : 0 =
+	[
+		0 : "0 - None"
+		2 : "2 - Sub-goals apply AP mods"
+		4 : "4 - Scores, intermission, end"
+		8 : "8 - Sub-Goals don't apply results"
+// PV: how the hell can this be used with a button???
+//		16 : "16 - Prevent Spy disguise"
+		32 : "32 - Force respawn, no die"
+	]
+
+	speed(integer) : "Speed" : 5
+	health(integer) : "Health (shootable if > 0)"
+	lip(integer) : "Lip"
+	master(string) : "Master"
+	wait(integer) : "Delay before reset (-1 stay)" : 3
+	delay(string) : "Delay before trigger" : "0"
+	spawnflags(flags) =
+	[
+		1: "Don't move" : 0
+		32: "Toggle" : 0
+		64: "Sparks" : 0
+		256:"Touch activates": 0
+	]
+
+	sounds(choices) : "Sounds" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		2: "Access Denied"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small Zap"
+		9: "Keycard Sound"
+		10: "Buzz"
+		11: "Buzz Off"
+		14: "Lightswitch"
+	]
+
+	locked_sound(choices) : "Locked Sound" : 0 = 
+	[
+		0: "None"
+		2: "Access Denied"
+		8: "Small Zap"
+		10: "Buzz"
+		11: "Buzz Off"
+		12: "Latch Locked"
+	]
+	unlocked_sound(choices) : "Unlocked Sound" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small Zap"
+		9: "Keycard Sound"
+		10: "Buzz"
+		13: "Latch Unlocked"
+		14: "Lightswitch"
+	]
+
+	//	All the following attributes are applied to the attributes of
+	//	every player specified by the "goal_effect"(see above).
+
+	frags(integer) : "Add/Subtract frags"
+	lives(integer) : "Add/Subtract lives"
+
+	armorvalue(integer) : "Armor value %"
+
+	// PV: See note in TFEffects5
+	armorclass(choices) : "Armor class" : 0 =
+	[
+		0 : "0 - Normal"
+		1 : "1 - Kevlar (shell resistant)"
+		2 : "2 - Wooden (nail resistant)"
+		4 : "4 - Blast (explosion resistant)"
+		8 : "8 - Shock (electricity resistant)"
+		16 : "16 - Ceramic (fire resistant)"
+	]
+
+	a_s(integer) : "Add/subtract shells"
+	a_n(integer) : "Add/subtract nails"
+	a_r(integer) : "Add/subtract rockets"
+	a_c(integer) : "Add/subtract cells"
+	ammo_detpack(integer) : "Add/subtract detpack"
+
+	no_grenades_1(integer) : "Add/subtract grenades #1"
+	no_grenades_2(integer) : "Add/subtract grenades #2"
+
+	invincible_finished(integer) : "Invincibility duration"
+	invisible_finished(integer) : "Invisibility duration"
+	super_damage_finished(integer) : "Quad duration"
+	radsuit_finished(integer) : "Rad Suit duration"
+
+	count(integer) : "Score to AP Team"
+	increase_team(integer) : "Teamcheck team point gain"
+	increase_team1(integer) : "Blue point gain"
+	increase_team2(integer) : "Red point gain"
+	increase_team3(integer) : "Yellow point gain"
+	increase_team4(integer) : "Green point gain"
+
+]
+
+@BaseClass size(-16 -16 -16, 16 16 16) = gibshooterbase
+[
+	// how many pieces to create
+	m_iGibs(integer) : "Number of gibs" : 3
+	
+	// delay (in seconds) between shots. If 0, all gibs shoot at once.
+	delay(string) : "Delay between shots" : "0"
+
+	// how fast the gibs are fired
+	m_flVelocity(integer) : "Gib velocity" : 200
+
+	// Course variance
+	m_flVariance(string) : "Course variance" : "0.15"
+
+	// Time in seconds for gibs to live +/- 5%
+	m_flGibLife(string) : "Gib life" : "4"
+
+	spawnflags(Flags) = 
+	[
+		1 : "Repeatable" 	: 0
+	]
+]
+
+@BaseClass = Breakable
+[
+	target(target_destination) : "Target on break"
+	health(integer) : "Strength" : 1
+	material(choices) :"Material type" : 0 =
+	[
+		0: "Glass"
+		1: "Wood"
+		2: "Metal"
+		3: "Flesh"
+		4: "Cinder Block"  
+		5: "Ceiling Tile"
+		6: "Computer"
+		7: "Unbreakable Glass"
+		8: "Rocks"
+	]
+	explosion(choices) : "Gibs Direction" : 0 =
+	[
+		0: "Random"
+		1: "Relative to Attack"
+	]
+	delay(string) : "Delay before fire" : "0"
+	gibmodel(studio) : "Gib model" : ""
+	spawnobject(choices) : "Spawn On Break" : 0 =
+	[
+		0: "Nothing"
+		1: "Battery"
+		2: "Healthkit"
+	]
+	explodemagnitude(integer) : "Explode Magnitude (0=none)" : 0
+]
+
+@BaseClass = Door1
+[
+	g_a(Choices) : "Goal Activation bitfields" : 1 =
+	[
+		0 : "0 - None"
+		4 : "4 - If AP fails criteria"
+		8 : "8 - Hit by engin. spanner"
+	]
+
+	// what the goal affects
+	g_e(Choices) : "Goal Effects bitfields" : 1 =
+	[
+		1 : "1 - Activating player(AP)"
+		2 : "2 - APs team"
+		4 : "4 - Not on APs team"
+		8 : "8 - Not the AP"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+		64 : "64 - Check APA individually"
+	]
+	
+	goal_result(Choices) : "Goal Result bitfields" : 0 =
+	[
+		0 : "none"
+		2 : "2 - Sub-goals apply AP mods"
+		4 : "4 - scores, intermission, end"
+		8 : "8 - Sub-Goals don't apply results"
+// PV: Same as with button -- how the hell would this work?
+//		16 : "16 - Prevent spy disguise"
+		32 : "32 - Force respawn, no die"
+	]
+
+]
+
+@BaseClass = Door2
+[
+	wait(integer) : "delay before close, -1 stay open " : 4
+	lip(integer) : "Lip"
+	dmg(integer) : "Damage inflicted when blocked" : 0
+	message(string) : "Message if triggered"
+	target(target_destination) : "Target"
+	delay(integer) : "Delay before fire" 
+	netname(string) : "Fire on Close"
+	health(integer) : "Health (shoot open)" : 0
+	killtarget(target_destination) : "KillTarget"
+	speed(integer) : "Speed" : 100
+	master(string) : "Master" 
+	movesnd(choices) : "Move sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "Servo (Sliding)"
+		2: "Pneumatic (Sliding)"
+		3: "Pneumatic (Rolling)"
+		4: "Vacuum"
+		5: "Power Hydraulic"
+		6: "Large Rollers"
+		7: "Track Door"
+		8: "Snappy Metal Door"
+		9: "Squeaky 1"
+		10: "Squeaky 2"
+	]
+	stopsnd(choices) : "Stop Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "Clang with brake"
+		2: "Clang reverb"
+		3: "Ratchet Stop"
+		4: "Chunk"
+		5: "Light airbrake"
+		6: "Metal Slide Stop"
+		7: "Metal Lock Stop"
+		8: "Snappy Metal Stop"
+	]
+
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+		4 : "Don't link" : 0
+		8: "Passable" : 0
+	    	32: "Toggle" : 0
+		256:"Use Only" : 0
+	]
+	// NOTE: must be duplicated in BUTTON
+	locked_sound(choices) : "Locked Sound" : 0 = 
+	[
+		0: "None"
+		2: "Access Denied"
+		8: "Small zap"
+		10: "Buzz"
+		11: "Buzz Off"
+		12: "Latch Locked"
+	]
+	unlocked_sound(choices) : "Unlocked Sound" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small zap"
+		9: "Keycard Sound"
+		10: "Buzz"
+		13: "Latch Unlocked"
+	]
+]
+
+@BaseClass = PlatSounds 
+[
+	movesnd(choices) : "Move Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "big elev 1"
+		2: "big elev 2"
+		3: "tech elev 1"
+		4: "tech elev 2"
+		5: "tech elev 3"
+		6: "freight elev 1"
+		7: "freight elev 2"
+		8: "heavy elev"
+		9: "rack elev"
+		10: "rail elev"
+		11: "squeak elev"
+		12: "odd elev 1"
+		13: "odd elev 2"
+	]
+	stopsnd(choices) : "Stop Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "big elev stop1"
+		2: "big elev stop2"
+		3: "freight elev stop"
+		4: "heavy elev stop"
+		5: "rack stop"
+		6: "rail stop"
+		7: "squeak stop"
+		8: "quick stop"
+	]
+	volume(string) : "Sound Volume 0.0 - 1.0" : "0.85"
+]
+
+@BaseClass = BaseTank
+[
+	spawnflags(flags) =
+	[
+		1 : "Active" : 0
+		16: "Only Direct" : 0
+		32: "Controllable" : 0
+	]
+
+	// Mainly for use with 1009 team settings (game_team_master)
+	master(string) : "(Team) Master" 
+
+	yawrate(string) : "Yaw rate" : "30"
+	yawrange(string) : "Yaw range" : "180"
+	yawtolerance(string) : "Yaw tolerance" : "15"
+	pitchrate(string) : "Pitch rate" : "0"
+	pitchrange(string) : "Pitch range" : "0"
+	pitchtolerance(string) : "Pitch tolerance" : "5"
+	barrel(string) : "Barrel Length" : "0"
+	barrely(string) : "Barrel Horizontal" : "0"
+	barrelz(string) : "Barrel Vertical" : "0"
+	spritesmoke(string) : "Smoke Sprite" : ""
+	spriteflash(string) : "Flash Sprite" : ""
+	spritescale(string) : "Sprite scale" : "1"
+	rotatesound(sound) : "Rotate Sound" : ""
+	firerate(string) : "Rate of Fire" : "1"
+	bullet_damage(string) : "Damage Per Bullet" : "0"
+	persistence(string) : "Firing persistence" : "1"
+	firespread(choices) : "Bullet accuracy" : 0 =
+	[
+		0: "Perfect Shot"
+		1: "Small cone"
+		2: "Medium cone"
+		3: "Large cone"
+		4: "Extra-large cone"
+	]
+	minRange(string) : "Minmum target range" : "0"
+	maxRange(string) : "Maximum target range" : "0"
+]
+
+@BaseClass = Trackchange
+[
+	height(integer) : "Travel altitude" : 0
+	spawnflags(flags) =
+	[
+		1: "Auto Activate train" : 0
+		2: "Relink track" : 0
+		8: "Start at Bottom" : 0
+		16: "Rotate Only" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	rotation(integer) : "Spin amount" : 0
+	train(target_destination) : "Train to switch"
+	toptrack(target_destination) : "Top track"
+	bottomtrack(target_destination) : "Bottom track"
+	speed(integer) : "Move/Rotate speed" : 0
+]
+
+@BaseClass = Targetx 
+[
+	delay(string) : "Delay before trigger" : "0"
+	killtarget(target_destination) : "KillTarget"
+]
+
+@BaseClass color(0 200 200) = Monster 
+[
+	g_a(Choices) : "Goal Activation bitfields" : 0 =
+	[
+		4 : "4 - if AP fails criteria"
+	]
+	spawnflags(Flags) = 
+	[
+		32 : "Autostart" : 0
+		64 : "Start Inactive" : 0
+	]
+
+	team_no(choices) : "Team to shoot at" : 0 =
+	[
+		0 : "Any"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+
+	teamcheck(string) : "Targetname of teamcheck goal"
+
+	playerclass(choices) : "Player class to shoot at" : 0 =
+	[
+		0 : "Any"
+		1 : "Scout"
+		2 : "Sniper"
+		3 : "Soldier"
+		4 : "Demolitions man"
+		5 : "Medic"
+		6 : "Heavy Weapons Guy"
+		7 : "Pyro"
+		8 : "Spy"
+		9 : "Engineer"
+	]
+
+	items_allowed(integer) : "Has item #"
+	h_i_g(integer) : "Has item from group #"
+	hasnt_item_from_group(integer) : "Hasn't item from group #"
+
+	if_item_has_moved(integer) : "If item # has moved"
+	if_item_hasnt_moved(integer) : "If item # hasn't moved"
+
+	if_goal_is_active(integer) : "If goal # active"
+	if_goal_is_inactive(integer) : "If goal # inactive"
+	if_goal_is_removed(integer) : "If goal # removed"
+
+	if_group_is_active(integer) : "If group # active"
+	if_group_is_inactive(integer) : "If group # inactive"
+	if_group_is_removed(integer) : "If group # removed"
+
+	TriggerTarget(String) : "AI Trigger Target"
+	TriggerCondition(Choices) : "AI Trigger Condition" : 0 =
+	[
+		0 : "No Trigger"
+		1 : "See Player, Mad at Player"
+		2 : "Take Damage"
+		3 : "50% Health Remaining"
+		4 : "Death"
+		7 : "Hear World"
+		8 : "Hear Player"
+		9 : "Hear Combat"
+		10: "See Player Unconditional"
+		11: "See Player, Not In Combat"
+	]
+]
+
+@BaseClass = Trigger
+[
+	killtarget(target_destination) : "Kill target"
+	netname(target_destination) : "Target Path"
+	master(string) : "Master" 
+	sounds(choices) : "Sound style" : 0 =
+	[
+		0 : "No Sound"
+	]
+	delay(string) : "Delay before trigger" : "0"
+	message(string) : "Message (set sound too!)"
+	spawnflags(flags) = 
+	[
+		2: "No Clients" : 0
+		4: "Pushables": 0
+	]
+]
+
+@BaseClass = AVelocity
+[
+	avelocity(string) : "Angular Velocity (PYR)"
+]
+
+@BaseClass = ZLightflags
+[
+	zhlt_lightflags(choices) : "ZHLT Light flags" : 0 =
+	[
+		0 : "Default"
+		1 : "Embedded fix"
+		2 : "Opaque, blocks light"
+		3 : "Both"
+	]
+
+	_minlight(string) : "Minimum light level"
+]
+
+//
+// Team Fortress Entities
+//
+
+@SolidClass base(Targetname) = func_nobuild : "Engineer no-build area" []
+
+@SolidClass base(Targetname) = func_nogrenades : "Grenades protected area" []
+
+@PointClass base(TFItemStatus) = info_tfdetect : "TF Detection Entity"
+[
+	broadcast(string) : "Version String"
+	number_of_teams(integer) : "No. of teams-for teamcheck only"
+
+	team1_name(string) : "Team 1 VGUI menu name"
+	team2_name(string) : "Team 2 VGUI menu name"
+	team3_name(string) : "Team 3 VGUI menu name"
+	team4_name(string) : "Team 4 VGUI menu name"
+
+//	impulse variable settings
+//
+//	Bit 1 (1)   :   Off - ClasSkin		  , On - Multiskin
+//	Bit 2 (2)   :   Off - ClassPersistence Off  , On - ClassPersistence On
+//	Bit 3 (4)   :   Off - CheatChecking Off	  , On - CheatChecking On
+//	Bit 4 (8)   :   Off - FortressMap Off	  , On - FortressMap On
+//	Bit 5 (16)  :   Off - RespawnDelay Off	  , On - RespawnDelay (See below)
+//	Bit 6 (32)  :   Off - RespawnDelay Off	  , On - RespawnDelay (See below)
+//	Bit 7 (64)  :   Off - AutoTeam Off		  , On - AutoTeam On
+//	Bit 8 (128)	:   Off - Individual Frags	  , On - Frags = TeamScore
+//
+//	N.B. FortressMap will be set On automatically by the 
+//		Detection entity anyway, so just ignore that Bit.
+//
+//	N.B. The RespawnDelay settings takes 2 bits. The value of both of
+//		them determines the level of respawn delay, as follows:
+//				Bit 5  		Bit 6		Result
+//				 Off			 Off		No Respawn delays
+//				 On			 Off		5 Second respawn delay
+//				 Off			 On		10 Second respawn delay
+//				 On			 On		20 Second respawn delay
+
+	impulse(integer) : "Game Settings (toggleflags)"
+
+//	When using the "message" variable to set do localcmd's, you
+//	can issue more than one command by seperating them with \n
+//	Make sure you end it with a \n too.
+//	E.g. The following changes the gravity and the friction.
+//		"message" "sv_gravity 200\nsv_friction .5\n"
+
+
+	message(string) : "LocalCmd String"
+	ammo_shells(choices) : "Blue Lives" : 0 = [ 0 : "infinite" ]
+	ammo_nails(choices) : "Red Lives" : 0 = [ 0 : "infinite" ]
+	ammo_rockets(choices) : "Yellow Lives" : 0 = [ 0 : "infinite" ]
+	ammo_cells(choices) : "Green Lives" : 0 = [ 0 : "infinite" ]
+
+//	The following 4 variables use toggle flags with 0 and -1 being special values.
+//	For no class limits, or for making a team civilian only, use 0 and -1 respectively.
+//	Otherwise, add up the bit values and use the final number as the maxammo_xxxxx value.
+//
+//	For example, if you wanted class 1 to be unable to play scouts or spys, you'd add the
+//	two values together (1 + 256) for a value of 257, which you'd then give to maxammo_shells.
+
+	maxammo_shells(choices) : "Blue class limits toggleflags" : 0 =
+	[
+		0 : "no limits"
+		-1 : "civilian only"
+		1 : "1 - no scout"
+		2 : "2 - no sniper"
+		4 : "4 - no soldier"
+		8 : "8 - no demo man"
+		16 : "16 - no combat medic"
+		32 : "32 - no heavy weapons guy"
+		64 : "64 - no pyro"
+		128 : "128 - no random playerclass"
+		256 : "256 - no spy"
+		512 : "512 - no engineer"
+	]
+	maxammo_nails(choices) : "Red class limits toggleflags" : 0 =
+	[
+		0 : "no limits"
+		-1 : "civilian only"
+		1 : "1 - no scout"
+		2 : "2 - no sniper"
+		4 : "4 - no soldier"
+		8 : "8 - no demo man"
+		16 : "16 - no combat medic"
+		32 : "32 - no heavy weapons guy"
+		64 : "64 - no pyro"
+		128 : "128 - no random playerclass"
+		256 : "256 - no spy"
+		512 : "512 - no engineer"
+	]
+	maxammo_rockets(choices) : "Yellow class limits toggleflags" : 0 =
+	[
+		0 : "no limits"
+		-1 : "civilian only"
+		1 : "1 - no scout"
+		2 : "2 - no sniper"
+		4 : "4 - no soldier"
+		8 : "8 - no demo man"
+		16 : "16 - no combat medic"
+		32 : "32 - no heavy weapons guy"
+		64 : "64 - no pyro"
+		128 : "128 - no random playerclass"
+		256 : "256 - no spy"
+		512 : "512 - no engineer"
+	]
+	maxammo_cells(choices) : "Green class limits toggleflags" : 0 =
+	[
+		0 : "no limits"
+		-1 : "civilian only"
+		1 : "1 - no scout"
+		2 : "2 - no sniper"
+		4 : "4 - no soldier"
+		8 : "8 - no demo man"
+		16 : "16 - no combat medic"
+		32 : "32 - no heavy weapons guy"
+		64 : "64 - no pyro"
+		128 : "128 - no random playerclass"
+		256 : "256 - no spy"
+		512 : "512 - no engineer"
+	]
+
+	ammo_medikit(choices) : "Max Players, Blue" : 0 =
+	[
+		0 : "0 - Unlimited"
+	]
+	ammo_detpack(choices) : "Max Players, Red" : 0 =
+	[
+		0 : "0 - Unlimited"
+	]
+	maxammo_medikit(choices) : "Max Players, Yellow" : 0 =
+	[
+		0 : "0 - Unlimited"
+	]
+	maxammo_detpack(choices) : "Max Players, Green" : 0 =
+	[
+		0 : "0 - Unlimited"
+	]
+	
+	team1_allies(choices) : "Blue Allies" : 0 =
+	[
+		0 : "No Allies"
+		2 : "2 - Red" 
+		4 : "4 - Yellow"
+		8 : "8 - Green"
+	]
+	team2_allies(choices) : "Red Allies" : 0 =
+	[
+		0 : "No Allies"
+		1 : "1 - Blue"
+		4 : "4 - Yellow"
+		8 : "8 - Green"
+	]
+	team3_allies(choices) : "Yellow Allies" : 0 =
+	[
+		0 : "No Allies"
+		1 : "1 - Blue"
+		2 : "2 - Red" 
+		8 : "8 - Green"
+	]
+	team4_allies(choices) : "Green Allies" : 0 =
+	[
+		0 : "No Allies"
+		1 : "1 - Blue"
+		2 : "2 - Red" 
+		4 : "4 - Yellow"
+	]
+]
+
+@PointClass base(TFSpawnInfo, TFOperations, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects4, TFMessages, Angles) size(-16 -16 -36, 16 16 36) color(255 128 0) = info_player_teamspawn : "TF Team Spawnpoint"
+[
+	g_a(choices) : "Goal activation" : 3 =
+	[
+		0 : "0 - only first gets..."
+		1 : "1 - all get item"
+		2 : "2 - all get message"
+		3 : "3 - all get item/messages"
+	]
+	g_e(choices) : "Remove after spawn?" : 0 =
+	[
+		0 : "no"
+		1 : "yes"
+	]
+	goal_result(choices) : "Pass AP to Activated Goals?" : 0 =
+	[
+		0 : "No"
+		2 : "Yes"
+	]
+]
+
+@PointClass base(info_player_teamspawn) size(-16 -16 -36, 16 16 36) color(255 128 0) = i_p_t : "TF Team Spawnpoint" []
+
+@PointClass color(255 128 0) = info_tf_teamcheck : "Team check"
+[
+	targetname(string) : "Name to target this entity by"
+	team_no(choices) : "Starting Team" : 1 =
+	[
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+]
+
+@PointClass color(255 128 0) = info_tf_teamset : "Team set"
+[
+	targetname(string) : "Name to target this entity by"
+	target(string) : "Teamcheck to target"
+	team_no(choices) : "Team" : 0 =
+	[
+		0 : "Alternate"
+		1 : "Blue"
+		2 : "Red"
+		3 : "Yellow"
+		4 : "Green"
+	]
+]
+
+@PointClass color(255 128 0) = info_areadef : "Area definition"
+[
+	areaname(string) : "Name of area"
+	mins(string) : "(# # #)" : "0 0 0"
+	maxs(string) : "(# # #)" : "0 0 0"
+]
+
+@PointClass base(TFInfo1, TFInfo2, TFInfo3, TFCriteria, TFOperations, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects4, TFEffects5, Endround, TFMessages, Angles, AVelocity) size(32 32 32) color(255 255 0) = info_tfgoal : "TFC Goal"
+[
+	g_a(Choices) : "Goal Activation bitfields" : 0 =
+	[
+		0 : "0 - none"
+		1 : "1 - player touch"
+		2 : "2 - detpack explosion"
+		4 : "4 - when criteria fails"
+		2048 : "2048 - drop model to ground on spawn"
+	]
+
+	g_e(Choices) : "Goal Effects bitfields" : 0 =
+	[
+		1 : "1 - Activating Player(AP)"
+		2 : "2 - APs team"
+		4 : "4 - Not on APs team"
+		8 : "8 - All except AP"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+		64 : "64 - Check APA criteria individually"
+	]
+
+	goal_result(Choices) : "Goal Result bitfields" : 0 =
+	[
+		0 : "none"
+		1 : "1 - remove immediately"
+		2 : "2 - Sub-Goals apply mods"
+		4 : "4 - scores, intermission, end"
+		8 : "8 - Sub-goals don't apply mods"
+		16 : "16 - Prevent Spy disguise"
+		32 : "32 - Force respawn, no die"
+		64 : "64 - Remove SG & dispensers"
+	]
+
+]
+
+@SolidClass base(TFInfo1, TFInfo2, TFCriteria, TFOperations, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects4, TFEffects5, Endround, TFMessages) color(255 255 0) = i_t_g : "TFC Goal shortcut, solid"
+[
+	g_a(Choices) : "Goal Activation bitfields" : 1 =
+	[
+		0 : "0 - none"
+		1 : "1 - player touch"
+		2 : "2 - detpack explosion"
+		4 : "4 - if Criteria fails"
+	]
+
+
+	g_e(Choices) : "Goal Effects bitfields" : 1 =
+	[
+		1 : "1 - Activating Player(AP)"
+		2 : "2 - APs team"
+		4 : "4 - Not on APs team"
+		8 : "8 - All except AP"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+		64 : "64 - Check APA individually"
+	]
+	
+	goal_result(Choices) : "Goal Result bitfields" : 0 =
+	[
+		0 : "none"
+		1 : "1 - remove immediately"
+		2 : "2 - Sub-Goals apply mods"
+		4 : "4 - scores, intermission, end"
+		8 : "8 - Sub-goals don't apply mods"
+		16 : "16 - Prevent Spy disguise"
+		32 : "32 - Force respawn, no die"
+		64 : "64 - Remove SG & dispensers"
+	]
+
+]
+
+@PointClass base(TFInfo1, TFInfo2, TFInfo3, TFCriteria, TFOperations, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects4, TFEffects5, Endround, TFMessages, Angles) size(16 16 16) color(255 255 0) = info_tfgoal_timer : "Goal Timer"
+[
+
+	goal_state(choices) : "Goal Initial State"  : 2 =
+	[
+		1 : "Active"
+		2 : "Inactive"
+		3 : "Removed"
+	]
+
+	search_time(integer) : "Time between activations"
+
+	g_e(Choices) : "Goal Effects bitfields" : 0 =
+	[
+		0  : "None"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+		64 : "64 - Check APA criteria individually"
+	]
+
+	goal_result(choices) : "Goal Result bitfields" : 0 =
+	[
+		0 : "None"
+		1 : "1 - remove after activating"
+		2 : "2 - Sub-Goals apply mod APA"
+		4 : "4 - Display scores, end level"
+		8 : "8 - Sub-goals don't apply mods"
+		16 : "16 - Prevent Spy disguise"
+		32 : "32 - Force respawn, no die"
+		64 : "64 - If APA fails criteria"
+		
+	]
+]
+
+@PointClass base(info_tfgoal_timer) size(16 16 16) color(255 255 0) = i_t_t : "Goal Timer" []
+
+@PointClass base(TFItemInfo, TFInfo2, TFInfo3, TFCriteria, TFOperations, TFOperat2, TFEffects1, TFEffects3, TFEffects4, TFEffects5, TFMessages, Angles, AVelocity) size(16 16 16) color(255 128 0) = item_tfgoal : "TF Goal Item"
+[
+	g_a(Choices) : "Goal Activation Bitfields" : 0 =
+	[
+		0 : "0 - none"
+		1 : "1 - player glows"
+		2 : "2 - move at half-speed"
+		4 : "4 - drop item on death"
+		8 : "8 - return upon death-drop"
+		16 : "16 - return if removed by goal"
+		32 : "32 - return if (128) is set"
+		64 : "64 - if AP fails criteria"
+		128 : "128 - remove after pause"
+		256 : "256 - keep item when player dies"
+		512 : "512 - glows when not carried"
+		1024 : "1024 - player keeps effects"
+		2048 : "2048 - drop to ground at spawn"
+		4096 : "4096 - is droppable"
+		8192 : "8192 - is solid"
+	]
+
+	
+	// what the goal affects
+	g_e(Choices) : "Goal Effects bitfields" : 1 =
+	[
+		1 : "1 - AP is affected"
+		2 : "2 - APs team"
+		4 : "4 - Not on APs team"
+		8 : "8 - Everyone except AP"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+		64 : "64 - Check APA individually"
+	]
+
+	speed_reduction(integer) : "Percentage of full speed" 
+	pausetime(integer) : "Pause (stays on ground) seconds"
+	distance(integer) : "All in group# being carried..."
+	pain_finished(integer) : "...activate this goal"
+
+	speed(integer) : "All in group # by 1 player.."
+	attack_finished(integer) : "...activate this goal"
+
+	impulse(integer) : "Activate/Restore goal on return"
+	goal_result(choices) : "Goal Result bitfields" : 0 =
+	[
+		0 : "None"
+		1 : "1 - remove after activating"
+		2 : "2 - Sub-Goals apply mod AP"
+		4 : "4 - Display scores, end level"
+		8 : "8 - Sub-goals don't apply results to APA"
+		16 : "16 - Prevent Spy disguise"
+		32 : "32 - Force respawn, no die"
+		64 : "64 - Remove SG & dispensers"
+	]
+
+	team_drop(string) : "Center msg, death drop, owner team"
+	non_team_drop(string) : "Center msg, death drop, non owners"
+	netname_team_drop(string) : "Console msg, death drop, owner team"
+	netname_non_team_drop(string) : "Console msg, death drop, non owners"
+
+	noise3(string) : "Return to start msg, team"
+	noise4(string) : "Return to start msg, owners"
+
+	items(choices) : "Highlight HUD items bitvalue" : 0 = 
+	[
+		0 : "No Highlighting"
+		131072 : "Blue logo"
+		262144 : "Red logo"
+		16777216 : "Yellow logo"
+		33554432 : "Green logo"
+	]
+
+	replacement_model(string) : "Replacement model"
+	replacement_model_body(integer) : "Replacement model Body setting"
+	replacement_model_skin(integer) : "Replacement model Skin setting"
+	replacement_model_flags(choices) : : 0 =
+	[
+		1 : "1 - hide player's weapon model"
+	]
+]
+
+@PointClass size(-16 -16 -24, 16 16 32) base(TFInfo1, TFInfo2, TFItemCriteria, TFArmor, Angles, AVelocity) = item_armor1 : "Green Armor" []
+
+@PointClass size(-16 -16 -24, 16 16 32) base(TFInfo1, TFInfo2, TFItemCriteria, TFArmor, Angles, AVelocity) = item_armor2 : "Yellow Armor" []
+
+@PointClass size(-16 -16 -24, 16 16 32) base(TFInfo1, TFInfo2, TFItemCriteria, TFArmor, Angles, AVelocity) = item_armor3 : "Red Armor" []
+
+@PointClass size(-16 -16 0, 16 16 72) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_artifact_envirosuit : "Envirosuit (Deprecated)" []
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_artifact_invisibility : "Invisibility (Deprecated)" []
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_artifact_invulnerability : "Invulnerability (Deprecated)" []
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_artifact_super_damage : "Quad (Deprecated)" []
+
+//
+// HL Entities
+//
+
+@PointClass = _halflife_entities_below_ : "This is not an entity!" []
+
+@PointClass iconsprite("sprites/speaker.spr") base(Targetname) = ambient_generic : "Ambient Generic"
+[
+	message(sound) : "WAV Name"
+	health(integer) : "Volume (10 = loudest)" : 10
+	preset(choices) :"Dynamic Presets" : 0 =
+	[
+		0: "None"
+		1: "Huge Machine"
+		2: "Big Machine"
+		3: "Machine"
+		4: "Slow Fade in"  
+		5: "Fade in"
+		6: "Quick Fade in"
+		7: "Slow Pulse"
+		8: "Pulse"
+		9: "Quick pulse"
+		10: "Slow Oscillator"
+		11: "Oscillator"
+		12: "Quick Oscillator"
+		13: "Grunge pitch"
+		14: "Very low pitch"
+		15: "Low pitch"
+		16: "High pitch"
+		17: "Very high pitch"
+		18: "Screaming pitch"
+		19: "Oscillate spinup/down"
+		20: "Pulse spinup/down"
+		21: "Random pitch"
+		22: "Random pitch fast"
+		23: "Incremental Spinup"
+		24: "Alien"
+		25: "Bizzare"
+		26: "Planet X"
+		27: "Haunted"
+	]
+	volstart(integer) : "Start Volume" : 0
+	fadein(integer) : "Fade in time (0-100)" : 0
+	fadeout(integer) : "Fade out time (0-100)" : 0
+	pitch(integer) : "Pitch (> 100 = higher)" : 100
+	pitchstart(integer) : "Start Pitch" : 100
+	spinup(integer) : "Spin up time (0-100)" : 0
+	spindown(integer) : "Spin down time (0-100)" : 0
+	lfotype(integer) : "LFO type 0)off 1)sqr 2)tri 3)rnd" : 0
+	lforate(integer) : "LFO rate (0-1000)" : 0
+	lfomodpitch(integer) : "LFO mod pitch (0-100)" : 0
+	lfomodvol(integer) : "LFO mod vol (0-100)" : 0
+	cspinup(integer) : "Incremental spinup count" : 0
+	spawnflags(flags) =
+	[
+		1: "Play Everywhere" : 0
+		2: "Small Radius" : 0
+		4: "Medium Radius" : 1
+		8: "Large Radius" : 0
+		16:"Start Silent":0
+		32:"Is NOT Looped":0
+	]
+]
+
+@SolidClass base(Target, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperations, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects4b, TFEffects5, TFMessages, ZLightFlags) = button_target : "Target Button"
+[
+	master(string) : "Master"
+	spawnflags(flags) =
+	[
+		1: "Use Activates" : 1
+		2: "Start On" : 0
+	] 
+]
+
+@PointClass base(Targetname, Angles, AVelocity) size(-16 -16 0, 16 16 72) = cycler : "Model Cycler" 
+[
+	model(studio) : "Model"
+	renderfx(choices) :"Render FX" : 0 =
+	[
+		0: "Normal"
+		1: "Slow Pulse"
+		2: "Fast Pulse"
+		3: "Slow Wide Pulse"
+		4: "Fast Wide Pulse"
+		9: "Slow Strobe"
+		10: "Fast Strobe"
+		11: "Faster Strobe"
+		12: "Slow Flicker"
+		13: "Fast Flicker"
+		5: "Slow Fade Away"
+		6: "Fast Fade Away"
+		7: "Slow Become Solid"
+		8: "Fast Become Solid"
+		14: "Constant Glow"
+		15: "Distort"
+		16: "Hologram (Distort + fade)"
+	]
+	rendermode(choices) : "Render Mode" : 0 =
+	[
+		0: "Normal"
+		1: "Color"
+		2: "Texture"
+		3: "Glow"
+		4: "Solid"
+		5: "Additive"
+	]
+	renderamt(integer) : "FX Amount (1 - 255)"
+	rendercolor(color255) : "FX Color (R G B)" : "0 0 0"
+]
+
+@PointClass base(Targetname, Angles, RenderFields, RenderFxChoices) sprite() = cycler_sprite : "Sprite Cycler" 
+[
+	model(sprite) : "Sprite"
+	framerate(integer) : "Frames per second" : 10
+]
+
+//
+// Environmental effects
+//
+
+@PointClass base(Targetname, RenderFxChoices) size(-16 -16 -16, 16 16 16) = env_beam : "Energy Beam Effect"
+[
+	LightningStart(target_destination) : "Start Entity" 
+	LightningEnd(target_destination) : "Ending Entity" 
+	renderamt(integer) : "Brightness (1 - 255)" : 100
+	rendercolor(color255) : "Beam Color (R G B)" : "0 0 0"
+	Radius(integer) : "Radius" : 256
+	life(string) : "Life (seconds 0 = infinite)" : "1"
+	BoltWidth(integer) : "Width of beam (pixels*0.1 0-255)" : 20
+	NoiseAmplitude(integer) : "Amount of noise (0-255)" : 0
+	texture(sprite) : "Sprite Name" : "sprites/laserbeam.spr"
+	TextureScroll(integer) : "Texture Scroll Rate (0-100)" : 35
+	framerate(integer) : "Frames per 10 seconds" : 0
+	framestart(integer) : "Starting Frame" : 0
+	StrikeTime(string) : "Strike again time (secs)" : "1"
+	damage(string) : "Damage / second" : "0"
+	spawnflags(flags) = 
+	[
+		1 : "Start On" : 0
+		2 : "Toggle" : 0
+		4 : "Random Strike" : 0
+		8 : "Ring" : 0
+		16: "StartSparks" : 0
+		32: "EndSparks" : 0
+		64: "Decal End" : 0
+		128: "Shade Start" : 0
+		256: "Shade End" : 0
+	]
+]
+
+@PointClass base(Targetname, Angles) size(-4 -4 -4, 4 4 4) = env_beverage : "Beverage Dispenser"
+[
+	health(integer) : "Capacity" : 10
+	skin(choices) : "Beverage Type" : 0 = 
+	[
+		0 : "Coca-Cola"
+		1 : "Sprite"
+		2 : "Diet Coke"
+		3 : "Orange"
+		4 : "Surge"
+		5 : "Moxie"
+		6 : "Random"
+	]
+]
+
+@PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) color(255 0 0) = env_blood : "Blood Effects" 
+[
+	color(choices) : "Blood Color" : 0 =
+	[
+		0 : "Red (Human)"
+		1 : "Yellow (Alien)"
+	]
+	amount(string) : "Amount of blood (damage to simulate)" : "100"
+	spawnflags(flags) =
+	[
+		1: "Random Direction" : 0
+		2: "Blood Stream" : 0
+		4: "On Player" : 0
+		8: "Spray decals" : 0
+	]
+]
+
+@SolidClass base(Targetname) = env_bubbles : "Bubble Volume" 
+[
+	density(integer) : "Bubble density" : 2
+	frequency(integer) : "Bubble frequency" : 2
+	current(integer) : "Speed of Current" : 0
+	spawnflags(Flags) = 
+	[
+		1 : "Start Off" 	: 0
+	]
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_explosion : "Explosion" 
+[
+	iMagnitude(Integer) : "Magnitude" : 100
+	spawnflags(flags) =
+	[
+		1: "No Damage" : 0
+		2: "Repeatable" : 0
+		4: "No Fireball" : 0
+		8: "No Smoke" : 0
+		16: "No Decal" : 0
+		32: "No Sparks" : 0
+	]
+]
+
+@PointClass base(Targetname) color(255 255 128) = env_global : "Global State"
+[
+	globalstate(string) : "Global State to Set"
+	triggermode(choices) : "Trigger Mode" : 0 =
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Dead"
+		3 : "Toggle"
+	]
+	initialstate(choices) : "Initial State" : 0 =
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Dead"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Set Initial State" : 0
+	]
+]
+
+@PointClass sprite() base(Targetname, RenderFields, RenderFxChoices) size(-4 -4 -4, 4 4 4) color(30 100 0) = env_glow : "Light Glow/Haze" 
+[
+	model(sprite) : "Sprite Name" : "sprites/glow01.spr"
+	scale(integer) : "Scale" : 1
+]
+
+@PointClass base(Targetname) = env_fade : "Screen Fade" 
+[
+	spawnflags(flags) =
+	[
+		1: "Fade From" : 0
+		2: "Modulate" : 0
+		4: "Activator Only" : 0
+	]
+	duration(string) : "Duration (seconds)" : "2"
+	holdtime(string) : "Hold Fade (seconds)" : "0"
+	renderamt(integer) : "Fade Alpha" : 255
+	rendercolor(color255) : "Fade Color (R G B)" : "0 0 0"
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_funnel : "Large Portal Funnel" 
+[
+	spawnflags(flags) =
+	[
+		1: "Reverse" : 0
+	]
+]
+
+@PointClass base(Targetname, RenderFxChoices, Angles) size(-16 -16 -16, 16 16 16) = env_laser : "Laser Beam Effect"
+[
+	LaserTarget(target_destination) : "Target of Laser" 
+	renderamt(integer) : "Brightness (1 - 255)" : 100
+	rendercolor(color255) : "Beam Color (R G B)" : "0 0 0"
+	width(integer) : "Width of beam (pixels*0.1 0-255)" : 20
+	NoiseAmplitude(integer) : "Amount of noise (0-255)" : 0
+	texture(sprite) : "Sprite Name" : "sprites/laserbeam.spr"
+	EndSprite(sprite) : "End Sprite" : ""
+	TextureScroll(integer) : "Texture Scroll Rate (0-100)" : 35
+	framestart(integer) : "Starting Frame" : 0
+	damage(string) : "Damage / second" : "100"
+	spawnflags(flags) = 
+	[
+		1 : "Start On" : 0
+		16: "StartSparks" : 0
+		32: "EndSparks" : 0
+		64: "Decal End" : 0
+	]
+]
+
+@PointClass base(Targetname, Target) = env_message : "HUD Text Message" 
+[
+	message(string) : "Message Name"
+	spawnflags(flags) =
+	[
+		1: "Play Once" : 0
+		2: "All Clients" : 0
+	]
+	messagesound(sound) : "Sound Effect"
+	messagevolume(string) : "Volume 0-10" : "10"
+	messageattenuation(Choices) : "Sound Radius" : 0 =
+	[
+		0 : "Small Radius"
+		1 : "Medium Radius"
+		2 : "Large  Radius"
+		3 : "Play Everywhere"
+	]
+]
+
+@PointClass base(Targetname, Target, RenderFields, RenderFxChoices) size(-16 -16 -16, 16 16 16) color(100 100 0) = env_render : "Render Controls"
+[
+	spawnflags(flags) =
+	[
+		1: "No Renderfx" : 0
+		2: "No Renderamt" : 0
+		4: "No Rendermode" : 0
+		8: "No Rendercolor" : 0
+	]
+]
+
+@PointClass base(Targetname) = env_shake : "Screen Shake" 
+[
+	spawnflags(flags) =
+	[
+		1: "Global Shake" : 0
+	]
+	amplitude(string) : "Amplitude 0-16" : "4"
+	radius(string) : "Effect radius" : "500"
+	duration(string) : "Duration (seconds)" : "1"
+	frequency(string) : "0.1 = jerk, 255.0 = rumble" : "2.5"
+]
+
+@PointClass base(Targetname, Angles, gibshooterbase, RenderFields, RenderFxChoices) size(-16 -16 -16, 16 16 16) = env_shooter : "Model Shooter"
+[
+	shootmodel(studio) : "Model or Sprite name" : ""
+	shootsounds(choices) :"Material Sound" : -1 =
+	[
+		-1: "None"
+		0: "Glass"
+		1: "Wood"
+		2: "Metal"
+		3: "Flesh"
+		4: "Concrete"  
+	]
+	scale(string) : "Gib Sprite Scale" : ""
+	skin(integer) : "Gib Skin" : 0
+]
+
+@PointClass iconsprite("sprites/speaker.spr") = env_sound : "DSP Sound" 
+[
+	radius(integer) : "Radius" : 128
+	roomtype(Choices) : "Room Type" : 0 =
+	[
+		0 : "Normal (off)"
+		1 : "Generic"
+		
+		2 : "Metal Small"
+		3 : "Metal Medium"
+		4 : "Metal Large"
+	
+		5 : "Tunnel Small"
+		6 : "Tunnel Medium"
+		7 : "Tunnel Large"
+	
+		8 : "Chamber Small"
+		9 : "Chamber Medium"
+		10: "Chamber Large"
+
+		11: "Bright Small"
+		12: "Bright Medium"
+		13: "Bright Large"
+
+		14: "Water 1"
+		15: "Water 2"
+		16: "Water 3"
+
+		17: "Concrete Small"
+		18: "Concrete Medium"
+		19: "Concrete Large"
+
+		20: "Big 1"
+		21: "Big 2"
+		22: "Big 3"
+
+		23: "Cavern Small"
+		24: "Cavern Medium"
+		25: "Cavern Large"
+
+		26: "Weirdo 1"
+		27: "Weirdo 2"
+		28: "Weirdo 3"
+	]
+]
+
+@PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = env_spark : "Spark" 
+[
+	MaxDelay(string) : "Max Delay" : "0"
+	spawnflags(flags) =
+	[
+		32: "Toggle" : 0
+		64: "Start ON" : 0
+	]
+]
+
+@PointClass sprite() base(Angles, Targetname, RenderFields, RenderFxChoices) size(-4 -4 -4, 4 4 4) = env_sprite : "Sprite Effect" 
+[
+	framerate(string) : "Framerate" : "10.0"
+	model(sprite) : "Sprite Name" : "sprites/glow01.spr"
+	scale(string) : "Scale" : ""
+	spawnflags(flags) =
+	[
+		1: "Start ON" : 0
+		2: "Play Once" : 0
+	]
+]
+
+@SolidClass base(Targetname, Breakable, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, AVelocity) = func_breakable : "Breakable Object" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Only Trigger" : 0
+		2 : "Touch"	   : 0
+		4 : "Pressure"     : 0
+		256: "Instant Crowbar" : 0
+	]
+]
+
+@SolidClass base(Targetname, Target, Angles, Button, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFMessages, AVelocity) = func_button : "Button" []
+
+@SolidClass base(RenderFields, RenderFxChoices, ZLightflags, Targetname, Angles) = func_conveyor : "Conveyor Belt" 
+[
+	spawnflags(flags) =
+	[
+		1 : "No Push" : 0
+		2 : "Not Solid" : 0
+	]
+	speed(string) : "Conveyor Speed" : "100"
+]
+
+@SolidClass base(Targetname, Angles, Door1, Door2, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5, TFMessages, AVelocity) = func_door : "Basic door" []
+
+@SolidClass base(Targetname, Angles, Door1, Door2, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5, TFMessages) = func_door_rotating : "Rotating door" 
+[
+	spawnflags(flags) =
+	[
+		2 : "Reverse Dir" : 0
+		16: "One-way" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	distance(integer) : "Distance (deg)" : 90
+]
+
+@SolidClass base(RenderFields, RenderFxChoices, ZLightflags) = func_friction : "Surface with a change in friction" 
+[
+	modifier(integer) : "Percentage of standard (0 - 100)" : 15
+]
+
+@SolidClass base(Targetname, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, AVelocity) = func_guntarget : "Moving target" 
+[
+	speed(integer) : "Speed (units per second)" : 100
+	target(target_source) : "First stop target"
+	message(target_source) : "Fire on damage"
+	health(integer) : "Damage to Take" : 0
+]
+
+@SolidClass base(RenderFields, RenderFxChoices, ZLightflags, TFCriteria) = func_healthcharger: "Wall health recharger" 
+[
+	 dmdelay(integer) : "Deathmatch recharge delay" : 0
+]
+
+@SolidClass base(Targetname, RenderFields, RenderFxChoices, ZLightflags, AVelocity) = func_illusionary : "Fake Wall/Light" 
+[
+	skin(choices) : "Contents" : -1 =
+	[
+		-1: "Empty"
+		-7: "Volumetric Light"
+	]
+]
+
+@SolidClass base (Targetname) = func_ladder : "Ladder" []
+
+@SolidClass base(Targetname) = func_mortar_field : "Mortar Field" 
+[
+	m_flSpread(integer) : "Spread Radius" : 64
+	m_iCount(integer) : "Repeat Count" : 1
+	m_fControl(Choices) : "Targeting" : 0 =
+	[
+		0 : "Random"
+		1 : "Activator"
+		2 : "Table"
+	]
+	m_iszXController(target_destination) : "X Controller"
+	m_iszYController(target_destination) : "Y Controller"
+]
+
+@SolidClass base(Targetname, Angles, RenderFields, RenderFxChoices, ZLightflags) = func_pendulum : "Swings back and forth" 
+[
+	speed(integer) : "Speed" : 100
+	distance(integer) : "Distance (deg)" : 90
+	damp(integer) : "Damping (0-1000)" : 0
+	dmg(integer) : "Damage inflicted when blocked" : 0
+	spawnflags(flags) =
+	[
+		1: "Start ON" : 0
+		8: "Passable" : 0
+		16: "Auto-return" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+]
+
+@SolidClass base(Targetname, RenderFields, RenderFxChoices, ZLightflags, PlatSounds, TFButtonCriteria, AVelocity) = func_plat : "Moving Platform" 
+[
+	spawnflags(Flags) =
+	[
+		1: "Toggle" : 0
+	]
+	height(integer) : "Travel altitude (can be negative)" : 0
+	speed(integer) : "Speed" : 50
+]	
+
+@SolidClass base(Targetname, Angles, RenderFields, RenderFxChoices, ZLightflags, PlatSounds, TFButtonCriteria) = func_platrot : "Moving Rotating platform" 
+[
+	spawnflags(Flags) =
+	[
+		1: "Toggle" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	speed(integer) : "Speed of rotation" : 50
+	height(integer) : "Travel altitude (can be negative)" : 0
+	rotation(integer) : "Spin amount" : 0
+]
+
+@SolidClass base(Targetname, Breakable, RenderFields, RenderFxChoices, ZLightflags) = func_pushable : "Pushable object"
+[
+	size(choices) : "Hull Size" : 0 =
+	[
+		0: "Point size"
+		1: "Player size"
+		2: "Big Size"
+		3: "Player duck"
+	]
+	spawnflags(flags) =
+	[
+		128: "Breakable" : 0
+	]
+	friction(integer) : "Friction (0-400)" : 50
+	buoyancy(integer) : "Buoyancy" : 20
+]
+
+@SolidClass base(RenderFields, RenderFxChoices, ZLightflags, TFCriteria) = func_recharge: "Battery recharger" 
+[
+	dmdelay(integer) : "Deathmatch recharge delay" : 0
+]
+
+@SolidClass base(Targetname, Angles, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = func_rot_button : "RotatingButton" 
+[
+	g_a(Choices) : "Goal Activation bitfields" : 1 =
+	[
+		0 : "0 - none"
+		4 : "4 - if AP fails criteria"
+		8 : "8 - hit by engin. spanner"
+	]
+
+	// what the goal affects
+	g_e(Choices) : "Goal Effects bitfields" : 1 =
+	[
+		1 : "1 - Activating Player(AP)"
+		2 : "2 - APs team"
+		4 : "4 - Not on APs team"
+		8 : "8 - Not the AP"
+		16 : "16 - Walls obstruct radius"
+		32 : "32 - Same environment only"
+	]
+	
+	goal_result(Choices) : "Goal Result bitfields" : 0 =
+	[
+		0 : "none"
+		2 : "2 - Sub-goals apply AP mods"
+		4 : "4 - scores, intermission, end"
+		8 : "8 - Sub-Goals don't apply results"
+		16 : "16 - Prevent Spy disguise"
+		32 : "32 - Force respawn, no die"
+	]
+
+	target(target_destination) : "Targetted object"
+	// changetarget will change the button's target's TARGET field to the button's changetarget.
+	changetarget(target_destination) : "ChangeTarget Name"
+	master(string) : "Master" 
+	speed(integer) : "Speed" : 50
+	health(integer) : "Health (shootable if > 0)"
+	sounds(choices) : "Sounds" : 21 = 
+	[
+		21: "Squeaky"
+		22: "Squeaky Pneumatic"
+		23: "Ratchet Groan"
+		24: "Clean Ratchet"
+		25: "Gas Clunk"
+	]
+	wait(choices) : "Delay before reset" : 3 =
+	[
+		-1: "Stays pressed"
+	]
+	delay(string) : "Delay before trigger" : "0"
+	distance(integer) : "Distance (deg)" : 90
+	spawnflags(flags) =
+	[
+		1 : "Not solid" : 0
+		2 : "Reverse Dir" : 0
+		32: "Toggle" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+		256:"Touch Activates": 0
+	]
+]
+
+@SolidClass base(Targetname, Angles, RenderFields, RenderFxChoices, ZLightflags) = func_rotating : "Rotating Object"
+[
+	speed(integer)	: "Rotation Speed" : 0
+	volume(integer) : "Volume (10 = loudest)" : 10
+	fanfriction(integer) : "Friction (0 - 100%)" : 20
+	sounds(choices) : "Fan Sounds" : 0 =
+	[
+		0 : "No Sound" 
+		1 : "Fast Whine"
+		2 : "Slow Rush"
+		3 : "Medium Rickety"
+		4 : "Fast Beating"
+		5 : "Slow Smooth"
+	]
+	message(sound) : "WAV Name"
+	spawnflags(flags) =
+	[
+		1 : "Start ON" 		: 0
+		2 : "Reverse Direction" : 0
+		4 : "X Axis" 		: 0
+		8 : "Y Axis" 		: 0
+		16: "Acc/Dcc"		: 0
+		32: "Fan Pain"		: 0
+		64: "Not Solid"		: 0
+		128: "Small Radius" : 0
+		256: "Medium Radius" : 0
+		512: "Large Radius" : 0
+	]
+	spawnorigin(string) : "X Y Z - Move here after lighting" : "0 0 0"
+	dmg(integer) : "Damage inflicted when blocked" : 0
+]
+
+@SolidClass base(BaseTank, Targetname, Target, Angles, RenderFields, RenderFxChoices, ZLightflags) = func_tank : "Brush Gun Turret" 
+[
+	bullet(choices) : "Bullets" : 0 = 
+	[
+		0: "None"
+		1: "9mm"
+		2: "MP5"
+		3: "12mm"
+	]
+]
+
+@SolidClass base(Targetname, TFButtonCriteria) = func_tankcontrols : "Tank controls"
+[
+	target(target_destination) : "Tank entity name"
+]
+
+@SolidClass base(BaseTank, Targetname, Target, Angles, RenderFields, RenderFxChoices, ZLightflags) = func_tanklaser : "Brush Laser Turret" 
+[
+	laserentity(target_source) : "env_laser Entity"
+]
+
+@SolidClass base(BaseTank, Targetname, Target, Angles, RenderFields, RenderFxChoices, ZLightflags) = func_tankrocket : "Brush Rocket Turret" []
+
+
+@SolidClass base(BaseTank, Targetname, Target, Angles, RenderFields, RenderFxChoices, ZLightflags) = func_tankmortar : "Brush Mortar Turret" 
+[
+	iMagnitude(Integer) : "Explosion Magnitude" : 100
+]
+
+@SolidClass base(Trackchange, Targetname, RenderFields, RenderFxChoices, ZLightflags, PlatSounds) = func_trackautochange : "Automatic track changing platform" []
+
+@SolidClass base(Trackchange, Targetname, RenderFields, RenderFxChoices, ZLightflags, PlatSounds) = func_trackchange : "Train track changing platform" []
+
+@SolidClass base(Targetname, RenderFields, RenderFxChoices, ZLightflags) = func_tracktrain : "Track Train" 
+[
+	spawnflags(flags) =
+	[
+		1 : "No Pitch (X-rot)" : 0
+		2 : "No User Control" : 0
+		8 : "Passable" : 0
+	]
+	target(target_destination) : "First stop target"
+	sounds(choices) : "Sound" : 0 =
+	[
+		0: "None"
+		1: "Rail 1"
+		2: "Rail 2"
+		3: "Rail 3"
+		4: "Rail 4"
+		5: "Rail 6"
+		6: "Rail 7"
+	]
+	wheels(integer) : "Distance between the wheels" : 50
+	height(integer) : "Height above track" : 4
+	startspeed(integer) : "Initial speed" : 0
+	speed(integer) : "Speed (units per second)" : 64
+	dmg(integer) : "Damage on crush" : 0	
+	volume(integer) : "Volume (10 = loudest)" : 10
+	bank(string) : "Bank angle on turns" : "0"
+]
+
+@SolidClass base(TFButtonCriteria) = func_traincontrols : "Train Controls"
+[
+	target(target_destination) : "Train Name"
+]
+
+@SolidClass base(Targetname, RenderFields, RenderFxChoices, ZLightflags, AVelocity) = func_train : "Platform follows paths" 
+[
+	target(target_source) : "First stop target"
+	movesnd(choices) : "Move Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "big elev 1"
+		2: "big elev 2"
+		3: "tech elev 1"
+		4: "tech elev 2"
+		5: "tech elev 3"
+		6: "freight elev 1"
+		7: "freight elev 2"
+		8: "heavy elev"
+		9: "rack elev"
+		10: "rail elev"
+		11: "squeek elev"
+		12: "odd elev 1"
+		13: "odd elev 2"
+	]
+	stopsnd(choices) : "Stop Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "big elev stop1"
+		2: "big elev stop2"
+		3: "freight elev stop"
+		4: "heavy elev stop"
+		5: "rack stop"
+		6: "rail stop"
+		7: "squeek stop"
+		8: "quick stop"
+	]
+	speed(integer) : "Speed (units per second)" : 64
+	dmg(integer) : "Damage on crush" : 0
+	skin(integer) : "Contents" : 0
+	volume(string) : "Sound Volume 0.0 - 1.0" : "0.85"
+	spawnflags(flags) =
+	[
+		8 : "Not solid" : 0
+	]
+]
+
+@SolidClass base(Targetname, RenderFields, RenderFxChoices, ZLightflags) = func_wall : "Wall" []
+
+@SolidClass base(func_wall) = func_wall_toggle : "Toggleable geometry" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Invisible" : 0
+	]
+]
+
+@SolidClass base(Targetname, Angles, Door2, RenderFields, RenderFxChoices, ZLightflags) = func_water : "Liquid" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+		256:"Use Only" : 0
+	]
+	skin(choices) : "Contents" : -3 =
+	[
+		-3: "Water"
+		-4: "Slime"
+		-5: "Lava"
+	]
+	WaveHeight(string) : "Wave Height" : "0"
+]
+
+@PointClass base(Targetname, Angles, gibshooterbase) = gibshooter : "Gib Shooter" []
+
+//
+// info entities
+//
+
+@PointClass decal() base(Targetname) = infodecal : "Decal"
+[
+	texture(decal)
+]
+
+@PointClass size(-8 -8 0, 8 8 32) = info_compile_parameters : "ZHLT Compile Options Entity" 
+[ 
+    texdata(string) : "Texture Data Memory (in KB)" : "4096" 
+    estimate(choices) : "Estimate Compile Times?" : 0 = 
+    [ 
+        0: "Yes" 
+        1: "No" 
+    ] 
+    bounce(integer) : "Number of radiosity bounces" : 0 
+    ambient(string) : "Ambient world light (0.0 to 1.0, R G B)" : "0 0 0" 
+    smooth(integer) : "Smoothing threshold (in degrees)" : 0 
+    dscale(integer) : "Direct Lighting Scale" : 1 
+    chop(integer) : "Chop Size" : 64 
+    texchop(integer) : "Texture Light Chop Size" : 32 
+    hullfile(string) : "Custom Hullfile" 
+
+    priority(choices) : "Priority Level" : 0 =
+    [
+        0 : "Normal"
+        1 : "High"
+        -1 : "Low"
+    ]
+    wadautodetect(choices) : "Wad Auto Detect" : 0 =
+    [
+        0 : "Off"
+        1 : "On"
+    ]
+    wadconfig(string) : "Custom Wad Configuration" : ""
+    verbose(choices) : "Verbose compile messages" : 0 =
+    [
+        0 : "Off"
+        1 : "On"
+    ]
+    noclipeconomy(choices) : "Strip Uneeded Clipnodes?" : 1 = 
+    [
+        1 : "Yes"
+        0 : "No"
+    ]
+
+    spawnflags(flags) = 
+    [ 
+        1 : "Run CSG" : 1 
+        2 : " No Clip" : 0 
+        4 : " Only Ents" : 0 
+        8 : " No Sky Clip" : 0 
+        32 : "Run BSP" : 1 
+        64 : " Leak Only" : 0 
+        128 : " No Clip" : 0 
+        256 : "Run VIS" : 1 
+        512 : " Fast " : 0 
+        2048 : "Run RAD" : 1 
+        4096 : " Sparse " : 0 
+        8192 : " Circus Mode" : 0 
+        16384 : " Extra Mode " : 0 
+    ] 
+]
+
+@PointClass base(Target, Angles, AVelocity) size(-4 -4 -4, 4 4 4) color(0 255 0) = info_intermission : "Intermission Spot" []
+
+@PointClass base(Targetname) = info_null : "info_null (spotlight target)" []
+
+@PointClass base(Angles) size(-16 -16 -36, 16 16 36) color(0 255 0) = info_player_start : "Player start" []
+
+@PointClass base(Targetname) size(-4 -4 -4, 4 4 4) color(200 100 50) = info_target : "Beam Target" []
+
+@PointClass size(-8 -8 0, 8 8 16) color(0 255 0) base(Targetname, Angles) = info_teleport_destination : "Teleport destination" []
+
+@PointClass color(255 128 0) = info_texlights : "ZHLT Texture Light Config" []
+
+//
+//HL items
+//
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_antidote : "Poison antidote" []
+
+// PV: CAUTION!  Misprogrammed in TFC!  Will only charge to 100 armor and will over-charge classes with max armor <100!
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_battery : "HEV battery" []
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_healthkit : "Small Health Kit" []
+
+@PointClass size(-16 -16 0, 16 16 36) base(Target, Targetname, Angles, Targetx, TFItemCriteria, AVelocity) = item_longjump : "Longjump Module" []
+
+//
+// lights
+//
+
+@PointClass iconsprite("sprites/lightbulb.spr") base(Target, Targetname) = light : "Invisible lightsource"
+[
+	spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+	_light(color255) : "Brightness" : "255 255 128 200"
+      style(Choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+	]
+	pattern(string) : "Custom Appearance"
+]
+
+@PointClass iconsprite("sprites/lightbulb.spr") base(Targetname, Target, Angles) = light_spot : "Spotlight" 
+[
+	_cone(integer) : "Inner (bright) angle" : 30
+	_cone2(integer) : "Outer (fading) angle" : 45
+	pitch(integer) : "Pitch" : -90
+	_light(color255) : "Brightness" : "255 255 128 200"
+	_sky(Choices) : "Is Sky" : 0 = 
+	[ 
+		0 : "No"
+		1 : "Yes"
+	]
+	spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+      style(Choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+	]
+	pattern(string) : "Custom Appearance"
+]
+
+@PointClass base(Angles) iconsprite("sprites/lightbulb.spr") = light_environment : "Environmental Light" 
+[
+	pitch(integer) : "Pitch" : 0
+	_light(color255) : "Brightness" : "255 255 128 200"
+]
+
+@SolidClass base(Targetname, Angles, Door1, Door2, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5, TFMessages, AVelocity) = momentary_door : "Momentary/Continuous door" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+	]
+]
+
+@SolidClass base(Targetname, Target, Angles, RenderFields, RenderFxChoices, ZLightflags, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5, TFMessages) = momentary_rot_button : "Direct wheel control" 
+[
+	speed(integer) : "Speed" : 50
+	master(string) : "Master" 
+	sounds(choices) : "Sounds" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		2: "Access Denied"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small zap"
+		9: "Keycard Sound"
+		21: "Squeaky"
+		22: "Squeaky Pneumatic"
+		23: "Ratchet Groan"
+		24: "Clean Ratchet"
+		25: "Gas Clunk"
+	]
+	distance(integer) : "Distance (deg)" : 90
+	returnspeed(integer) : "Auto-return speed" : 0
+	spawnflags(flags) =
+	[
+		1: "Door Hack" : 0
+		2: "Not useable" : 0
+		16: "Auto Return" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+]
+
+@PointClass base(Monster, Target, Targetname, Angles, RenderFields, RenderFxChoices) size(-16 -16 -32, 16 16 32) = monster_miniturret : "Mini Auto Turret"
+[
+	orientation(Choices) : "Orientation" : 0 =
+	[
+		0 : "Floor Mount"
+		1 : "Ceiling Mount"
+	]
+]
+
+@PointClass base(Monster, Target, Targetname, Angles, RenderFields, RenderFxChoices) size(-32 -32 -32, 32 32 32) = monster_turret : "Auto Turret"
+[
+	orientation(Choices) : "Orientation" : 0 =
+	[
+		0 : "Floor Mount"
+		1 : "Ceiling Mount"
+	]
+]
+
+@PointClass base(Monster, Target, Targetname, Angles, RenderFields, RenderFxChoices) size(-16 -16 0, 16 16 72) = monster_sentry : "Sentry Turret Gun" []
+
+@PointClass base(Targetname) color(255 128 0) = multi_manager : "MultiTarget Manager" 
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Multithreaded" : 0
+	]
+]
+
+@PointClass base(Targetname, Target) color(128 255 128) = multisource : "Multisource"
+[
+	globalstate(string) : "Global State Master"
+]
+
+@PointClass base(Targetname, Angles) size(16 16 16) color(247 181 82) = path_corner : "Moving platform stop"
+[
+	spawnflags(Flags) =
+	[
+		1: "Wait for retrigger" : 0
+		2: "Teleport" : 0
+		4: "Fire once" : 0
+	]
+	target(target_destination) : "Next stop target"
+	message(target_destination) : "Fire On Pass"
+	wait(integer) : "Wait here (secs)" : 0
+	speed(integer) : "New Train Speed" : 0
+	yaw_speed(integer) : "New Train Rot. Speed" : 0
+]
+
+@PointClass base(Targetname, Angles) size(16 16 16) = path_track : "Train Track Path"
+[
+	spawnflags(Flags) =
+	[
+		1: "Disabled" : 0
+		2: "Fire once" : 0
+		4: "Branch Reverse" : 0
+		8: "Disable train" : 0
+	]
+	target(target_destination) : "Next stop target"
+	message(target_destination) : "Fire On Pass"
+	altpath(target_destination) : "Branch Path"
+	netname(target_destination) : "Fire on dead end"
+	speed(integer) : "New Train Speed" : 0
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = player_weaponstrip : "Strips player's weapons" []
+
+@PointClass base(Targetname) = target_cdaudio : "CD Audio Target"
+[
+	health(choices) : "Track #" : -1 =
+	[
+		-1 : "Stop"
+		1 : "Track 1"
+		2 : "Track 2"
+		3 : "Track 3"
+		4 : "Track 4"
+		5 : "Track 5"
+		6 : "Track 6"
+		7 : "Track 7"
+		8 : "Track 8"
+		9 : "Track 9"
+		10 : "Track 10"
+		11 : "Track 11"
+		12 : "Track 12"
+		13 : "Track 13"
+		14 : "Track 14"
+		15 : "Track 15"
+		16 : "Track 16"
+		17 : "Track 17"
+		18 : "Track 18"
+		19 : "Track 19"
+		20 : "Track 20"
+		21 : "Track 21"
+		22 : "Track 22"
+		23 : "Track 23"
+		24 : "Track 24"
+		25 : "Track 25"
+		26 : "Track 26"
+		27 : "Track 27"
+		28 : "Track 28"
+		29 : "Track 29"
+		30 : "Track 30"
+	]
+	radius(string) : "Player Radius"
+]
+
+//
+// Triggers
+//
+
+@PointClass base(Target, Targetx, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_auto : "AutoTrigger"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Remove On fire" : 1
+	]
+	globalstate(string) : "Global State to Read"
+	triggerstate(choices) : "Trigger State" : 0 = 
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Toggle"
+	]
+]
+
+@PointClass base(Target, Targetx, Targetname, TFButtonCriteria) = trigger_camera : "Trigger Camera" 
+[
+	wait(integer) : "Hold time" : 10
+	moveto(string) : "Path Corner"
+	spawnflags(flags) =
+	[
+		1: "Start At Player" : 1
+		2: "Follow Player" : 1
+		4: "Freeze Player" : 0
+	]
+	speed(string) : "Initial Speed" : "0"
+	acceleration(string) : "Acceleration units/sec^2" : "500"
+	deceleration(string) : "Stop Deceleration units/sec^2" : "500"
+]
+
+@SolidClass base(Targetname) = trigger_cdaudio : "Trigger CD Audio"
+[
+	health(choices) : "Track #" : -1 =
+	[
+		-1 : "Stop"
+		1 : "Track 1"
+		2 : "Track 2"
+		3 : "Track 3"
+		4 : "Track 4"
+		5 : "Track 5"
+		6 : "Track 6"
+		7 : "Track 7"
+		8 : "Track 8"
+		9 : "Track 9"
+		10 : "Track 10"
+		11 : "Track 11"
+		12 : "Track 12"
+		13 : "Track 13"
+		14 : "Track 14"
+		15 : "Track 15"
+		16 : "Track 16"
+		17 : "Track 17"
+		18 : "Track 18"
+		19 : "Track 19"
+		20 : "Track 20"
+		21 : "Track 21"
+		22 : "Track 22"
+		23 : "Track 23"
+		24 : "Track 24"
+		25 : "Track 25"
+		26 : "Track 26"
+		27 : "Track 27"
+		28 : "Track 28"
+		29 : "Track 29"
+		30 : "Track 30"
+	]
+]
+
+@PointClass base(Target, Targetx, Targetname, TFCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_changetarget : "Trigger Change Target"
+[
+	m_iszNewTarget(string) : "New Target"
+]
+
+@SolidClass base(Trigger, Target, Targetname, TFCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_counter : "Trigger counter" 
+[
+	spawnflags(flags) = 
+	[ 
+		1 : "No Message" : 0 
+	]
+	master(string) : "Master" 
+	count(integer) : "Count before activation" : 2
+]
+
+@SolidClass base(Trigger, Target, Targetname) = trigger_gravity : "Trigger Gravity"
+[
+	gravity(integer) : "Gravity (0-1)" : 1
+]
+
+@SolidClass base(Targetname, Target, TFButtonCriteria) = trigger_hurt : "Trigger player hurt" 
+[
+	g_a(Choices) : "Goal Activation bitfields" : 0 =
+	[
+		5 : "5 - if AP fails criteria"
+	]
+
+	deathtype(string) : "Death type"
+
+	spawnflags(flags) = 
+	[ 
+		1: "Target Once" : 0 
+		2: "Start Off" : 0
+		8: "No clients" : 0
+		16:"FireClientOnly" : 0
+		32:"TouchClientOnly" : 0
+	]
+	master(string) : "Master" 
+	dmg(integer) : "Damage" : 10
+	delay(string) : "Delay before trigger" : "0"
+	damagetype(choices) : "Damage Type" : 0 =
+	[
+		0 : "GENERIC"
+		1 : "CRUSH"
+		2 : "BULLET"
+		4 : "SLASH"
+		8 : "BURN"
+		16 : "FREEZE"
+		32 : "FALL"
+		64 : "BLAST"
+		128 : "CLUB"
+		256 : "SHOCK"
+		512 : "SONIC"
+		1024 : "ENERGYBEAM"
+		16384: "DROWN"
+		32768 : "PARALYSE"
+		65536 : "NERVEGAS"
+		131072 : "POISON"
+		262144 : "RADIATION"
+		524288 : "DROWNRECOVER"
+		1048576 : "CHEMICAL"
+		2097152 : "SLOWBURN"
+		4194304 : "SLOWFREEZE"
+	]
+]
+
+@SolidClass base(Trigger, Target, Targetname, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_multiple : "Trigger: Activate multiple" 
+[
+	wait(integer) : "Delay before reset" : 10
+]
+
+@SolidClass base(Trigger, Target, Targetname, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_once : "Trigger: Activate once" []
+
+@SolidClass base(Trigger, Target, Targetname, TFButtonCriteria, Angles) = trigger_push : "Trigger player push"
+[
+	spawnflags(flags) = 
+	[ 
+		1: "Once Only" : 0 
+		2: "Start Off" : 0
+	]
+	speed(integer) : "Speed of push" : 40
+]
+
+@PointClass base(Target, Targetname, Targetx, TFCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_relay : "Trigger Relay"
+[
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+	]
+	triggerstate(choices) : "Trigger State" : 0 = 
+	[
+		0: "Off"
+		1: "On"
+		2: "Toggle"
+	]
+]
+
+@SolidClass base(Trigger, Target, Targetname, TFButtonCriteria, TFOperat2, TFEffects1, TFEffects2, TFEffects3, TFEffects5) = trigger_teleport : "Trigger teleport" []
+
+//
+// Xen
+//
+
+@PointClass base(Target, Targetname, RenderFields, RenderFxChoices, Angles, AVelocity) size(-48 -48 0, 48 48 32 ) = xen_plantlight : "Xen Plant Light" []
+@PointClass base(Targetname, RenderFields, RenderFxChoices, Angles, AVelocity) size(-8 -8 0, 8 8 32 ) = xen_hair : "Xen Hair" 
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Sync Movement" 	: 0
+	]
+]
+@PointClass base(Targetname, RenderFields, RenderFxChoices, Angles, AVelocity) size(-24 -24 0, 24 24 188 ) = xen_tree : "Xen Tree" []
+@PointClass base(Targetname, RenderFields, RenderFxChoices, Angles, AVelocity) size(-16 -16 0, 16 16 64 ) = xen_spore_small : "Xen Spore (small)" []
+@PointClass base(Targetname, RenderFields, RenderFxChoices, Angles, AVelocity) size(-40 -40 0, 40 40 120 ) = xen_spore_medium : "Xen Spore (medium)" []
+@PointClass base(Targetname, RenderFields, RenderFxChoices, Angles, AVelocity) size(-90 -90 0, 90 90 220 ) = xen_spore_large : "Xen Spore (large)" []
+
+

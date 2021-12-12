@@ -1,0 +1,6 @@
+@PointClass base(PlayerClass) = info_player_team1 : "Team 1 player start" [
+	targetname(target_source) : "Name" 
+]
+@PointClass base(PlayerClass) = info_player_team2 : "Team 2 player start" [
+	targetname(target_source) : "Name" 
+]

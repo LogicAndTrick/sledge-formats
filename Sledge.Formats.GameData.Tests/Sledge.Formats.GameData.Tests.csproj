@@ -1,0 +1,133 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+	  <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\fgd\goldsource\blue-shift.fgd" />
+    <None Remove="Resources\fgd\goldsource\buzzybots.fgd" />
+    <None Remove="Resources\fgd\goldsource\condition-zero-deleted-scenes.fgd" />
+    <None Remove="Resources\fgd\goldsource\condition-zero.fgd" />
+    <None Remove="Resources\fgd\goldsource\counter-strike.fgd" />
+    <None Remove="Resources\fgd\goldsource\cry-of-fear.fgd" />
+    <None Remove="Resources\fgd\goldsource\day-of-defeat.fgd" />
+    <None Remove="Resources\fgd\goldsource\deathmatch-classic.fgd" />
+    <None Remove="Resources\fgd\goldsource\firearms.fgd" />
+    <None Remove="Resources\fgd\goldsource\flatlife.fgd" />
+    <None Remove="Resources\fgd\goldsource\gunman-chronicles.fgd" />
+    <None Remove="Resources\fgd\goldsource\half-life.fgd" />
+    <None Remove="Resources\fgd\goldsource\opposing-force.fgd" />
+    <None Remove="Resources\fgd\goldsource\resident-evil-valiant.fgd" />
+    <None Remove="Resources\fgd\goldsource\ricochet.fgd" />
+    <None Remove="Resources\fgd\goldsource\science-and-industry.fgd" />
+    <None Remove="Resources\fgd\goldsource\scientist-hunt.fgd" />
+    <None Remove="Resources\fgd\goldsource\spirit.fgd" />
+    <None Remove="Resources\fgd\goldsource\sven-coop.fgd" />
+    <None Remove="Resources\fgd\goldsource\team-fortress-classic.fgd" />
+    <None Remove="Resources\fgd\goldsource\the-opera.fgd" />
+    <None Remove="Resources\fgd\goldsource\zhlt.fgd" />
+    <None Remove="Resources\fgd\jack\gunman.fgd" />
+    <None Remove="Resources\fgd\jack\halflife-op4.fgd" />
+    <None Remove="Resources\fgd\jack\halflife.fgd" />
+    <None Remove="Resources\fgd\jack\hexen2.fgd" />
+    <None Remove="Resources\fgd\jack\quake.fgd" />
+    <None Remove="Resources\fgd\jack\quake2.fgd" />
+    <None Remove="Resources\fgd\jack\quake3.fgd" />
+    <None Remove="Resources\fgd\jack\zhlt.fgd" />
+    <None Remove="Resources\fgd\source\base.fgd" />
+    <None Remove="Resources\fgd\source\csgo.fgd" />
+    <None Remove="Resources\fgd\source\cstrike.fgd" />
+    <None Remove="Resources\fgd\source\garrysmod.fgd" />
+    <None Remove="Resources\fgd\source\halflife2.fgd" />
+    <None Remove="Resources\fgd\source\hl2mp.fgd" />
+    <None Remove="Resources\fgd\source\portal.fgd" />
+    <None Remove="Resources\fgd\source\portal2.fgd" />
+    <None Remove="Resources\fgd\source\synergy.fgd" />
+    <None Remove="Resources\fgd\source\tf2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Common.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Episode 1.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Episode 2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Episode 3.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Episode 4.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Generic.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\heretic2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Hexen2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\kingpin.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\pball2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Quake.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Quake2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Quoth2.fgd" />
+    <None Remove="Resources\fgd\trenchbroom\Teamfortress.fgd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\fgd\goldsource\blue-shift.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\buzzybots.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\condition-zero-deleted-scenes.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\condition-zero.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\counter-strike.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\cry-of-fear.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\day-of-defeat.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\deathmatch-classic.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\firearms.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\flatlife.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\gunman-chronicles.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\half-life.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\opposing-force.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\resident-evil-valiant.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\ricochet.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\science-and-industry.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\scientist-hunt.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\spirit.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\sven-coop.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\team-fortress-classic.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\the-opera.fgd" />
+    <EmbeddedResource Include="Resources\fgd\goldsource\zhlt.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\gunman.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\halflife-op4.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\halflife.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\hexen2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\quake.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\quake2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\quake3.fgd" />
+    <EmbeddedResource Include="Resources\fgd\jack\zhlt.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\base.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\csgo.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\cstrike.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\garrysmod.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\halflife2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\hl2mp.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\portal.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\portal2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\synergy.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source\tf2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Common.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Episode 1.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Episode 2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Episode 3.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Episode 4.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Generic.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\heretic2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Hexen2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\kingpin.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\pball2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Quake.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Quake2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Quoth2.fgd" />
+    <EmbeddedResource Include="Resources\fgd\trenchbroom\Teamfortress.fgd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.3" />
+    <PackageReference Include="coverlet.collector" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sledge.Formats.GameData\Sledge.Formats.GameData.csproj" />
+  </ItemGroup>
+
+</Project>

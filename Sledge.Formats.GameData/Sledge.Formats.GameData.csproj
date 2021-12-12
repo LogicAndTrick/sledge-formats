@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion></AssemblyVersion>
+    <Version>1.0.0</Version>
+    <Authors>LogicAndTrick</Authors>
+    <Description>An FGD parser. Currently supports Worldcraft, JACK, and TrenchBroom FGD formats.</Description>
+    <Copyright>2021 LogicAndTrick</Copyright>
+    <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
+    <PackageIcon>sledge-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>half-life worldcraft hammer valve fgd trenchbroom</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\sledge-logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sledge.Formats\Sledge.Formats.csproj" />
+  </ItemGroup>
+
+</Project>

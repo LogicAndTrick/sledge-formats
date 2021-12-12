@@ -9,6 +9,7 @@ namespace Sledge.Formats.Tokens
     {
         private readonly HashSet<int> _symbolSet;
         public List<ITokenReader> CustomReaders { get; }
+        public bool AllowNewlinesInStrings { get; set; } = false;
 
         public Tokeniser(IEnumerable<char> symbols)
         {
@@ -78,6 +79,7 @@ namespace Sledge.Formats.Tokens
                 Token t;
                 if (custom && ReadCustom(b, input, out var ct)) t = ct;
                 else if (b == '"') t = TokenString(input);
+                else if (b >= '0' & b <= '9') t = TokenNumber(b, input);
                 else if (_symbolSet.Contains(b)) t = new Token(TokenType.Symbol, ((char) b).ToString());
                 else if (b >= 'a' && b <= 'z' || (b >= 'A' && b <= 'Z') || b == '_') t = TokenName(b, input);
                 else t = new Token(TokenType.Invalid, $"Unexpected token: {(char) b}");
@@ -108,44 +110,73 @@ namespace Sledge.Formats.Tokens
             return false;
         }
 
-        private static Token TokenString(TextReader input)
+        private Token TokenString(TextReader input)
         {
             var sb = new StringBuilder();
             int b;
             while ((b = input.Read()) >= 0)
             {
-                // Newline in string (not allowed)
-                if (b == '\n')
+                switch (b)
                 {
-                    return new Token(TokenType.Invalid, "String cannot contain a newline");
-                }
-                // End of string
-                else if (b == '"')
-                {
-                    return new Token(TokenType.String, sb.ToString());
-                }
-                // Escaped character
-                else if (b == '\\')
-                {
-                    // Read the next character
-                    b = input.Read();
-                    // EOF reached
-                    if (b < 0) return new Token(TokenType.Invalid, "Unexpected end of file while reading string value");
-                    // Some common escaped characters
-                    else if (b == 'n') sb.Append('\n'); // newline
-                    else if (b == 'r') sb.Append('\r'); // return
-                    else if (b == 't') sb.Append('\t'); // tab
-                    // Otherwise, just use whatever it is
-                    sb.Append((char) b);
-                }
-                // Any other character
-                else
-                {
-                    sb.Append((char) b);
+                    // ignore carriage returns
+                    case '\r':
+                        continue;
+                    // Newline in string (when they're not allowed)
+                    case '\n' when !AllowNewlinesInStrings:
+                        // Syntax error, unterminated string
+                        return new Token(TokenType.String, sb.ToString())
+                        {
+                            Warnings =
+                            {
+                                "String cannot contain a newline"
+                            }
+                        };
+                    // End of string
+                    case '"':
+                        return new Token(TokenType.String, sb.ToString());
+                    // Escaped character
+                    case '\\':
+                    {
+                        // Read the next character
+                        b = input.Read();
+                        // EOF reached
+                        if (b < 0) return new Token(TokenType.Invalid, "Unexpected end of file while reading string value");
+                        // Some common escaped characters
+                        else if (b == 'n') sb.Append('\n'); // newline
+                        else if (b == 'r') sb.Append('\r'); // return
+                        else if (b == 't') sb.Append('\t'); // tab
+                        // Otherwise, just use whatever it is
+                        sb.Append((char) b);
+                        break;
+                    }
+                    // Any other character
+                    default:
+                        sb.Append((char) b);
+                        break;
                 }
             }
 
             return new Token(TokenType.Invalid, "Unexpected end of file while reading string value");
+        }
+
+        private static Token TokenNumber(int first, TextReader input)
+        {
+            var value = ((char) first).ToString();
+            int b;
+            while ((b = input.Peek()) >= 0)
+            {
+                if (b >= '0' && b <= '9')
+                {
+                    value += (char) b;
+                    input.Read(); // advance the stream
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return new Token(TokenType.Number, value);
         }
 
         private static Token TokenName(int first, TextReader input)
@@ -154,7 +185,7 @@ namespace Sledge.Formats.Tokens
             int b;
             while ((b = input.Peek()) >= 0)
             {
-                if ((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9') || b == '_')
+                if ((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9') || b == '_' || b == '-')
                 {
                     name += (char) b;
                     input.Read(); // advance the stream

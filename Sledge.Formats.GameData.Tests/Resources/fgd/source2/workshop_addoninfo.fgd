@@ -1,0 +1,13 @@
+@include "tools/workshop_addoninfo_base.fgd"
+
+@struct = map_extension :
+[
+	parent_map(string) : "Parent Map" : "" : "This is the map that you are extending (eg. <font color='cyan'><tt>a1_intro_world</tt></font>) - when it loads, your extension map will also be loaded."
+	extension_map(string) : "Extension Map" : "" : "Name of a map to overlay on top of the parent map."
+]
+
+@PointClass base(addoninfo_base) = addoninfo :
+"The addoninfo.txt file describes the features of your addon to the engine."
+[
+	map_extensions(array:struct:map_extension) : "Map Extensions" : "" : "A list of extension maps to dynamically load and overlay on top of existing maps."
+]

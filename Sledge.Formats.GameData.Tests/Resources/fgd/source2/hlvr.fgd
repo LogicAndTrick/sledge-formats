@@ -1,0 +1,2759 @@
+//===================== Copyright (c) Valve Corporation. All Rights Reserved. ======================
+//
+// Defines entity classes specific to HLVR.
+//
+//==================================================================================================
+
+@include "halflife2.fgd"
+@include "markup_volumes.fgd"
+@include "postprocessing.fgd"
+
+// Excluded entities. These are entities that are included from lower level fgd files that aren't 
+// functional or useful in this mod. Excluding them removes them from the list of entities aviable 
+// in Hammer or any other tool that loads the fgd. If support is added for any of the entities the 
+// exclude can simply be removed.
+
+// These entities have been excluded because are deprecated light entities which are
+// explictly not supported, don't add these back unless you are working on lighting.
+@exclude color_correction_volume
+@exclude env_fog_controller
+@exclude env_time_of_day
+@exclude env_lightglow
+@exclude env_particlelight
+@exclude env_sun
+@exclude fog_volume
+@exclude info_lighting
+@exclude light_dynamic
+@exclude light_irradvolume
+@exclude point_spotlight
+@exclude postprocess_controller
+@exclude shadow_control
+
+// These entities have been excluded because they were not used in any maps and are unlikely to work
+// in this mod without additional changes, if you want to test any of these to see if they do work, 
+// simply remove them from this list.
+@exclude ai_citizen_response_system
+@exclude beam_spotlight
+@exclude cycler_actor
+@exclude env_alyxemp
+@exclude env_ar2explosion
+@exclude env_beverage
+@exclude env_blood
+@exclude env_bubbles
+@exclude env_citadel_energy_core
+@exclude env_clock
+@exclude env_credits
+@exclude env_dof_controller
+@exclude env_dustpuff
+@exclude env_effectscript
+@exclude env_entity_dissolver
+@exclude env_firesensor
+@exclude env_firesource
+@exclude env_flare
+@exclude env_funnel
+@exclude env_hudhint
+@exclude env_instructor_hint
+@exclude env_muzzleflash
+@exclude env_particle_performance_monitor
+@exclude env_particlescript
+@exclude env_player_surface_trigger
+@exclude env_projectedtexture
+@exclude env_rotorshooter
+@exclude env_rotorwash
+@exclude env_rotorwash_emitter
+@exclude env_screenoverlay
+@exclude env_shooter
+@exclude env_smokestack
+@exclude env_smoketrail
+@exclude env_speaker
+@exclude env_splash
+@exclude env_sporeexplosion
+@exclude env_sprite_oriented
+@exclude env_starfield
+@exclude env_texturetoggle
+@exclude env_tilt
+@exclude env_viewpunch
+@exclude env_wind_clientside
+@exclude env_zoom
+@exclude filter_activator_context
+@exclude filter_activator_mass_greater
+@exclude filter_combineball_type
+@exclude filter_los
+@exclude filter_proximity
+@exclude func_areaportal
+@exclude func_areaportalwindow
+@exclude func_bulletshield
+@exclude func_combine_ball_spawner
+@exclude func_conveyor
+@exclude func_detail_blocker
+@exclude func_dustcloud
+@exclude func_dustmotes
+@exclude func_fish_pool
+@exclude func_guntarget
+@exclude func_healthcharger
+@exclude func_illusionary
+@exclude func_instance
+@exclude func_ladderendpoint
+@exclude func_lod
+@exclude func_lookdoor
+@exclude func_occluder
+@exclude func_orator
+@exclude func_platrot
+@exclude func_precipitation_blocker
+@exclude func_recharge
+@exclude func_reflective_glass
+@exclude func_tank_combine_cannon
+@exclude func_tankairboatgun
+@exclude func_tankapcrocket
+@exclude func_tanklaser
+@exclude func_tankmortar
+@exclude func_tankphyscannister
+@exclude func_tankpulselaser
+@exclude func_tankrocket
+@exclude func_tanktrain
+@exclude func_timescale
+@exclude func_trackautochange
+@exclude func_trackchange
+@exclude func_traincontrols
+@exclude func_vehicleclip
+@exclude func_viscluster
+@exclude game_end
+@exclude game_gib_manager
+@exclude game_player_equip
+@exclude game_player_team
+@exclude game_score
+@exclude game_zone_player
+@exclude gibshooter
+@exclude grenade_helicopter
+@exclude hammer_updateignorelist
+@exclude info_apc_missile_hint
+@exclude info_camera_link
+@exclude info_darknessmode_lightsource
+@exclude info_intermission
+@exclude info_mass_center
+@exclude info_no_dynamic_shadow
+@exclude info_overlay_transition
+@exclude info_projecteddecal
+@exclude info_radar_target
+@exclude info_radial_link_controller
+@exclude info_target_advisor_roaming_crash
+@exclude info_target_vehicle_transition
+@exclude info_teleport_destination
+@exclude info_teleporter_countdown
+@exclude item_dynamic_resupply
+@exclude keyframe_track
+@exclude logic_achievement
+@exclude logic_active_autosave
+@exclude logic_lineto
+@exclude logic_measure_movement
+@exclude logic_playmovie
+@exclude logic_scene_list_manager
+@exclude material_modify_control
+@exclude monster_generic
+@exclude move_keyframed
+@exclude move_track
+@exclude npc_crabsynth
+@exclude npc_cranedriver
+@exclude npc_enemyfinder_combinecannon
+@exclude npc_fastzombie_torso
+@exclude npc_fisherman
+@exclude npc_heli_avoidbox
+@exclude npc_heli_avoidsphere
+@exclude npc_heli_nobomb
+@exclude npc_hunter_maker
+@exclude npc_ichthyosaur
+@exclude npc_kleiner
+@exclude npc_launcher
+@exclude npc_magnusson
+@exclude npc_missiledefense
+@exclude npc_monk
+@exclude npc_mortarsynth
+@exclude npc_mossman
+@exclude npc_puppet
+@exclude npc_rollermine
+@exclude npc_seagull
+@exclude npc_spotlight
+@exclude npc_stalker
+@exclude npc_turret_ground
+@exclude path_corner_crash
+@exclude physics_cannister
+@exclude player_loadsaved
+@exclude player_speedmod
+@exclude player_weaponstrip
+@exclude point_antlion_repellant
+@exclude point_apc_controller
+@exclude point_bonusmaps_accessor
+@exclude point_clientui_dialog
+@exclude point_combine_ball_launcher
+@exclude point_devshot_camera
+@exclude point_flesh_effect_target
+@exclude point_gamestats_counter
+@exclude point_tesla
+@exclude prop_coreball
+@exclude prop_hallucination
+@exclude prop_magic_carpet
+@exclude prop_physics_multiplayer
+@exclude prop_scalable
+@exclude prop_thumper
+@exclude prop_vehicle
+@exclude prop_vehicle_airboat
+@exclude prop_vehicle_cannon
+@exclude prop_vehicle_choreo_generic
+@exclude prop_vehicle_crane
+@exclude prop_vehicle_driveable
+@exclude prop_vehicle_jeep
+@exclude prop_vehicle_prisoner_pod
+@exclude script_intro
+@exclude script_tauremoval
+@exclude trigger_physics_trap
+@exclude trigger_playermovement
+@exclude trigger_rpgfire
+@exclude trigger_tonemap
+@exclude trigger_vphysics_motion
+@exclude trigger_waterydeath
+@exclude trigger_weapon_dissolve
+@exclude trigger_weapon_strip
+@exclude trigger_wind
+@exclude vehicle_viewcontroller
+@exclude vgui_movie_display
+@exclude vgui_screen
+@exclude vgui_slideshow_display
+@exclude water_lod_control
+@exclude weapon_alyxgun
+@exclude weapon_annabelle
+@exclude weapon_brickbat
+@exclude weapon_striderbuster
+@exclude weapon_stunstick
+ 
+ 
+// Entity groups. This list specifies which entity groups will show up in the entity tool and in what
+// order. If an entity specifies a group that is not in this list it will not be displayed in the tool.
+// This allows the mod specific fgd to control the ui.
+@EntityGroup "Player" {	start_expanded = true }
+@EntityGroup "Lighting" { start_expanded = true }
+@EntityGroup "Fog & Sky" { start_expanded = true }
+@EntityGroup "NPCs" { start_expanded = true }
+@EntityGroup "Items"
+@EntityGroup "Ammo"
+@EntityGroup "Logic"
+
+
+// Add an override of player start inoder to add it to the ui
+@OverrideClass 
+	metadata
+	{
+		entity_tool_name = "Player Start"
+		entity_tool_group = "Player"
+		entity_tool_tip = "Entity which specifies where the player will start."
+	}
+= info_player_start :
+[
+]
+
+
+@SolidClass base(worldbase) = worldspawn : 
+	"This is the world entity. Each map can only contain one, and it's automatically created for you."
+[
+	baked_light_index_min(integer) : "Baked Light Minimum Index" : "0" : "Baked lights in this map will not have a value smaller than this number. Use to avoid conflicts in dynamically loaded prefabs."
+	baked_light_index_max(integer) : "Baked Light Maximum Index" : "256" : "Baked lights in this map will not have a value equal to or larger than this number. Use to avoid conflicts in dynamically loaded prefabs."
+	max_lightmap_resolution(choices) : "Maximum Lightmap Resolution" : "0" =
+	[
+		"0" : "No Maximum"
+		"512" : "512"
+		"1024" : "1024"
+		"2048" : "2048"
+		"4096" : "4096"
+		"8192" : "8192"
+		"16384" : "16384"
+	]
+	lightmap_queries(boolean) : "Lightmap Queries" : "1" : "Generates data which can be used to lookup lightmap UVs at a given position, useful for high-fidelity illumination of bullet decals on lightmapped geometry."
+]
+
+@BaseClass = shared_enable_disable
+[
+	start_enabled(boolean) : "Start Enabled" : "1"
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+	input Toggle(void) : "Toggle"
+]
+@SolidClass base(Trigger) 
+	vecline_local( target_point, 255, 200, 200 )
+	vecline_local( top_point, 255, 200, 200 )
+	vecline_local( bottom_point, 200, 255, 200 )
+	text_local( target_point, "  Target", 255, 200, 200 )
+	text_local( top_point, "  Top", 255, 200, 200 )
+	text_local( bottom_point, "  Bottom", 200, 255, 200 )
+		
+= trigger_traversal_modifier :
+	"A trigger that modifies where the player should be teleported when their teleport attempt touches this trigger."
+[
+	target_point(local_point) : "Target" : "0 0 0" : "If set, the player will be teleported to this point. If not set, it'll fall back to testing the top & bottom points."
+	top_point(local_point) : "Top"  : "0 64 0" : "If the Target point isn't set, the player will be teleported to this point if they're teleporting from a point that's closer to the bottom point."
+	bottom_point(local_point) : "Bottom"  : "64 0 0" : "If the Target point isn't set, the player will be teleported to this point if they're teleporting from a point that's closer to the top point."
+	instant_traversal(boolean) : "Traverse Instantly" : "0" : "If set, the player won't have to wait for the traversal icon to show."
+	wooden(boolean) : "Wooden" : "0" : "Is the ladder wooden."
+	object_type(choices) : "Modifier Type" : "0" =
+	[
+		"0" : "Ladder"
+		"1" : "Window"
+		"2" : "Portal Window"
+	]
+	window_shatter(boolean) : "Window Shatter" : "0" : "Set to shatter a breakable window when passing through."
+]
+
+@SolidClass base(Trigger) 
+	vecline_local( point_A, 255, 200, 200 )
+	vecline_local( point_B, 255, 200, 200 )
+	text_local( point_A, "  A", 255, 200, 200 )
+	text_local( point_B, "  B", 255, 200, 200 )
+		
+= trigger_traversal_modifier_to_line :
+	"A trigger that modifies where the player should be teleported when their teleport attempt touches this trigger. It moves the teleport point to the nearest point on the line between points A & B."
+[
+	point_A(local_point) : "Point A" : "0 0 0" 
+	point_B(local_point) : "Point B"  : "0 64 0" 
+]
+
+@SolidClass base(Trigger)  = trigger_traversal_no_teleport :
+	"A trigger that will clip the teleport trace. You must texture this entity with the toolsteleportclip material to enable functionality."
+[
+
+]
+
+@SolidClass base(Trigger)  = trigger_traversal_invalid_spot :
+	"A trigger that will keep players from ending there teleport inside or on top of this trigger, but will allow them to move past it."
+[
+	allow_walk_move(boolean) : "Allow walk move on this spot." : "0"
+]
+
+@SolidClass base(Trigger) 
+= trigger_traversal_tp_interrupt
+[
+	landing_entity_name(target_destination) : "Landing Entity"
+	landing_relative_offset(local_point) : "Landing Offset"  : "0 0 0"
+
+	tp_suppress_remind_interval(float) [ group="Player Capture" ] : "TP Suppress Reminder Interval" : "1"
+	capture_on_interrupt(boolean) [ group="Player Capture" ] : "Capture Player On Interrupt" : "1"
+	capture_on_touch(boolean) [ group="Player Capture" ] : "Capture Player On Trigger Touch" : "0"
+	capture_ignore_continuous(boolean) [ group="Player Capture" ] : "Do not Capture Continuous Movement Player" : "0"
+
+	tp_suppress_sound(sound) [ group="Sounds" ] : "TP Suppress Sound"
+	interrupt_sound(sound) [ group="Sounds" ] : "Interrupt/Capture Sound"
+
+	input ReleasePlayer(void) : "Release a captured player."
+	output OnTPInterrupted(void) : "OnPlayerCaptured"
+]
+
+@BaseClass = VRHandAttachment
+[
+	output OnAttachedToHand(void) : "Fired when the item is attached to the player's hand (i.e. pickup)"
+	output OnDetachedFromHand(void) : "Fired when the item is attached to the player's hand (i.e. drop)"
+]
+
+// Base class for items which are actually derived from CPropPhysics instead of CItem
+@BaseClass color(0 0 200) base(Targetname, Shadow) sphere(fademindist) sphere(fademaxdist) = BaseItemPhysics
+[
+	output OnPlayerPickup(void) : "Fires when the player picks up this object"
+	output OnPhysGunDrop(void) : "Dropped by the player or physgun"
+	output OnGlovePulled(void) : "Pulled by the gravity gloves"
+
+	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist/Pixels" : -1 : "Distance at which the prop starts to fade (<0 = use fademaxdist). If 'Screen Space Fade' is selected, this represents the number of pixels wide covered by the prop when it starts to fade."
+	fademaxdist(float) [ group="Render Properties" ] : "End Fade Dist/Pixels" : 0 : "Maximum distance at which the prop is visible (0 = don't fade out). If 'Screen Space Fade' is selected, this represents the *minimum* number of pixels wide covered by the prop when it fades."
+	fadescale(float) [ group="Render Properties" ] : "Fade Scale" : 1 : "If you specify a fade in the worldspawn, or if the engine is running under dx7, then the engine will forcibly fade out props even if fademindist/fademaxdist isn't specified." +												 " This scale factor gives you some control over the fade. Using 0 here turns off the forcible fades." +
+	
+	spawnflags(flags) [ group="Physics Properties" ] = 
+	[
+		1 : "Start Asleep" : 0
+		8 : "Motion Disabled" : 0
+	]
+	interactAs(string) [ group="Physics Properties" ] : "interactAs" : "" : "comma-separated list of interaction layers"
+]
+
+
+@PointClass base(Targetname, Parentname, VRHandAttachment) model() = item_hlvr_prop_flashlight
+[
+	spawnflags(Flags) =
+	[
+		// Using a less common flag value as an optimization. See CHandUseController::CanPickupObject.
+		1048576: "Start Constrained" : 0
+	]
+
+	model(studio) : "Model" : "models/weapons/vr_flashlight/vr_flashlight.vmdl"
+
+	StartDisabled(boolean) : "Start Disabled" : 0
+	BounceLightEnabled(boolean) : "Enable fake bounce light on spawn" : 0 : "Bounce light will turn on when player picks up flashlight no matter what; this enables the bounce from spawn."
+	
+	input Enable(void) : "Enable the flashlight"
+	input Disable(void) : "Turn off the flashlight over specified duration"
+
+	output OnPickup(void) : "OnPickup"
+	output OnAttachedToHand(void) : "OnAttachedToHand"
+]
+
+@PointClass base(Item, VRHandAttachment) editormodel("models/weapons/vr_alyxgun/vr_alyxgun.vmdl") = item_hlvr_weapon_energygun
+[
+	set_spawn_ammo(integer) : "Number of bullets in the clip (Default is no clip)" : "-1"
+]
+@PointClass base(Item, VRHandAttachment, Parentname) editormodel("models/weapons/vr_alyxgun/vr_alyxgun.vmdl") = hlvr_weapon_energygun
+[
+	set_spawn_ammo(integer) : "Number of bullets in the clip (Default is no clip)" : "-1"
+	input ForceFire(float) : "Force the gun to fire a single round, if it has ammo in it."
+]
+
+@PointClass base(Item, VRHandAttachment, Parentname) editormodel("models/weapons/vr_shotgun/vr_shotgun_b.vmdl") = item_hlvr_weapon_shotgun
+[
+	set_spawn_ammo(integer) : "Number of bullets in the clip (Default is no clip)" : "-1"	
+]
+
+@PointClass base(Item, VRHandAttachment) editormodel("models/weapons/vr_ipistol/vr_ipistol.vmdl") = item_hlvr_weapon_rapidfire
+[
+	set_spawn_ammo(integer) : "Number of bullets in the clip (Default is no clip)" : "-1"
+]
+
+@PointClass base(Item, VRHandAttachment) editormodel("models/weapons/vr_alyxgun/vr_alyxgun.vmdl") = item_hlvr_weapon_generic_pistol
+[	
+	inventory_name(string): "Inventory name (should be unique)" : "generic_pistol"
+	inventory_model(resource:model) : "Inventory model" : "models/interface/inventory/pistol_interface_ui.vmdl"
+	inventory_position(choices) : "Inventory position" : "8" =
+	[
+		"1" : "Top"
+		"4" : "Bottom"
+		"8" : "Right"
+		"9" : "Left"
+	]
+	set_spawn_ammo(integer) : "Number of bullets in the clip (Default is no clip)" : "-1"
+	ammo_per_clip(integer) : "Ammo per clip" : "10"
+	damage(integer) : "Damage" : "8"
+	attack_interval(float) : "Attack interval (seconds)" : "0.175"	
+	clip_grab_dist(float) : "Clip grab distance (inches)" : "8.0"
+	bullet_count_anim_rate(float) : "Bullet count anim rate" : "1.0"	
+	slide_interact_min_dist(float) : "Slide interaction min distance (inches)" : "6.0"
+	slide_interact_max_dist(float) : "Slide interaction max distance (inches)" : "6.0"
+	bottom_grip_min_dist(float) : "Bottom grip min distance (inches)" : "4.0"
+	bottom_grip_max_dist(float) : "Bottom grip max distance (inches)" : "4.5"
+	bottom_grip_disengage_dist(float): "Bottom grip disengage distance (inches)" : "5.0"
+	model_right_handed(resource:model) : "Model right handed" : "models/weapons/vr_alyxgun/vr_alyxgun.vmdl"
+	model_left_handed(resource:model) : "Model left handed" : "models/weapons/vr_alyxgun/vr_alyxgun_lhand.vmdl"
+	slide_model_right_handed(resource:model) : "Slide model right handed" : "models/weapons/vr_alyxgun/vr_alyxgun_slide_anim_interact.vmdl"
+	slide_model_left_handed(resource:model) : "Slide model left handed" : "models/weapons/vr_alyxgun/vr_alyxgun_slide_anim_interact_lhand.vmdl"
+	clip_model_right_handed(resource:model) : "Clip model right handed" : "models/weapons/vr_alyxgun/vr_alyxgun_clip.vmdl"
+	clip_model_left_handed(resource:model) : "Clip model left handed" : "models/weapons/vr_alyxgun/vr_alyxgun_clip_lhand.vmdl"
+	single_bullet_model(resource:model): "Single bullet model": "models/weapons/vr_alyxgun/vr_alyxgun_bullet.vmdl"
+	eject_shell_model(resource:model) : "Eject shell model" : "models/weapons/vr_shellcases/pistol_shellcase01.vmdl"
+	shoot_sound(sound) : "Shoot sound" : "AlyxPistol.Fire"
+	no_ammo_sound(sound) : "No ammo sound" : "AlyxPistol.CarryingNoAmmo"
+	last_shot_chambered(sound) : "Last shot chambered sound" : "Pistol.LastShotChambered"
+	slide_lock_sound(sound): "Slide lock sound" : "Pistol.SlideLock"
+	slide_back_sound(sound): "Slide back sound" : "AlyxPistol.Slideback"
+	slide_close_sound(sound): "Slide close sound" : "Pistol.CloseSlide"
+	clip_insert_sound(sound): "Clip insert sound" : "Pistol.ClipInsert"
+	clip_release_sound(sound): "Clip release sound" : "Pistol.ClipRelease"
+	muzzle_flash_effect(particlesystem) : "Muzzle flash effect" : "particles/weapon_fx/muzzleflash_pistol_small.vpcf"
+	tracer_effect(particlesystem) : "Tracer effect" : "particles/tracer_fx/pistol_tracer.vpcf"	
+	eject_shell_smoke_effect(particlesystem) : "Eject shell smoke effect" : "particles/weapon_fx/weapon_shell_smoke.vpcf"
+	glow_effect(particlesystem) : "Glow effect" : "models/weapons/vr_alyxgun/vr_alyxgun_worlditem_glow.vpcf"
+	barrel_smoke_effect(particlesystem) : "Barrel smoke effect" : "particles/weapon_fx/weapon_pistol_barrel_smoke.vpcf"
+	clip_glow_effect(particlesystem) : "Clip glow effect" : "models/weapons/vr_alyxgun/vr_alyxgun_clip_glow.vpcf"	
+]
+
+@PointClass base(Item) model() = hlvr_weapon_crowbar
+[
+	model(studio) : "Model" : "models/weapons/w_crowbar.vmdl"
+
+	output OnCrowbarAcquired(void) : "Fired when the item is first picked up from the world"
+]
+
+@PointClass base(Item, DamageFilter) model("models/weapons/vr_grenade/grenade_unarmed.vmdl")
+	metadata
+	{
+		entity_tool_name = "Frag Grenade"
+		entity_tool_group = "Items"
+	}
+= item_hlvr_grenade_frag
+[
+	ammobalancing_removable(choices) : "Removal Allowed for Ammo Balancing" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+
+	input ArmGrenade(float) : "Set to arm the grenade for the specified amount of seconds"
+	output OnExplode(void) : "Fired when the grenade explodes"
+	interactAs(string) [ group="Physics Properties" ] : "interactAs" : "" : "comma-separated list of interaction layers"
+]
+
+@PointClass base(Item) model("models/combine_helicopter/helicopter_bomb01.vmdl") = item_hlvr_grenade_remote_sticky
+[
+	input RemoteDetonate(void) : "Detonate the sticky remotely"
+]
+
+@PointClass base(Item) model("models/props/combine/combine_truck_gun_projectile.vmdl") = item_hlvr_grenade_bomb
+[
+
+]
+
+@PointClass base(Item) editormodel("models/weapons/vr_xen_grenade/vr_xen_grenade.vmdl") 
+	metadata
+	{
+		entity_tool_name = "Xen Grenade"
+		entity_tool_group = "Items"
+	}
+= item_hlvr_grenade_xen
+[
+	
+]
+
+@BaseClass = HLVRAmmo
+[
+	ammobalancing_removable(choices) : "Removal Allowed for Ammo Balancing" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model("models/weapons/vr_alyxgun/vr_alyxgun_clip.vmdl") 
+	metadata
+	{
+		entity_tool_name = "Pistol Ammo"
+		entity_tool_tip = "Single ammo clip for the pistol"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_energygun
+[
+	
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model("models/weapons/vr_alyxgun/pistol_clip_holder.vmdl")
+	metadata
+	{
+		entity_tool_name = "Pistol Ammo Pack"
+		entity_tool_tip = "Four ammo clips for the pistol"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_energygun_multiple
+[
+	
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model("models/weapons/vr_ipistol/capsule_power_cell.vmdl")
+	metadata
+	{
+		entity_tool_name = "Rapid Fire Ammo"
+		entity_tool_tip = "A power cell for the Combine rapid fire gun"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_rapidfire
+[
+	
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model( "models/weapons/vr_shotgun/shell_hand.vmdl" ) 
+	metadata
+	{
+		entity_tool_name = "Shotgun Ammo"
+		entity_tool_tip = "Single shell for the shotgun"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_shotgun_single
+[
+	
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model("models/weapons/vr_ammo/shotgun_shell_ammo_box.vmdl")
+	metadata
+	{
+		entity_tool_name = "Shotgun Ammo Pack"
+		entity_tool_tip = "A box of multiple shells for the shotgun"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_shotgun_multiple
+[
+	
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model("models/weapons/vr_alyxgun/vr_alyxgun_clip.vmdl") 
+	metadata
+	{
+		entity_tool_name = "Generic Pistol Ammo"
+		entity_tool_tip = "Single ammo clip for the pistol"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_generic_pistol
+[
+	ammo_per_clip(integer): "Ammo per clip" : "8"
+	model_right_handed(resource:model): "Model right handed" : "models/weapons/vr_alyxgun/vr_alyxgun_clip.vmdl"
+	model_left_handed(resource:model): "Model left handed" : "models/weapons/vr_alyxgun/vr_alyxgun_clip_lhand.vmdl"
+	glow_effect(particlesystem): "Glow effect" : "models/weapons/vr_alyxgun/vr_alyxgun_clip_glow.vpcf"
+]
+
+@PointClass base(BaseItemPhysics,HLVRAmmo) model("models/weapons/vr_alyxgun/pistol_clip_holder.vmdl")
+	metadata
+	{
+		entity_tool_name = "Generic Pistol Ammo Pack"
+		entity_tool_tip = "Four ammo clips for generic"
+		entity_tool_group = "Ammo"
+	}
+= item_hlvr_clip_generic_pistol_multiple
+[
+	ammo_per_clip(integer): "Ammo per clip" : "32"
+	model(resource:model): "Model" : "models/weapons/vr_alyxgun/pistol_clip_holder.vmdl"
+	glow_effect(particlesystem): "Glow effect" : "models/weapons/vr_alyxgun/vr_alyxgun_clip_holder_glow.vpcf"
+]
+
+@PointClass base(BaseItemPhysics,Parentname) model("models/weapons/vr_alyxhealth/vr_health_pen.vmdl") 
+	metadata
+	{
+		entity_tool_name = "Health Pen"
+		entity_tool_tip = "Health Injection Pen"
+		entity_tool_group = "Items"
+	}
+= item_healthvial
+[
+	ammobalancing_removable(choices) : "Removal Allowed for Ammo Balancing" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+
+	spawnflags(flags) [ group="Physics Properties" ] = 
+	[
+		1048576: "Physgun can ALWAYS pick up. No matter what." : 0
+	]
+]
+
+@PointClass base(Item) model() = item_hlvr_weapon_grabbity_glove
+[
+	model(studio) : "Model" : "models/hands/grabbity_glove_worldmodel.vmdl"
+
+	output OnGrabbityGloveEquipped(void) : "Fired when the item is first picked up from the world"
+]
+
+@PointClass base(Item) model() = item_hlvr_weapon_grabbity_slingshot
+[
+	model(studio) : "Model" : "models/hands/grabbity_glove_worldmodel.vmdl"
+
+	output OnGrabbitySlingshotEquipped(void) : "Fired when the item is first picked up from the world"
+]
+
+@PointClass base(BaseItemPhysics) model("models/weapons/vr_tripmine/tripmine.vmdl") = item_hlvr_weapon_tripmine
+[
+	StartActivated(boolean) : "Armed on Spawn" : "0"
+	StartAttached(boolean) : "Attach on Spawn" : "0"
+	PreventTripping(boolean) : "Prevent Tripping" : "0" : "The mine not trip or explode but the laser will be on."
+	HackDifficultyName( string ) : "Hack Difficulty Name" : "Medium" : "The name for this tripmine hack that matches the difficulty values specified in holo_hacking_difficulty.txt."
+
+	input AllowTripping(void) : "Allows the mine to be tripped."
+	input ActivateMine(void) : "Activates mine."
+	input DeactivateMine(void) : "Deactivates mine."
+
+	output OnExplode(void) : "Fired when the tripmine explodes"
+	output OnHackStarted( void ) : "Fires when the hack has been started."
+	output OnHackStopped( void ) : "Fires when the hack has been stopped."
+	output OnHackSuccess( void ) : "Fires when the hack has been successfully completed."
+	output OnHackFailed( void ) : "Fires when the hack has failed."
+	output OnHackSuccessAnimationComplete( void ) : "Fires when the hack has been successfully completed and the hacking plug has returned back to its idle position."
+	output OnPuzzleCompleted( void ) : "Fires as soon as the puzzle completes. The hack is still active at this point and has yet to play its outro."
+	output OnPuzzleSuccess( void ) : "Fires as soon as the puzzle completes. The hack is still active at this point and has yet to play its outro."
+	output OnPuzzleFailed( void ) : "Fires as soon as the puzzle completes. The hack is still active at this point and has yet to play its outro."
+]
+
+@PointClass base(Item, VRHandAttachment) model() = item_hlvr_weapon_radio
+[
+	model(studio) : "Model" : "models/props/max/walkietalkie/walkietalkie.vmdl"
+]
+
+@PointClass base(Item, VRHandAttachment) model() = item_hlvr_multitool
+[
+	model(studio) : "Model" : "models/weapons/vr_alyxtool/alyx_tool.vmdl"
+]
+
+@NPCClass base(BaseHeadcrab) model("models/creatures/headcrab_reviver/headcrab_reviver.vmdl") = npc_headcrab_runner : "Runner Headcrab"
+[
+	reviver_group(string) : "Reviver Group" : "" : "If set, this Runner will only attempt to revive zombies with a matching reviver group."
+	input ForceRevive(target_destination) : "Immediately attach and revive a named zombie"
+
+	output OnReviverInhabit(void) : "Fired when the reviver inhabits a zombie."
+	output OnReviverEscape(void) : "Fired when the reviver exits its host."
+]
+
+@PointClass base(Item) model("models/weapons/modules/module_rapidfire.vmdl") = item_hlvr_weaponmodule_rapidfire : "WeaponModule Rapidfire"
+[
+]
+
+@PointClass base(Item) model("models/weapons/modules/module_ricochet.vmdl") = item_hlvr_weaponmodule_ricochet : "WeaponModule Ricochet"
+[
+]
+
+@PointClass base(Item) model("models/creatures/snark/snark.vmdl") = item_hlvr_weaponmodule_snark : "WeaponModule Snark"
+[
+]
+
+@PointClass base(Item) model("models/weapons/vr_alyxgun/vr_alyxgun_attach_zap.vmdl") = item_hlvr_weaponmodule_zapper : "WeaponModule Zapper"
+[
+]
+
+@PointClass base(Item) model("models/weapons/modules/module_missile.vmdl") = item_hlvr_weaponmodule_guidedmissle : "WeaponModule GuidedMissle"
+[
+]
+
+@PointClass base(Item) model("models/weapons/modules/module_missile_cluster.vmdl") = item_hlvr_weaponmodule_guidedmissle_cluster : "WeaponModule GuidedMissleCluster"
+[
+]
+
+@PointClass base(Item) model("models/weapons/modules/module_ricochet.vmdl") = item_hlvr_weaponmodule_physcannon : "WeaponModule PhysCannon"
+[
+]
+
+@PointClass base(Item) model("models/weapons/vr_grenade/vr_grenade_01_pin.vmdl") = hlvr_grenadepin_proxy : "Grenade Pin"
+[
+]
+
+@SolidClass base(func_nav_markup) = func_hlvr_nav_markup
+[
+	// See markup_volume_tagged
+	tagFieldNames(string) : "<internal>" : "navProperty_NavAttributes,navProperty_NavGen" : "<internal>"
+]
+
+@SolidClass base(Targetname) tags( NavMarkup ) 
+	metadata
+	{
+		auto_apply_material = "materials/tools/toolsnavattribute.vmat"
+	}
+= func_nav_blocker : "A brush entity that can block nav areas touching its AABB." 
+[
+	StartDisabled(boolean) : "Start Disabled" : 0
+	input BlockNav(string) : "Starts blocking nav areas."
+	input UnblockNav(void) : "Stops blocking nav areas."
+]
+
+@PointClass base(Targetname, Parentname, BaseFadeProp, EnableDisable) tags( PropDynamic ) model() = prop_animinteractable: "Animating Interactable"
+[
+	model(studio)                             : "Model" : "models/interaction/anim_interact/valve/valve.vmdl"
+	InitialCompletionAmount(float)            : "Initial Completion Amount" : "0" : "When the interactable prop spawns, it will start with its animation already completed by this amount. Change this value if you want the prop to start in the middle, end, or any other non-standard amount."
+	TargetCompletionValueA(float)             : "Target Completion Value A" : "1" : "Fire event A when this amount is reached, -1 means disabled"
+	TargetCompletionValueB(float)             : "Target Completion Value B" : "-1" : "Fire event B when this amount is reached, -1 means disabled"
+	TargetCompletionValueC(float)             : "Target Completion Value C" : "-1" : "Fire event C when this amount is reached, -1 means disabled"
+	TargetCompletionValueD(float)             : "Target Completion Value D" : "-1" : "Fire event D when this amount is reached, -1 means disabled"
+	TargetCompletionValueE(float)             : "Target Completion Value E" : "-1" : "Fire event E when this amount is reached, -1 means disabled"
+	TargetCompletionValueF(float)             : "Target Completion Value F" : "-1" : "Fire event F when this amount is reached, -1 means disabled"
+	TargetCompletionThreshold(float)          : "Target Completion Threshold" : "0.1" : "Don't fire a completion event again until the user moves at least this much beyond the completion value (and back)."	
+	ObjectRequirement(string)                 : "Object requirement" : "" : "Require this object as a hand attachment to interact."
+	OnlyRunForward(boolean)                   : "Only run forward" : "0" : "Only allow the animation to proceed forward"
+	OnlyRunBackward(boolean)                  : "Only run backward" : "0" : "Only allow the animation to proceed backward"
+	LimitForward(float)                       : "Limit Forward" : "1" : "Restrict the animation range forward this many cycles"
+	LimitBackward(float)                      : "Limit Backward" : "0" : "Restrict the animation range backward this many cycles"
+	LimitStop(float)						  : "Limit Stop" : "-1" : "Restrict the forward animation progress but not the overall range"
+	StartLocked(boolean)                      : "Start Locked" : "0" : "Spawn in the locked state"
+	LimitLocked(float)                        : "Limit Locked" : "0" : "Restrict the animation range this many cycles when locked"
+	ReturnToCompletion(boolean)               : "Return to Completion" : "0" : "When the player releases the handle, return autonomously."
+	ReturnToCompletionAmount(float)           : "Return to Completion Amount" : "0" : "When the player releases the handle, return to this amount of completion autonomously."
+	ReturnToCompletionThreshold(float)        : "Return to Completion Threshold" : "-1" : "Determines the threshold [0,1] for the Return to Completion value to be set to 0 or 1 automatically when the player releases the handle."
+	ReturnToCompletionDelay(float)            : "Return to Completion Delay" : "0" : "When using single controller mode, delay starting Return To Completion for a short period of time when the player releases the handle. ForcePlayerRelease overrides this setting and ReturnToCompletion will start normally."
+	AnimationDuration(float)                  : "Total Animation Duration" : "5" : "Used when returning to the return-to-completion amount. If the animation had to return over its entire length, it'd take this long."
+	StartSound(sound)                         : "Start Sound" : : "Sound to make when motion begins."
+	MoveSound(sound)                          : "Movement Sound" : : "Sound to make while moving."
+	StopSound(sound)                          : "Stop Sound" : : "Player stops interacting with the prop"
+	OpenCompleteSound(sound)                  : "Open Complete Sound" : : "Sound for the open animation completing"
+	CloseCompleteSound(sound)                 : "Close Complete Sound" : : "Sound for the close animation completing"
+	BounceSound(sound)                        : "Bounce Sound" : : "Sound to make when motion end transition begins"
+	LockedSound(sound)                        : "Locked Sound" : : "Sound to make when the player interacts with the handle while it is locked."
+	ReturnForwardMoveSound(sound)             : "Return to Completion Forward Move Sound" : : "Sound for movement during return to completion forward"
+	ReturnBackwardMoveSound(sound)            : "Return to Completion Backward Move Sound" : : "Sound for movement during return to completion backward"
+	InteractionBoneName(string)               : "Interaction Bone Name" : "interact" : "Name of the model interaction bone to match (substring search)"
+	ReturnToCompletionStyle(choices)          : "Motion style when returning to completion amount" : "0" =
+	[
+		"0" : "Ease-in, ease-out"
+		"1" : "Ease-in only"
+		"2" : "Ease-out only"
+		"3" : "Bounce"
+		"4" : "Lerp"
+	]
+	AllowGravityGunPull(boolean)              : "Allow Gravity Gun Pull" : "0" : "Responds to Gravity gun pull"
+	RetainVelocity(boolean)                   : "Retain Velocity" : "0" : "Retain some velocity from the player's hand"
+	ReactToDynamicPhysics(boolean)            : "React To Dynamic Physics" : "0" : "Move when hit by physics forces"
+	IgnoreHandRotation(boolean)               : "Ignore Hand Rotation" : "1" : "Ignore the rotation (twisting) of the player's hand when interacting"
+	IgnoreHandPosition(boolean)               : "Ignore Hand Position" : "0" : "Ignore the position (offset) of the player's hand when interacting"
+	DoHapticsOnBothHands(boolean)             : "Do Haptics on both hands" : "0" : "Fires haptic pulses on both hands when interacting."
+	PositiveResistance(float) 				  : "Resistance" : "1" : "Amount of Resistance on Anim Interactable movement (ie 1.0 full, 0.1 slow)"
+	UpdateChildModels(boolean)				  : "Update Children" : "0" : "Sets the animation cycle of the children of the Anim Interactable entity" 
+	NormalizeChildModelUpdates(boolean)		  : "Normalize Updates to Children" : "0" : "Remaps updates to the child models to be between 0 and 1 over the entire range of the interactable."
+	ChildModelAnimgraphParameter(string)	  : "Child Model Animgraph Parameter" : "" : "The animgraph parameter to update for the child model. Sets the animation cycle directly if none is specified."
+	SetNavIgnore(boolean)					  : "Set Nav Ignore" : "0" : "Ignored by NPC movement"
+	CreateNavObstacle(boolean)				  : "Create Nav Obstacle" : "0" : "Create a navigation obstacle to assist NPC pathfinding"
+	ReleaseOnPlayerDamage(boolean)			  : "Release on Damage" : "0" : "Forces Player to Stop Interacting if they take damage"
+	BehaveAsPropPhysics(boolean)              : "Spawn behaving like a prop_physics" : "0" : "On initial spawn, act like a prop_physics. Won't be usable as an anim interactable until it receives a 'StopBehavingLikePropPhysics' input."
+	AddToSpatialPartition(boolean)			  : "Add To Spatial Partition" : "1" : "Set to true if the animinteractable is static or has a small move bounds (doors, levers)"
+
+	interactAs(string)						  : "interactAs" : "" : "comma-separated list of interaction layers"
+
+	output OnInteractStart(void)              : "Fired when the interaction is initiated"
+	output OnInteractStop(void)				  : "Fired when the interaction is ended"
+	output OnGravityGunPull(void)			  : "Fired when the prop is gravity pulled"
+	output OnCompletionA(void)                : "Fired when the completion amount A is reached or crossed"
+	output OnCompletionA_Forward(void)        : "Fired when the completion amount A is reached or crossed while animation is moving forward"
+	output OnCompletionA_Backward(void)       : "Fired when the completion amount A is reached or crossed while animation is moving backward"
+	output OnCompletionB(void)                : "Fired when the completion amount B is reached or crossed"
+	output OnCompletionB_Forward(void)        : "Fired when the completion amount B is reached or crossed while animation is moving forward"
+	output OnCompletionB_Backward(void)       : "Fired when the completion amount B is reached or crossed while animation is moving backward"
+	output OnCompletionC(void)                : "Fired when the completion amount C is reached or crossed"
+	output OnCompletionC_Forward(void)        : "Fired when the completion amount C is reached or crossed while animation is moving forward"
+	output OnCompletionC_Backward(void)       : "Fired when the completion amount C is reached or crossed while animation is moving backward"
+	output OnCompletionD(void)                : "Fired when the completion amount D is reached or crossed"
+	output OnCompletionD_Forward(void)        : "Fired when the completion amount D is reached or crossed while animation is moving forward"
+	output OnCompletionD_Backward(void)       : "Fired when the completion amount D is reached or crossed while animation is moving backward"
+	output OnCompletionE(void)                : "Fired when the completion amount E is reached or crossed"
+	output OnCompletionE_Forward(void)        : "Fired when the completion amount E is reached or crossed while animation is moving forward"
+	output OnCompletionE_Backward(void)       : "Fired when the completion amount E is reached or crossed while animation is moving backward"
+	output OnCompletionF(void)                : "Fired when the completion amount F is reached or crossed"
+	output OnCompletionF_Forward(void)        : "Fired when the completion amount F is reached or crossed while animation is moving forward"
+	output OnCompletionF_Backward(void)       : "Fired when the completion amount F is reached or crossed while animation is moving backward"
+	
+	output OnCompletionExitA(void)            : "Fired when the completion amount A is Exited"
+	output OnCompletionExitB(void)            : "Fired when the completion amount B is Exited"
+	output OnCompletionExitC(void)            : "Fired when the completion amount C is Exited"
+	output OnCompletionExitD(void)            : "Fired when the completion amount D is Exited"
+	output OnCompletionExitE(void)            : "Fired when the completion amount E is Exited"
+	output OnCompletionExitF(void)            : "Fired when the completion amount F is Exited"
+
+	output Position(float)                    : "Fired whenever the animation changes. Output is the amount of animation completed (between 0 and 1)"
+	output PositionInverted(float)            : "Fired whenever the animation changes. Output is the inverse of the amount of animation completed (between 1 and 0)"
+	output PositionRaw(float)                 : "Fired whenever the animation changes. Output is the amount of animation completed (raw completion value)"
+	output Velocity(float)					  : "Fired whenever the animation changes. Output is the delta in animation change since last tick (between -1 & 1)"
+	output PositionInitialLimitsRemap(float)  : "Fired whenever the animation changes. Output is the amount of animation completed using the initial backward/forward limits (between 0 and 1)"
+
+	input SetCompletionValue(float)		  : "Sets the current completion value, without firing any events."
+	input SetCompletionValueA(float)	  : "Sets the target completion value A amount (when event A will be fired). -1 means disabled."
+	input SetCompletionValueB(float)	  : "Sets the target completion value B amount (when event B will be fired). -1 means disabled."
+	input SetCompletionValueC(float)	  : "Sets the target completion value C amount (when event C will be fired). -1 means disabled."
+	input SetCompletionValueD(float)	  : "Sets the target completion value D amount (when event D will be fired). -1 means disabled."
+	input SetCompletionValueE(float)	  : "Sets the target completion value E amount (when event E will be fired). -1 means disabled."
+	input SetCompletionValueF(float)	  : "Sets the target completion value F amount (when event F will be fired). -1 means disabled."
+	input SetReturnToCompletionAmount(float)  : "Sets a new ReturnToCompletionAmount."
+	input EnableReturnToCompletion(void)      : "Enable ReturnToCompletion"
+	input DisableReturnToCompletion(void)     : "Disable ReturnToCompletion"
+	input EnableOnlyRunForward(void)		  : "Enable OnlyRunForward"
+	input DisableOnlyRunForward(void)		  : "Disable OnlyRunForward"
+	input SetAnimationDuration(float)         : "Sets a new AnimationDuration."
+	input PlayAnimation(string)		          : "Play an animation."
+	input SetLimitForward(float)              : "Sets a new LimitForward."
+	input SetLimitBackward(float)             : "Sets a new LimitBackward."
+	input SetLimitStop(float)				  : "Sets a new LimitStop."
+	input Lock(void)                          : "Locks the animinteractable."
+	input Unlock(void)                        : "Unlocks the animinteractable."
+	input TurnIntoPhysicsProp(void)           : "Removes the animinteractable and replaces it with a physics prop of the same model."
+	input SetPositiveResistance(float) 		  : "Sets the amount of Resistance on Anim Interactable movement as a % of base movement (ie 1.0 full, 0.1 slow)"
+	input SetBodyGroup(string) : "Sets NPC bodygroup. Format is <BodygroupName,index> "
+	input ForcePlayerRelease(void) : "Forces the animinteractable to release the player's hand"
+	input SetReturnToCompletionStyle(integer) : "Set the motion style when returning to completion amount. 0 (Ease-in, ease-out), 1 (Ease-in only), 2 (Ease-out only), 3 (Bounce), 4 (Lerp)"
+	input DisableInteraction(boolean)		  : "Disable Interaction (1 to disable - 0 to re-enable)"
+	input StopBehavingLikePropPhysics(void)	  : "Stop behaving like a prop_physics, and switch to being a normal prop_animinteractable"
+	input EnableChildModelUpdates(void)		  : "Enable updates to any child models of this anim interactable"
+	input DisableChildModelUpdates(void)	  : "Disable updates to any child models of this anim interactable"
+	input ForceImmediateReturnToCompletion(float) : "Sets a new AnimationDuration, forces the player to release the animinteractable, and forces an immediate return to completion with the Lerp style."
+]
+
+@PointClass base( Targetname ) tags( Info ) iconsprite("editor/info_hlvr_equip_player.vmat") 
+	metadata
+	{
+		entity_tool_name = "Player Equipment"
+		entity_tool_tip = "Specifies what weapons and items the player starts with"
+		entity_tool_group = "Player"
+	}
+= info_hlvr_equip_player: "Equip HLVR Player"
+[
+	equip_on_mapstart(boolean) : "Equip on map start" : "1"
+
+	energygun(boolean) : "Give Energygun" : "0"
+	shotgun(boolean) : "Give Shotgun" : "0"
+	rapidfire(boolean) : "Give Rapidfire Pistol" : "0"
+	multitool(boolean) : "Give Multi-tool" : "0"
+	flashlight(boolean) : "Give Flashlight" : "0"
+	flashlight_enabled(boolean) : "Flashlight is enabled" : "0"
+	grabbitygloves(boolean) : "Give Grabbity Gloves" : "0"
+	itemholder(boolean) : "Give Item Holder" : "0"
+	set_ammo(integer) : "Set Pistol Ammo (-1 to leave it)" : "-1"
+	set_ammo_rapidfire(integer) : "Set Rapid Fire Ammo (-1 to leave it). Needs to be multiple of 90" : "-1"
+	set_ammo_shotgun(integer) : "Set Shotgun Ammo (-1 to leave it)" : "-1"
+	set_resin(integer) : "Set Resin (-1 to leave it)" : "-1"
+	start_weapons_empty(boolean) : "Start Weapons Empty" : "0"
+	inventory_enabled(boolean) : "Enable inventory (Weapon Switch)" : "1"
+	backpack_enabled(boolean) : "Enable Backpack" : "1"
+	allow_removal(boolean) : "Allow Removal" : "0" : "If set, any equipment the player has that isn't flagged by this info_hlvr_equip_player will be removed from the player."
+
+	pistol_upgrade_lasersight( boolean ) : "Pistol Upgrade Laser Sight" : "0"
+	pistol_upgrade_reflexsight( boolean ) : "Pistol Upgrade Reflex Sight" : "0"
+	pistol_upgrade_bullethopper( boolean ) : "Pistol Upgrade Bullet Hopper" : "0"
+	pistol_upgrade_burstfire( boolean ) : "Pistol Upgrade Burst Fire" : "0"
+
+	rapidfire_upgrade_reflexsight( boolean ) : "Rapidfire Upgrade Reflex Sight" : "0"
+	rapidfire_upgrade_lasersight( boolean ) : "Rapidfire Upgrade Laser Sight" : "0"
+	rapidfire_upgrade_extended_magazine( boolean ) : "Rapidfire Upgrade Extended Magazine" : "0"
+
+	shotgun_upgrade_autoloader(boolean) : "Shotgun upgrade Autoloader" : "0"
+	shotgun_upgrade_grenade(boolean) : "Shotgun upgrade Grenade Launcher" : "0"
+	shotgun_upgrade_lasersight(boolean) : "Shotgun upgrade Laser Sight" : "0"
+	shotgun_upgrade_quickfire(boolean) : "Shotgun upgrade Quick Fire" : "0"
+
+	input EquipNow(void)
+	input EnableInventory(void)
+	input EnableBackpack(void)
+]
+
+@PointClass base( Targetname ) iconsprite("editor/point_hlvr_strip_player.vmat") = point_hlvr_strip_player: "Strip HLVR Player"
+[
+	EnablePhysicsDelay(float) : "Enable Physics Delay" : "1" : "Delay before the stripped items enable their physics collision and can be affected by triggers."
+	DissolveItemsDelay(float) : "Dissolve Items Delay" : "3" : "Delay before the stripped items are dissolved."
+	ItemVelocity(float) : "Item Velocity" : "20" : "The velocity of the items as the exit the player."
+
+	input StripPlayer(void)
+	input StripPlayerQuiet(void)
+]
+
+@PointClass base(BasePropPhysics, Targetname, DamageFilter) model("models/props/supplycrate/supplycrate_01.vmdl") 
+	metadata
+	{
+		entity_tool_name = "Item Crate"
+		entity_tool_tip = "Crate which can be configured to contain other items"
+		entity_tool_group = "Items"
+	}
+= item_item_crate : "Item Crate"
+[
+	ItemClass(choices) : "Item Type" : "item_hlvr_clip_energygun" : "Class name of the entity to spawn when the crate is broken" =
+	[
+		"item_hlvr_clip_energygun" : "Energy Gun Clip"
+		"item_hlvr_clip_energygun_multiple" : "Energy Gun Clip x 4"
+		"item_hlvr_clip_rapidfire" : "Rapid Fire Clip"
+		"item_hlvr_clip_shotgun_single" : "Shotgun Shell (Single)"
+		"item_hlvr_clip_shotgun_shells_pair" : "Shotgun Shells (Two)"
+		"item_hlvr_clip_shotgun_multiple" : "Shotgun Shells (Box)"
+		"item_healthvial" : "Health Pen"
+		"item_hlvr_grenade_frag" : "Frag Grenade"
+		"item_hlvr_health_station_vial" : "Health Station Vial"
+	]
+
+	CrateAppearance(choices) : "Crate Appearance" : 2 =
+	[
+		0 : "Default Appearance"
+		1 : "Radar Beacon Crate"
+		2 : "HLVR Small Crate"
+	]
+	
+	ItemCount(integer) : "Item Count" : 1 : "Number of items to emit upon breakage"
+	SpecificResupply(target_destination) : "Specific resupply" : "" : "If item type is item_dynamic_resupply, specify a specific one to use instead of the master"
+
+	ammobalancing_removable(choices) : "Removal Allowed for Ammo Balancing" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+
+	// Inputs
+	input Kill(void) : "Remove the item crate"
+	input Break(void) : "Breaks the breakable."
+	input SetHealth(integer) : "Sets a new value for health. If the breakable's health reaches zero it will break."
+	input AddHealth(integer) : "Adds health to the breakable. If the breakable's health reaches zero it will break."
+	input RemoveHealth(integer) : "Removes health from the breakable. If the breakable's health reaches zero it will break."
+	
+	// Outputs
+	output OnBreak(void) : "Fires when broken."
+	output OnHealthChanged(float) : "Fires when the health of this breakable changes, passing the new value of health as a percentage of max health, from [0..1]."
+	output OnCacheInteraction(void) : "This output fires when the player proves they have 'found' this crate. Fires on: Picked up by +USE, Picked up by Physcannon, Punted by Physcannon, Broken."
+]
+
+@OverrideClass = npc_cscanner
+[
+	input SpawnAsAltScanner(void): "Spawns the Russell skin/bodygroup scanner"
+]
+
+@OverrideClass = npc_strider
+[
+	input ForcePlayerAsEnemy(void) : "Maintain the player as the enemy while in a scripted state."
+
+	output OnQuarterHealth(void) : "Fired when this NPC reaches one quarter of its maximum health."
+	output OnThreeQuarterHealth(void) : "Fired when this NPC reaches three quarters of its maximum health."
+	output OnMinigunDisabled(void) : "Fired when the strider's minigun changes to disabled."
+	output OnMinigunEnabledLOS(void) : "Fired when the strider's minigun changes to enabled with LOS checking."
+	output OnMinigunEnabledSuppression(void) : "Fired when the strider's minigun changes to enabled without LOS checking (suppression fire)."
+	output OnAttackedByPlayerNoDamage(void) : "Fired when the strider is attacked by the player but no damage is taken."
+]
+
+@OverrideClass = ai_attached_item_manager
+[
+	item_1(choices) : "Item 1" : "" : "Class name of item to attach in slot 1. If set to Default, the NPC's code will decide what it should be, if anything." =
+	[
+		"" : "Default (Code decides)"
+		"item_hlvr_clip_energygun" : "Energy Gun Clip"
+		"item_hlvr_clip_rapidfire" : "Rapidfire Clip"
+		"item_hlvr_clip_shotgun_single" : "Shotgun Shell (Single)"
+		"item_hlvr_clip_shotgun_shells_pair" : "Shotgun Shells (Two)"
+		"item_hlvr_clip_shotgun_multiple" : "Shotgun Shells (Box)"
+		"item_healthvial" : "Health Vial"
+		"item_hlvr_grenade_frag" : "Frag Grenade"
+		"item_hlvr_crafting_currency_small" : "Small Crafting Currency"
+		"npc_manhack_attached" : "Manhack (ONLY USE ON COMBINE OFFICERS)"
+	]
+	item_2(choices) : "Item 2" : "" : "Class name of item to attach in slot 2. If set to Default, the NPC's code will decide what it should be, if anything." =
+	[
+		"" : "Default (Code decides)"
+		"item_hlvr_clip_energygun" : "Energy Gun Clip"
+		"item_hlvr_clip_rapidfire" : "Rapidfire Clip"
+		"item_hlvr_clip_shotgun_single" : "Shotgun Shell (Single)"
+		"item_hlvr_clip_shotgun_shells_pair" : "Shotgun Shells (Two)"
+		"item_hlvr_clip_shotgun_multiple" : "Shotgun Shells (Box)"
+		"item_healthvial" : "Health Vial"
+		"item_hlvr_grenade_frag" : "Frag Grenade"
+		"item_hlvr_crafting_currency_small" : "Small Crafting Currency"
+	]
+	item_3(choices) : "Item 3" : "" : "Class name of item to attach in slot 3. If set to Default, the NPC's code will decide what it should be, if anything." =
+	[
+		"" : "Default (Code decides)"
+		"item_hlvr_clip_energygun" : "Energy Gun Clip"
+		"item_hlvr_clip_rapidfire" : "Rapidfire Clip"
+		"item_hlvr_clip_shotgun_single" : "Shotgun Shell (Single)"
+		"item_hlvr_clip_shotgun_shells_pair" : "Shotgun Shells (Two)"
+		"item_hlvr_clip_shotgun_multiple" : "Shotgun Shells (Box)"
+		"item_healthvial" : "Health Vial"
+		"item_hlvr_grenade_frag" : "Frag Grenade"
+		"item_hlvr_crafting_currency_small" : "Small Crafting Currency"
+	]
+	item_4(choices) : "Item 4" : "" : "Class name of item to attach in slot 4. If set to Default, the NPC's code will decide what it should be, if anything." =
+	[
+		"" : "Default (Code decides)"
+		"item_hlvr_clip_energygun" : "Energy Gun Clip"
+		"item_hlvr_clip_rapidfire" : "Rapidfire Clip"
+		"item_hlvr_clip_shotgun_single" : "Shotgun Shell (Single)"
+		"item_hlvr_clip_shotgun_shells_pair" : "Shotgun Shells (Two)"
+		"item_hlvr_clip_shotgun_multiple" : "Shotgun Shells (Box)"
+		"item_healthvial" : "Health Vial"
+		"item_hlvr_grenade_frag" : "Frag Grenade"
+		"item_hlvr_crafting_currency_small" : "Small Crafting Currency"
+	]
+]
+
+@PointClass base( BasePropPhysics ) model("models/items/crafting_metal/crafting_resin_lrg5.vmdl") 
+	metadata
+	{
+		entity_tool_name = "Large Resin"
+		entity_tool_tip = "Large resin collectable (5)"
+		entity_tool_group = "Items"
+	}
+= item_hlvr_crafting_currency_large : "Crafting Currency (Large)"
+[
+	remove_over_amount(integer) : "Remove Over Amount" : 0 : "If set to a value greater than 0, this item will be removed by the resource balancing system if the player has more than this amount of crafting currency."
+
+	output OnPutInInventory(void) : "Fired when the player puts the item in their inventory."
+]
+
+@PointClass base( BasePropPhysics ) model("models/items/crafting_metal/resin_puck01.vmdl")
+	metadata
+	{
+		entity_tool_name = "Small Resin"
+		entity_tool_tip = "Small resin collectable (1)"
+		entity_tool_group = "Items"
+	}
+= item_hlvr_crafting_currency_small : "Crafting Currency (Small)"
+[
+	remove_over_amount(integer) : "Remove Over Amount" : 0 : "If set to a value greater than 0, this item will be removed by the resource balancing system if the player has more than this amount of crafting currency."
+
+	output OnPutInInventory(void) : "Fired when the player puts the item in their inventory."
+]
+
+@PointClass base( BasePropPhysics, Targetname ) model() = item_hlvr_prop_discovery : "Discovery Object"
+[
+]
+
+@PointClass base(Item) model("models/items/combine_rifle_ammo01.vmdl") = item_hlvr_prop_ammobag : "Ammobag"
+[
+]
+
+@PointClass base(Targetname) tags( PropDynamic ) model("models/props_combine/combine_printer/combine_crafting_station.vmdl")
+	metadata
+	{
+		entity_tool_name = "Crafting Station"
+		entity_tool_tip = "Crafting Station"
+		entity_tool_group = "Items"
+	}
+= prop_hlvr_crafting_station : "Crafting Station"
+[
+	hacking_plug( target_destination ) : "Hacking Plug" : ""
+	is_powered( boolean ) : "Starts Powered" : "Sets whether the crafting station and the associated hacking plug start powered."
+
+	lightmapstatic(choices) [ group="Render Properties" ] : "Lightmap Static" : 0 : "How this geometry influences baked lighting." =
+	[
+		0 : "No"
+		1 : "Yes"
+		2 : "Bounce Only"
+	]
+
+	input Enable(void) : "Enable the crafting station and the associated hacking plug if they did not start powered."
+	input OpenStation(void) : "Open the station. Skips the hacking plug puzzle and opens the station immediately."
+	input ReturnWeapon(void) : "Return the weapon to the player immediately."
+	output OnPlayerNear(void) : "Fired when the player is near the station before it has been hacked and opened."
+]
+
+@SolidClass base(Trigger) = trigger_crafting_station_object_placement : "Crafting Station Object Placement Trigger"
+[
+]
+
+@PointClass base(Targetname) model( "models/props_combine/combine_structures/health_charger_entity_mesh.vmdl" )
+	metadata
+	{
+		entity_tool_name = "Health Station"
+		entity_tool_tip = "Health Charging Station"
+		entity_tool_group = "Items"
+	}
+= item_healthcharger : "Health Station"
+[
+	start_with_vial(boolean) : "Start with Health Vial" : "1" : "Spawn with Health Vial already attached."
+	vial_level(float) : "Health Vial Level (0-1)" : "1" : "Sets the amount of health if the station starts with a Health Vial"
+
+	lightmapstatic(choices) [ group="Render Properties" ] : "Lightmap Static" : 0 : "How this geometry influences baked lighting." =
+	[
+		0 : "No"
+		1 : "Yes"
+		2 : "Bounce Only"
+	]
+
+	input EnableCharger(void) : "Enables station use"
+	input DisableCharger(void) : "Disables station use"
+
+	output OnHealingPlayerStart(void) : "Fired when the station starts healing the player."
+	output OnHealingPlayerStop(void) : "Fired when the station stops healing the player."
+	output OnStationOpenReady(void) : "Fired when the station opens completely, has health remaining, and is ready to heal the player."
+	output OnStationOpenNotReady(void) : "Fired when the station opens completely and is not enabled."
+]
+
+@PointClass base(Targetname) model( "models/props_combine/combine_consoles/vr_combine_interface_01.vmdl" ) = item_combine_console : "Combine Console"
+[
+	hacking_plug( target_destination ) : "Hacking Plug" : ""
+
+	rack0_active(boolean) : "Rack 1 active."
+	rack1_active(boolean) : "Rack 2 active."
+	rack2_active(boolean) : "Rack 3 active."
+	rack3_active(boolean) : "Rack 4 active."
+
+	tank0_start_missing(boolean) : "Tank 1 missing on start."
+	tank1_start_missing(boolean) : "Tank 2 missing on start."
+	tank2_start_missing(boolean) : "Tank 3 missing on start."
+	tank3_start_missing(boolean) : "Tank 4 missing on start."
+
+	objective_model(string) : "Objective model" : "" : "Objective model to display when this console is completed. Skipped if left empty."
+
+	lightmapstatic(choices) [ group="Render Properties" ] : "Lightmap Static" : 0 : "How this geometry influences baked lighting." =
+	[
+		0 : "No"
+		1 : "Yes"
+		2 : "Bounce Only"
+	]
+
+	input Enable(void) : "Enable this entity and the associated Hacking Plug."
+	input Disable(void) : "Disable this entity and the associated Hacking Plug."
+
+	input SuppressBlindZombieSound(boolean) : "Prevent the console from attracting the blind zombie while the player is hacking it (parameter is 1 or 0 to turn suppression on/off)."
+
+	output OnOpened(void) : "Fired when the console has been opened without the battery."
+	output OnBatteryPlaced(void) : "Fired when the console battery has been added."
+	output OnRackMissingTankOpen(void) : "Fired when a console rack with a missing tank has been opened."
+	output OnTankAdded(void) : "Fired when a missing console tank has been added."
+	output OnTimeout(void) : "Fired when the console timeout has been triggered."
+	output OnPuzzleSolved(void) : "Fired when the console puzzle has been solved."
+	output OnCompleted(void) : "Fired when the console has been activated."
+	output OnClosed(void) : "Fired when the console has been closed."
+]
+
+@PointClass base(prop_animinteractable) model() = item_combine_tank_locker : "Combine Tank Locker"
+[
+	model(studio) : "Model" : "models/props_combine/combine_lockers/combine_locker_standing.vmdl"
+
+	starting_tanks(choices) : "Number of Starting Tanks" : "0" =
+	[
+		"0" : "0"
+		"1" : "1"
+		"2" : "2"
+	]
+]
+
+@PointClass base(Targetname) size(-4 -4 48, 4 4 56) = hlvr_vault_tractor_beam_console : "HLVR Vault Tractor Beam Console"
+[
+	input DeployAllLevers(void) : "Opens the switch cover and deploys all the levers."
+	input ClampUnlockedLevers(void) : "Closes the switch cover and clamps all the unlocked levers."
+	input ClampAllLevers(void) : "Closes the switch cover and clamps all the levers."
+	input AllowNextSequence(void) : "Allows the sequence to progress when the next lever is pushed forward."
+
+	output OnConsoleStarted(void) : "Fired when the console has been started."
+	output OnFirstLeverActivated(void) : "Fired when the first lever has been activated."
+	output OnSecondLeverActivated(void) : "Fired when the second lever has been activated."
+	output OnThirdLeverActivated(void) : "Fired when the third lever has been activated."
+	output OnFourthLeverActivated(void) : "Fired when the fourth lever has been activated."
+]
+
+@PointClass base(Targetname, EnableDisable) tags( Info ) model( "models/props_combine/combine_power/power_stake_a.vmdl" ) toner_port() = info_hlvr_toner_port : "Toner Port"
+[
+	StartPortVisible(boolean) : "Start Port Visible" : 0 : "Starting visibility of this toner port ONLY (not connected paths/junctions)"
+	StartVisible(boolean) : "Start Visible" : 0 : "Starting visibility of this port and elements connected to it"
+
+	initial_orientation(choices) : "Initial Orientation" : 0 =
+	[
+		0 : "0 Degrees"
+		1 : "90 Degrees"
+		2 : "180 Degrees"
+		3 : "270 Degrees"
+	]
+
+	desired_orientation(choices) : "Desired Orientation" : 2 =
+	[
+		0 : "0 Degrees"
+		1 : "90 Degrees"
+		2 : "180 Degrees"
+		3 : "270 Degrees"
+	]
+
+	input SetPortVisible(bool) : "Set visibility of this toner port ONLY (not connected paths/junctions)"
+	input SetVisible(bool) : "Set visibility of this port and elements connected to it"
+	input SetComplete(bool) : "Set completeness of this port and elements connected to it"
+]
+
+@PointClass base(Targetname) tags( Info ) iconsprite( "editor/info_hlvr_toner_path.vmat" ) toner_path() = info_hlvr_toner_path : "Toner Path"
+[
+	first_path_node(target_destination) : "First Path Node" : "" : "Name of the first info_toner_path_node in the path"
+
+	start_entity(target_destination) : "Start" : "" : "Name of the entity at the start of this path (port or junction)"
+	end_entity(target_destination) : "End" : "" : "Name of the junction at the end of this path, if any"
+
+	output OnPowerOn(void) : "Fire when the path is electrified."
+	output OnPowerOff(void) : "Fire when the path is de-electrified."
+	
+	input PlayFanfare(void) : "Play fanfare particle effect for path"
+]
+
+@PointClass base(Targetname) tags( Info ) toner_path_node() = info_hlvr_toner_path_node : "Node for the toner path"
+[
+	target(target_destination) : "Next toner node"
+	is_spline_node(boolean) : "Spline node" : "1" : "Is the path for this node a spline instead of a straight line to the next node."
+	inset_distance(float) : "Inset Distance" : "-1" : "How far the path is inset from this node's position. Default (-1) is 8 units."
+]
+
+@PointClass base(Targetname) tags( Info ) toner_junction() = info_hlvr_toner_junction : "Toner junction"
+[
+	junction_toplogy(choices) : "Topology" : 0 =
+	[
+		0 : "I Junction"
+		1 : "L Junction"
+		2 : "T Junction"
+		3 : "LL Junction"
+		4 : "Static T Junction"
+		5 : "Static + Junction"
+	]
+
+	junction_orientation(choices) : "Orientation" : 0 =
+	[
+		0 : "0 Degrees"
+		1 : "90 Degrees"
+		2 : "180 Degrees"
+		3 : "270 Degrees"
+	]
+
+	inset_distance(float) : "Inset Distance" : "-1" : "How far the path is inset from this junction's position. Default (-1) is 8 units."
+
+	connection_0(target_destination) : "Connected Path Entity 0 (Right)" : "" : "Name of the path (not node) entity connected to port 0 (Right)"
+	connection_1(target_destination) : "Connected Path Entity 1 (Top)" : "" : "Name of the path (not node) entity connected to port 1 (Top)"
+	connection_2(target_destination) : "Connected Path Entity 2 (Left)" : "" : "Name of the path (not node) entity connected to port 2 (Left)"
+	connection_3(target_destination) : "Connected Path Entity 3 (Bottom)" : "" : "Name of the path (not node) entity connected to port 3 (Bottom)"
+]
+
+
+@PointClass base(Targetname) tags( Particles ) iconsprite( "editor/info_hlvr_offscreen_particle_texture.vmat" ) offscreen_particle_texture() = info_hlvr_offscreen_particle_texture : "Offscreen Particle Texture"
+[
+	StartDisabled(boolean) : "Start Disabled" : 1
+	input Enable(void) : "Enable offscreen particle rendering"
+	input Disable(void) : "Disable offscreen particle rendering"
+
+	effect_name(particlesystem) : "Offscreen effect"
+
+	input SetControlPointA(float) : "Set value of control point A (will be remapped by remapping function)"
+	control_point_a_index(integer) : "Control Point A" : 0 : "Index of Control Point A (-1 to disable)"
+	input_a_remap(choices) : "Input A Remap" : 0 =
+	[
+		0 : "Gain & Bias: Out = In * S + T"
+		1 : "Gamma: Out = pow( In, S )"
+		2 : "Smoothstep: Out = smoothstep(S, T, In)"
+	]
+	input_a_remap_param_s(float) : "Remap Param S" : "1.0" : "Parameter S for Input A Remapping"
+	input_a_remap_param_t(float) : "Remap Param T" : "0.0" : "Parameter T for Input A Remapping"
+
+	input SetControlPointB(float) : "Set value of control point B (will be remapped by remapping function)"
+	control_point_b_index(integer) : "Control Point B" : 1 : "Index of Control Point B (-1 to disable)"
+	input_b_remap(choices) : "Input B Remap" : 0 =
+	[
+		0 : "Gain & Bias: Out = In * S + T"
+		1 : "Gamma: Out = pow( In, S )"
+		2 : "Smoothstep: Out = smoothstep(S, T, In)"
+	]
+	input_b_remap_param_s(float) : "Remap Param S" : "1.0" : "Parameter S for Input B Remapping"
+	input_b_remap_param_t(float) : "Remap Param T" : "0.0" : "Parameter T for Input B Remapping"
+
+	input SetControlPointC(float) : "Set value of control point C (will be remapped by remapping function)"
+	control_point_c_index(integer) : "Control Point C" : -1 : "Index of Control Point C (-1 to disable)"
+	input_c_remap(choices) : "Input C Remap" : 0 =
+	[
+		0 : "Gain & Bias: Out = In * S + T"
+		1 : "Gamma: Out = pow( In, S )"
+		2 : "Smoothstep: Out = smoothstep(S, T, In)"
+	]
+	input_c_remap_param_s(float) : "Remap Param S" : "1.0" : "Parameter S for Input C Remapping"
+	input_c_remap_param_t(float) : "Remap Param T" : "0.0" : "Parameter T for Input C Remapping"
+
+	input SetControlPointD(float) : "Set value of control point D (will be remapped by remapping function)"
+	control_point_d_index(integer) : "Control Point D" : -1 : "Index of Control Point D (-1 to disable)"
+	input_d_remap(choices) : "Input D Remap" : 0 =
+	[
+		0 : "Gain & Bias: Out = In * S + T"
+		1 : "Gamma: Out = pow( In, S )"
+		2 : "Smoothstep: Out = smoothstep(S, T, In)"
+	]
+	input_d_remap_param_s(float) : "Remap Param S" : "1.0" : "Parameter S for Input D Remapping"
+	input_d_remap_param_t(float) : "Remap Param T" : "0.0" : "Parameter T for Input D Remapping"
+
+	target_entity(target_destination) : "Target Entity" : "" : "Entity whose material should be overridden with this texture"
+	material_param(string) : "Target material parameter" : "" : "Parameter of target entity material which should be overridden with this texture"
+
+	clear_color(color255) : "Clear Color (R G B)" : "128 128 128" : "Clear color prior to particle system rendering"
+	texture_resolution(integer) : "Texture resolution" : 512 : "Offscreen renderable texture resolution"
+	visible_range_check(float)		: "Visible Range Check"		: "300" : "Distance in inches away from the local player that we disable this texture."
+]
+
+@SolidClass base(Trigger) = trigger_zap_module : "Zap Module Trigger"
+[
+	output OnTrigger(void) : "Fired whenever the trigger is hit by a zap module shot."
+]
+
+@PointClass  base(Targetname, EnableDisable) tags( Lighting )
+	iconsprite( "materials/editor/env_fog_controller.vmat" )
+	gradientfog()
+	global( gradient_fog )
+	metadata
+	{
+		entity_tool_name = "Gradient Fog"
+		entity_tool_tip = "Specifies fog based on a color gradient"
+		entity_tool_group = "Fog & Sky"
+	}
+= env_gradient_fog
+[
+	fogstart(float) : "Fog Start Distance" : "0.0"
+	fogend(float) : "Fog End Distance" : "4000.0"
+	fogstartheight(float) : "Fog Start Height" : "0.0"
+	fogendheight(float) : "Fog End Height" : "200.0"
+	fogmaxopacity(float) : "Fog Maximum Opacity" : "0.5" : "Set the maximum opacity at the base of the gradient fog."
+	fogcolor(color255) : "Fog Color (R G B)" : "255 255 255" : "Set the gradient fog color."
+	fogstrength(float) : "Fog Strength" : "1.0"
+	fogfalloffexponent(float) : "Distance Falloff Exponent" : "2.0" : "Exponent for distance falloff."
+	fogverticalexponent(float) : "Vertical Falloff Exponent" : "1.0" : "Exponent for vertical falloff."
+	fadetime(float) : "Fade Time" : "1.0" : "How much time it takes to fade in new values."
+
+	input SetFogStartDistance(float) : "Set Fog Start Distance"
+	input SetFogEndDistance(float) : "Set Fog End Distance"
+	input SetFogStartHeight(float) : "Set Fog Start Height"
+	input SetFogEndHeight(float) : "Set Fog End Height"
+	input SetFogMaxOpacity(float) : "Set Fog Max Opacity"
+	input SetFogFalloffExponent(float) : "Set Fog Falloff Exponent"
+	input SetFogVerticalExponent(float) : "Set Fog Vertical Exponent"
+	input SetFogColor(color255) : "Set Fog Color"
+	input SetFogStrength(float) : "Set Fog Strength"
+]
+
+@PointClass  base(Targetname, EnableDisable) tags( Lighting )
+	iconsprite( "materials/editor/env_fog_controller.vmat" )
+	sphericalvignette()
+	global( spherical_vignette )
+= env_spherical_vignette
+[
+	vignettestart(float) : "Vignette Start Distance" : "30.0"
+	vignetteend(float) : "Vignette End Distance" : "120.0"
+	farz(float) : "Far Z" : "0.0" : "Far clip distance override (0 = disabled)."
+	vignettemaxopacity(float) : "Vignette Maximum Opacity" : "1.0" : "Set the opacity at the farthest extent of the spherical vignette."
+	vignettecolor(color255) : "Vignette Color (R G B)" : "0 0 0" : "Set the spherical vignette color."
+	vignettestrength(float) : "Vignette Strength" : "1.0"
+	vignettefalloffexponent(float) : "Distance Falloff Exponent" : "1.0" : "Exponent for distance falloff."
+	fadetime(float) : "Fade Time" : "1.0" : "How much time it takes to fade in new values."
+
+	input SetVignetteStartDistance(float) : "Set Vignette Start Distance"
+	input SetVignetteEndDistance(float) : "Set Vignette End Distance"
+	input SetVignetteMaxOpacity(float) : "Set Vignette Max Opacity"
+	input SetVignetteFalloffExponent(float) : "Set Vignette Falloff Exponent"
+	input SetVignetteColor(color255) : "Set Vignette Color"
+	input SetVignetteStrength(float) : "Set Vignette Strength"
+]
+
+@PointClass base(Targetname, EnableDisable) tags( Lighting )
+	iconsprite( "materials/editor/env_cubemap_fog.vmat" ) 
+	cubemap_fog()
+	metadata
+	{
+		entity_tool_name = "Cubemap fog"
+		entity_tool_tip = "Specifies fog based on an image."
+		entity_tool_group = "Fog & Sky"
+	}
+= env_cubemap_fog  
+[
+	cubemapfogtexture(resource:texture) : "Cubemap Texture" : "materials/skybox/tests/src/light_test_sky_sunset.vtex"
+	cubemapfoglodbiase(float) : "Cubemap LOD (mip) Bias" : "0.5" : "Adjust how quickly the cubemap blurs out into the distance"
+	cubemapfogstartdistance(float) : "Fog Start Distance" : "0.0"
+	cubemapfogenddistance(float) : "Fog End Distance" : "6000.0"
+	cubemapfogfalloffexponent(float) : "Distance Falloff Exponent" : "2.0" : "Exponent for distance falloff. For example, 2.0 = proportional to square of distance"
+	cubemapfogheightwidth(float) : "Height Fog Width" : "0.0"
+	cubemapfogheightstart(float) : "Height Fog Start" : "2000.0"
+	cubemapfogheightexponent(float) : "Height Fog Exponent" : "2.0"
+]
+
+@SolidClass base(Trigger) = trigger_resource_analyzer : "Resource Analyzer Player Trigger"
+[
+	data_name(string) : "Data Entry Name" : ""
+]
+
+@SolidClass base(Trigger) = trigger_player_out_of_ammo : "Player Out of Ammo Trigger"
+[
+	ammotype(choices) : "Ammo Type" : "0" : "Ammo type to check for" =
+	[
+		"0" : "All Ammo"
+		"1" : "Pistol"
+		"2" : "Shotgun"
+		"3" : "Rapidfire"
+	]
+
+	output OnPlayerOutOfAmmo(void) : "Player touching the trigger is out of ammo."
+]
+
+@PointClass base(Targetname) editormodel( "models/props/citizen_battery_turret.vmdl" ) = npc_turret_citizen : "Citizen Turret"
+[
+	battery_placement_trigger(target_destination) : "Battery Trigger" : "" : "This is the name of a trigger_turret_citizen_battery where players need to place a battery for this turret."
+
+	spawnflags(Flags) = 
+	[
+		32 : "Autostart" : 0
+		64 : "Start Inactive" : 0
+		128 : "Fast Retire" : 0
+		256 : "Out of Ammo" : 0
+		512 : "Citizen modified (Friendly)" : 0
+	]
+
+	SkinNumber(integer) : "Skin Number" : 0 : "Which skin to use for this turret. Set to 0 to select randomly."
+
+	// Inputs
+	input Toggle(void) : "Toggle - If open, close. If closed, open."
+	input Enable(void) : "Enable the turret."
+	input Disable(void) : "Disable the turret."
+	input DepleteAmmo(void) : "Depletes all the ammo from a turret, causing it to dry-fire."
+	input RestoreAmmo(void) : "Restores ammo to a turret, allowing it to fire live rounds again."
+	input SelfDestruct(void) : "Causes the turret to warn and then explode."
+	input AttachBattery(string) : "Attach a battery to this turret."
+	input DetachBattery(string) : "Detach the battery from this turret."
+
+	// Outputs
+	output OnDeploy(void) : "Turret is becoming active and dangerous."
+	output OnRetire(void) : "Turret is becoming inactive and harmless."
+	output OnTipped(void) : "Turret has been tipped over and is inactive."
+	output OnPhysGunPickup(void) : "Picked up with physgun"
+	output OnPhysGunDrop(void) : "Released by physgun"
+	output OnBatteryAttached(void) : "Battery has been inserted into the turret."
+	output OnBatteryDetached(void) : "Battery has been removed from the turret."
+]
+
+@SolidClass base(trigger_multiple) = trigger_turret_citizen_battery : "Turret Battery Placement Trigger"
+[
+]
+
+@SolidClass base(Trigger) = trigger_blind_zombie_crash : "Blind Zombie Crash Trigger"
+[
+	output OnZombiePathThrough(void) : "The Blind Zombie wants to path through this trigger."
+]
+	
+@SolidClass base(Trigger) = trigger_blind_zombie_sound_area : "Blind Zombie Sound Area"
+[
+	scripted_sequence_name(string) : "Scripted Sequence Name" : ""
+	target_sound_entity_name(string) : "Target Entity Name" : ""
+	fire_output_immediately(boolean) : "Fire Output Immediately" : "0"
+
+	output OnSoundGeneratedInside(void) : "A sound was generated inside this volume."
+]
+
+@SolidClass base(func_brush) = func_xen_membrane_barrier : "Xen Membrane Barrier"
+[
+]
+
+@SolidClass base(Trigger) = trigger_blind_zombie_wander_area: "Trigger Blind Zombie Wander"
+[
+	companion_trigger(target_destination) : "Companion Trigger" : "" : "If a blind zombie ends up inside of us, wander into the companion trigger instead"
+]
+
+@SolidClass base(Trigger) = trigger_xen_membrane_door : "Trigger Xen Membrane Door"
+[
+	// Data
+	portal_membrane_name(string) : "The Name of the entity" : ""
+	scripted_sequence_name(string) : "Scripted Sequence Name" : ""
+	portal_collision_name(string) : "Portal Collision func_brush Name" : ""
+	portal_nav_blocker_name(string) : "Portal func_nav_blocker Name" : ""
+	portal_name(string) : "Portal Door name" : ""
+
+	// Outputs
+	output OnSoundGeneratedInside(void) : "A sound was generated inside this volume."
+
+	input ForceActivation(void): "Pretend we threw something and activate the membrane"
+]
+
+@SolidClass base(Trigger) = trigger_player_peephole : "Player peephole (hands/head can enter but only legally exit from where they came in)"
+[
+	peephole_axis(localaxis) : "Peephole Plane" : "0 0 0, 1 0 0" : "First 3-tuple is trigger origin, Second 3-tuple defines the normal to the dividing plane"
+]
+
+@NPCClass base(BaseNPC, BaseZombie) editormodel("models/creatures/zombie_blind/zombie_blind.vmdl") = npc_zombie_blind : "Blind Zombie"
+[
+	// Data
+	freezer_target_name(string) : "Freezer Target Entity" : ""
+
+	// Inputs
+	input SetIdlePath(target_destination) : "Path Corner to use when idling"
+	input SetDeafState(bool) : "Should the Blind Zombie pay attention to sounds?"
+	input ClearSounds(bool) : "Clear the blind zombie sound list"
+	input SetFling(bool) : "Blind Zombie swings chest height about out of the way."
+	input SetInLockIn(string) : "Is the Blind Zombie in a lock in?"
+	input SetInElevator(bool) : "Is the Blind Zombie in the elevator."
+	input SetSuppressMovement(bool) : "Allow the blind zombie to react to noise but not locomote."
+	input HitMark(string) : "Tell the blind zombie he is only interested in getting to this location until he succeeds."
+	input SetOutsideElevator(bool) : "Is the Blind Zombie outside of the elevator (and the player inside)."
+	input SetNearConsole(bool) : "Is the Blind Zombie near a combine console."
+	input SetHeadedToConsole(bool) : "Is the Blind Zombie heading toward a combine console."
+	input SetHeadedToElevator(bool) : "Is the Blind Zombie heading toward a elevator."
+	input SetHeadedToFreezerDoor(bool) : "Is the Blind Zombie heading toward a freezer door."
+	
+	// Outputs
+	output OnHeardNoise(vector) : "Blind Zombie heard a sound"
+	output OnFling(vector) : "Blind zombie fling freezer door"
+	output OnHitMark(void) : "Blind zombie hit his mark"
+	output OnBreakDoor(void) : "Blind zombie breaks a door"
+	output OnElevatorBeat(void) : "Blind zombie elevator strike"
+]
+
+@OverrideClass = npc_zombie
+[
+	model_state(modelstatechoices) : "Model State" : ""
+	sprint_proclivity(float) : "Sprint Proclivity" : "1" : "Increases the base chance to Sprint and duration of Sprints, while decreasing the cooldown between Sprints. Set to 1 to leave it as is. 0 to never Sprint."
+	flinch_chance(float) : "Flinch Chance Modifier" : "1" : "Multiplies the base chance to play Interrupt Flinches. Set to 1 to leave it as is. 0 to never Interrupt Flinch."
+
+	bloater_position(choices) : "Bloater Position" : "-1" : "Position of the xen bloater on this zombie, if any." =
+	[
+		"-1" : "No Bloater"
+		"0" : "Chest"
+		"2" : "Left Arm"
+		"3" : "Right Arm"
+		"4" : "Left Leg"
+		"5" : "Right Leg"
+	]
+
+	turret_position(choices) : "Turret Position" : "0" : "Position of the xen turret on this zombie, if any." =
+	[
+		"0" : "No Turret"
+		"1" : "Left Shoulder"
+		"2" : "Right Shoulder"
+	]
+
+	held_object(target_destination) : "Start holding prop_physics named" : "" : "If set to the name of a prop_physics entity, the Zombie will start holding it, and then throw it at the first enemy encountered."
+	armored_headcrab(choices) : "Armored Headcrab" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+]
+
+
+@PointClass base(BasePropPhysics, Targetname, Parentname ) model("models/props_combine/combine_battery/combine_battery.vmdl") = item_hlvr_prop_battery : "Battery"
+[
+	battery_level(float) : "Battery Level (0-1)" : "1"
+	show_battery_level(choices) : "Show Battery Level" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+
+	input SetAttachedToSocket(bool) : "Battery has been attached to or detatched from a socket."
+]
+
+
+@PointClass base(BasePropPhysics, Targetname, Parentname ) model( "models/props_combine/health_charger/health_vial.vmdl" )
+	metadata
+	{
+		entity_tool_name = "Health Station Vial"
+		entity_tool_tip = "Vial used to power a health station"
+		entity_tool_group = "Items"
+	}
+= item_hlvr_health_station_vial : "Health Vial"
+[
+	vial_level(float) : "Health Vial Level (0-1)" : "1" : "Amount of health the vial starts with."
+]
+
+
+@PointClass base(BasePropPhysics, Targetname, Parentname ) editormodel("models/props_combine/combine_consoles/glass_tank_01.vmdl") = item_hlvr_combine_console_tank : "Combine Console Tank"
+[
+]
+
+
+@OverrideClass = prop_physics
+
+[
+	carrytype_override(choices) : "Carry Type Override" : "CARRY_TYPE_INVALID" =
+	[
+		"CARRY_TYPE_INVALID" : "Default (Code decides)"
+		"CARRY_TYPE_1H_RIGID" : "One-handed rigid"
+		"CARRY_TYPE_1H_SOFT" : "One-handed soft"
+		"CARRY_TYPE_1H_CONSTRAINED" : "One-handed constrained (eg. drawers)"
+		"CARRY_TYPE_2H_PICKUP" : "Two-handed liftable"
+		"CARRY_TYPE_2H_DRAG" : "Two-handed draggable, flippable"
+		"CARRY_TYPE_1H_2H_DETACHABLE" : "One or two-handed detachable"
+		"CARRY_TYPE_TOO_HEAVY" : "Too heavy to move"
+	]
+
+	CanDepositInItemHolder(boolean) : "Allow In Item Holder" : 0 : "Allows this prop to be placed into wrist item holders."
+	mute_impact_effects(boolean) [ group="Physics Properties" ] : "Mute Impact Effects" : "0" : "If set, this physics prop will use the default_silent surface property, and not make any sounds or particle effects on impact."
+	forceteleportacknowledge(boolean) : "Force Teleport Acknowledge" : "0" : "Set on nav ignore props that you still want to affect teleportation."
+	AddToSpatialPartition(boolean)	: "Add To Spatial Partition" : "1" : "Used by embedded hand poses: Set to true if the prop is static or has a small move bounds (doors, levers)"
+]
+
+
+@OverrideClass = prop_physics_override
+[
+	carrytype_override(choices) : "Carry Type Override" : "CARRY_TYPE_INVALID" =
+	[
+		"CARRY_TYPE_INVALID" : "Default (Code decides)"
+		"CARRY_TYPE_1H_RIGID" : "One-handed rigid"
+		"CARRY_TYPE_1H_SOFT" : "One-handed soft"
+		"CARRY_TYPE_1H_CONSTRAINED" : "One-handed constrained (eg. drawers)"
+		"CARRY_TYPE_2H_PICKUP" : "Two-handed liftable"
+		"CARRY_TYPE_2H_DRAG" : "Two-handed draggable, flippable"
+		"CARRY_TYPE_TOO_HEAVY" : "Too heavy to move"
+	]
+
+	mute_impact_effects(boolean) [ group="Physics Properties" ] : "Mute Impact Effects" : "0" : "If set, this physics prop will use the default_silent surface property, and not make any sounds or particle effects on impact."
+]
+
+@PointClass base(Targetname) iconsprite("editor/logic_autosave.vmat") = logic_distance_autosave :
+	"An autosave entity that saves the game once the player is far enough away from the given entity."
+[
+	TargetEntityName(string) : "Target Name" : ""
+	DistanceToPlayer(float) : "Distance To Entity" : "128" : "Distance away the player needs to be in order to autosave.  It will keep attempting the autosave until the minimum distance is achieved."
+	NewLevelUnit(boolean) : "Force New Level Unit" : 0 : "If set, the save will discard any savedata from previous levels, for the purpose of keeping savegame filesizes down. Can only be safely used if there is no way for the player to return to previous levels."
+	CheckCough(boolean): "Player Coughing Check" : "0" : "Suppress the save while the player is coughing if this flag is set."
+
+	// Inputs
+	input Save(void) : "Autosave once a minimum distance has been achieved."
+	input SaveDangerous(float) : "Once the minimum distance has been achieved the the autosave dangerous rules take effect (ie. if the player is alive after the passed number of seconds it replaces the standard auto save.)"
+]
+
+
+
+@PointClass sphere(light_radius) base(Targetname,Parentname) model() = logic_multilight_proxy : 
+	"An entity that allows you to control the display of a set of light entities with a single input."
+[
+	light_name(target_destination) : "Light Names" : "" : "If specified, the lights affected by this proxy will be found by searching for names matching this. Otherwise, the Light Class will be used."
+	light_class(string) : "Light Class" : "" : "If no Light Name is specified, the lights affected by this proxy will be found by searching for lights with this classname."
+	light_radius(float) : "Light Radius" : "0" : "Specify a radius that lights must be within to be affected by this proxy. A Name or Class filter can still be used to gather lights matching them within a radius."
+	brightness_delta(float) : "Brightness Delta" : "0.05" : "Rate at which the lights will approach the target brightness whenever you fire the SetLightsBrightnessMultiplier input."
+	screen_fade(boolean) : "Also Fade Screen" : "0" : "If set, use the current brightness as a level of screen fade on players in the game."
+
+	input FlickerLights(float) : "Make all the lights flicker for the specified amount of time."
+	input DisableLights(float) : "Turn all the lights off for the specified amount of time."
+	input SetLightsBrightnessMultiplier(float) : "Multiply the brightness level of all the lights. They will adjust themselves to the new brightness over time."
+]
+
+
+@PointClass sphere( filter_radius ) base( Targetname, Parentname ) model() = point_lightmodifier : 
+	"A point entity that allows you adjust the brightness of a set of lights when an activator enters and leaves the radius."
+[
+	light_names( target_destination ) : "Light Names" : "" : "The names of the lights to be affected by this point entity and radius."
+	filter_name( filterclass ) : "Filter Name" : "" : "The entity filter for the light brightness modification effect."
+	filter_radius( float ) : "Filter Radius" : "512" : "The range at which to look for filtered entities."
+	light_level( float ) : "Brightness Level" : "2.5" : "The brightness level the lights will tend toward."
+	light_time_in( float )	: "Brightness Change Time In" : "1.0" : "The time it will take to get to the desired brightness level." 
+	light_time_out( float )	: "Brightness Change Time out" : "1.0" : "The time it will take to get to the original brightness level." 
+	light_noise_interval( float ) : "Brightness Noise Interval" : "0.1" : "The interval at which noise will be applied be applied to the brightness value tending towards the desired level." 
+	light_noise_min( float ) : "Brightness Noise Minimum" : "0.1" : "The minimum value in the random noise generated for the brightness value."
+	light_noise_max( float ) : "Brightness Noise Maximum" : "0.5" : "The maximum value in the random noise generated for the brightness value."
+	effect_name(particlesystem) : "Event effect"
+	effect_sound_name(sound) : "Sound Event Name" : "" : "Name of the sound event to play"
+	effect_target_name(target_destination) : "Optional Target" : "" : "The Name of an optional target that you want the destination of the effect to be. If nothing is selected it will default to the Light Name"
+
+	input Enable( float ) : "Activate this point entity."
+	input Disable( float ) : "Deactivate this point entity."
+
+	output OnActivatorEnter( void ) : "Fires when the activator enters the defined radius"
+	output OnActivatorLeave( void ) : "Fires when the activator leaves the defined radius"
+]
+
+
+@PointClass base(BasePropPhysics, Targetname, Parentname, EnableDisable) model(editormodel) vecline_local( Extent, 255, 255, 128 )
+ = prop_handpose : "A pose region for the VR hand"
+[
+	model(studio) : "Model" : "models/props/max/handposes/handpose_flatpalm.vmdl"
+	DistanceMin(float) : "Distance Min" : "4" : "Full pose within this radius"
+	DistanceMax(float) : "Distance Max" : "6" : "Zero pose outside this radius"
+	DistanceBias(float) : "Distance Bias" : "0.3" : "Pose weight distance bias"
+	DisengageDistance(float) : "Disengage Distance" : "16" : "Distance at which the hand pose will disengage entirely"
+	UseProximityBone(boolean) : "Use Proximity Bones" : "0" : "Measure interaction range via authored bone positions instead of origins."
+	AddToSpatialPartition(boolean) : "Add To Spatial Partition" : "1" : "Set to true if the pose is static or has a small move bounds (doors, levers)"
+	DeleteAfterSpawn(boolean) : "Convert to Hand Conform Data" : "0" : "Convert pose to conform data and delete the entity"
+	AutoGrip(boolean) : "Auto Grip" : "0" : "Force grip when fully posed, even if the player isn't gripping"
+	Extent(vector) : "Extent" : "" : "Defines a range over which the handpose can be located."
+	IgnoreHand(choices) : "Ignore Hand" : "-1" : "This hand will not active the hand pose" =
+	[
+		"-1" : "None"
+		"0" : "Right hand"
+		"1" : "Left hand"
+	]
+
+	input SetAutoGrip( boolean ) : "Toggle Auto-Grip"
+	
+	output OnHandPosed(void) : "Fires when the hand is closer than DistanceMin"
+	output OnHandUnPosed(void) : "Fires when the hand is no longer closer than DistanceMin"
+]
+
+
+@PointClass base( Targetname ) global( 3dskybox )= skybox_reference
+[
+	targetMapName(instance_file) : "Map Name"
+	fixupNames(boolean) : "Fixup Entity Names" : 0
+	worldGroupID(string) : "WorldGroupID" : "skyboxWorldGroup0"
+]
+
+
+@PointClass base(npc_furniture) tags( Choreo ) model() iconsprite("editor/ghost_speaker.vmat") = ghost_speaker : "A meshless model you can use as a speaker location for vcd's"
+[
+	model(studio) : "Model" : "models/props/choreo/ghost_speaker.vmdl"
+]
+
+@PointClass base(npc_furniture) tags( Choreo ) model() iconsprite("editor/ghost_actor.vmat") = ghost_actor : "A meshless model you can parent other enties to"
+[
+	model(studio) : "Model" : "models/props/choreo/ghost_actor.vmdl"
+]
+
+@OverrideClass = generic_actor
+[
+	DisableCollisions(boolean) [ group = "Physics Properties" ] : "Disable Collisions" : 0  : "Turn off collisions on this model"
+]
+
+
+@PointClass base(BasePropPhysics) model() = prop_russell_headset : "Russell's headset that you pick up and put on"
+[
+	model(studio) : "Model" : "models/props/choreo_office/headset_prop.vmdl"
+	output OnPutOnHeadset(void) : "Fired when headset is put on"	
+
+]
+
+@PointClass base(prop_physics) model() = prop_physics_interactive :
+	"A physics prop that has a visual 'handle' in the model, and a hand pose attached to that handle."
+[
+]
+
+@SolidClass base(Trigger)
+	vecline_local( LinearForcePointAt, 255, 200, 200 )
+	text_local( LinearForcePointAt, "  ForcePointAt", 255, 200, 200 )
+ = trigger_physics : "A volumetric trigger that affects the motion of vphysics objects that touch it."
+[
+	StartDisabled(boolean) : "Start Disabled" : 0
+
+	filtername(filterclass) : "Filter Name" : "Filter to use to see if activator triggers me. See filter_activator_name for more explanation."
+	
+	SetGravityScale(float) : "Scale gravity of objects in the field." : "1.0"
+	input SetGravityScale(float) : "Scale gravity of objects in the field."
+
+	SetVelocityLimit(float) : "Max velocity in field (-1 disables)" : "-1.0"
+	input SetVelocityLimit(float) : "Max velocity in field."
+
+	SetVelocityDamping(float) : "Velocity scale/drag" : "0.0"
+	input SetVelocityDamping(float) : "Velocity scale/drag"
+
+	SetAngVelocityLimit(float) : "Max angular velocity in field (degrees/s, -1 disables)" : "-1.0"
+	input SetAngVelocityLimit(float) : "Max angular velocity in field."
+
+	SetAngVelocityDamping(float) : "Angular Velocity scale/drag" : "0.0"
+	input SetAngVelocityDamping(float) : "Angular Velocity scale/drag"
+
+	SetLinearForce(float) : "Linear force (0 disables)" : "0.0"					 
+	input SetLinearForce(float) : "Linear force (0 disables)"
+	
+	LinearForcePointAt(local_point) : "Point Linear Force At" : "0 0 0" 
+	CollapseToForcePoint(boolean) : "Linear Force collapses to a point" : 1 : "When true, objects will collapse around this point, when false linear force is applied in the direction of the point"
+
+	input SetLinearForcePointAt(string) : "Set point linear force is directed at"
+	
+	SetDampingRatio(float) : "Damping ratio for linear force" : "1.0"
+	input SetDampingRatio(float) : "Damping ratio for linear force"
+
+	SetFrequency(float)	  : "Frequency for linear force" : "0.1"
+	input SetFrequency(float)	  : "Frequency for linear force" 
+
+	ConvertToDebrisWhenPossible(choices) : "Convert physics props to debris when possible" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+
+	// Inputs
+	input	Enable(void) : "Enable the trigger."
+	input	Disable(void): "Disable the trigger."
+	input	Toggle(void) : "Toggle enable/disable."
+]
+
+//@PointClass base(Targetname, Parentname) tags( Info ) iconsprite("editor/info_teleport_magnet.vmat") = info_teleport_magnet : "Teleport Magnet"
+@PointClass base(Targetname, Parentname) tags( Info ) sphere(10) color(255 0 0) = info_teleport_magnet : "Teleport Magnet"
+[																				  
+	magnet_radius(float) : "Teleport Margnet Radius" : "0.0"
+	start_enabled(boolean) : "Start Enabled" : "1"
+
+	// Inputs
+	input Enable(void) : "Enable the trigger."
+	input Disable(void): "Disable the trigger."
+]
+
+@SolidClass base(func_brush) = func_combine_barrier :
+    "Combine barrier that reacts to interactions."
+[
+	effect_name(particlesystem) : "Ambient Effect"
+	effect_interpenetrate_name(particlesystem) : "Interpenetration Effect" : "particles/combine_tech/combine_filter_field_interpenetrate.vpcf"
+	filtername(filterclass) : "Filter Name" : : "Filter to use to see if activator triggers me. See filter_activator_name for more explanation."
+	barrier_state(choices) : "Barrier State" : "BARRIER_COMBINE_BLOCKER" =
+	[
+		"0" : "Blocks Humans"
+		"1" : "Blocks Combine"
+	]
+
+	input SetBarrierState(integer) : "Sets the barrier state."
+]
+
+@SolidClass base(func_brush) = func_electrified_volume :
+    "Combine barrier that reacts to interactions."
+[
+	effect_name(particlesystem) : "Ambient Effect"
+	effect_interpenetrate_name(particlesystem) : "Touch Effect" : "particles/environment/player_hand_electricity.vpcf"
+	effect_zap_name(particlesystem) : "Touch Entity Zap Effect" : ""
+	effect_zap_source( target_destination ) : "Zap Source" : ""
+
+	input	Enable(void) : "Enable the trigger."
+	input	Disable(void): "Disable the trigger."
+]
+
+@PointClass base(Targetname) box_oriented( anim_bounds_min, anim_bounds_max) model() = hl_vr_texture_based_animatable
+[
+	model(studio) : "Model" : ""
+	fps(float) : "Frames Per Second" : "60"
+	loop(boolean) : "Loop" : "0"
+	texture_based_animation_preview_sequence(float) [ min="0.0", max="1.0" ] : "Preview Sequence"
+	texture_based_animation_position_keys(resource:texture) : "Position Keyframes"
+	texture_based_animation_rotation_keys(resource:texture) : "Rotation Keyframes"
+	anim_bounds_min(vector) : "Animation Bounds Min" : "0 0 0" : "Minimum extents of the model throughout the whole animation" 
+	anim_bounds_max(vector) : "Animation Bounds Max" : "0 0 0" : "Maximum extents of the model throughout the whole animation" 
+	lightingorigin(target_destination) : "Lighting Origin" : "" : "Select an info_lighting to specify a location to sample lighting from, instead of its own origins."
+
+
+	input Start(void) : "Starts the animation"
+	input Stop(void) : "Stops the animation"
+	StartDisabled(boolean) : "Start Disabled" : 0
+	input Enable(void) : "Enable the Object."
+	input Disable(void): "Disable the Object."
+]
+
+@OverrideClass 
+	metadata
+	{
+		entity_tool_name = "Environment Light"
+		entity_tool_tip = "Entity which defines the primary lighting for the map."
+		entity_tool_group = "Lighting"
+	}
+= light_environment
+[
+	directlight(choices) : "Direct Lighting" : "1" : "How direct lighting should be represented" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Per-Pixel"
+	]
+	fogcontributionstrength(float)  : "Fog contribution strength" : "1" : "Overrides how much the light affects the fog (if enabled)" 
+	fog_lighting(choices) : "Volumetric Fogging" : "1" : "How should light interact with volumetric fogging" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Dynamic"
+		"3" : "Baked - no shadows"
+		"4" : "Dynamic - no shadows"
+	]
+	baked_light_indexing(boolean) : "Baked Light Indexing" : "1" : "Allows direct light to be indexed if baked. Indexed lights have per-pixel quality specular lighting and normal map response" 
+]
+
+@OverrideClass = light_spot
+[
+	directlight(choices) : "Direct Lighting" : "1" : "How direct lighting should be represented" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Per-Pixel"
+	]
+	
+	pvs_modify_entity(boolean) [ group = "Shadows" ] : "Transmit Shadow Casters to Client" : "0" : "When this light is visible to a player, add its shadow casters to the player's PVS."
+
+	fogcontributionstrength(float) : "Fog contribution strength" : "1" : "Overrides how much the light affects the fog (if enabled)"
+	fog_lighting(choices) : "Volumetric Fogging" : "0" : "How should light interact with volumetric fogging" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Dynamic"
+		"3" : "Baked - no shadows"
+		"4" : "Dynamic - no shadows"
+	]
+	baked_light_indexing(boolean) : "Baked Light Indexing" : "1" : "Allows direct light to be indexed if baked. Indexed lights have per-pixel quality specular lighting and normal map response" 
+]
+
+@OverrideClass = light_ortho
+[
+	directlight(choices) : "Direct Lighting" : "1" : "How direct lighting should be represented" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Per-Pixel"
+	]
+	fogcontributionstrength(float)  : "Fog contribution strength" : "1" : "Overrides how much the light affects the fog (if enabled)"
+	fog_lighting(choices) : "Volumetric Fogging" : "1" : "How should light interact with volumetric fogging" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Dynamic"
+		"3" : "Baked - no shadows"
+		"4" : "Dynamic - no shadows"
+	]
+	baked_light_indexing(boolean) : "Baked Light Indexing" : "1" : "Allows direct light to be indexed if baked. Indexed lights have per-pixel quality specular lighting and normal map response" 
+]
+
+@OverrideClass = light_omni
+[
+    castshadows(choices) [ group = "Shadows" ] : "Cast Shadows" : "1" : "Whether this light casts shadow" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+		"2" : "Baked Only"
+	]
+	directlight(choices) : "Direct Lighting" : "1" : "How direct lighting should be represented" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Per-Pixel"
+	]
+	fogcontributionstrength(float)  : "Fog contribution strength" : "1" : "Overrides how much the light affects the fog (if enabled)"
+	fog_lighting(choices)   : "Volumetric Fogging" : "0" : "How should light interact with volumetric fogging" =
+	[
+		"0" : "None"
+		"1" : "Baked"
+		"2" : "Dynamic"
+		"3" : "Baked - no shadows"
+		"4" : "Dynamic - no shadows"
+	]
+	baked_light_indexing(boolean) : "Baked Light Indexing" : "1" : "Allows direct light to be indexed if baked. Indexed lights have per-pixel quality specular lighting and normal map response" 
+]
+
+@OverrideClass
+	metadata
+	{
+		entity_tool_name = "Light Probe Volume + Cubemap"
+		entity_tool_tip = "Defines a lighting sampling volume and cube map location."
+		entity_tool_group = "Lighting"
+	}
+= env_combined_light_probe_volume
+[
+	voxel_size(choices) : "Voxel Size" : "12.0" : "" = 
+	[
+		"1.5" : "Insanely High Resolution"
+		"6.0" : "Very Very High Resolution"
+		"12.0" : "Very High Resolution"
+		"24.0" : "High Resolution"
+		"48.0" : "Medium Resolution"
+		"108.0" : "Low Resolution"
+	]
+
+	ggx_cubemap_blur_accumulation_pass_count(integer) : "GGX Cubemap Blur Accumulation Pass Count" : 1 : "Higher numbers reduce noise"
+]
+
+
+@OverrideClass = prop_ragdoll
+[
+	skin(remove_key)
+	bodygroups(remove_key)
+
+	model_state(modelstatechoices) : "Model State" : ""
+	discoverable(boolean) : "Is Discoverable" : "0" : "If set, this prop ragdoll has dialog associated with it when discovered."
+
+	carrytype_override(choices) : "Carry Type Override" : "CARRY_TYPE_INVALID" =
+	[
+		"CARRY_TYPE_INVALID" : "Default (Code decides)"
+		"CARRY_TYPE_TOO_HEAVY" : "Too heavy to move"
+	]
+]
+
+@PointClass base(Targetname, Parentname, EnableDisable) tags( Info ) editormodel("models/props_combine/combine_doors/combine_hacking_interact_point.vmdl") = info_hlvr_holo_hacking_plug
+[
+	PuzzleSpawnTarget( target_destination ) : "Puzzle Spawn Target" : ""
+
+	PuzzleType(choices) : "PuzzleType" : "0" : "The type of hacking puzzle for this plug" =
+	[
+		0: "Sphere trace"
+		1: "Point search"
+		2: "Core search"
+		3: "Rod pull"
+		4: "Point match"
+		5: "Simple Activate"
+		6: "Point drag"
+		7: "Toner interact"
+	]
+
+	IntroVariation( integer ) : "Intro Variation" : "0" : "The variation of the intro animation to use. Only used by some of the hack types. (0: Default)"
+	ShowIntro( boolean ) : "Show Intro" : "1" : "Whether or not to show the hologram intro animation for the hacking puzzle."
+	HackDifficultyName( string ) : "Hack Difficulty Name" : "Medium" : "The name for this hack that matches the difficulty values specified in holo_hacking_difficulty.txt."
+
+	StartHacked( integer ) : "Start Hacked" : "0" : "The plug will start in a state where it has already been hacked."
+
+	input BeginHack( void ) : "Begins the hack."
+	input EndHack( void ) : "Ends the hack."
+
+	output OnHackStarted( void ) : "Fires when the hack has been started."
+	output OnHackStopped( void ) : "Fires when the hack has been stopped."
+	output OnHackSuccess( void ) : "Fires when the hack has been successfully completed."
+	output OnHackFailed( void ) : "Fires when the hack has failed."
+	output OnHackSuccessAnimationComplete( void ) : "Fires when the hack has been successfully completed and the hacking plug has returned back to its idle position."
+	output OnPuzzleCompleted( void ) : "Fires as soon as the puzzle completes. The hack is still active at this point and has yet to play its outro."
+	output OnPuzzleSuccess( void ) : "Fires as soon as the puzzle completes. The hack is still active at this point and has yet to play its outro."
+	output OnPuzzleFailed( void ) : "Fires as soon as the puzzle completes. The hack is still active at this point and has yet to play its outro."
+]
+
+@PointClass base(Targetname, Parentname ) tags( Info ) editormodel() sphere( Radius ) = info_hlvr_holo_hacking_spawn_target
+[
+	model( studio ) : "Model" : "models/hacking/holo_hacking_sphere_prop_editor.vmdl"
+	Radius( float ) : "Puzzle Radius" : 5 : "The radius of the puzzle."
+	Hidden( boolean ) : "Hidden" : "0" : "If this target is hidden or not."
+]
+
+@PointClass base(Targetname, Parentname) tags( Info ) editormodel("models/characters/combine_soldier_heavy/combine_hand_shield.vmdl")  = combine_attached_armor_prop
+[
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+
+	StartDisabled(boolean) : "Start Disabled" : 0
+	SubtleEffects(boolean) : "Subtle Effects" : 1 : "Subtle effects appropriate for entity used in map, not the one held by the charger"
+]
+
+@PointClass base(Targetname) model("models/props/hotel/piano_001.vmdl") = hlvr_piano
+[
+	output OnPlayerStartPlayingPiano( void ) : "Fires when the player starts playing the piano."
+	output OnPlayerStopPlayingPiano( void ) : "Fires when the player stops playing the piano."
+	output OnPlayerPlayingPiano( void ) : "Fires once every second while the player is playing the piano."
+]
+
+@SolidClass base(Targetname, RenderFields) = func_dry_erase_board : "Dry erase board panel"
+[
+	StampName( target_destination ) : "Stamp Name" : "" : "The name of the particles to stamp onto the board at map start."
+	DisableFrontOfBoardCheck( boolean) : "Disable Front of Board Check" : 0 : "Disables the checks to see if the marker is in front of or behind the board. Use with 1-sided boards."
+]
+
+@PointClass base(Targetname, Studiomodel) model() = prop_dry_erase_marker : "Marker that can write on a dry erase board"
+[
+	model( studio ) : "Model" : "models/props/alyx_hideout/dry_erase_marker.vmdl"
+	MarkerType( choices ): "Marker Type" : "0" =
+	[
+		"0" : "Round Tip"
+		"1" : "Chisel Tip"
+		"2" : "Chalk"
+		"3" : "Dirty"
+		"4" : "Dried Out"
+		"5" : "Eraser"
+		"6" : "Square Eraser"
+	]
+	MarkerTipSize( float ) : "Marker Tip Size" : "10" : "The size of the tip of the marker."
+	rendercolor( color255 ) : "Render Color (R G B)" : "255 0 0" : "The tint color of the marker model."
+	MarkerColor( color255 ) : "Marker Color (R G B)" : "255 0 0" : "The color of the marker's writing on the board."
+	interactAs(string) [ group="Physics Properties" ] : "interactAs" : "" : "comma-separated list of interaction layers"
+]
+
+@BaseClass base(Targetname, Parentname) tags( PropDynamic ) = XenFoliageBase
+[
+	interaction_trigger(target_destination) : "trigger_xen_foliage_interaction Name" : ""
+	interaction_inner_trigger(target_destination) : "trigger_xen_foliage_interaction inner or close Name" : ""
+	noise_generator(target_destination) : "Noise Generator" : ""
+	soundName(target_destination) : "Soundevent Name"		: ""
+	interactive_distance(float) : "Outer Interaction Range" : "128" : "Within this radius, the foliage is aware of the player."
+	interactive_close(float) : "Inner Interaction Range" : "24" : "Within this radius, the foliage considers the player to be very close."
+	interaction_attachment_name(string) : "Interaction Attachment Name" : "" : "The name of the attachment point to use for the interaction distance checks. Uses WorldSpaceCenter() if no attachment name is specified."
+]
+
+@PointClass base(XenFoliageBase) model() = xen_foliage
+[
+	model(studio) : "Model" : ""
+	max_health_category ( choices ) : "Set Max Health" : 0 =
+	[
+		0: "Killable"
+		1: "Unkillable"
+	]
+	nav_ignore(boolean) : "Set Nav Ignore" : "0"
+	randomize_start(boolean) : "Randomize Start" : "0" : "Randomize the starting time. (NOT USED CURRENTLY!)"
+
+]
+
+@PointClass base(Targetname, Parentname) model("models/props/xen/xen_coralear04.vmdl") = xen_hearing_flower
+[
+	input HeardNoise( vector ) : "HeardNoise"
+]
+
+@PointClass base(XenFoliageBase) editormodel("models/props/xen_infestation/boomerplant_01.vmdl") sphere(explosion_radius) = xen_foliage_bloater
+[
+	model(studio) : "Model" : "models/props/xen_infestation/boomerplant_01.vmdl"
+	explosion_radius(integer) : "Explosion Radius" : 128 : "Entities within this radius will take damage with a radial falloff." 
+	explosion_magnitude(integer) : "Explosion Magnitude" : 80 : "Damage received by entitis at the epicenter of the explosion."
+	ignore_entity(target_destination) : "Ignore Entity" : "" : "Name or classname of a single entity to be ignored by the bloater explosion."
+
+	output OnBloaterExplode( void ) : "Fires when the bloater explodes."	
+]
+
+@PointClass base(XenFoliageBase) editormodel("models/props/xen_infestation/xen_grenade_plant.vmdl" ) = xen_foliage_grenade_spawner
+[
+	model(studio) : "Model" : "models/props/xen_infestation/xen_grenade_plant.vmdl"
+
+	StartWithGrenade(boolean) : "Start With Grenade" : 1
+]
+
+@PointClass base(XenFoliageBase) editormodel("models/props/xen_infestation/xen_grenade_plant.vmdl") = xen_foliage_turret
+[
+	model(studio) : "Model" : "models/props/xen_infestation/xen_grenade_plant.vmdl"
+
+	burst_min(integer) : "Burst min size" : "1" : "Each time the turret fires, it'll launch a random number of projectiles between this value and 'Burst max size'."
+	burst_max(integer) : "Burst max size" : "3" : "Each time the turret fires, it'll launch a random number of projectiles between 'Burst min size' and this value."
+	postfiredelay(float) : "Post Burst refire delay" : "4" : "Each time the turret fires a burst, it'll delay this amount of time before firing again. This delay will also be increased 0.75s for each projectile fired in the burst."
+]
+
+@PointClass base(Targetname, Parentname) editormodel("models/props/xen_infestation_v2/xen_v2_floater_jellybobber.vmdl") = xen_flora_animatedmover
+[
+	model(studio) : "Model" : "models/props/xen_infestation_v2/xen_v2_floater_jellybobber.vmdl"
+
+	intercept_radius(float) : "Intercept Sphere Radius" : "15" : "Radius of the intercept sphere attached to the model's 'intercept_trigger_center' attachment point."
+	speed(float) : "Movement Speed" : "5.0" : "Speed in units per second."
+	face_forward(boolean) : "Face Forward" : "1" : "Align along path"
+	min_delay(float) : "Minimum Delay" : "0" : "Minimum delay (seconds) before this flora starts animating along spline"
+	max_delay(float) : "Maximum Delay" : "0" : "Maximum delay (seconds) before this flora starts animating along spline"
+	loop(boolean) : "Loop" : "1" : "Teleport to start when reaching end (otherwise bounce back and forth along path)"
+	path_start(target_destination) : "Path Start" : "" : "Select a path_corner entity to act as path start"
+	StartDisabled(boolean) : "Start Disabled" : 0
+	particle_effect(particlesystem) : "Particle Effect" : "particles/environment/xen_gnats_3.vpcf"
+	disable_shadows(boolean) : "Disable Shadows" : 0
+
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+]
+
+@OverrideClass = BaseNPC
+[
+	input SetAgitationLevel(integer): "Set the agitation level"
+	input EnableBlinking(void): "Turn on procedural blinks"
+	input DisableBlinking(void): "Turn off procedural blinks"
+	input EnableLookAt(void): "Turn on procedural look-ats"
+	input DisableLookAt(void): "Turn off the procedural look-ats"
+	input LockRightHand(void): "Turn on the right hand IK lock"
+	input UnlockRightHand(void): "Turn off the right hand IK lock"
+	input LockLeftHand(void): "Turn on the left hand IK lock"
+	input UnlockLeftHand(void): "Turn off the left hand IK lock"
+	input EnableInteracionSensing(void): "Turn on ineraction sensing"
+	input DisableInteracionSensing(void): "Turn off ineractions sensing"
+	input EnableChoreoLookAts(void) : "Enable lookAts to be driven from VCDs"
+	input DisableChoreoLookAts(void) : "Use animgraph-driven lookAts"
+	input EnableFacing(void) : "Enable facing the animgraph facing direction"
+	input DisableFacing(void) : "Disable facing the animgraph facing direction"
+	input IgnorePlayer( boolean ): "Ignore Player as a possible Look Target when picking random lookAts."
+	input DisableRandomLookAts( boolean ) : "Disables the AI's random lookAts."
+	input EnableRandomLookAts( boolean ) : "Enables the AI's random lookAts."
+	input ForceLookAtTarget( void ): "Set named actor to be the look at target"
+	input ClearForcedLookAtTarget( void ): "Clear the look at target set by ForceLookAtTarget"
+	input LookAtIgnoreHands( void ) : "NPC does not look at the player hands"
+	input LookAtUseHands( void ) : "NPC will look at the player hands"
+
+]
+
+@PointClass color(255 255 0)  model(static) model_archetypes(static_prop_model)  = hl_vr_environmental_interaction : "HLVR hl_vr_environmental_interaction"
+[
+	model(resource:model) [report] : "World Model"
+	test_type(choices) : "TestType" : "0" : "" = 
+	[
+		"0" : "Cilia"
+		"1" : "Skin"
+		"2" : "Depression"
+		"3" : "Flashlight"
+	]
+]
+
+@PointClass base(Targetname) tags( Info )
+	
+	selected_line( 255 255 255, targetname, entity_01 )
+	selected_line( 255 255 255, targetname, entity_02 )
+	selected_line( 255 255 255, targetname, entity_03 )
+	selected_line( 255 255 255, targetname, entity_04 )
+	selected_line( 255 255 255, targetname, entity_05 )
+	selected_line( 255 255 255, targetname, entity_06 )
+	selected_line( 255 255 255, targetname, entity_07 )
+	selected_line( 255 255 255, targetname, entity_08 )
+	selected_line( 255 255 255, targetname, entity_09 )
+	selected_line( 255 255 255, targetname, entity_10 )
+
+	iconsprite("editor/info_notepad.vmat")  = info_notepad : 
+	"A place to leave notes" 
+
+[
+		message(text_block) : "Message"
+		entity_01(target_destination) [ group="Entities" ]: "Entity 1"
+	   	entity_02(target_destination) [ group="Entities" ]: "Entity 2"
+		entity_03(target_destination) [ group="Entities" ]: "Entity 3"
+		entity_04(target_destination) [ group="Entities" ]: "Entity 4"
+		entity_05(target_destination) [ group="Entities" ]: "Entity 5"
+		entity_06(target_destination) [ group="Entities" ]: "Entity 6"
+		entity_07(target_destination) [ group="Entities" ]: "Entity 7"
+		entity_08(target_destination) [ group="Entities" ]: "Entity 8"
+		entity_09(target_destination) [ group="Entities" ]: "Entity 9"
+		entity_10(target_destination) [ group="Entities" ]: "Entity 10"
+
+]
+
+@SolidClass base(Trigger) = trigger_xen_foliage_interaction
+[
+]
+
+@SolidClass base(Trigger) = trigger_foliage_interaction
+[
+]
+
+@BaseClass base( Targetname, EnableDisable ) tags( Lighting ) = info_dynamic_shadow_hint_base
+[
+	importance(choices) : "Importance" : "0" : "" =
+	[
+		"0" : "Normal"
+		"1" : "Important"
+		"2" : "Very Important"
+	]
+
+	lightchoice(choices) : "Light Choice" : "0" : "" =
+	[
+		"0" : "Choose Light"
+		"1" : "Nearest light_environment"
+	]
+	
+	light(target_destination) : "Light" : "" : "Which light will be used to cast dynamic shadows."
+]
+
+@PointClass base( info_dynamic_shadow_hint_base ) sphere( range, 0, 255, 0 ) = info_dynamic_shadow_hint
+[
+	range(float) : "Range" : "256" : "Distance in which the shadow hint has an effect"
+]
+
+@PointClass base( info_dynamic_shadow_hint_base ) box_oriented( box_mins, box_maxs, autocenter ) = info_dynamic_shadow_hint_box
+[
+	box_mins(vector) : "Box Mins" : "-128 -128 -128"
+	box_maxs(vector) : "Box Maxs" : "128 128 128"
+]
+
+@PointClass base(Targetname,Parentname) orientedwidthheight( width, height ) color(20 140 20) = point_clientui_world_movie_panel 
+[
+	src_movie(string) [important] : "Source Movie"
+	override_sound_event(sound) : "Override Playback Sound"
+	width(float) : "Width" : "32"
+	height(float) : "Height" : "32"
+	panel_dpi(float) : "DPI" : "32"
+	auto_play(boolean) : "Auto-Play" : "0"
+	repeat(boolean) : "Repeat" : "0"
+	horizontal_align(Choices) : "Horizontal Align" : 0 =
+	[
+		0: "Left"
+		1: "Center"
+		2: "Right"
+	]
+	vertical_align(Choices) : "Vertical Align" : 0 =
+	[
+		0: "Bottom"
+		1: "Center"
+		2: "Top"
+	]
+	orientation(Choices) : "Orientation" : 0 =
+	[
+		0: "Default"
+		1: "Face User"
+		2: "Face User Upright"
+	]
+
+	input TogglePlayPause(void) : "Toggle Play/Pause"
+	input Play(void) : "Play"
+	input Pause(void) : "Pause"
+]
+
+@PointClass base(Targetname, shared_enable_disable ) tags( Choreo ) iconsprite("editor/logic_hands_up.vmat") = logic_handsup_listener:
+	"An entity that checks if the players hands are above their head"
+[
+	output OnHandsUp(void) : "Fire an output when the player's hands are up"	
+	output OnHandsDown(void) : "Fire an output when the player's hands are down"
+	one_handed(boolean) : "One Handed" : "0"	
+]
+
+@PointClass base( Targetname, EnableDisable ) tags( Logic ) iconsprite("editor/logic_door_barricade.vmat") = logic_door_barricade:
+	"An entity that manages the state of a door barricade consisting of a door, an anim-interactable, and a lynchpin"
+[	
+	output OnLocked(void) : "Fired when the lever is in the locked position and the lynchpin has been inserted."	
+	output OnUnlocked(void) : "Fire an output when the lynchpin has been removed from the barricade."	
+	output OnLockEnabled(void) : "Write Me."
+	output OnLockDisabled(void) : "Write Me."		
+	output OnBlockingDoor(void) : "Fired when the barricade is blocking the door."		
+	output OnNotBlockingDoor(void) : "Fired when the barricade is no longer blocking the door."	
+	output OnBlockingOpening(void) : "Fired when barricade is blocking an open door."	
+	output OnNotBlockingOpening(void) : "Fired when barricade is not blocking an open door."			
+	output OnStartExit(void) : "Fired after previously locked barricade is unlocked and the blocked NPC should exit the barricaded room."	
+	output OnStartAnimatedExit(void) : "Fired when a blocked NPC should play an animted exit"
+	output OnEnableNPCClearTriggerVolume(void) : "Enable a volume that allows NPCs to unblock a barricade"	
+	output OnDisableNPCClearTriggerVolume(void) : "Disable a volume that allows NPCs to unblock a barricade"	
+	output OnEnableAnimatedExit(void) : "Fire an output when the NPC should play an alternate exit"
+	input UpdateAnimInteractPosition(void) :  "Give the barricade the latest anim interactable position, which it uses to determine which outputs to fire."
+	input Slam(void) :  "Lets the barricade know it has been slammed."
+	input LockBarricade(void) :  "Fired when the lynchpin has been inserted."
+	input UnlockBarricade(void) :  "Fired when the lynchpin has been removed."	
+]
+
+@PointClass base(Targetname, shared_enable_disable ) tags( Logic ) iconsprite("editor/game_event_listener.vmat") = logic_gameevent_listener:
+	"An entity that listens to game events and fires off an output when the named event it fired"
+[
+	gameeventname(string) : "Game Event Name"
+	gameeventitem(string) :	"Item Name"
+	output OnEventFired(void) : "Fire an output when the named event fires"	
+]
+
+
+@SolidClass base(markup_volume_with_ref) tags( AI )
+	vecline_local( ref_position, 255, 255, 255 )
+	text_local( ref_position, "  Ref Pos", 255, 255, 255 )
+= ai_markup_hlvr : "Tagged markup volume entity for HLVR AI use"
+[
+	aiProperty(tag_list) : "AI Properties" = 
+	[
+		"COVER_STRONG" : "cover_strong" : 0
+	]
+
+	// See markup_volume_tagged
+	tagFieldNames(string) : "<internal>" : "aiProperty" : "<internal>"
+]
+
+@OverrideClass = logic_playerproxy :
+[
+	input SetFlashlightEnable(void) : "Enable the flashlight"
+	input SetFlashlightDisable(float) : "Turn off the flashlight over specified duration"
+	input SetFlashlightFlicker(float) : "Make the flashlight flicker for the specified amount of time (max 10 seconds)"
+	input SetFlashglihtBrightness(float) : "Set the brightness level of the flashlight to the specified level (value should be between 0..1). It will adjust itself to the new brightness over time."
+	input HapticPulseLeftHand(float) : "Pulse the left hand, value is number of seconds. We use this for 'job to do' emphasis."
+	input HapticPulseHands(float) : "Pulse the hands, value is number of seconds."
+	input SetGlovesGordon(void): "Switch to the Gordon glove models"	
+	input SetGlovesAlyx(void): "Switch to the Alyx glove models"
+	input SetMuzzleFlashEmitLightEnable(boolean): "Enable or disable muzzle flashes emitting light when the player doesn't have the flashlight"
+	input TestWeaponActive(void) : "Fires the OnWeaponActive output if the player currently has a weapon drawn, otherwise fires the OnWeaponNotActive output."
+	input SetFullPlayerHealthOverTime(float) : "Set the player health to max value over time, value is number of seconds."
+	input SetTeleportFlipped(boolean) : "Invert the player teleport arc."
+	input SetCanAttackEnable(void) : "Allow the player to attack again"
+	input SetCanAttackDisable(void) : "Prevent the player from attacking"
+	input CheckWearingHat(void) : "Test to see if the player is wearing a hat. Will fire either of the OutPlayerIsWearingHat/OutPlayerIsNotWearingHat outputs."
+	input SetReceivedDamageScale(float) : "Scale the damage taken by the player by the specified amount. Set it back to 1 to clear it."
+	input SetPreventSaving(void) : "Set to prevent the player from bringing up the Game Menu"
+	input SetEnableSaving(void) : "Restore the Ability for Players to bring up the Game Menu"
+	input SetHUDEnable(void) : "Enable 2D HUD"
+	input SetHUDDisable(void) : "Disable 2D HUD"
+	input CheckPlayerHasVodkaBottleInWristPocket(void) : "Test to see if the player has a vodka bottle in either of their wrist pockets. Will fire OnPlayerHasOneVodkaBottleInWristPocket or OnPlayerHasTwoVodkaBottlesInWristPockets if true."
+
+	output OnPlayerCoughed(void) : "Fired any time Alyx coughs due to the Xen coughers. Does not fire if the cough is suppressed by the player's hand."
+	output OnWeaponActive(void) : "Fired in response to the TestWeaponActive input if the player has a weapon drawn."
+	output OnWeaponNotActive(void) : "Fired in response to the TestWeaponActive input if the player does not have a weapon drawn."
+	output OnPlayerCoverMouth(void) : "Fired in response to the player covering their mouth."
+	output OnPlayerUncoverMouth(void) : "Fired in response to the player uncovering their mouth."
+	output OnPlayerHitBySpit(void) : "Fired when the player is hit by an antlion worker spit projectile."
+	output OnVortEnergyAcquiredPrimaryHand(void) : "Fired when the player's primary hand is charged with vort energy."
+	output OnVortEnergyReleasedPrimaryHand(void) : "Fired when vort energy is removed from the player's primary hand."
+	output OnVortEnergyAcquiredOffHand(void) : "Fired when the player's off hand is charged with vort energy."
+	output OnVortEnergyReleasedOffHand(void) : "Fired when vort energy is removed from the player's off hand."
+	output OnPlayerTeleported(void) : "Fired when player teleports."
+	output OutPlayerIsWearingHat(string) : "Fired in response to the CheckWearingHat input, if the player is wearing a hat. Parameter will be the hat model name."
+	output OutPlayerIsNotWearingHat(void) : "Fired in response to the CheckWearingHat input, if the player is not wearing a hat."
+	output OnPlayerHasOneVodkaBottleInWristPocket(void) : "Fired in response to CheckPlayerHasVodkaBottleInWristPocket, if there is a single vodka bottle in the wrist pockets."
+	output OnPlayerHasTwoVodkaBottlesInWristPockets(void) : "Fired in response to CheckPlayerHasVodkaBottleInWristPocket, if there are two vodka bottle in the wrist pockets."
+]
+
+@PointClass base(BasePropPhysics, RenderFields) model() = prop_welded_physics : "Prop Welded Physics"
+[
+	model(studio) : "World model"
+	start_welded(boolean) : "Start Welded" : "1"
+	drive_to_weld(boolean) : "Drive to Weld" : "1" : "Add a force to assist the spring in pulling the prop to its welded position."
+
+	linearfrequency(float) : "Linear Frequency" : "0" : "Linear spring frequency (stiffness)."
+	lineardampingratio(float) : "Linear Damping Ratio" : "0" : "Linear spring damping ratio."
+	angularfrequency(float) : "Angular Frequency" : "0" : "Angular spring frequency (stiffness)."
+	angulardampingratio(float) : "Angular Damping Ratio" : "0" : "Angular spring damping ratio."
+
+	input TurnOnWeld(void) : "Enable the weld constraint.  Do this when the objects don't exist when the constraint spawns - or when you have deactivated the constraint.  Broken constraints can NOT be turned on.  They have been deleted."
+	input TurnOffWeld(void) : "Disable the weld constraint." 
+]
+
+@PointClass base(prop_welded_physics) model() 
+	selected_line( 255 255 255, targetname, weld_target )
+	= prop_welded_physics_to_target : "A Prop Welded Physics that is welded not to its starting position, but to the position of a prop_welded_physics_target."
+[
+	weld_target(target_destination) : "Weld Target" : "" : "The name of a prop_welded_physics_target that specifies the world position that this prop will be welded to."
+
+	input SetWeldTarget(string) : "Set the Weld Target."
+]
+
+
+@PointClass base(Targetname, Studiomodel) model() = prop_welded_physics_target : "A target entity that provides a position for a prop_welded_physics_to_target to weld itself to."
+[
+	model(studio) : "World model"
+	rendercolor(color255) : "Color (R G B)" : "255 255 255"
+]
+
+
+@PointClass base(Targetname) editormodel("models/creatures/headcrab_reviver/reviver_heart.vmdl") = prop_reviver_heart
+[
+]
+
+
+@PointClass
+	base( Targetname, Parentname )
+	iconsprite("materials/editor/point_grabbable.vmat")
+	wirebox_local(limit_mins, limit_maxs)
+	sphere(grab_radius)
+	vecline_local( sphere_center, 255, 255, 128 )
+= point_grabbable
+[
+	grab_radius(float) : "Grab Radius" : "4"
+
+	shape(choices) : "Shape" : 0 =
+	[
+		0 : "AABB (use Mins/Maxs)"
+		1 : "Spherical Cap (use Angles and Radii)"
+	]
+
+	limit_mins(vector) : "Limit Mins" : "0 -4 -4"
+	limit_maxs(vector) : "Limit Maxs" : "0 4 4"
+
+	sphere_center(vector) : "Sphere Center" : "0 0 0"
+	constrain_angle(float) : "Angle to Constrain (half-angle in degrees)" : "20"
+	detach_angle(float) : "Angle beyond which to detach hand (half-angle in degrees)" : "30"
+	thickness(float) : "Thickness" : "4"
+
+	handpose_entity_name(target_destination) : "Custom Handpose Entity" : "" : "Optional custom handpose entity"
+
+	StartDisabled(boolean) : "Start Disabled" : 0
+
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+
+	output OnGrabbed(void) : "Fires when the player grabs the grabbable"
+	output OnDropped(void) : "Fires when the player drops the grabbable"
+]
+
+@PointClass
+	base( Targetname, Parentname )
+	editormodel("models/editor/point_aimat.vmdl")
+	vecline_local( aim_offset, 255, 255, 255 )
+= point_aimat
+[
+	aim_target(target_destination) : "Aim Target"
+	aim_offset(vector) : "Aim Offset" : "16 0 0"
+	max_angular_velocity(float) : "Max Angular Velocity" : "-1" : "Max degrees per second we can rotate.  -1 means rotate instantaneously"
+	yaw_only(boolean) : "Yaw Only" : "0" : "Constrained to only rotate about Z axis"
+
+	output Pitch(float)      : "Fired whenever the aim changes"
+	output Yaw(float)        : "Fired whenever the aim changes"
+]
+
+@PointClass base(Item) editormodel("models/props/headcrab_guts/headcrab_gland.vmdl") = item_hlvr_headcrab_gland
+[
+	output OnSqueezed(void) : "Fires when the gland is squeezed"
+]
+
+@BaseClass base( BaseNPC, Parentname, RenderFields, Shadow )
+= npc_vr_citizen_base
+[
+	model_state(modelstatechoices) : "Model State" : ""
+	
+	background_character(boolean) : "Background Character" : "0"
+]
+
+@NPCClass base( npc_vr_citizen_base )
+	model( "models/characters/citizens/citizens_male.vmdl" )
+= npc_vr_citizen_male
+[
+]
+
+@NPCClass base(npc_vr_citizen_base)
+	model( "models/characters/citizens/citizens_female.vmdl" )
+= npc_vr_citizen_female
+[
+]
+
+@PointClass
+	base( Targetname, shared_enable_disable )
+	iconsprite("materials/editor/point_hlvr_player_input_modifier.vmat")
+= point_hlvr_player_input_modifier:
+	"An entity that can suppres player teleport and/or input"
+[
+	disable_teleport(boolean) : "Disable teleportation" : "1" : "Disables player teleport mechanics, head-fading, and falling/mantling mechanics"
+	hide_hands(boolean) : "Hide hands" : "1" : "Hides hands (and weapons, items, etc.) and disables hand inputs (Also disabled telportation!)"
+]
+
+
+@NPCClass base(BaseHeadcrab, Parentname) editormodel("models/creatures/headcrab_armored/headcrab_armored.vmdl") = npc_headcrab_armored : "Armored headcrab"
+[
+]
+
+@PointClass base( Targetname, Parentname, Studiomodel, SystemLevelChoice, RenderFields, Glow ) model() = prop_animating_breakable
+[
+	model(studio) : "Model" : ""
+
+	input NextBreakStage(void) : "Advance to the next break stage"
+
+	output OnFinalBreak(void) : "Fired when the last damage stage completes"
+	output OnStageAdvanced(void) : "Fired any time a stage completes"
+]
+
+@PointClass base(Targetname, shared_enable_disable) model() = point_vort_energy
+[
+	model(studio) : "Effects Model (optional)" : ""
+
+	output OnEnergyPulled(void) : "Fired when Vort energy is pulled with the gravity gloves"
+]
+
+@PointClass base(Targetname, EnableDisable) iconsprite("editor/logic_achievement.vmat") = logic_achievement : "Sends an achievement system related event from the map to the achievement system."
+[
+	AchievementEvent(choices) : "Achievement Event" : 0 : "Named event is sent to the achievement system when this entity receives a 'FireEvent' input." =
+	[
+		"ACHIEVEMENT_EVENT_SIDE_FEED_SNARK"						: "A1_IntroWorld1 - Feed the Snark"
+		"ACHIEVEMENT_EVENT_TRACK_A1_INTRO_WORLD_2"				: "A1_IntroWorld2 - Escape the Combine truck."
+		"ACHIEVEMENT_EVENT_SIDE_HL2_PLAYGROUND"					: "A1_IntroWorld2 - Play with Playground"
+		"ACHIEVEMENT_EVENT_SIDE_RUSSELL_SCENE"					: "A1_IntroWorld2 - Russell Scene - Represent Self with Specific Prop"
+		"ACHIEVEMENT_EVENT_SIDE_GEIGER_COUNTER"					: "A1_IntroWorld2 - Russell Scene - Point Geiger At Russell"
+		"ACHIEVEMENT_EVENT_SIDE_CATCH_AMMO_CLIP"				: "A1_IntroWorld2 - Russell Scene - Catch/GG Ammo Clip Before It Lands"
+		"ACHIEVEMENT_EVENT_TRACK_A2_QUARANTINE_ENTRANCE"		: "A2_Quarantine - Enter the Quarantine Zone."
+		"ACHIEVEMENT_EVENT_TRACK_A2_HIDEOUT"					: "A2_Hideout - After the Vort scene."
+		"ACHIEVEMENT_EVENT_SIDE_SQUEEZE_HC_HEART"				: "A2_Hideout - Squeeze a HC Heart"
+		"ACHIEVEMENT_EVENT_TRACK_A2_HEADCRABS_TUNNEL"			: "A2_HC_Tunnels - Collect the Shotgun"
+		"ACHIEVEMENT_EVENT_TRACK_A2_DRAINAGE"					: "A2_Drainage - Reach the Explosive Infestation"
+		"ACHIEVEMENT_EVENT_TRACK_A2_TRAIN_YARD"					: "A2_Trainyard - After the Train Heist"
+		"ACHIEVEMENT_EVENT_TRACK_A3_STATION_STREET"				: "A3_StationSt - Reach the Northern Star"
+		"ACHIEVEMENT_EVENT_TRACK_A3_HOTEL_LOBBY_BASEMENT"		: "A3_Hotel_Lobby - After the first Reviver fight"
+		"ACHIEVEMENT_EVENT_TRACK_A3_HOTEL_UNDERGROUND_PIT"		: "A3_Hotel_Underground - Escape the Pit"
+		"ACHIEVEMENT_EVENT_TRACK_A3_HOTEL_INTERIOR_ROOFTOP"		: "A3_Hotel_Interior - Collect the Rapidfire"
+		"ACHIEVEMENT_EVENT_TRACK_A3_HOTEL_STREET"				: "A3_Hotel_Street - Shutdown the Substation"
+		"ACHIEVEMENT_EVENT_TRACK_A3_C17_PROCESSING_PLANT"		: "A3_ProcPlant - After the Exploding Barrel Tripmine Room"
+		"ACHIEVEMENT_EVENT_TRACK_A3_DISTILLERY_NOKILLBZ"		: "A3_Distillery - Leave the Distillery without killing BZ"
+		"ACHIEVEMENT_EVENT_TRACK_A3_DISTILLERY_KILLBZ"			: "A3_Distillery - Leave the Distillery after killing BZ"
+		"ACHIEVEMENT_EVENT_SIDE_KILL_ANNOYING_HC"				: "A3_Distillery - Kill Annoying HC Before He Knocks Bottles"
+		"ACHIEVEMENT_EVENT_SIDE_CATCH_FALLING_BOTTLE"			: "A3_Distillery - Catch Trap Bottles Before They Hit Ground"
+		"ACHIEVEMENT_EVENT_SIDE_BRING_RUSSELL_VODKA"			: "A3_Distillery - Bring Russell Vodka"
+		"ACHIEVEMENT_EVENT_TRACK_A4_C17_ZOO"					: "A4_Zoo - Reach the Aquatic Exhibits"
+		"ACHIEVEMENT_EVENT_TRACK_A4_C17_TANKER_YARD"			: "A4_TankerYard - Solve the Tanker Yard's Toner puzzle"
+		"ACHIEVEMENT_EVENT_TRACK_A4_C17_WATER_TOWER"			: "A4_WaterTower - Reach the Water Tower"
+		"ACHIEVEMENT_EVENT_TRACK_A4_C17_PARKING_GARAGE"			: "A4_ParkingG - After the Strider Wakes Up"
+		"ACHIEVEMENT_EVENT_TRACK_A5_VAULT"						: "A5_Vault - Reach the Superweapon"
+		"ACHIEVEMENT_EVENT_HIDDEN_CARRY_GNOME"					: "A5_Vault - Hidden Carry Gnome"
+		"ACHIEVEMENT_EVENT_TRACK_A5_ENDING"						: "A5_Ending - End Game"
+	]
+
+	// Inputs
+	input Toggle(void) : "Toggle the relay between enabled and disabled."
+	input FireEvent(void) : "Tells the achievement system the specifed event has occured."
+	
+	// Outputs
+	output OnFired(void) : "When the event fires, this fires."
+]
+
+@PointClass base( Targetname ) = point_render_attr_curve : "Drive a global render attribute (on the player view) by a curve over time when activated. Can optionally enable a dynamic combo while it's active."
+[
+	attribute_name( string ) : "Attribute Name" : "" : "Render attribute to set"
+	active_combo_name( string ) : "Dynamic Combo To Enable" : "" : "If non-empty, this named dynamic combo will be enabled on the view"
+
+	curve( curve ) : "Curve" : "" : "X is time (in seconds), Y is attribute value."
+
+	input Start( void ) : "Activate the render attribute."
+]
+
+@PointClass base( Targetname ) = point_entity_fader
+[
+	target( target_destination ) : "Target" : "" : "Target entity to fade"
+
+	curve( curve ) : "Curve" : "" : "X is time (in seconds), Y is alpha (0-1)."
+
+	input Start( void ) : "Activate fader."
+]
+
+// This should be in the base FGD, but putting it here so it doesn't leak before HLVR ships.
+@SolidClass base(Trigger) = trigger_lerp_object : "Object Lerp Trigger"
+[
+	lerp_target( target_destination ) : "Lerp Target" : "" : "Point entity that specifies the target origin & angles that we should lerp objects to."
+	lerp_target_attachment( string ) : "Lerp Target Attachment" : "" : "(Optional) Specifies the attachment origin & angles that we should lerp objects to."
+	lerp_duration( float ) : "Duration" : "1" : "Time it should take to lerp an object to the target."
+	lerp_restore_movetype( boolean ) : "Restore MoveType" : "0" : "Restore the MoveType for the entity after the lerp has been completed."
+	lerp_effect(particlesystem) : "Lerp Effect" : "particles/entity/trigger_lerp_default.vpcf"
+	lerp_sound(string) : "Lerp Sound" : ""
+
+	output OnLerpStarted(void) : "Fired when an object starts lerping to the target."
+	output OnLerpFinished(void) : "Fired when an object finishes lerping to the target."
+]
+
+// This should be in the base FGD, but putting it here so it doesn't leak before HLVR ships.
+@SolidClass base(Trigger) = trigger_detect_bullet_fire : "Detect Bullet Fire Trigger"
+[
+	player_fire_only(choices) : "Only detect bullet fire from a Player" : "0" =
+	[
+		"0" : "No"
+		"1" : "Yes"
+	]
+
+	output OnDetectedBulletFire(void) : "Fired when bullets are fired through this trigger."
+]
+// This should be in the base FGD, but putting it here so it doesn't leak before HLVR ships.
+@SolidClass base(Trigger) = trigger_detect_explosion : "Detect Explosion Trigger"
+[
+	output OnDetectedExplosion(void) : "Fired when explosions occur inside this trigger."
+]
+
+@PointClass base(Targetname) iconsprite("editor/save_photogrammetry_anchor.vmat") = save_photogrammetry_anchor :
+	"Anchor for creating Photogrammetry objects for Loading in to Compositor for game loads"
+[
+	photogrammetry_name( string ) : "Name of Photogammetry Object" : ""
+
+	// Inputs
+	input SetPhotogrammetryAnchor(void) : "Let the game know this is the most recent anchor to use"
+]
+
+@PointClass base(Targetname) = info_offscreen_panorama_texture : "Offscreen Panorama Texture"
+[
+	layout_file(string) [important] : "Layout File" : : "Path to a panorama xml file ie - file://{resources}/layout/custom_hint.xml"
+
+	targets(target_destination) [important] : "Target(s)" : "" : "Entity (or entities) whose material should be overridden with this texture"
+	render_attr_name(string) : "Target Render Attribute" : "" : "Attribute name to hook to the texture (Add dynamic expression with the same string in your VMAT)"
+
+	resolution_x(integer) : "Texture Resolution (X)" : 512 : "Offscreen texture width"
+	resolution_y(integer) : "Texture Resolution (Y)" : 512 : "Offscreen texture height"
+
+	input AddCSSClass(string) : "Add a CSS class to the panel."
+	input RemoveCSSClass(string) : "Remove a CSS class from the panel."
+]
+
+@PointClass base(Targetname) = info_offscreen_movie_texture : "Offscreen Movie Texture"
+[
+	src_movie(string) [important] : "Source Movie"
+
+	targets(target_destination) [important] : "Target(s)" : "" : "Entity (or entities) whose material should be overridden with this texture"
+	render_attr_name(string) : "Target Render Attribute" : "" : "Attribute name to hook to the texture (Add dynamic expression with the same string in your VMAT)"
+
+	resolution_x(integer) : "Texture Resolution (X)" : 512 : "Offscreen texture width"
+	resolution_y(integer) : "Texture Resolution (Y)" : 512 : "Offscreen texture height"
+
+	override_sound_event(sound)		: "Override Playback Sound"
+	auto_play(boolean)				: "Auto-Play"				: "0"
+	repeat(boolean)					: "Repeat"					: "0"
+	visible_range_check(float)		: "Visible Range Check"		: "300" : "Distance in inches away from the local player that we pause movie playback."
+
+	input TogglePlayPause(void) : "Toggle Play/Pause"
+	input Play(void) : "Play"
+	input Pause(void) : "Pause"
+]
+
+@SolidClass base(Trigger) = hl_vr_environmental_interaction_volume : "Entity that designates a volume within which NPC/Explosion existence should be mapped into the interactive foliage texture."
+[
+]
+
+@PointClass base(Targetname, Parentname) = point_player_speak : "Used to force the HLVR player to speak"
+[
+	input SpeakConcept(string) : "Speak the desired concept. Optional string can be used to specify temp contexts for this speak (context1:value1)"
+	input InterruptSpeech(void) : "If the player is speaking, wait for the next interrupt point in the current scene, and then stop talking and cancel the scene."
+	input CancelSpeech(void) : "If the player is speaking, stop talking and cancel the speech scene."
+	input AddContext(string) : "Adds context (context1:value1,context2:value2)."
+	input RemoveContext(string) : "Remove context (contextname)."
+	input ClearContext(void) : "Clear all context."
+	input SilencePlayer(bool): "Silence the player"
+]
+
+@PointClass base(Targetname) = point_training_gravity_gloves : "An entity that helps with the gravity glove training"
+[
+	input Enable(void) : "Enable"
+	output OnComplete(void) : "Fired when the training is over"
+]
+
+@FilterClass base(BaseFilter) iconsprite("editor/filter_name.vmat") = filter_vr_grenade :
+	"A filter that filters for VR Grenades"
+[
+	IsNotArmed(boolean) : "Is Not Armed" : "1" : "Filter for unarmed Grenades.  If you don't care about grenade state select Armed and Not armed"
+	IsArmed(boolean) : "Is Armed" : "1" : "Filter for Armed Grenades"
+]
+
+@OverrideClass = prop_dynamic
+[
+	fixup_lighting_origin_to_player_side(boolean) [ group = "Render Properties" ] : "Bias Lighting Origin Towards Player" : "0" : "For windows and doors and other dynamic things that straddle lighting volume boundaries - bias the lighting origin toward whichever side the local player is on"
+]
+
+@OverrideClass = func_physbox
+[
+	fixup_lighting_origin_to_player_side(boolean) [ group = "Render Properties" ] : "Bias Lighting Origin Towards Player" : "0" : "For windows and doors and other dynamic things that straddle lighting volume boundaries - bias the lighting origin toward whichever side the local player is on"
+]
+
+@OverrideClass = prop_dynamic_override
+[
+	force_transmit_to_client(boolean) [ group = "Networking" ] : "Force Transmit to Client - Slow!!!" : "0" : "Always transmit this entity to clients regardless of whether or not it is in PVS. Use sparingly."
+	fixup_lighting_origin_to_player_side(boolean) [ group = "Render Properties" ] : "Bias Lighting Origin Towards Player" : "0" : "For windows and doors and other dynamic things that straddle lighting volume boundaries - bias the lighting origin toward whichever side the local player is on"
+]
+
+@OverrideClass = prop_door_rotating_physics
+[
+	door_fixup_lighting_origin(boolean) [ group = "Render Properties" ] : "Door Lighting Origin Fixup" : "1" : "Ensure that the lighting origin of the door are appropriate for player position."
+]
+
+@PointClass base(Targetname) = hl_vr_accessibility :
+[	
+	input QuerySingleControllerMode(void) : "QuerySingleControllerMode"
+	output OnQuerySingleControllerModeEnabled(void) : "Fired after querying the hlvr_single_controller_mode cvar and its current value is 1"
+	output OnQuerySingleControllerModeDisabled(void) : "Fired after querying the hlvr_single_controller_mode cvar and its current value is 0"
+	output OnSingleControllerModeEnabled(void) : "Fired when hlvr_single_controller_mode cvar is set to 1"
+	output OnSingleControllerModeDisabled(void) : "Fired when hlvr_single_controller_mode cvar is set to 0"
+]
+
+@OverrideClass
+	metadata
+	{
+		entity_tool_name = "Volume Fog Controller"
+		entity_tool_tip = "Entity which controls volumetric fog for the map."
+		entity_tool_group = "Fog & Sky"
+	}
+= env_volumetric_fog_controller
+[
+]
+
+@OverrideClass
+	metadata
+	{
+		entity_tool_name = "Fog Volume"
+		entity_tool_tip = "Specifies a region in which volumetric fog is active"
+		entity_tool_group = "Fog & Sky"
+	}
+= env_volumetric_fog_volume
+[
+]
+
+
+@OverrideClass
+	metadata
+	{
+		entity_tool_name = "Sky"
+		entity_tool_tip = "Entity which controls appearance of the sky"
+		entity_tool_group = "Fog & Sky"
+	}
+= env_sky
+[
+]

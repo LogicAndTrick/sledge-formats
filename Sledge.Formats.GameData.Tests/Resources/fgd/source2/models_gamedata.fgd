@@ -1,0 +1,1095 @@
+//===================== Copyright (c) Valve Corporation. All Rights Reserved. ======================
+//
+//==================================================================================================
+
+@include "models_base.fgd"
+
+@BaseClass
+= base_break_force
+[
+	offset(vector)									: "Offset"						: ""	: "Offset for the influence point (in the space of the model or attachment)"
+	attachment_point(model_attachment)				: "Attachment Point"			: ""	: "Offset the influence point from the named attachment rather than the root of the model"
+	center_on_damage_point(bool)					: "Center on Damage Point"		: ""	: "Center the influence point (will ignore cause attachment to be ignored, but still honor offset)"
+	limit_to_piece(model_breakpiece)				: "Limit to piece"				: ""	: "Limit this effect to the named piece"
+]
+
+@ModelBreakCommand base(base_break_force)
+= break_uniform_burst : "Applies a radial burst to breakpieces outwards from the influence point (default is the origin of the model)"
+[
+	burst_scale(float) [ min="0", max="500" ]		: "Burst Scale"					: 0		: "Velocity added to each piece (radially away from the influence point)"
+	burst_randomize(float) [ min="0", max="500" ]	: "Burst Randomize"				: 0		: "Magnitude of random vector that will be added to the burst velocity"
+]
+
+@ModelBreakCommand base(base_break_force)
+= break_flip_pieces : "Applies an angular 'flip' to breakpieces (like objects tipping over from an explosion or flower petals opening) causing them to tip outwards from the influence point (default is the origin of the model)"
+[
+	burst_scale(float) [ min="-500", max="500" ]	: "Flip Scale"					: 0		: "Angular velocity added to each piece (Positive value will cause pieces to flip 'head-first' away from the influence point, negative is 'feet-first')"
+	burst_randomize(float) [ min="0", max="500" ]	: "Flip Randomize"				: 0		: "Largest possible value that will be randomly added/removed to Flip Scale for each piece"
+]
+
+@ModelBreakCommand base(base_break_force)
+= break_twist_pieces : "Applies an angular 'twist' to breakpieces, causing them to roll around the radial axis outward from the influence point (default is the origin of the model)"
+[
+	burst_scale(float) [ min="-500", max="500" ]	: "Twist Scale"					: 0		: "Angular velocity added to each piece"
+	burst_randomize(float) [ min="0", max="500" ]	: "Twist Randomize"				: 0		: "Largest possible value that will be randomly added/removed to Twist Scale for each piece"
+]
+
+@ModelBreakCommand
+= break_change_material_group : "Overrides the materialgroup on spawned breakpieces. (By default the active material group of the parent model is propagated to the breakpieces.)"
+[
+	material_group_name(materialgroup) : "Material Group" : "Material group name to switch to"
+	limit_to_piece(model_breakpiece) : "Limit to piece" : "If set, only apply this command to a particular piece"
+	limit_to_material_group(materialgroup) : "Limit to instances using material group" : "If set, only apply this command if the parent model had a particular materialgroup active"
+]
+
+@ModelBreakCommand
+= break_create_particle : "Spawn a particle system when this model breaks"
+[
+	name(resource:particle)			: "Particle"
+	cp0_model(resource:model)		: "CP 0 Model" 						: "" 	: "(Optional) Set the particle control point #0 to the specified model"
+	cp0_snapshot(resource:snapshot)	: "CP 0 Snapshot" 					: "" 	: "(Optional) Set the particle control point #0 to the specified snapshot"
+	skin_cp(int)					: "CP To Set To Skin" 				: 1 	: "(Optional) Set this control point to the parent model's active materialgroup name"
+	damage_position_cp(int)			: "CP To Set To Damage Position" 	: 2 	: "(Optional) Set this control point the position of the break damage"
+	damage_direction_cp(int)		: "CP To Set To Damage Direction"	: 3 	: "(Optional) Set this control point the direction of the break damage"
+]
+
+@ModelBreakCommand
+= break_damage_nested_break_pieces : "After breaking, further damage the spawned pieces (creates more dynamic breaks for multi-tier breakables)"
+[
+]
+
+@ModelBreakCommand
+= break_fade_emissive : "Triggers an emissive fadeout on the breakpiece(s) (NOTE: Only works on ragdoll breakpieces.)"
+[
+	limit_to_piece(model_breakpiece) : "Limit to piece" : "If set, only apply this command to a particular piece"
+]
+
+@ModelBreakCommand
+= break_disable_impact_damage : "Disables impact (physics) damage on spawned breakpiece(s)"
+[
+	limit_to_piece(model_breakpiece) : "Limit to piece" : "If set, only apply this command to a particular piece"
+]
+
+@ModelBreakCommand
+	locator_axis
+	{
+		transform =
+		{
+			origin_key = "anchor_position"
+			angles_key = "anchor_angles"
+		}
+	}
+	physicsjoint_hinge
+	{
+		transform =
+		{
+			origin_key = "anchor_position"
+			angles_key = "anchor_angles"
+		}
+		enable_limit = "enable_limit"
+		min_angle = "min_angle"
+		max_angle = "max_angle"
+	}
+= break_create_joint_revolute : "Creates a revolute (hinge) joint between two spawned breakpieces"
+[
+	parent_piece(model_breakpiece)	: "Parent Piece" : ""
+	child_piece(model_breakpiece)	: "Child Piece" : ""
+	anchor_position(vector)			: "Anchor Position (relative to model)"
+	anchor_angles(angle)			: "Anchor Angles (relative to model)"
+	
+	friction(float)					: "Friction" : 0
+
+	enable_limit(bool)				: "Enable Limit" : 0
+	min_angle(float)				: "Min Angle" : 0
+	max_angle(float)				: "Max Angle" : 0
+]
+
+@ModelGameData
+capsule
+{
+	transform =
+	{
+		bone_key = "bonename"
+	}
+	point0_key = "point0"
+	point1_key = "point1"
+	radius_key = "radius"
+}
+game_data_list( ao_proxy_capsule_list )
+ = ao_proxy_capsule
+[
+	bonename(model_bone) : "Bone"
+	radius(float) [ scale_bone_relative ] : "Radius" : 5
+	point0(local_point) [ scale_bone_relative ] : "Point 0" : "0 0 0"
+	point1(local_point) [ scale_bone_relative ] : "Point 1" : "10 0 0"
+]
+
+@ModelGameData
+box
+{
+	transform =
+	{
+		bone_key = "bonename"
+		origin_key = "offset_origin"
+		angles_key = "offset_angles"
+	}
+	dimensions_key = "dimensions"
+}
+locator_axis
+{
+	transform =
+	{
+		bone_key = "bonename"
+		origin_key = "offset_origin"
+		angles_key = "offset_angles"
+	}
+}
+game_data_list( ao_proxy_box_list )
+= ao_proxy_box
+[
+	bonename(model_bone) : "Bone"
+	dimensions(vector) [ scale_bone_relative ] : "Dimensions" : "10 10 10"
+	offset_origin(vector) [ scale_bone_relative ] : "Offset" : "0 0 0"
+	offset_angles(angle) : "Angles" : "0 0 0"
+]
+
+@ModelGameData
+sphere
+{
+	transform =
+	{
+		bone_key = "bonename"
+	}
+	radius_key = "radius"
+	center_key = "center"
+}
+game_data_list( high_quality_shadows_region_list )
+ = high_quality_shadows_region
+[
+	bonename(model_bone) : "Bone"
+	radius(float) [ scale_bone_relative ] : "Radius" : 5
+	center(local_point) [ scale_bone_relative ] : "Center" : "0 0 0"
+
+	key_light_target0(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 0" : ""
+	key_light_target1(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 1" : ""
+	key_light_target2(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 2" : ""
+	key_light_target3(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 3" : ""
+	key_light_target4(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 4" : ""
+	key_light_target5(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 5" : ""
+	key_light_target6(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 6" : ""
+	key_light_target7(model_attachment) [ group = "Key Light Targets" ]: "Key Light Target 7" : ""
+]
+
+@ModelGameData
+box
+{
+	transform =
+	{
+		bone_key = "bonename"
+		origin_key = "offset_origin"
+		angles_key = "offset_angles"
+	}
+	dimensions_key = "dimensions"
+}
+locator_axis
+{
+	transform =
+	{
+		bone_key = "bonename"
+		origin_key = "offset_origin"
+		angles_key = "offset_angles"
+	}
+}
+= eye_occlusion_renderer
+[
+	bonename(model_bone) : "Bone"
+	dimensions(vector) [ scale_bone_relative ] : "Dimensions" : "12 12 12"
+	offset_origin(vector) [ scale_bone_relative ] : "Offset" : "0 0 0"
+	offset_angles(angle) : "Angles" : "0 0 0"
+]
+
+@ModelGameData = physgun_interactions
+[
+	has_preferred_carryangles(boolean) : "Has Preferred Carry Angles" : 0
+	preferred_carryangles(angle) : "Preferred Carry Angles" : "0 0 0"
+
+	onworldimpact(choices) : "World Impact" : "" : "Behavior when impacting the world" =
+	[
+		""				:	"Default"
+		"stick"			:	"Stick to surface"
+		"bloodsplat"	:	"Blood decal"
+	]
+	
+	onfirstimpact(choices) : "On First Impact" : "" : "Behavior when impacting the world" =
+	[
+		""				:	"Default"
+		"break"			:	"Break"
+		"paintsplat"	:	"Paint splat"
+		"impale"		:	"Impale"
+	]
+	
+	onlaunch(choices) : "On Launch" : "" : "Behavior when launched from gravity gun" =
+	[
+		""				:	"Default"
+		"spin_none"		:	"No Spin"
+		"spin_z"		:	"Spin On Z-Axis"
+	]
+	
+	onbreak(choices) : "On Break" : "" : "" =
+	[
+		""				:	"Default"
+		"explode_fire"		:	"Fire Explosion"
+		"explode_ice"		:	"Ice Explosion"
+	]
+	
+	damage(choices) : "Impact Damage" : "" : "" =
+	[
+		""				:	"Default"
+		"none"			:	"No Impact Damage"
+	]
+	
+	onpickup(choices) : "On Pickup" : "" : "" =
+	[
+		""				:	"Default"
+		"create_flare"	:	"Create Flare"
+	]
+	
+	allow_overhead(choices) : "Allow Directly Overhead" : "" : "" =
+	[
+		""				:	"Default (No)"
+		"yes"			:	"Yes"
+	]
+]
+
+@ModelGameData
+	game_data_list( animating_breakable_stage_list )
+= animating_breakable_stage
+[
+	stage_health(int) 					: "Stage Health" : 10
+	materialgroup_name(materialgroup)	: "Broken Material Group"
+	bodygroup_name(model_bodygroup)		: "Broken Body Group"
+	bodygroup_choice(int)				: "Broken Body Group Choice"
+	sequence_name(string)				: "Broken Sequence Name"
+	activity_name(string)				: "Broken Activity Name"
+	breakpieces_substring(string)		: "Broken Breakpiece Substring"
+	particle_effect(resource:particle)	: "Broken Particle Effect"
+	sound_effect(sound)					: "Broken Sound Effect"
+]
+
+@ModelGameData = ai_model_info
+[
+	AIWalkable(boolean) 	: "AI Walkable" : 0
+	blockLOS(boolean) 		: "Block LOS" : 0
+]
+
+@ModelGameData = explosion_behavior
+[
+	explosion_type(choices) : "Explosion Type" : "" : "" =
+	[
+		""					:	"Inherit Default"
+		"default"			:	"Default"
+		"grenade"			:	"Grenade"
+		"molotov"			:	"Molotov"
+		"fireworks"			:	"Fireworks"
+		"gascan"			:	"Gasoline Can"
+		"gascylinder"		:	"Pressurized Gas Cylinder"
+		"explosivebarrel"	:	"Explosive Barrel"
+		"electrical"		:	"Electrical"
+		"emp"				:	"EMP"
+		"shrapnel"			:	"Shrapnel"
+		"smoke"				:	"Smoke Grenade"
+		"flashbang"			:	"Flashbang"
+		"tripmine"			:	"Tripmine"
+		"ice"				:	"Ice"
+		"none"				:	"None"
+		"custom"			:	"Custom"
+	]
+	explosive_damage(float) : "Explosive Damage" : -1
+	explosive_radius(float) : "Explosive Radius" : -1
+	explosion_delay(float) : "Explosion Delay (L4D)" : -1
+	explosion_buildup(sound) : "Explosion Buildup Sound (L4D)" : ""
+	explosion_custom_effect(resource:particle) : "Custom Particle Effect"
+	explosion_custom_sound(sound) : "Custom Sound Effect" : ""
+]
+
+@ModelGameData = vr_carry_type
+[
+	carry_type(choices) : "Carry Type" : "-1" : "" =
+	[
+		"-1"				:	"Auto"
+		"0"					:	"CARRY_TYPE_1H_RIGID"
+		"1"					:	"CARRY_TYPE_1H_2H_RIGID"
+		"3"					:	"CARRY_TYPE_1H_SOFT"
+		"4"					:	"CARRY_TYPE_2H_PICKUP"
+		"5"					:	"CARRY_TYPE_2H_DRAG"
+		"6"					:	"CARRY_TYPE_2H_DRAG_PLANAR"
+		"8"					:	"CARRY_TYPE_TOO_HEAVY"
+	]
+]
+
+@ModelGameData = npc_foot_sweep
+[
+	npc_foot_sweep_enabled(boolean) : "Enable NPC foot sweep" : 1
+]
+
+@ModelGameData
+	hand_pose
+	{
+		label = "Left Hand"
+		model = "models/hands/alyx_hand_left.vmdl"
+		origin_key = "preferred_catch_origin"
+		angles_key = "preferred_catch_angles"
+	}
+ = hand_conform_data
+[
+	shape_type(choices) : "Shape Type" : "0" : "" =
+	[
+		"0"				:	"Auto"
+		"5"				:	"Cylinder"
+	]
+
+	use_collision_bounds(boolean) 	: "Use Collision Bounds" : 0 : "The model's shape closely matches its collision bounds (like a simple box)."
+
+	preferred_catch_origin(vector)	: "Preferred Catch Origin"	: "0 0 0"
+	preferred_catch_angles(angle)	: "Preferred Catch Angles"	: "0 0 0"
+]
+
+@ModelGameData = handpose_data
+[
+	handpose_bone(string)                      : "Substring to match on bone name for interactable bones"
+	handpose_model(choices)                    : "Hand Pose model" : "models/props/max/handposes/handpose_grabpole.vmdl" =
+	[
+		"models/props/max/handposes/handpose_grabpole.vmdl" : "Grab pole"
+		"models/props/max/handposes/handpose_flatpalm.vmdl" : "Flat palm"
+		"models/props/max/handposes/handpose_pointing.vmdl" : "Pointing"
+		"models/props/handposes/handpose_knob.vmdl"			: "Knob"
+		"custom"											: "Custom"
+		"embedded"											: "Embedded"
+	]
+	allow_procedural_handpose(boolean)	: "Allow Procedural Hand Poses" : 1 : "When false, only poses authored on the model will be used for posing the hands"
+	global_pose_template(boolean)	: "Procedural Pose Template" : 0 : "(Not common) This model is a template for procedural hand poses"
+]
+
+@ModelGameData
+	hand_pose
+	{
+		label = "Left Hand"
+		model = "models/hands/alyx_hand_left.vmdl"
+		origin_key = "origin_left"
+		angles_key = "angles_left"
+	}
+	hand_pose
+	{
+		label = "Right Hand"
+		model = "models/hands/alyx_hand_right.vmdl"
+		origin_key = "origin_right"
+		angles_key = "angles_right"
+		is_right_hand = true
+	}
+	hand_pose
+	{
+		label = "Left Hand Extent"
+		model = "models/hands/alyx_hand_left.vmdl"
+		origin_key = "extent_origin_left"
+		angles_key = "angles_left"
+		enabled_key = "show_extent_helper"
+	}
+	locator_axis
+	{
+		enabled_key = "has_extent"
+		transform =
+		{
+			origin_key = "extent_origin_left"
+		}
+	}
+	locator_axis
+	{
+		enabled_key = "has_extent"
+		transform =
+		{
+			origin_key = "extent_origin_min_left"
+		}
+	}
+	hand_pose
+	{
+		label = "Right Hand Extent"
+		model = "models/hands/alyx_hand_right.vmdl"
+		origin_key = "extent_origin_right"
+		angles_key = "angles_right"
+		is_right_hand = true
+		enabled_key = "show_extent_helper"
+	}
+	locator_axis
+	{
+		enabled_key = "has_extent"
+		transform =
+		{
+			origin_key = "extent_origin_right"
+		}
+	}
+	locator_axis
+	{
+		enabled_key = "has_extent"
+		transform =
+		{
+			origin_key = "extent_origin_min_right"
+		}
+	}
+	line
+	{
+		enabled_key = "has_extent"
+		width = 3
+		from =
+		{
+			origin_key = "origin_left"
+		}
+		to =
+		{
+			origin_key = "extent_origin_left"
+		}
+	}
+	line
+	{
+		enabled_key = "has_extent"
+		width = 3
+		from =
+		{
+			origin_key = "origin_left"
+		}
+		to =
+		{
+			origin_key = "extent_origin_min_left"
+		}
+	}
+	line
+	{
+		enabled_key = "has_extent"
+		width = 3
+		from =
+		{
+			origin_key = "origin_right"
+		}
+		to =
+		{
+			origin_key = "extent_origin_right"
+		}
+	}
+	line
+	{
+		enabled_key = "has_extent"
+		width = 3
+		from =
+		{
+			origin_key = "origin_right"
+		}
+		to =
+		{
+			origin_key = "extent_origin_min_right"
+		}
+	}
+	line
+	{
+		enabled_key = "has_rotation"
+		width = 2
+		from =
+		{
+			origin_key = "rotation_axis0"
+		}
+		to =
+		{
+			origin_key = "rotation_axis1"
+		}
+	}
+	locator_axis
+	{
+		enabled_key = "has_rotation"
+		transform =
+		{
+			origin_key = "rotation_axis0"
+		}
+	}
+	locator_axis
+	{
+		enabled_key = "has_rotation"
+		transform =
+		{
+			origin_key = "rotation_axis1"
+		}
+	}
+	locator_axis
+	{
+		enabled_key = "allow_pivot"
+		transform =
+		{
+			origin_key = "pivot_origin_left"
+		}
+	}
+	locator_axis
+	{
+		enabled_key = "allow_pivot"
+		transform =
+		{
+			origin_key = "pivot_origin_right"
+		}
+	}
+
+	custom_editor_widget( HandPosePairEditor )
+	game_data_list( hand_pose_list )
+= hand_pose_pair
+[
+	sequence(choices)               			: "Sequence" : "idle" =
+	[
+		"idle":	"Fist (idle)"
+		"grab":	"Grasp (grab)"
+		"cylinder_idle": "Cylinder (grab)"
+	]
+
+	pose_special_type(choices)               			: "Pose Type" : "0" =
+	[
+		"0"	:	"Default"
+		"1"	:	"Squeezable"
+		"2"	: 	"Squeeze Target"
+		"3"	: 	"Handpose Entity"
+	]
+	
+	conform_fingers(bool)						: "Conform Fingers"				: "0"
+	allow_flip(bool)							: "Allow Pose Flip"				: "0"
+	parent_bone(model_bone)						: "Bone"
+
+	origin_left(vector)							: "Left Hand Origin"			: "0 5 0"
+	angles_left(angle)							: "Left Hand Angles"			: "0 0 0"
+	origin_right(vector)						: "Right Hand Origin"			: "0 -5 0"
+	angles_right(angle)							: "Right Hand Angles"			: "0 0 0"
+				
+	max_distance(float)							: "Max Distance"				: "3"
+	
+	finger_thumb(float)		[ min="0", max="1" ] : "Param: finger_thumb"		: "0"
+	finger_pinky(float)		[ min="0", max="1" ] : "Param: finger_pinky"		: "0"
+	finger_ring(float)		[ min="0", max="1" ] : "Param: finger_ring"			: "0"
+	finger_middle(float)	[ min="0", max="1" ] : "Param: finger_middle"		: "0"
+	finger_index(float)		[ min="0", max="1" ] : "Param: finger_index"		: "0"
+
+	has_extent(bool)							: "Has Extent"					: "0"
+	show_extent_helper(bool)					: "Show Extent Helper"			: "0"
+
+	extent_origin_left(vector)					: "Left Max Extent Origin"		: "0 0 2"
+	extent_origin_min_left(vector)				: "Left Min Extent Origin"		: "0 0 -1"
+	extent_origin_right(vector)					: "Right Max Extent Origin"		: "0 0 -2"
+	extent_origin_min_right(vector)				: "Right Min Extent Origin"		: "0 0 1"
+
+	has_rotation(bool)							: "Has Rotation"				: "0"
+
+	rotation_axis0(vector)						: "Rotation Axis Endpoint"		: "0 0 10"
+	rotation_axis1(vector)						: "Rotation Axis Endpoint"		: "0 0 -10"
+
+	rotation_min(float)							: "Rotation Range Counter-Clockwise"	: "0"
+	rotation_max(float)							: "Rotation Range Clockwise"			: "0"
+
+	pivot_min(float)							: "Pivot Range Counter-Clockwise"	: "0"
+	pivot_max(float)							: "Pivot Range Clockwise"			: "0"
+]
+
+@ModelGameData = breakable_door_model
+[
+	broken_door_model(resource:model) : "Broken Door Model"
+]
+
+@ModelGameData = door_sounds
+[
+	opened(sound) : "Fully opened" : ""
+	closed(sound) : "Fully closed" : ""
+	move(sound) : "Moving" : ""
+	jiggle(sound) : "Jiggle door" : ""
+
+	locked(sound) : "Jiggle handle (physical)" : ""
+	locked_anim(sound) : "Jiggle handle (animated)" : ""
+	unlatch(sound) : "Retract latch" : ""
+	latch(sound) : "Engage latch" : ""
+	unlock(sound) : "Unlock" : ""
+	lock(sound) : "Lock" : ""
+]
+
+@ModelGameData
+capsule
+{
+	transform =
+	{
+		attachment_key = "attachment"
+	}
+	point0_key = "point0"
+	point1_key = "point1"
+	radius_key = "radius"
+}
+ = gastank_markup
+[
+	attachment(model_attachment) : "Parent Attachment"
+	radius(float) : "Radius" : 5
+	point0(vector) : "Point 0" : "0 0 0"
+	point1(vector) : "Point 1" : "10 0 0"
+]
+
+@ModelGameData = nav_data
+[
+	nav_attribute_avoid(boolean) : "Nav Attrib, Avoid" : 0
+]
+
+@ModelGameData = fire_interactions
+[	
+	flammable(choices) : "Flammable" : "" : "" =
+	[
+		""				:	"Default (No)"
+		"yes"			:	"Yes"
+	]
+	explosive_resist(choices) : "Explosive Resist" : "" : "" =
+	[
+		""				:	"Default (No)"
+		"yes"			:	"Yes"
+	]
+	ignite(choices) : "Ignition Criteria" : "" : "" =
+	[
+		""				:	"Default (No)"
+		"halfhealth"	:	"At Half Health"
+	]
+	melee_immune(choices) : "Melee Immune" : "" : "" =
+	[
+		""				:	"Default (No)"
+		"yes"			:	"Yes"
+	]
+]
+
+@ModelGameData game_data_list( bodygroup_driven_morph_list ) = bodygroup_driven_morph
+[
+	bodygroup_name(model_bodygroup) : "bodygroup_name" : ""
+	bodygroup_choice(int) : "bodygroup_choice" : ""
+	morph_name(model_morphchannel) [report] : "Morph Channel"
+]
+
+@ModelGameData game_data_list( materialgroup_driven_morph_list ) = materialgroup_driven_morph
+[
+	materialgroup_name(materialgroup) : "Material Group" : ""
+	morph_name(model_morphchannel) [report] : "Morph Channel"
+]
+
+@ModelGameData game_data_list( eye_data_list ) = eye
+[
+	bonename(model_bone) : "Bone"
+	radius(float) : "Radius" : 1
+	yaw(float) : "Yaw (Degrees)" : 4
+]
+
+@ModelGameData game_data_list( cables_list ) = cable
+[
+	startattachment(model_attachment) : "Start Attachment"
+	endattachment(model_attachment) : "End Attachment"
+	width(float) : "Width" : 2
+	material(resource:material) : "Material" : "cable/cable"
+	numsegments(int) : "Num Segments" : 5
+	gravity(bool) : "Gravity" : 1
+	length(int) : "Length" : 0
+	texturescale(float) : "Texture Scale" : 1
+]
+
+
+@ModelGameData game_data_list( dynamic_interactions ) = dynamic_interaction
+[
+	name(string) : "Interaction Name"
+	trigger(choices) : "Trigger Method" : "auto_in_combat" =
+	[
+		"in_code"				: "Via Code"					
+		"auto_in_combat"		: "Automatically In Combat"	
+	]
+	origin_relative(vector)		: "Target Origin (relative to me - forward, right, up)"
+	origin_max_delta(float)		: "Distance slop (i.e. max distance from target to 'Target Origin' to be considered valid)" : 6
+	test_angles_relative(boolean)	: "Test Target Angles" : 1
+	angles_relative(angle)		: "Target Angles (relative to me)"
+	needs_weapon(choices)		: "Need a weapon" : "no" =
+	[
+		"no"					: "No"
+		"me"					: "This NPC"
+		"them"					: "Other NPC (that this NPC is interacting with)"
+		"both"					: "Both NPCs"
+	]
+	weapon_mine(string)			: "Weapon Name (classname of the weapon entity that needs to be carried by this NPC)"
+	weapon_theirs(string)		: "Other NPC Weapon Name (classname of the weapon entity that needs to be carried by the other NPC)"
+	//velocity_relative(vector)	: "UNUSED - Target velocity (relative to me)"
+
+	entry_sequence(string)		: "Entry Sequence name"
+	entry_activity(string)		: "Entry Activity name"
+	sequence(string)			: "Action Sequence name"
+	activity(string)			: "Action Activity name"
+	exit_sequence(string)		: "Exit Sequence name"
+	exit_activity(string)		: "Exit Activity name"
+	loop_in_action(boolean)		: "Loop in Action animation?"
+	dont_teleport_at_end(choices) : "Don't Teleport after completion" : "no" =
+	[
+		"no"					: "No"
+		"me"					: "This NPC"
+		"them"					: "Other NPC (that this NPC is interacting with)"
+		"both"					: "Both NPCs"
+	]
+
+	loop_break_on_damage(boolean)		: "Loop Break on Taking Damage?"
+	loop_break_on_flashlight(boolean)	: "Loop Break on Flashlight Illumination (Only works in EP1 Alyx Darkness)"	
+	delay(float)				: "Delay (refire rate after performing the interaction)" : 10
+]
+
+@ModelAnimEvent = AE_IK_SET_LOCK_ROTATION_ALPHA
+[
+	chainName(string) [report] : "IK Chain Name" : ""
+	lockRotationAlpha(float) [report] : "Lock Rotation Alpha" : "0.0"
+]
+
+@ModelAnimEvent = AE_SCRIPT_EVENT_FIREEVENT
+[
+	eventindex(int) [report] : "Event Index" : "0"
+]
+
+@ModelAnimEvent = AE_MUZZLEFLASH 
+[
+	weaponType(string) : "Weapon Type"
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_NPC_MUZZLEFLASH 
+[
+	weaponType(string) : "Weapon Type"
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_NPC_BECOME_TEMPORARY_RAGDOLL 
+[
+	auto_unragdoll_duration(float) : "Duration"
+	invert_orientation(bool) : "Inverted Recovery (180)" : 0
+]
+
+@ModelAnimEvent = AE_NPC_HURT_INTERACTION_PARTNER 
+[
+	hurt_me(bool) : "Hurt Me" : 0
+	hurt_them(bool) : "Hurt Them" : 0
+	damage(int): "Damage" : 0
+]
+
+@ModelAnimEvent = AE_ZOMBIE_POPHEADCRAB 
+[
+	bone(model_bone) : "Bone"
+	speed(int): "Speed" : 0
+]
+
+@ModelAnimEvent = AE_BLIND_ZOMBIE_SNIFF 
+[
+	last_sniff(bool) : "Last Sniff" : 0
+]
+
+@ModelAnimEvent = AE_HIDE_WEAPON 
+[
+	duration(float) : "Duration" : 0
+]
+
+@ModelAnimEvent = AE_SV_DUSTTRAIL 
+[
+	attachment(model_attachment) : "Attachment"
+	duration(float) : "Duration" : 0
+	size(float) : "Size" : 0
+]
+
+@ModelAnimEvent = AE_NPC_WEAPON_FIRE 
+[
+	secondary(bool) : "Secondary" : 0
+]
+
+@ModelAnimEvent = AE_NPC_WEAPON_SET_SEQUENCE_NUMBER 
+[
+	sequence_number(int) : "Sequence Number" : 0
+]
+
+@ModelAnimEvent = AE_NPC_SET_INTERACTION_CANTDIE 
+[
+	cantdie(bool) : "Can't Die" : 0
+]
+
+@ModelAnimEvent = AE_ZOMBIE_TOGGLE_HEAD 
+[
+	headtype(int) : "Head Type" : 0
+]
+
+@ModelAnimEvent = AE_VORTIGAUNT_START_HEAL_GLOW 
+[
+	handindex(int) : "Hand Index" : 0
+]
+
+@ModelAnimEvent = AE_VORTIGAUNT_START_HURT_GLOW 
+[
+	handindex(int) : "Hand Index" : 0
+]
+
+@ModelAnimEvent = AE_VORTIGAUNT_ZAP_POWERUP 
+[
+	handindex(int) : "Hand Index" : 0
+]
+
+@ModelAnimEvent = AE_VORTIGAUNT_ZAP_SHOOT 
+[
+	handindex(int) : "Hand Index" : 0
+]
+
+@ModelAnimEvent = AE_PASSENGER_PHYSICS_PUSH 
+[
+	force(float) : "Force" : 0
+]
+
+@ModelAnimEvent = AE_MELEE_DAMAGE 
+[
+	yaw_start(float) : "Yaw Start" : 0
+	yaw_end(float) : "Yaw End" : 0
+]
+
+@ModelAnimEvent = AE_CL_CREATE_PARTICLE_BRASS 
+[
+	name(resource:particle) : "Particle"
+]
+
+@ModelAnimEvent = AE_IK_ALLOW_PLANE_TILT_NORMAL_UPDATES 
+[
+	bUpdate(bool) : "Allow Updates" : 0
+]
+
+@ModelAnimEvent = AE_IK_SET_MASTER_BLEND_AMOUNT
+[
+	blendamount(float) : "IK Blend Amount" : 1
+	graphparameter(string) : "Graph Parameter Name" : "__name_must_match_whats_in_animgraph_node__"
+]
+
+@ModelAnimEvent = AE_IK_SET_CHAIN_BLEND_AMOUNT
+[
+	chainname(string) [report] : "IK Chain Name" : ""
+	blendamount(float) : "IK Blend Amount" : 1
+]
+
+@ModelAnimEvent = AE_NPC_WEAPON_DROP 
+[
+	target(string) : "Target"
+]
+
+
+@ModelAnimEvent = AE_TOSS_ITEM
+[
+	target(string): "Name of Target Entity"
+	fallbacktarget(string): "Name of Fallback Target Entity"
+]
+
+@ModelAnimEvent = AE_DOG_THROW 
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_DOG_PICKUP 
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_DOG_CATCH 
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_DOG_PICKUP_NOEFFECT 
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_HUNTER_SPRAY_BLOOD 
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_COMPANION_PRODUCE_FLARE 
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_STRIDER_SHOOTMINIGUN 
+[
+	target(string) : "Target"
+]
+
+@ModelAnimEvent deprecated() = AE_CL_MFOOTSTEP_LEFT 
+[
+	sound_base(string) : "Sound Basename"
+]
+
+@ModelAnimEvent deprecated() = AE_CL_MFOOTSTEP_RIGHT 
+[
+	sound_base(string) : "Sound Basename"
+]
+
+@ModelAnimEvent deprecated() = AE_CL_MFOOTSTEP_LEFT_LOUD 
+[
+	sound_base(string) : "Sound Basename"
+]
+
+@ModelAnimEvent deprecated() = AE_CL_MFOOTSTEP_RIGHT_LOUD 
+[
+	sound_base(string) : "Sound Basename"
+]
+
+@ModelAnimEvent deprecated() = AE_CL_FOOTSTEP_LEFT 
+[
+	sound_base(string) : "Sound Basename"
+]
+
+@ModelAnimEvent deprecated() = AE_CL_FOOTSTEP_RIGHT 
+[
+	sound_base(string) : "Sound Basename"
+]
+
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_LEFT [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_RIGHT [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_BACK [ ]
+@ModelAnimEvent deprecated() = AE_MARINE_FOOTSTEP [ ]
+@ModelAnimEvent deprecated() = AE_FOOTSTEP_LEFT [ ]
+@ModelAnimEvent deprecated() = AE_FOOTSTEP_RIGHT [ ]
+@ModelAnimEvent deprecated() = AE_SV_FOOTSTEP_LEFT [ ]
+@ModelAnimEvent deprecated() = AE_SV_FOOTSTEP_RIGHT [ ]
+@ModelAnimEvent deprecated() = AE_ANTLION_FOOTSTEP_HEAVY [ ]
+@ModelAnimEvent deprecated() = AE_ANTLION_FOOTSTEP_SOFT [ ]
+@ModelAnimEvent deprecated() = AE_ANTLION_WALK_FOOTSTEP [ ]
+@ModelAnimEvent deprecated() = AE_ANTLIONGUARD_FOOTSTEP_HEAVY [ ]
+@ModelAnimEvent deprecated() = AE_ANTLIONGUARD_FOOTSTEP_LIGHT [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_LEFTM [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_RIGHTM [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_BACKM [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_LEFTL [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_RIGHTL [ ]
+@ModelAnimEvent deprecated() = AE_STRIDER_FOOTSTEP_BACKL [ ]
+@ModelAnimEvent deprecated() = AE_HUNTER_FOOTSTEP_LEFT [ ]
+@ModelAnimEvent deprecated() = AE_HUNTER_FOOTSTEP_RIGHT [ ]
+@ModelAnimEvent deprecated() = AE_HUNTER_FOOTSTEP_BACK [ ]
+@ModelAnimEvent deprecated() = AE_POISONHEADCRAB_FOOTSTEP [ ]
+
+@ModelAnimEvent = AE_NPC_ITEM_PICKUP
+[
+	name(string) : "Item Name"
+]
+
+@ModelAnimEvent = AE_NPC_WEAPON_SET_SEQUENCE_NAME
+[
+	name(string) : "Sequence Name"
+]
+
+@ModelAnimEvent = AE_NPC_WEAPON_SET_ACTIVITY
+[
+	name(string) : "Activity Name"
+]
+
+@ModelAnimEvent = AE_NPC_ADDGESTURE
+[
+	name(string) : "Gesture Name"
+]
+
+@ModelAnimEvent = AE_NPC_RESTARTGESTURE
+[
+	name(string) : "Gesture Name"
+]
+
+@ModelAnimEvent = AE_ALYX_EMPTOOL_ATTACHMENT
+[
+	name(model_attachment) : "Attachment Name"
+]
+
+@ModelAnimEvent = AE_ALYX_EMPTOOL_SEQUENCE
+[
+	name(string) : "Sequence Name"
+]
+
+@ModelAnimEvent = AE_HUNTER_START_EXPRESSION
+[
+	name(string) : "Name"
+]
+
+@ModelAnimEvent = AE_HUNTER_END_EXPRESSION
+[
+	name(string) : "Name"
+]
+
+@ModelAnimEvent = AE_WPN_PLAYWPNSOUND
+[
+	name(string) : "Sound Category"
+]
+
+@ModelAnimEvent = AE_MANTLE_LEAP
+[
+	attachment(model_attachment) : "Attachment"
+]
+
+@ModelAnimEvent = AE_MELEE_START_COLLISION_DAMAGE
+[
+	value(string) : "Melee Options"
+]
+
+@ModelAnimEvent = AE_KEYFIELD_SOUND
+[
+	name(string) : "Keyfield Sound"
+]
+
+@ModelAnimEvent = AE_ACTION_ALLOW_COMBO
+[
+	name(string) : "Combo"
+]
+
+@ModelAnimEvent = AE_ACTION_PREVENT_COMBO
+[
+	name(string) : "Combo"
+]
+
+@ModelAnimEvent = AE_ACTION_SET_TURN_RATE_SCALE
+[
+	turn_rate(float) : "Turn Rate"
+]
+
+@ModelAnimEvent = AE_REVIVER_SET_DEST
+[
+	dest(choices) : "Destination" : 0 =
+	[
+		-1 : "Random"
+		0 : "Chest"
+		1 : "Head"
+		2 : "Left arm"
+		3 : "Right arm"
+		4 : "Left leg"
+		5 : "Right leg"
+	]
+]
+
+@ModelAnimEvent = AE_REVIVER_ZAP_TARGET
+[
+	final(bool) : "Final zap (kills NPCs)" : 0
+]
+
+@ModelAnimEvent = AE_HEADCRAB_FLIPPED
+[
+	flipped(bool): "Flipped" : 0
+]
+
+@ModelAnimEvent = AE_HAPTIC_PULSE
+[
+	haptic_effect_name(string): "Effect Name" : "haptic_pulse_medium"
+	scale(float): "Effect Scale" : 1
+]
+
+@ModelAnimEvent = AE_NPC_START_POWERED_RAGDOLL
+[
+	pose_control_type(choices): "Pose control type" : 1 = 
+	[
+		"NoPoseControl" : "None"
+		"AbsolutePoseControl" : "Absolute"
+		"RelativePoseControl" : "Relative"
+	]
+	frequency(float): "Spring frequency (0-30)" : 10
+	damping_ratio(float): "Spring damping ratio (0-2)" : 1
+	decay_duration(float): "Spring decay duration time" : -1
+	decay_bias(float): "Spring decay bias" : "0.5"
+]
+
+@ModelAnimEvent = AE_NPC_END_POWERED_RAGDOLL
+[
+]

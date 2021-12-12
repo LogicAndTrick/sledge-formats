@@ -6,6 +6,7 @@
         Symbol,
         Name,
         String,
+        Number,
         Custom,
         End
     }

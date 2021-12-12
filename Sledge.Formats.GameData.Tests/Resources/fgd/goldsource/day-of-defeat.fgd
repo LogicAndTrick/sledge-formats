@@ -1,0 +1,2993 @@
+// ---------------------------------------------------------------------------------
+// Day of Defeat game definition file (.fgd) 
+// Version 2.0.3.A.SP
+// For Worldcraft 3.3 and above, and Half-Life 1.0.0.9 and above
+// Last update: April 26, 2002 by Tim "Waldo" Holt
+//
+// ---------------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------------
+// Version Number Convention
+// ---------------------------------------------------------------------------------
+//    First version number reflects major version # of game
+//    Second version number reflects minor version # of game
+//    Third version number reflects version # of FGD for given game version
+//    Alternate ending digits reflect game type and FGD status...
+//       "A" = alpha
+//       "B" = beta
+//       "SP" = single player
+//       "MP" = multiplayer
+// ---------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------
+// Revision history
+// ---------------------------------------------------------------------------------
+// by Justin DeJong aka "N0TH1NG"
+// modified from code by Chris Bokitch aka "autolycus"
+//
+// by Tim Holt aka Waldo (burkenholt@home.com)
+// modified from code by Justin DeJong aka "N0TH1NG"
+//
+// Version 0.7.3 and 0.7.4 by Morlam (morlam@gamespotmail.com)
+// slightly modified from code by Chris Bokitch (Autolycus), Justin DeJong (NOTH1NG), and
+// Tim Holt (Waldo).
+// 
+// version 0.8.0 by Matt Boone aka "Mugsy"
+// modified from version 0.7.4
+//
+// version 2.0.1 by Tim Holt aka "Waldo"
+// modified from version 0.8.0 
+// changed first digit of version number to reflect DoD version.
+//
+// version 2.0.2 by Brandon Russell aka "Axis"
+// modified from version 2.0.1 
+// ---------------------------------------------------------------------------------
+// Original changes by Tim Holt (0.7.0)
+//   - Added new Trigger Changetarget sprite (green cube w/words)
+//   - Added new Info Target sprite (bullseye)
+//   - Added new trigger_camera sprite (Video camera)
+//   - Added new Multi Manager sprite (box w/arrows coming out of it)
+//   - Added new "Cycler Sprite" sprite (box w/arrow circle around it)
+//   - Added replacement ambient_generic sprite (changed from speaker to speaker
+//     with words "Ambient Generic" around it")
+//   - Added replacement env_sound sprite (changed from speaker to speaker
+//     with words "Env Sound" around it")
+//   - Added replacement light_spot sprite (changed from lightbulb to spotlight)
+//   - Added replacement Light Environment sprite (changed from lightbulb to sun)
+//   - Added all the "game_*" entities
+//   - Added info_compile_params and info_lights_rad entities.  Idea is to
+//     get someone like Zoner to implement support for them in Zoners, or
+//     build support for them into a compile tool like Q2Beaver, HLCC, etc.
+//   - Added env_funnel
+//   - Added trigger_gravity
+//   - Added player_weaponstrip
+//   - Put Zoners RAD option (that allow solid (func_) based ents to cast
+//     shadows) into a number of new additional items that can support it.
+//     Use with caution, as for example a func_pushable can cast a shadow now,
+//     but if you push it, the shadow stays behind :^)
+//
+// 12/31/2000 - Tim Holt (0.7.1)
+//   - Added new sprites for all the Game entities
+//   - Added new sprite for Player Weapon Strip
+//   - Added new sprite for Trigger_Relay
+//   - Added new sprite for Trigger_ChangeTarget
+//
+// 01/01/2001 - Tim Holt (0.7.2)
+//   - Added new dropdown to hostage entity, so you can choose hostage skin
+//     directly by name (orange suit guy or tie guy)
+//   - Removed commented out "master" option for game_zone_player.  It was
+//     commented out from the original HL FGD for some reason.  Not sure why
+//     or if maybe there is a problem with it?
+//
+// 01/04/2001 - Morlam (0.7.3)
+//   - Arranged all the point entities in alphabetical order
+//   - Corrected a typo in hostage_entity: "Orange Suit Worker" from
+//	 "Orange Suite Worker".
+//   - Changed func_water default WaveHeight to 0
+//   - Added ZHLT Light Flags to func_plat, _pendulum and _vehicle
+//   - Under info_compile_params:
+//		- Changed extra to choices instead of a string; default is now 0
+//		- Changed extra to read: "Enable Extra mode in HLRAD?"
+//		- Added hullfile, chop, texchop, circus, and dscale keys
+//		- Added "No Clip" flag under Run BSP in the spawnflags
+//   - Under info_lights_rad:
+//		- added radfile key/value, specifies custom texture light file
+//
+// 01/05/2001 - Morlam (0.7.4)
+//   - Added _fade and _falloff keys to the light_ entities.  Need ZHLT 2.2+
+//	 for these to work.
+//   - Added light_origin key to the ZHLT Light Flags BaseClass.  Again, you
+//	 need the latest version of Zoner's Tools for light_origin to work.
+//   - Moved circus and extra from the "Class Info" tab to the "Flags" tab.
+//   - Shortened the SmartEdit names of certain key/values in info_compile_params
+//	 so that they aren't cut off (at least, on my 800X600 screen on a 15 inch 
+//	 monitor).
+//
+// Jan 6, 2001 - Tim Holt (0.7.5)
+//   - Added new parameter options for game_player_equip to list all
+//     CS items in dialog, thus removing the need to turn off SmartEdit
+//     to configure.
+//   - Added new sprite for trigger_auto (green box with words "Trigger Auto")
+// 
+// Jan 26, 2001 - Tim Holt (0.7.6)
+//   - Added "No Clients" check option to Trigger base class per suggestion/lead
+//     from Mataleone (cs mapping forum)
+//
+// Aug 27, 2001 - Tim Holt (0.7.7)
+//   - Removed some old CS entities that had not been removed
+//   - Added cycler_wreckage
+//   - Added Angular velocity option to func_train (see
+//     http://www.chatbear.com/cgi-bin/board.pl?action=viewthread&threadid=252,994640145,10305&id=47702&boardid=9)
+//  
+// Dec, 2001 - Matt Boone ( 0.8.0 )
+//   - added dod 2.0 objectives
+//
+// Dec 11, 2001 - Tim Holt (2.0.0bmp)
+//   - merged some spirit features with Matt Boone's revised 2.0 DoD entities
+//
+// Jan 11, 2002 - Brandon Russell (2.0.2bmp)
+//   - Added 2 new settings to the spawn flags of Game_text to fix Kami's map
+//
+// April 26, 2002 - Tim Holt (2.0.3mp)
+//   Rolling in a bunch of fixes based 
+//   - Removed info_initial_player_allies as it is no longer used in 2.0
+//   - Removed info_initial_player_axis as it is no longer used in 2.0
+//   - Removed sprite from info_player_allies and info_player_axis.  Hard to judge
+//     player spawn location and player size with sprites.  Axis is red, Allies are 
+//     green.  Colors were also incorrect for these entities.  Set to be correct.
+//   - Added new _defuse_light attribute for the HLRAD tweak by Adam Foster (see
+//     http://www.chatbear.com/cgi-bin/board.pl?action=viewthread&threadid=860,1014492782,1883&id=158865&boardid=653&view=flatold 
+//   - Added missing "movewith" attribute to all trigger brush ents
+//   - Added skin value -3 for water to func_illusionary
+//   - Added in all the weapon_ entities for weapons on the ground
+//   - Added in all the ammo_ entities for ammo on the ground
+//
+// April 28, 2002 - Tim Holt (2.0.3.A.SP)
+//   Adding in single player stuff
+//   - Add HintTypeChoices base class
+//   - Add ActivityTypeChoices base class
+//   - Add Monster base class
+//   - Add info_node entity
+//   - Add info_intermission entity
+//   - Add info_landmark entity
+//   - Add AiScriptedSequence entity
+//   - Added scripted_action entity
+//   - Added scripted_sentence entity
+//   - Added scripted_sequence entity
+//   - Added trigger_transition entity
+//   - Added monster_axis_grunt
+//   - Added monster_allied_grunt
+//   - Added monster_allied_barney
+
+// ---------------------------------------------------------------------------------
+
+// Worldspawn
+//
+
+@SolidClass = worldspawn : "World entity"
+[
+	message(string) : "Map Description / Title"
+	skyname(string) : "environment map (Sky name)"
+	light(integer) : "Default light level"
+	WaveHeight(string) : "Default Wave Height"
+	MaxRange(string) : "Max viewable distance" : "4096"
+	newunit(choices) : "Flush global entities?" : 0 =
+	[
+		0 : "No, keep global ents"
+		1 : "Yes, flush global ents"
+	]
+]
+
+
+//
+// BaseClasses
+//
+
+// --------------------------------------------------------------------- 
+// These are the possible hint types currently suported by
+// the HL code.  Note that very few monsters actually support
+// them, but anyone editing custom monster AI could easily
+// utilize them.
+//
+// Bullsquid will trigger selected activity if node is marked with...
+//    World Human Blood
+//
+// Houndeye will trigger selected activity if node is marked with...
+//    World Machinery
+//    Blinking Light
+//    Human Blood
+//    Alien Blood
+//    
+// Basically to override the default monster behaviour (which is to
+// ignore all hint types), a monster's code needs to override the
+// default method FValidateHintType, and return TRUE if the hint type
+// passed is "interesting", or FALSE if it is not "interesting"
+// 
+// Note that the values below MUST match the enum set defined in
+// nodes.h
+// 
+// Tim Holt ("Waldo")
+// --------------------------------------------------------------------- 
+@BaseClass = HintTypeChoices
+[
+	hinttype(Choices) : "Hint Type" : 0 = 
+	[
+		0 : "None"
+		1 : "World Door"
+		2 : "World Window"
+		3 : "World Button"
+		4 : "World Machinery"
+		5 : "World Ledge"
+		6 : "World Source"
+		7 : "World Source"
+		8 : "World Blinking Light"
+		9 : "World Bright Colors"
+		10 : "World Human Blood"
+		11 : "World Alien Blood"
+		100 : "Tactical Exit"
+		101 : "Tactical Vantage"
+		102 : "Tactical Ambush"
+		300 : "Stuka Perch"
+		301 : "Stuka Landing"
+	]
+]
+
+// --------------------------------------------------------------------- 
+// These are the possible activity values that are shared by all
+// monsters.  Note that not all monsters can do all activities! 
+// 
+// These activity values must NOT be changed as they must reflect the
+// values set in an enum in activity.h
+// 
+// Tim Holt ("Waldo")
+// --------------------------------------------------------------------- 
+
+@BaseClass = ActivityTypeChoices
+[
+	activity(Choices) : "Hint Activity" : 0 =
+	[
+		0 : "Reset"
+		1 : "Idle"
+		2 : "Guard"
+		3 : "Walk"
+		4 : "Run"
+		5 : "Fly"
+		6 : "Swim"
+		7 : "Hop"
+		8 : "Leap"
+		9 : "Fall"
+		10 : "Land"
+		11 : "Strafe Left"
+		12 : "Strafe Right"
+		13 : "Roll Left"
+		14 : "Roll Right"
+		15 : "Turn Left"
+		16 : "Turn Right"
+		17 : "Crouch"
+		18 : "Crouch Idle"
+		19 : "Stand"
+		20 : "Use"
+		21 : "Signal 1"
+		22 : "Signal 2"
+		23 : "Signal 3"
+		24 : "Twitch"
+		25 : "Cower"
+		26 : "Small Flinch"
+		27 : "Big Flinch"
+		28 : "Range Attack 1"
+		29 : "Range Attack 2"
+		30 : "Melee Attack 1"
+		31 : "Melee Attack 2"
+		32 : "Reload"
+		33 : "Arm"
+		34 : "Disarm"
+		35 : "Eat"
+		36 : "Die Simple"
+		37 : "Die Backward"
+		38 : "Die Forward"
+		39 : "Die Violent"
+		40 : "Barnacle Hit"
+		41 : "Barnacle Pull"
+		42 : "Barnacle Chomp"
+		43 : "Barnacle Chew"
+		44 : "Sleep"
+		45 : "Inspect Floor"
+		46 : "Inspect Wall"
+		47 : "Idle Angry"
+		48 : "Walk Hurt"
+		49 : "Run Hurt"
+		50 : "Hover"
+		51 : "Glide"
+		52 : "Fly Left"
+		53 : "Fly Right"
+		54 : "Detect Scent"
+		55 : "Sniff"
+		56 : "Bite"
+		57 : "Threat Display"
+		58 : "Fear Display"
+		59 : "Excited"
+		60 : "Special Attack 1"
+		61 : "Special Attack 2"
+		62 : "Combat Idle"
+		63 : "Walk Scared"
+		64 : "Run Scared"
+		65 : "Victory Dance"
+		66 : "Die Headshot"
+		67 : "Die Chestshot"
+		68 : "Die Gutshot"
+		69 : "Die Backshot"
+		70 : "Flinch Head"
+		71 : "Flinch Stomach"
+		72 : "Flinch Left Arm"
+		73 : "Flinch Right Arm"
+		74 : "Flinch Left Leg"
+		75 : "Flinch Right Leg"
+	]
+]
+
+
+
+@BaseClass = Angles
+[
+	angles(string) : "Pitch Yaw Roll (Y Z X)" : "0 0 0"
+]
+
+@BaseClass = Targetname 
+[ 
+	targetname(target_source) : "Name"
+]
+
+@BaseClass = Target 
+[ 
+	target(target_destination) : "Target" 
+]
+
+@BaseClass = MoveWith
+[ 
+	movewith(target_destination) : "Moves with" 
+]
+
+@BaseClass = Master
+[
+	//* To invert the master relationship (that is, to disable this entity whenever the master <u>is</u> on),
+	//* add a tilde (~) at the start of the master's name.
+	master(string) : "Master"
+]
+
+@BaseClass = DoDCam [
+	zoomlevel(integer): "Zoom FOV (scope=20, binoc=50, normal=90)" : 110 
+	cam_overlay(choices) : "dod_camera View" : 3 =  
+	[ 
+		0: "normal" 
+		1: "Scope (20)"
+		2: "Binoculars (50)"
+		3: "Widescreen (110)"  
+	] 
+        subtitle(integer) :"Subtitle" : 0 
+]
+
+@BaseClass = CPMaster
+[
+	spawn_cp_master(string) : "Master Control Point " : ""
+	spawn_cp_neutral(choices) : "Active if neutral?" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	spawn_cp_incontrol(choices) : "Active if in control?" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	spawn_cp_notincontrol(choices) : "Active if not in control?" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
+
+@BaseClass base(Target) = Targetx 
+[
+	delay(string) : "Delay before trigger" : "0"
+	killtarget(target_destination) : "KillTarget"
+]
+
+@BaseClass size(-16 -16 0, 16 16 32) color(0 0 200) base(Targetname, Angles) = Weapon []
+
+@BaseClass = RenderFxChoices
+[
+	renderfx(choices) :"Render FX" : 0 =
+	[
+		0: "Normal"
+		1: "Slow Pulse"
+		2: "Fast Pulse"
+		3: "Slow Wide Pulse"
+		4: "Fast Wide Pulse"
+		9: "Slow Strobe"
+		10: "Fast Strobe"
+		11: "Faster Strobe"
+		12: "Slow Flicker"
+		13: "Fast Flicker"
+		5: "Slow Fade Away"
+		6: "Fast Fade Away"
+		7: "Slow Become Solid"
+		8: "Fast Become Solid"
+		14: "Constant Glow"
+		15: "Distort"
+		16: "Hologram (Distort + fade)"
+	]
+]
+
+@BaseClass base(RenderFxChoices) = RenderFields 
+[
+	rendermode(choices) : "Render Mode" : 0 =
+	[
+		0: "Normal"
+		1: "Color"
+		2: "Texture"
+		3: "Glow"
+		4: "Solid"
+		5: "Additive"
+	]
+	renderamt(integer) : "FX Amount (1 - 255)"
+	rendercolor(color255) : "FX Color (R G B)" : "0 0 0"
+]
+
+@BaseClass size(-16 -16 -36, 16 16 36) color(0 255 0) base(Angles) = PlayerClass []
+
+@BaseClass size(-16 -16 -16, 16 16 16) base(Targetname, Angles, MoveWith) = gibshooterbase
+[
+	m_iGibs(integer) : "Number of Gibs" : 3
+	delay(string) : "Delay between shots" : "0"
+	m_flVelocity(integer) : "Gib Velocity" : 200
+	m_flVariance(string) : "Course Variance" : "0.15"
+	m_flGibLife(string) : "Gib Life" : "4"
+	spawnflags(Flags) = 
+	[
+		1 : "Repeatable" 	: 0
+	]
+]
+
+@BaseClass = Light 
+[
+	_light(color255) : "Brightness" : "255 255 128 200"
+      style(Choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12: "Underwater"
+	]
+	// ------------------------------------------------------------------------------
+	// This field will have no effect on a static (i.e. nameless) light.
+	//   'a' is dark, 'm' is normal brightness, 'z' is full brightness.
+	// There's no support for a light to have a custom appearances when it's in a
+	// state other than 'on'. See @trigger_lightstyle if you need this effect.
+	// ------------------------------------------------------------------------------
+	pattern(string) : "Custom Appearance (on)"
+
+        m_iOnStyle(Choices) : "Appearance (on)" : 0 =
+	[
+		0 : "Normal (on)"
+		13: "Off"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12: "Underwater"
+	]
+
+        m_iTurnOnTime(integer) : "Time taken to turn on (secs)" : 0
+
+	// This field will have no effect on a static (i.e. nameless) light.      
+        m_iTurnOnStyle(Choices) : "Appearance (turn on)" : 0 =
+	[
+		0: "Normal (off)"
+		20: "On"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12: "Underwater"
+	]
+        m_iTurnOffTime(integer) : "Time taken to turn off (secs)" : 0
+
+        m_iTurnOffStyle(Choices) : "Appearance (turn off)" : 0 =
+	[
+		0 : "Normal (on)"
+		13: "Off"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12: "Underwater"
+	]
+
+	_fade(integer) : "Fade (ZHLT Only)"
+	_falloff(integer) : "Falloff 1-2 (ZHLT Only)"
+
+]
+
+@BaseClass base(Targetname) = Breakable
+[
+	target(target_destination) : "Target on break"
+	health(integer) : "Strength" : 1
+	material(choices) :"Material type" : 0 =
+	[
+		//*   <b>Gibs:</b> models/glassgibs.mdl
+		//*   <b>Break noise:</b> debris/bustglassX.wav
+		//*   <b>Bounce noise:</b> debris/glassX.wav
+		0: "Glass"
+		//*   <b>Gibs:</b> models/woodgibs.mdl
+		//*   <b>Break noise:</b> debris/bustcrateX.wav
+		//*   <b>Bounce noise:</b> debris/woodX.wav
+		1: "Wood"
+		//*   <b>Gibs:</b> models/metalplategibs.mdl
+		//*   <b>Break noise:</b> debris/bustmetalX.wav
+		//*   <b>Bounce noise:</b> debris/metalX.wav
+		2: "Metal"
+		//*   <b>Gibs:</b> models/fleshgibs.mdl
+		//*   <b>Break noise:</b> debris/bustfleshX.wav
+		//*   <b>Bounce noise:</b> debris/fleshX.wav
+		3: "Flesh"
+		//*   <b>Gibs:</b> models/cindergibs.mdl
+		//*   <b>Break noise:</b> debris/bustconcreteX.wav
+		//*   <b>Bounce noise:</b> debris/concreteX.wav
+		4: "Cinder Block"  
+		//*   <b>Gibs:</b> models/ceilinggibs.mdl
+		//*   <b>Break noise:</b> debris/bustceilingX.wav
+		//*   <b>Bounce noise:</b> none
+		5: "Ceiling Tile"
+		//*   <b>Gibs:</b> models/computergibs.mdl
+		//*   <b>Break noise:</b> debris/bustmetalX.wav
+		//*   <b>Bounce noise:</b> debris/woodX.wav
+		//*   <b>Note:</b> Generates sparks when damaged.
+		6: "Computer"
+		//*   <b>Gibs:</b> models/glassgibs.mdl
+		//*   <b>Break noise:</b> debris/bustglassX.wav
+		//*   <b>Bounce noise:</b> debris/glassX.wav
+		//*   <b>Note:</b> Makes ricochet noises when damaged.
+		7: "Unbreakable Glass"
+		//*   <b>Gibs:</b> models/rockgibs.mdl
+		//*   <b>Break noise:</b> debris/bustconcreteX.wav
+		//*   <b>Bounce noise:</b> debris/concreteX.wav
+		8: "Rocks"
+	]
+	explosion(choices) : "Gibs Direction" : 0 =
+	[
+		0: "Random"
+		1: "Relative to Attack"
+	]
+	delay(string) : "Delay before fire" : "0"
+	gibmodel(studio) : "Gib Model" : ""
+	spawnobject(choices) : "Spawn On Break" : 0 =
+	[
+		0: "Nothing"
+	]
+	explodemagnitude(integer) : "Explode Magnitude (0=none)" : 0
+	zhlt_lightflags(choices) :"Light Flags (Zhlt 2.2+)" : 0 =
+	[
+		0: "Normal"
+		1: "Embedded Fix"
+		2: "Opaque (Blocks Light)"
+		3: "Opaque + Embedded Fix"
+		6: "ConcaveFix (6)"
+	]
+]
+
+@BaseClass base(Targetname, RenderFields, Angles, MoveWith, Master) = Door
+[
+	killtarget(target_destination) : "KillTarget"
+	speed(integer) : "Speed" : 100
+	// -----------------------------------------------------------------
+	// The number against each sound corresponds to the wav file played.
+	// e.g. Vacuum (4) plays "doors/doormove4.wav".
+	// -----------------------------------------------------------------
+	movesnd(choices) : "Move Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "Servo (Sliding)"
+		2: "Pneumatic (Sliding)"
+		3: "Pneumatic (Rolling)"
+		4: "Vacuum"
+		5: "Power Hydraulic"
+		6: "Large Rollers"
+		7: "Track Door"
+		8: "Snappy Metal Door"
+		9: "Squeaky 1"
+		10: "Squeaky 2"
+	]
+	// -----------------------------------------------------------------
+	// The number against each sound corresponds to the wav file played.
+	// e.g. Chunk (4) plays "doors/doorstop4.wav".
+	// -----------------------------------------------------------------
+	stopsnd(choices) : "Stop Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "Clang with brake"
+		2: "Clang reverb"
+		3: "Ratchet Stop"
+		4: "Chunk"
+		5: "Light airbrake"
+		6: "Metal Slide Stop"
+		7: "Metal Lock Stop"
+		8: "Snappy Metal Stop"
+	]
+
+	// -----------------------------------------------------------------
+	// Setting wait to -1 also prevents the door from reversing when it comes into
+	// contact with the player, as seen on the bunker door in Crossfire.
+	// This setting isn't recommended if the door is using MoveWith.
+	// -----------------------------------------------------------------
+	wait(integer) : "delay before close, -1 stay open " : 4
+	lip(integer) : "Lip"
+	dmg(integer) : "Damage inflicted when blocked" : 0
+	message(string) : "Message if triggered"
+
+	// -----------------------------------------------------------------
+	// This delay only applies to the Target, not the Fire on Open/Close
+	// fields.
+	// -----------------------------------------------------------------
+	target(target_destination) : "Target"
+	delay(integer) : "Delay before fire" 
+	netname(string) : "Fire on Close"
+	health(integer) : "Health (shoot open)" : 0
+	//DoD - AXIS
+	TeamDoors(choices) : "Team Specific Door" : 0 =
+	[
+	  0: "Both Teams"
+	  1: "Allies Only"
+	  2: "Axis Only"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+		4 : "Don't link" : 0
+		8: "Passable" : 0
+	    	32: "Toggle" : 0
+		256:"Use Only" : 0
+		1024: "Force Touchable" : 0
+		// -----------------------------------------------------------------
+		// A synchronised door is different from an unsynchronised door in 
+		// two ways:
+		//    Firstly it'll trigger its targets as soon as it starts to 
+		//        move, instead of waiting until it finishes moving. 
+		//    Secondly, instead of sending USE_TOGGLE, it sends USE_ON 
+		//        and USE_OFF as appropriate. It also responds appropriately 
+		//        to USE_ON and USE_OFF.
+		//  The main function for synchronised doors is as double doors; 
+		//  that is, make two synchronised doors which target each other, 
+		//  and the doors will then open and close as one.  This flag 
+		//  should probably be split into two, but I've run out of flags 
+		//  to use. :(
+		// -----------------------------------------------------------------
+		2048: "Synch movement" : 0
+	]
+	locked_sound(choices) : "Locked Sound" : 0 = 
+	[
+		0: "None"
+		2: "Access Denied"
+		8: "Small zap"
+		10: "Buzz"
+		11: "Buzz Off"
+		12: "Latch Locked"
+	]
+	unlocked_sound(choices) : "Unlocked Sound" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small zap"
+		9: "Keycard Sound"
+		10: "Buzz"
+		13: "Latch Unlocked"
+	]
+	locked_sentence(choices) : "Locked Sentence" : 0 = 
+	[
+		0: "None"
+		1: "Gen. Access Denied"
+		2: "Security Lockout"
+		3: "Blast Door"
+		4: "Fire Door"
+		5: "Chemical Door"
+		6: "Radiation Door"
+		7: "Gen. Containment"
+		8: "Maintenance Door"
+		9: "Broken Shut Door"
+	]
+	unlocked_sentence(choices) : "Unlocked Sentence" : 0 = 
+	[
+		0: "None"
+		1: "Gen. Access Granted"
+		2: "Security Disengaged"
+		3: "Blast Door"
+		4: "Fire Door"
+		5: "Chemical Door"
+		6: "Radiation Door"
+		7: "Gen. Containment"
+		8: "Maintenance area"
+	]	
+	_minlight(string) : "Minimum light level"
+]
+
+@BaseClass base(Targetname, Target, RenderFields, Angles, MoveWith, Master) = BaseTank
+[
+	spawnflags(flags) =
+	[
+		1 : "Active" : 0
+		16: "Line of Sight" : 0
+		32: "Controllable" : 0
+		64: "Laser Spot" : 0
+	       128: "Match Target" : 1
+	]
+
+	yawrate(string) : "Yaw rate" : "30"
+	yawrange(string) : "Yaw range" : "180"
+	yawtolerance(string) : "Yaw tolerance" : "15"
+	pitchrate(string) : "Pitch rate" : "0"
+	pitchrange(string) : "Pitch range" : "0"
+	pitchtolerance(string) : "Pitch tolerance" : "5"
+	barrel(string) : "Barrel Length" : "0"
+	barrely(string) : "Barrel Horizontal" : "0"
+	barrelz(string) : "Barrel Vertical" : "0"
+	spritesmoke(sprite) : "Smoke Sprite" : ""
+	spriteflash(sprite) : "Flash Sprite" : ""
+	spritescale(string) : "Sprite scale" : "1"
+	rotatesound(sound) : "Rotate Sound" : ""
+	firerate(string) : "Rate of Fire" : "1"
+	bullet_damage(string) : "Damage Per Bullet" : "0"
+	persistence(string) : "Firing persistence" : "1"
+	firespread(choices) : "Bullet accuracy" : 0 =
+	[
+		0: "Perfect Shot"
+		1: "Small cone"
+		2: "Medium cone"
+		3: "Large cone"
+		4: "Extra-large cone"
+	]
+	minRange(string) : "Minmum target range" : "0"
+	maxRange(string) : "Maximum target range" : "0"
+	_minlight(string) : "Minimum light level"
+]
+
+@BaseClass = PlatSounds 
+[
+	movesnd(choices) : "Move Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "big elev 1"
+		2: "big elev 2"
+		3: "tech elev 1"
+		4: "tech elev 2"
+		5: "tech elev 3"
+		6: "freight elev 1"
+		7: "freight elev 2"
+		8: "heavy elev"
+		9: "rack elev"
+		10: "rail elev"
+		11: "squeek elev"
+		12: "odd elev 1"
+		13: "odd elev 2"
+	]
+	stopsnd(choices) : "Stop Sound" : 0 = 
+	[
+		0: "No Sound"
+		1: "big elev stop1"
+		2: "big elev stop2"
+		3: "freight elev stop"
+		4: "heavy elev stop"
+		5: "rack stop"
+		6: "rail stop"
+		7: "squeek stop"
+		8: "quick stop"
+	]
+	volume(string) : "Sound Volume 0.0 - 1.0" : "0.85"
+]
+
+@BaseClass base(Targetname, RenderFields, PlatSounds) = Trackchange
+[
+	height(integer) : "Travel altitude" : 0
+	spawnflags(flags) =
+	[
+		1: "Auto Activate train" : 0
+		2: "Relink track" : 0
+		8: "Start at Bottom" : 0
+		16: "Rotate Only" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	rotation(integer) : "Spin amount" : 0
+	train(target_destination) : "Train to switch"
+	toptrack(target_destination) : "Top track"
+	bottomtrack(target_destination) : "Bottom track"
+	speed(integer) : "Move/Rotate speed" : 0
+]
+
+@BaseClass base(Target, Targetname, MoveWith) = Trigger
+[
+	killtarget(target_destination) : "Kill target"
+	netname(target_destination) : "Target Path"
+	style(integer) : "Style" : 32
+	master(string) : "Master" 
+	sounds(choices) : "Sound style" : 0 =
+	[
+		0 : "No Sound"
+	]
+	delay(string) : "Delay before trigger" : "0"
+	message(string) : "Message (set sound too)"
+	spawnflags(flags) = 
+	[
+		4: "Pushables": 0
+	]
+]
+
+@BaseClass = ZhltLightFlags
+[
+	zhlt_lightflags(choices) :"Light Flags (Zhlt 2.2+)" : 0 =
+	[
+		0: "Normal"
+		1: "Embedded Fix"
+		2: "Opaque (Blocks Light)"
+		3: "Opaque + Embedded Fix"
+		6: "ConcaveFix (6)"
+	]
+	light_origin(string) : "Light Origin (Zhlt 2.2+)"
+]
+
+@BaseClass = BeamStartEnd 
+[
+	LightningStart(target_destination) : "Start Entity" 
+	LightningEnd(target_destination) : "Ending Entity" 
+]
+
+@BaseClass base(Targetname, Angles, RenderFields) color(0 200 200) = Monster 
+[
+	target(string) : "Patrol Path"
+	//* If you just want a monster to be ignored, use the "Prisoner" flag instead.
+	m_iClass(choices) : "Behave as" : 0 =
+	[
+		0 : "Normal"
+		//* Likes players and barneys; hates Human Military and most aliens; scared of Alien Military and Bullsquids.
+		3 : "Scientist"
+		//* Likes players and scientists; dislikes Machines, Human Military, and all aliens.
+		11: "Barney"
+		//* Dislikes scientists and most aliens. Hates players, barneys and Alien Military.
+		4 : "Human Military"
+		//* Machines go clang when hit, and never gib. Bioweapons (Snarks and Hornets) ignore them.
+		//* Otherwise, they're pretty much like Human Military.
+		1 : "Machine (Human Military)"
+		//* Hates players and Human Military. Dislikes Machines, scientists and barneys.
+		5 : "Alien Military"
+		//* Dislikes Machines and all humans.
+		7 : "Other Alien"
+		//* Dislikes all humans. Scared of Bullsquids.
+		8 : "Headcrab"
+		//* Hates Headcrabs. Dislikes humans and other Bullsquids.
+		9 : "Bullsquid"
+	]
+	TriggerTarget(String) : "TriggerTarget"
+      TriggerCondition(Choices) : "Trigger Condition" =
+	[
+		0 : "No Trigger"
+		1 : "See Player, Mad at Player"
+		2 : "Take Damage"
+		3 : "50% Health Remaining"
+		4 : "Death"
+		7 : "Hear World"
+		8 : "Hear Player"
+		9 : "Hear Combat"
+		10: "See Player Unconditional"
+		11: "See Player, Not In Combat"
+	]
+	spawnflags(Flags) = 
+	[
+		//* Don't attack the player until s/he can see us.
+		1 : "WaitTillSeen" 	: 0
+		//* Don't speak except when in combat. Don't make "idle" noises.
+		2 : "Gag"			: 0
+		//* If ticked, the monster can't enter a func_monsterclip area.
+		4 : "Monster Clip"	: 0
+		//* If ticked, the monster will ignore all other monsters and vice versa.
+		16: "Prisoner"		: 0
+		//* The dreaded yellow blobs appear for a good reason; they show a monster is stuck
+		//* in a wall and unable to move. Only tick this if you're happy for it to be stuck.
+		128: "No yellow blobs"  : 0
+		512: "Fade Corpse"	: 0
+		//* Prevents the monster from attacking the player. The monster's relationships with
+		//* other monsters won't change. (If you set "behaves as" to Scientist or Barney, this
+		//* flag will <u>make</u> the monster attack the player.)
+		2048: "Player Ally" : 0
+	]
+]
+
+@BaseClass = TalkMonster
+[
+	//* The sentence (see sound/sentences.txt) to speak when the player tells us to follow
+	UseSentence(String) : "Use Sentence"
+	//* The sentence to speak when the player tells us to stop following
+	UnUseSentence(String) : "Un-Use Sentence"
+	//* The sentence to speak when refusing to follow the player
+	RefusalSentence(String) : "Refusal Sentence"
+	//* While locked by the master, this monster will refuse to follow the player.
+	master(String) : "Master (prevents following)"
+	//* Mostly provided for mod-makers. In the standard sentences.txt, valid settings for this are BA
+	//* (speak as a Barney) and SC (speak as a Scientist).
+	SpeakAs(string) : "Speech Group"
+	spawnflags(Flags) =
+	[
+		//* Unless given a Master, a pre-disaster monster will refuse to follow the player.
+		256: "Pre-Disaster" 	: 0
+		//* Makes the monster attack the player. The monster's relationships with
+		//* other monsters won't change. (If you set "behaves as" to a class which usually
+		//* attacks the player, this flag will instead <u>prevent</u> the monster from attacking.)
+		2048: "Attacks Player" : 0
+	]
+]
+
+// ===================================================================================================
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/AmbientGeneric.spr") = ambient_generic : "Universal Ambient"
+[
+	message(sound) : "Path/filename.wav of WAV"
+	health(integer) : "Volume (10 = loudest)" : 10
+	preset(choices) :"Dynamic Presets" : 0 =
+	[
+		0: "None"
+		1: "Huge Machine"
+		2: "Big Machine"
+		3: "Machine"
+		4: "Slow Fade in"  
+		5: "Fade in"
+		6: "Quick Fade in"
+		7: "Slow Pulse"
+		8: "Pulse"
+		9: "Quick pulse"
+		10: "Slow Oscillator"
+		11: "Oscillator"
+		12: "Quick Oscillator"
+		13: "Grunge pitch"
+		14: "Very low pitch"
+		15: "Low pitch"
+		16: "High pitch"
+		17: "Very high pitch"
+		18: "Screaming pitch"
+		19: "Oscillate spinup/down"
+		20: "Pulse spinup/down"
+		21: "Random pitch"
+		22: "Random pitch fast"
+		23: "Incremental Spinup"
+		24: "Alien"
+		25: "Bizzare"
+		26: "Planet X"
+		27: "Haunted"
+	]
+	volstart(integer) : "Start Volume" : 0
+	fadein(integer) : "Fade in time (0-100)" : 0
+	fadeout(integer) : "Fade out time (0-100)" : 0
+	pitch(integer) : "Pitch (> 100 = higher)" : 100
+	pitchstart(integer) : "Start Pitch" : 100
+	spinup(integer) : "Spin up time (0-100)" : 0
+	spindown(integer) : "Spin down time (0-100)" : 0
+	lfotype(integer) : "LFO type 0)off 1)sqr 2)tri 3)rnd" : 0
+	lforate(integer) : "LFO rate (0-1000)" : 0
+	lfomodpitch(integer) : "LFO mod pitch (0-100)" : 0
+	lfomodvol(integer) : "LFO mod vol (0-100)" : 0
+	cspinup(integer) : "Incremental spinup count" : 0
+	spawnflags(flags) =
+	[
+		1: "Play Everywhere" : 0
+		2: "Small Radius" : 0
+		4: "Medium Radius" : 1
+		8: "Large Radius" : 0
+		16:"Start Silent":0
+		32:"Is NOT Looped":0
+	]
+]
+
+
+@PointClass base(Targetname, Angles) iconsprite("sprites/DoD/CyclerSprite.spr") = cycler_sprite : "Sprite Cycler" 
+[
+	model(sprite) : "Sprite"
+	framerate(integer) : "Frames per second" : 10
+	renderfx(choices) :"Render FX" : 0 =
+	[
+		0: "Normal"
+		1: "Slow Pulse"
+		2: "Fast Pulse"
+		3: "Slow Wide Pulse"
+		4: "Fast Wide Pulse"
+		9: "Slow Strobe"
+		10: "Fast Strobe"
+		11: "Faster Strobe"
+		12: "Slow Flicker"
+		13: "Fast Flicker"
+		5: "Slow Fade Away"
+		6: "Fast Fade Away"
+		7: "Slow Become Solid"
+		8: "Fast Become Solid"
+		14: "Constant Glow"
+		15: "Distort"
+		16: "Hologram (Distort + fade)"
+	]
+	rendermode(choices) : "Render Mode" : 0 =
+	[
+		0: "Normal"
+		1: "Color"
+		2: "Texture"
+		3: "Glow"
+		4: "Solid"
+		5: "Additive"
+	]
+	renderamt(integer) : "FX Amount (1 - 255)"
+	rendercolor(color255) : "FX Color (R G B)" : "0 0 0"
+]
+
+@PointClass sprite() base(Targetname, RenderFields, Angles) size(-4 -4 -4, 4 4 4) = cycler_wreckage : "Wreckage" 
+	[
+		framerate(string) : "Framerate" : "10.0"
+		model(sprite) : "Sprite Name" : "sprites/fire.spr"
+		scale(integer) : "Scale" : 1
+		spawnflags(flags) =
+		[
+			32: "Toggle" : 0
+			64: "Start ON" : 0
+		]
+	]
+
+//
+// Environmental effects
+//
+
+@PointClass base(Targetname) = env_fade : "Screen Fade" 
+[
+	spawnflags(flags) =
+	[
+		1: "Fade From" : 0
+		2: "Modulate" : 0
+		4: "Activator Only" : 0
+	]
+	duration(string) : "Duration (seconds)" : "2"
+	holdtime(string) : "Hold Fade (seconds)" : "0"
+	renderamt(integer) : "Fade Alpha" : 255
+	rendercolor(color255) : "Fade Color (R G B)" : "0 0 0"
+]
+
+@PointClass base(Targetname, Angles, MoveWith, RenderFields) = env_model : "New alternative to cyclers" 
+[
+	model(studio) : "Model name"
+	skin(integer) : "Skin" : 0
+	body(integer) : "Body" : 0
+
+	m_iszSequence_On(string) : "Sequence when on"
+	m_iAction_On(choices) : "Behaviour when on" : 0 =
+	[
+		0: "Freeze when sequence ends"
+		1: "Loop"
+		2: "Change state when sequence ends"
+	]
+
+	m_iszSequence_Off(string) : "Sequence when off"
+	m_iAction_Off(choices) : "Behaviour when off" : 0 =
+	[
+		0: "Freeze when sequence ends"
+		1: "Loop"
+		2: "Change state when sequence ends"
+	]
+
+	spawnflags(flags) =
+	[
+		1: "Initially Off" : 0
+		2: "Drop to Floor" : 0
+	]
+]
+
+
+// ------------------------------------------------------------------------------------------
+// Essentially, this produces a shifting group of parallel beams. I've called it
+// env_rain because that's the most-requested use for it.
+//   For a sunbeam effect, try Drip Speed = 0, Drip Width = 30, Drip Brightness = 25,
+// Drip Color = 255 255 255, Time between updates = 0, Drip Sprite = sprites/laserbeam.spr.
+//   For snow, try Drip Speed = 20, Drip Width = 20, Drip Color = 255 255 255,
+// Drip Sprite = sprites/rain.spr.
+// FROM SPIRIT
+// ------------------------------------------------------------------------------------------
+@SolidClass base(Targetname) = env_rain : "Rain Effect"
+[
+	//* Set this to (for example) "70 0 0" to make slanted rain.
+	angles(string) : "Pitch Yaw Roll (Y Z X)" : "0 0 0"
+	//* Negative numbers will make the rain fall upwards.
+	//* This is an average; each drip will move at between 75%-125% of this speed.
+	m_dripSpeed(integer) : "Drip Speed" : 40
+	m_dripSize(integer) : "Drip Width" : 5
+	m_brightness(integer) : "Drip Brightness (1 - 255)" : 128
+	rendercolor(color255) : "Drip Color (R G B)" : "64 128 255"
+	m_burstSize(integer) : "Number of drips (per update)" : 2
+	//* If 0, no updates; all the beams will appear as soon as it's created.
+	//* Each beam lasts for three updates.
+	m_flUpdateTime(string) : "Time between updates" : "0.5"
+	texture(sprite) : "Drip Sprite" : "sprites/rain.spr"
+	spawnflags(Flags) = 
+	[
+		1 : "Start Off" 	: 0
+	]
+]
+
+@PointClass base(Targetname, BeamStartEnd, RenderFxChoices) size(-16 -16 -16, 16 16 16) = env_beam : "Energy Beam Effect"
+[
+	renderamt(integer) : "Brightness (1 - 255)" : 100
+	rendercolor(color255) : "Beam Color (R G B)" : "0 0 0"
+	Radius(integer) : "Radius" : 256
+	life(string) : "Life (seconds 0 = infinite)" : "1"
+	BoltWidth(integer) : "Width of beam (pixels*0.1 0-255)" : 20
+	NoiseAmplitude(integer) : "Amount of noise (0-255)" : 0
+	texture(sprite) : "Sprite Name" : "sprites/laserbeam.spr"
+	TextureScroll(integer) : "Texture Scroll Rate (0-100)" : 35
+	framerate(integer) : "Frames per 10 seconds" : 0
+	framestart(integer) : "Starting Frame" : 0
+	StrikeTime(string) : "Strike again time (secs)" : "1"
+	damage(string) : "Damage / second" : "0"
+	spawnflags(flags) = 
+	[
+		1 : "Start On" : 0
+		2 : "Toggle" : 0
+		4 : "Random Strike" : 0
+		8 : "Ring" : 0
+		16: "StartSparks" : 0
+		32: "EndSparks" : 0
+		64: "Decal End" : 0
+		128: "Shade Start" : 0
+		256: "Shade End" : 0
+	]
+]
+
+@PointClass base(Targetname, Angles) size(-4 -4 -4, 4 4 4) = env_beverage : "Beverage Dispenser"
+[
+	health(integer) : "Capacity" : 10
+	skin(choices) : "Beverage Type" : 0 = 
+	[
+		0 : "Coca-Cola"
+		1 : "Sprite"
+		2 : "Diet Coke"
+		3 : "Orange"
+		4 : "Surge"
+		5 : "Moxie"
+		6 : "Random"
+	]
+]
+
+@PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) color(255 0 0) = env_blood : "Blood Effects" 
+[
+	color(choices) : "Blood Color" : 0 =
+	[
+		0 : "Red (Human)"
+	]
+	amount(string) : "Amount of blood (damage to simulate)" : "100"
+	spawnflags(flags) =
+	[
+		1: "Random Direction" : 0
+		2: "Blood Stream" : 0
+		4: "On Player" : 0
+		8: "Spray decals" : 0
+	]
+]
+
+@SolidClass base(Targetname) = env_bubbles : "Bubble Volume" 
+[
+	density(integer) : "Bubble density" : 2
+	frequency(integer) : "Bubble frequency" : 2
+	current(integer) : "Speed of Current" : 0
+	spawnflags(Flags) = 
+	[
+		1 : "Start Off" 	: 0
+	]
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_explosion : "Explosion" 
+[
+	iMagnitude(Integer) : "Magnitude" : 100
+	spawnflags(flags) =
+	[
+		1: "No Damage" : 0
+		2: "Repeatable" : 0
+		4: "No Fireball" : 0
+		8: "No Smoke" : 0
+		16: "No Decal" : 0
+		32: "No Sparks" : 0
+	]
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_funnel : "Large Portal Funnel" 
+[
+	spawnflags(flags) =
+	[
+		1: "Reverse" : 0
+	]
+]
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/EnvGlobal.spr") color(255 255 128) = env_global : "Global State"
+[
+	globalstate(string) : "Global State to Set"
+	triggermode(choices) : "Trigger Mode" : 0 =
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Dead"
+		3 : "Toggle"
+	]
+	initialstate(choices) : "Initial State" : 0 =
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Dead"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Set Initial State" : 0
+	]
+]
+
+@PointClass sprite() base(Targetname, RenderFields, MoveWith) size(-4 -4 -4, 4 4 4) color(30 100 0) = env_glow : "Light Glow/Haze" 
+[
+	model(sprite) : "model" : "sprites/glow01.spr"
+	scale(integer) : "Sprite Scale" : 1
+]
+
+@PointClass base(Targetname, RenderFxChoices, Angles) size(-16 -16 -16, 16 16 16) = env_laser : "Laser Beam Effect"
+[
+	LaserTarget(target_destination) : "Target of Laser" 
+	renderamt(integer) : "Brightness (1 - 255)" : 100
+	rendercolor(color255) : "Beam Color (R G B)" : "0 0 0"
+	width(integer) : "Width of beam (pixels*0.1 0-255)" : 20
+	NoiseAmplitude(integer) : "Amount of noise (0-255)" : 0
+	texture(sprite) : "Sprite Name" : "sprites/laserbeam.spr"
+	EndSprite(sprite) : "End Sprite" : ""
+	TextureScroll(integer) : "Texture Scroll Rate (0-100)" : 35
+	framestart(integer) : "Starting Frame" : 0
+	damage(string) : "Damage / second" : "100"
+	spawnflags(flags) = 
+	[
+		1 : "Start On" : 0
+		16: "StartSparks" : 0
+		32: "EndSparks" : 0
+		64: "Decal End" : 0
+	]
+]
+
+@PointClass base(Targetname, Target) = env_message : "HUD Text Message" 
+[
+	message(string) : "Message Name"
+	spawnflags(flags) =
+	[
+		1: "Play Once" : 0
+		2: "All Clients" : 0
+	]
+	messagesound(sound) : "Sound effect"
+	messagevolume(string) : "Volume 0-10" : "10"
+	messageattenuation(Choices) : "Sound Radius" : 0 =
+	[
+		0 : "Small Radius"
+		1 : "Medium Radius"
+		2 : "Large  Radius"
+		3 : "Play Everywhere"
+	]
+]
+
+@PointClass base(Targetname, Target, RenderFields) size(-16 -16 -16, 16 16 16) color(100 100 0) = env_render : "Render Controls"
+[
+	spawnflags(flags) =
+	[
+		1: "No Renderfx" : 0
+		2: "No Renderamt" : 0
+		4: "No Rendermode" : 0
+		8: "No Rendercolor" : 0
+	]
+]
+
+@PointClass base(Targetname) = env_shake : "Screen Shake" 
+[
+	spawnflags(flags) =
+	[
+		1: "GlobalShake" : 0
+	]
+	amplitude(string) : "Amplitude 0-16" : "4"
+	radius(string) : "Effect radius" : "500"
+	duration(string) : "Duration (seconds)" : "1"
+	frequency(string) : "0.1 = jerk, 255.0 = rumble" : "2.5"
+]
+
+@PointClass base(gibshooterbase, RenderFields) size(-16 -16 -16, 16 16 16) = env_shooter : "Model Shooter"
+[
+	shootmodel(studio) : "Model" : ""
+	shootsounds(choices) :"Material Sound" : -1 =
+	[
+		-1: "None"
+		0: "Glass"
+		1: "Wood"
+		2: "Metal"
+		3: "Flesh"
+		4: "Concrete"  
+	]
+	scale(string) : "Gib Scale" : ""
+	skin(integer) : "Gib Skin" : 0
+]
+
+@PointClass base(Targetname) size(-4 -4 -4, 4 4 4) color(30 100 0) = env_smoker : "Smoke" 
+[
+	health(integer) : "Strength" : 1
+	scale(integer) : "Smoke Scale" : 1
+]
+
+
+@PointClass iconsprite("sprites/DoD/EnvSound.spr")  = env_sound : "DSP Sound" 
+[
+	radius(integer) : "Radius" : 128
+	roomtype(Choices) : "Room Type" : 0 =
+	[
+		0 : "Normal (off)"
+		1 : "Generic"
+		
+		2 : "Metal Small"
+		3 : "Metal Medium"
+		4 : "Metal Large"
+	
+		5 : "Tunnel Small"
+		6 : "Tunnel Medium"
+		7 : "Tunnel Large"
+	
+		8 : "Chamber Small"
+		9 : "Chamber Medium"
+		10: "Chamber Large"
+
+		11: "Bright Small"
+		12: "Bright Medium"
+		13: "Bright Large"
+
+		14: "Water 1"
+		15: "Water 2"
+		16: "Water 3"
+
+		17: "Concrete Small"
+		18: "Concrete Medium"
+		19: "Concrete Large"
+
+		20: "Big 1"
+		21: "Big 2"
+		22: "Big 3"
+
+		23: "Cavern Small"
+		24: "Cavern Medium"
+		25: "Cavern Large"
+
+		26: "Weirdo 1"
+		27: "Weirdo 2"
+		28: "Weirdo 3"
+	]
+]
+
+@PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) iconsprite("sprites/DoD/EnvSpark.spr") = env_spark : "Spark" 
+[
+	MaxDelay(string) : "Max Delay" : "0"
+	spawnflags(flags) =
+	[
+		32: "Toggle" : 0
+		64: "Start ON" : 0
+	]
+]
+
+@PointClass sprite() base(Targetname, RenderFields, Angles, MoveWith) size(-4 -4 -4, 4 4 4) = env_sprite : "Sprite Effect" 
+[
+	framerate(string) : "Framerate" : "10.0"
+	model(sprite) : "Sprite Name" : "sprites/glow01.spr"
+	scale(integer) : "Scale" : 1
+	spawnflags(flags) =
+	[
+		1: "Start on" : 0
+		2: "Play Once" : 0
+	]
+]
+
+//* Simply keeps track of a state. Useful as a master or a conditional "branch".
+@PointClass base(Targetname, Master) color(128 128 255) = env_state : "Local State"
+[
+	//* This entity will be fired (using whatever action you've specified) both when the env_state turns on, and when it turns off.
+	target(target_destination) : "Target (always)"
+	noise1(target_destination) : "Target (when on)"
+	noise2(target_destination) : "Target (when off)"
+	turnontime(string) : "Time taken to turn on" : 0
+	turnofftime(string) : "Time taken to turn off" : 0
+	onmode(choices) : "Action when turned on" : 0 =
+	[
+		0 : "Send Toggle"
+		1 : "Send On"
+		2 : "Send Off"
+		3 : "Send Kill"
+		4 : "Do nothing"
+	]
+	offmode(choices) : "Action when turned off" : 0 =
+	[
+		0 : "Send Toggle"
+		1 : "Send On"
+		2 : "Send Off"
+		3 : "Send Kill"
+		4 : "Do nothing"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Start On" : 0
+		//* If you're trying to work out what's actually happening in your level,
+		//* try ticking here and the env_state will tell you when it triggers, etc.
+		2 : "Debug Mode" : 0
+	]
+]
+
+//
+// game entities (requires Half-Life 1.0.0.9)
+//
+
+@PointClass base(Targetname, Targetx) iconsprite("sprites/DoD/GameCounter.spr") = game_counter : "Fires when it hits limit"
+[
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+		2: "Reset On fire" : 1
+	]
+	master(string) : "Master"
+	frags(integer) : "Initial Value" : 0
+	health(integer) : "Limit Value" : 10
+]
+
+@PointClass base(Targetname, Target) iconsprite("sprites/DoD/GameCounterSet.spr") = game_counter_set : "Sets a game_counter"
+[
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+	]
+	master(string) : "Master"
+	frags(integer) : "New Value" : 10
+]
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/GameEnd.spr") = game_end : "End this multiplayer game" 
+[
+	master(string) : "Master" 
+]
+
+
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/GamePlayerHurt.spr") = game_player_hurt : "Hurts player who fires"
+[
+	dmg(string) : "Damage To Apply" : "999"
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+	]
+	master(string) : "Master" 
+]
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/GamePlayerTeam.spr") = game_player_team : "Allows player to change teams"
+[
+	spawnflags(flags) =
+	[
+		1 : "Remove On fire" : 0
+		2 : "Kill Player" : 0
+		4 : "Gib Player" : 0
+	]
+	target(string) : "game_team_master to use" 
+	master(string) : "Master"
+]
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/GameScore.spr") = game_score : "Award/Deduct Points" 
+[
+	spawnflags(flags) =
+	[
+		1: "Allow Negative" : 0
+		2: "Team Points" : 0
+	]
+
+	points(integer) : "Points to add (+/-)" : 1
+	master(string) : "Master" 
+]
+
+@PointClass base(Targetname, Targetx) iconsprite("sprites/DoD/GameTeamMaster.spr") = game_team_master : "Team based master/relay"
+[
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+	]
+	triggerstate(choices) : "Trigger State" : 0 = 
+	[
+		0: "Off"
+		1: "On"
+		2: "Toggle"
+	]
+	teamindex(integer) : "Team Index (-1 = no team)" : -1
+	master(string) : "Master" 
+]
+
+@PointClass base(Targetname, Targetx) iconsprite("sprites/DoD/GameTeamSet.spr") = game_team_set : "Sets team of team_master"
+[
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+	]
+	master(string) : "Master" 
+]
+
+@PointClass base(Targetname, Target) iconsprite("sprites/DoD/GameText.spr") = game_text : "HUD Text Message" 
+[
+	spawnflags(flags) =
+	[
+		1: "All Players" : 0
+		4: "Allies Only" : 0
+		8: "Axis Only" : 0
+		16: "Allied Player Only" : 0
+		32: "Axis Player Only" : 0
+	]
+
+	message(string) : "Message Text"
+	x(string) : "X (0 - 1.0 = left to right) (-1 centers)" : "-1"
+	y(string) : "Y (0 - 1.0 = top to bottom) (-1 centers)" : "-1"
+	effect(Choices) : "Text Effect" : 0 =
+	[
+		0 : "Fade In/Out"
+		1 : "Credits"
+		2 : "Scan Out"
+	]
+	color(color255) : "Color1" : "100 100 100"
+	color2(color255) : "Color2" : "240 110 0"
+	fadein(string) : "Fade in Time (or character scan time)" : "1.5"
+	fadeout(string) : "Fade Out Time" : "0.5"
+	holdtime(string) : "Hold Time" : "1.2"
+	fxtime(string) : "Scan time (scan effect only)" : "0.25"
+	channel(choices) : "Text Channel" : 1 =
+	[
+		1 : "Channel 1"
+		2 : "Channel 2"
+		3 : "Channel 3" 
+		4 : "Channel 4"
+	]
+	master(string) : "Master" 
+]
+
+@SolidClass base(Targetname) = game_zone_player : "Player Zone brush"
+[
+	intarget(target_destination) : "Target for IN players"
+	outtarget(target_destination) : "Target for OUT players"
+	incount(target_destination) : "Counter for IN players"
+	outcount(target_destination) : "Counter for OUT players"
+	master(string) : "Master" 
+]
+
+
+
+//
+// Info entities
+//
+
+//*   An alias makes itself an "alternative name" for an entity. To refer to an entity through the alternative name,
+//* use the alias name preceeded by a *.
+//*   For example, suppose you set up an info_alias entity called 'myalias'. 'Myalias' targets a light called 'redlight'.
+//* suppose a you set up a @func_trigger field targetting "*myalias", so that when you walk through the func_trigger
+//* field, redlight gets turned on and off. So far, info_alias seems to be like a @trigger_relay. However, you can also
+//* set up a switch which targets "myalias", to turn it off...
+//*   This is a very powerful entity, but is probably only useful for experienced mappers. Use with caution.
+@PointClass base(Targetname) = info_alias : "Alias"
+[
+	target(target_destination) : "Reference while On"
+        netname(string) : "Reference while Off"
+	spawnflags(Flags) = 
+	[
+		1 : "Start Off" 	: 0
+		2 : "Debug Mode"  : 0
+	]
+]
+
+// ------------------------------------------------------------------------------------------------------------
+// An info_group acts similarly to an @info_alias, except that it has several "members" which are are accessed
+// by 'mygroup.membername'.
+//   These members are set up just like the targets of a @multi_manager- except that they'll contain an entity
+// reference instead of a delay time.
+//   If you set up its "target" field to refer to an info_alias entity, then when an info_group is triggered,
+// it will change that info_alias entity to target the group.
+//   This is a very powerful entity, but is probably only useful for experienced mappers. Use with caution.
+// ------------------------------------------------------------------------------------------------------------
+@PointClass base(Targetname) = info_group : "Entity Group"
+[
+	target(string) : "Alias to change when fired"
+	spawnflags(flags) =
+	[
+		2 : "Debug Mode" : 0
+	]
+]
+
+
+@PointClass base(Targetname) iconsprite("sprites/DoD/EnvTarget.spr")  = info_null : "info_null (spotlight target)" []
+
+@PointClass base(Targetname, MoveWith) size(-4 -4 -4, 4 4 4) color(200 100 50) iconsprite("sprites/DoD/EnvTarget.spr") = info_target : "Beam Target" []
+
+@PointClass size(-8 -8 0, 8 8 16) base(PlayerClass, Targetname) = info_teleport_destination : "Teleport destination" []
+
+
+@PointClass decal() base(Targetname) = infodecal : "Decal"
+[
+	texture(decal)
+]
+
+
+//
+// Light entities
+//
+
+@PointClass iconsprite("sprites/lightbulb.spr") base(Target, Targetname, Light) = light : "Invisible lightsource"
+[
+	spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+]
+
+@PointClass base(Angles)  iconsprite("sprites/DoD/LightEnvironment.spr")  = light_environment : "Environment" 
+[
+	pitch(integer) : "Pitch" : 0
+	_light(color255) : "Brightness" : "255 255 128 200"
+	_diffuse_light(color255) : "Diffuse Brightness" : "128 255 255 200"
+]
+
+@PointClass base(Targetname, Target, Angles) iconsprite("sprites/DoD/LightSpot.spr") = light_spot : "Spotlight" 
+[
+	_cone(integer) : "Inner (bright) angle" : 30
+	_cone2(integer) : "Outer (fading) angle" : 45
+	pitch(integer) : "Pitch" : -90
+	_light(color255) : "Brightness" : "255 255 128 200"
+	_sky(Choices) : "Is Sky" : 0 = 
+	[ 
+		0 : "No"
+		1 : "Yes"
+	]
+	spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
+      style(Choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+	]
+	pattern(string) : "Custom Appearance"
+]
+
+// ------------------------------------------------------------------------------------------------------------
+// A multi_alias is an @info_alias with more than one target. It's mainly useful to group entities
+// together, while still allowing them to have individual names.
+//   For example, suppose you have a set of lights in your level. Each one has its own lightswitch,
+// which allows it to be switched on and off on its own. But later in the level, you want the power
+// (i.e. all the lights) to go off. One way to do that would be to make a multi_alias which
+// targets all the lights, and simply trigger what that alias refers to.
+// ------------------------------------------------------------------------------------------------------------
+@PointClass base(Targetname) = multi_alias : "Multi-target alias" []
+
+// ------------------------------------------------------------------------------------------------------------
+// Triggers a sequence of up to 16 entities, at various time offsets.
+//   To specify the list of entities for it to trigger, turn off Worldcraft's "smart edit" mode
+// and add fields manually. The name of the field is the targetname of the entity to trigger,
+// and the contents of the field are the time (in seconds) to wait before triggering it.
+//   If a master is given, then while the master is in any state but ON, the manager will ignore
+// all signals. This won't prevent it from continuing a sequence that started while the master
+// was ON, but it will prevent a new sequence from starting.
+// ------------------------------------------------------------------------------------------------------------
+@PointClass base(Targetname, Master) iconsprite("sprites/DoD/multi_manager.spr") = multi_manager : "MultiTarget Manager" 
+[
+	//* How long to wait before starting the sequence. This delay is <u>in addition to</u> the offsets given for each individual target.	
+	wait(string) : "Time offset"
+	//* If set, then each time it's triggered the manager will wait for a random length of time. The "Time Offset" value is used as a minimum offset.
+	maxwait(string) : "Max Time offset (Random)"
+	//* Message sent to the targets. There's no way (currently) to have a different message be sent to
+	//* each target.
+	triggerstate(choices) : "Trigger to send" = 
+	[
+		0: "Toggle"
+		1: "On"
+		2: "Off"
+		3: "Kill"
+		//* If you select this, the manager will send on whatever triggers it received itself.
+		//* So this is a way to "fork" the signal sent by another entity.
+		4: "Same as input"
+	]
+	mode(choices) : "Mode" = 
+	[
+		//* The 'value' for each target is the time offset at which to fire it.
+		0: "Normal (time offset)"
+		//* Choose one of the targets at random, and fire it. The 'value' gives the relative chance
+		//* that each target will be chosen.
+		1: "Choose one (weighted)"
+		//* Go through the list of targets, and for each one either fire it, or don't fire it.
+		//* The 'value' gives the percentage chance that a value will get fired.
+		2: "% chance for each"
+	]
+	spawnflags(Flags) = 
+	[
+		//* By default, a manager will ignore all inputs while it's performing a sequence.
+		//* Tick this to allow more than one sequence to run at a time.
+		1 : "Multi-threaded" : 0
+		//* When the sequence ends, start again from the beginning. You can stop the
+		//* loop by toggling the manager a second time.
+		2 : "Loop" : 0
+		//* The manager will USE_KILL itself when the sequence is complete.
+		//*   In loop mode, the manager will only USE_KILL itself when told to stop the loop.
+		3 : "Once only" : 0
+	]
+]
+
+// ------------------------------------------------------------------------------------------------------------
+//   A multi_watcher is like a normal @watcher, except that it watches up to 16 entities at once.
+//   The entity is probably most useful when used as a master for another entity- a versatile replacement
+// for the @multisource, in a way. Note that if you need to handle a complex logical operation, you can make a
+// multi_watcher which watches other multi_watchers.
+//   The list of watched entities is specified in the same way as the targets of a @multi_manager, except that the
+// 'value' should be set to 0. (Future versions of Spirit may make use of the value, but for now it's ignored.)
+//   This is a very powerful entity, but is probably only useful for experienced mappers.
+// ------------------------------------------------------------------------------------------------------------
+@PointClass iconsprite("sprites/multiwatcher.spr") base(Targetname) = multi_watcher : "State Watcher"
+[
+	m_fLogic(choices) : "Logical test" : 0 =
+	[
+		0: "All (AND)"
+		2: "Not all (NAND)"
+		1: "At least one (OR)"
+		3: "None (NOR)"
+		4: "Exactly one (XOR)"
+		5: "Any number but one (XNOR)"
+	]
+	//*   This entity will be sent USE_ON or USE_OFF, as appropriate, whenever the watcher's state changes.
+	target(target_destination) : "Entity to notify"
+	//*     The bottom 5 flags are used to specify what states are being watched for. Default is to just watch for 'On'.
+	spawnflags(flags) =
+	[
+		//* If this is enabled, the watcher will always notify its target with USE_TOGGLE, instead of sending ON or OFF.
+		1:  "Send 'Toggle'" : 0
+		8:  "NOT 'On'" : 0
+		16: "'Off'" : 0
+		32: "'Turn On'" : 0
+		64: "'Turn Off'" : 0
+		128:"'In Use'" : 0
+	]
+]
+
+@PointClass base(Targetname, Target) iconsprite("sprites/DoD/MultiSource.spr") = multisource : "Multisource" 
+[
+	globalstate(string) : "Global State Master"
+]
+
+@PointClass base(Targetname, Angles, DoDCam) size(16 16 16) color(247 181 82) = path_corner : "Moving platform stop"
+[
+	spawnflags(Flags) =
+	[
+		1: "Wait for retrigger" : 0
+		2: "Teleport" : 0
+		4: "Fire once" : 0
+	]
+	target(target_destination) : "Next stop target"
+	message(target_destination) : "Fire On Pass"
+	wait(integer) : "Wait here (secs)" : 0
+	speed(integer) : "New Train Speed" : 0
+	yaw_speed(integer) : "New Train rot. Speed" : 0
+]
+
+@PointClass iconsprite("sprites/DoD/Announcement.spr") base(Targetname) = speaker : "Announcement Speaker"
+[
+	preset(choices) :"Announcement Presets" : 0 =
+	[
+		0: "None"
+		1: "C1A0 Announcer"
+		2: "C1A1 Announcer"
+		3: "C1A2 Announcer"
+		4: "C1A3 Announcer"
+		5: "C1A4 Announcer"  
+		6: "C2A1 Announcer"
+		7: "C2A2 Announcer"
+		// 8: "C2A3 Announcer"
+		9: "C2A4 Announcer"
+		// 10: "C2A5 Announcer"
+		11: "C3A1 Announcer"
+		12: "C3A2 Announcer"
+	]
+	message(string) : "Sentence Group Name"
+	health(integer) : "Volume (10 = loudest)" : 5
+	spawnflags(flags) =
+	[
+		1: "Start Silent" : 0
+	]
+]
+
+@PointClass base(Targetname) size(16 16 16) = path_track : "Train Track Path"
+[
+	spawnflags(Flags) =
+	[
+		1: "Disabled" : 0
+		2: "Fire once" : 0
+		4: "Branch Reverse" : 0
+		8: "Disable train" : 0
+	]
+	target(target_destination) : "Next stop target"
+	message(target_destination) : "Fire On Pass"
+	altpath(target_destination) : "Branch Path"
+	netname(target_destination) : "Fire on dead end"
+	speed(integer) : "New Train Speed" : 0
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) iconsprite("sprites/DoD/PlayerWeaponStrip.spr") = player_weaponstrip : "Strips player's weapons" []
+
+
+//
+// Trigger entities
+//
+
+@PointClass base(Targetx) iconsprite("sprites/DoD/TriggerAuto.spr") = trigger_auto : "AutoTrigger"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Remove On fire" : 1
+	]
+	triggerstate(choices) : "Trigger State" : 0 = 
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Toggle"
+	]
+]
+
+@PointClass base(Targetx, Targetname) iconsprite("sprites/DoD/TriggerCamera.spr") = trigger_camera : "Trigger Camera" 
+[
+	wait(integer) : "Hold time" : 10
+	moveto(string) : "Path Corner"
+	spawnflags(flags) =
+	[
+		1: "Start At Player" : 1
+		2: "Follow Player" : 1
+		4: "Freeze Player" : 0
+	]
+	speed(string) : "Initial Speed" : "0"
+	acceleration(string) : "Acceleration units/sec^2" : "500"
+	deceleration(string) : "Stop Deceleration units/sec^2" : "500"
+]
+
+@PointClass base(Targetx, Targetname, DoDCam) iconsprite("sprites/DoD/TriggerCamera.spr") = dod_camera : "DoD Camera" 
+[
+	wait(integer) : "Hold time" : 10
+	moveto(string) : "Path Corner"
+	spawnflags(flags) =
+	[
+		1: "Start At Player" : 1
+		2: "Follow Player" : 1
+		4: "Freeze Player" : 0
+	]
+	speed(string) : "Initial Speed" : "0"
+	acceleration(string) : "Acceleration units/sec^2" : "500"
+	deceleration(string) : "Stop Deceleration units/sec^2" : "500"
+	teambound(choices) : "Team that is bound to" : 3 = [
+		1 : "Allies"
+		2 : "Axis"
+		3 : "Both"
+        ]
+]
+
+//* This is a very powerful entity, but is probably only useful for experienced mappers. Use with caution.
+@PointClass base(Targetname) = trigger_changealias : "Trigger Change Alias"
+[
+	target(string)  : "Alias to affect"
+	netname(string) : "String to Set"
+	spawnflags(flags) =
+	[	  
+		//*   If this is ticked, alias references in the "String to Set" will be resolved before any changes are
+		//* applied. So, for example, suppose you set this entity up to affect an alias "alias1", and to set alias1
+		//* to target "*myalias".
+		//*   If "Resolve references" is left unticked, then "alias1" will change to refer to "*myalias"; that is,
+		//* in future any changes to "myalias" will also change what "alias1" refers to.
+		//*	By contrast, if "Resolve references" is ticked, then "alias1" will change to refer to whatever "myalias"
+		//* is referring to <u>at the time the trigger_changealias takes effect</u>. Future changes to "myalias" will
+		//* therefore not affect "alias1".
+		1 : "Resolve references" : 0
+		2 : "Debug Mode" : 0
+	]
+]
+
+@PointClass base(Targetx, Targetname) iconsprite("sprites/DoD/TriggerChangetarget.spr") = trigger_changetarget : "Trigger Change Target"
+[
+	m_iszNewTarget(string) : "New Target"
+]
+
+@SolidClass base(Trigger, Targetname) = trigger_counter : "Trigger counter" 
+[
+	spawnflags(flags) = 
+	[ 
+		1 : "No Message" : 0 
+	]
+	master(string) : "Master" 
+	count(integer) : "Count before activation" : 2
+]
+
+@SolidClass base(Targetname,Target,MoveWith) = trigger_hurt : "Trigger player hurt" 
+[
+	spawnflags(flags) = 
+	[ 
+		1: "Target Once" : 0 
+		2: "Start Off" : 0
+		16:"FireClientOnly" : 0
+		32:"TouchClientOnly" : 0
+		64:"DontHurtAllies" : 0
+		128:"DontHurtAxis" : 0
+	]
+	master(string) : "Master" 
+	dmg(integer) : "Damage" : 10
+	delay(string) : "Delay before trigger" : "0"
+	damagetype(choices) : "Damage Type" : 0 =
+	[
+		0 : "GENERIC"
+		1 : "CRUSH"
+		2 : "BULLET"
+		4 : "SLASH"
+		8 : "BURN"
+		16 : "FREEZE"
+		32 : "FALL"
+		64 : "BLAST"
+		128 : "CLUB"
+		256 : "SHOCK"
+		512 : "SONIC"
+		1024 : "ENERGYBEAM"
+		16384: "DROWN"
+		32768 : "PARALYSE"
+		65536 : "NERVEGAS"
+		131072 : "POISON"
+		262144 : "RADIATION"
+		524288 : "DROWNRECOVER"
+		1048576 : "CHEMICAL"
+		2097152 : "SLOWBURN"
+		4194304 : "SLOWFREEZE"
+	]
+]
+
+@SolidClass base(Trigger) = trigger_multiple : "Trigger: Activate multiple" 
+[
+	wait(integer) : "Delay before reset" : 10
+        teamonly (choices) : "Team Affected" : 0 = [
+		0 : "Both"
+		1 : "Allied"
+		2 : "Axis"
+	]
+]
+
+@SolidClass base(Trigger) = trigger_once : "Trigger: Activate once" [
+        teamonly (choices) : "Team Affected" : 0 = [
+		0 : "Both"
+		1 : "Allied"
+		2 : "Axis"
+	]
+]
+
+@SolidClass base(Trigger, Angles) = trigger_push : "Trigger player push"
+[
+	spawnflags(flags) = 
+	[ 
+		1: "Once Only" : 0 
+		2: "Start Off" : 0
+	]
+	speed(integer) : "Speed of push" : 40
+]
+
+//* Only affects dynamic lights.
+@PointClass base(Targetname, Target) = trigger_lightstyle : "Trigger Change Lightstyle"
+[
+      style(choices) : "New Appearance" : 0 = [
+		0 : "On"
+		13: "Off"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12: "Underwater"
+		14: "Slow Fade In"
+		15: "Medium Fade In"
+		16: "Fast Fade In"
+	]
+	pattern(string) : "Custom Appearance"
+	m_iWait(integer) : "Hold time (-1 for permanent)"
+]
+@PointClass base(Targetname, Targetx) iconsprite("sprites/DoD/TriggerRelay.spr") = trigger_relay : "Trigger Relay"
+[
+	spawnflags(flags) =
+	[
+		1: "Remove On fire" : 0
+	]
+	triggerstate(choices) : "Trigger State" : 0 = 
+	[
+		0: "Off"
+		1: "On"
+		2: "Toggle"
+	]
+]
+
+@SolidClass base(Targetname, Master) = trigger_sound : "Brush-based DSP Sound"
+[
+	target(target_destination) : "Fire when activated"
+	roomtype(choices) : "Room Type" : 0 =
+	[
+		0 : "(Disable all filters)"
+		1 : "Generic (no filters)"
+		
+		2 : "Metal Small"
+		3 : "Metal Medium"
+		4 : "Metal Large"
+	
+		5 : "Tunnel Small"
+		6 : "Tunnel Medium"
+		7 : "Tunnel Large"
+	
+		8 : "Chamber Small"
+		9 : "Chamber Medium"
+		10: "Chamber Large"
+
+		11: "Bright Small"
+		12: "Bright Medium"
+		13: "Bright Large"
+
+		14: "Water 1"
+		15: "Water 2"
+		16: "Water 3"
+
+		17: "Concrete Small"
+		18: "Concrete Medium"
+		19: "Concrete Large"
+
+		20: "Big 1"
+		21: "Big 2"
+		22: "Big 3"
+
+		23: "Cavern Small"
+		24: "Cavern Medium"
+		25: "Cavern Large"
+
+		26: "Weirdo 1"
+		27: "Weirdo 2"
+		28: "Weirdo 3"
+	]
+	spawnflags(flags) =
+	[
+		//* If ticked, this entity will override the effect of a env_sound or non-Priority trigger_sound.
+		//* (The default is for an env_sound to override a trigger_sound.)
+		//*   This is only usually useful if an env_sound's radius extends inside a trigger_sound,
+		//* or if two trigger_sounds overlap/come very close.
+		1: "Priority" : 0
+	]
+]
+
+@SolidClass base(Trigger) = trigger_gravity : "Trigger Gravity"
+[
+	gravity(integer) : "Gravity (0-1)" : 1
+]
+
+@SolidClass base(Trigger) = trigger_teleport : "Trigger teleport" 
+[
+	spawnflags(flags) =
+	[
+		8: "No Allies" : 0
+		16: "No Axis" : 0
+	]	
+]
+
+
+//
+// Function entities
+//
+
+@SolidClass base(Breakable, RenderFields, ZhltLightFlags, MoveWith) = func_breakable : "Breakable Object" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Only Trigger" : 0
+		2 : "Touch"	   : 0
+		4 : "Pressure"     : 0
+		256: "Instant Crowbar" : 1
+	]
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Targetname, RenderFields, Angles, ZhltLightFlags, MoveWith) = func_button : "Button" 
+[
+	speed(integer) : "Speed" : 5
+	target(target_destination) : "Targetted object"
+	netname(target_destination) : "Target Path"
+	// Path Target overrides Targetted Object
+	health(integer) : "Health (shootable if > 0)"
+	lip(integer) : "Lip"
+	master(string) : "Master" 
+	sounds(choices) : "Sounds" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		2: "Access Denied"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small zap"
+		9: "Keycard Sound"
+		10: "Buzz"
+		11: "Buzz Off"
+		14: "Lightswitch"
+	]
+	wait(integer) : "delay before reset (-1 stay)" : 3
+	delay(string) : "Delay before trigger" : "0"
+	spawnflags(flags) =
+	[
+		1: "Don't move" : 0
+		2:"Allies Can't activate" : 0
+		4:"Axis Can't activate" : 0
+		32: "Toggle" : 0
+		64: "Sparks" : 0
+		256:"Touch Activates": 0
+
+	]
+	locked_sound(choices) : "Locked Sound" : 0 = 
+	[
+		0: "None"
+		2: "Access Denied"
+		8: "Small zap"
+		10: "Buzz"
+		11: "Buzz Off"
+		12: "Latch Locked"
+	]
+	unlocked_sound(choices) : "Unlocked Sound" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small zap"
+		9: "Keycard Sound"
+		10: "Buzz"
+		13: "Latch Unlocked"
+		14: "Lightswitch"
+	]
+	locked_sentence(choices) : "Locked Sentence" : 0 = 
+	[
+		0: "None"
+		1: "Gen. Access Denied"
+		2: "Security Lockout"
+		3: "Blast Door"
+		4: "Fire Door"
+		5: "Chemical Door"
+		6: "Radiation Door"
+		7: "Gen. Containment"
+		8: "Maintenance Door"
+		9: "Broken Shut Door"
+	]
+	unlocked_sentence(choices) : "Unlocked Sentence" : 0 = 
+	[
+		0: "None"
+		1: "Gen. Access Granted"
+		2: "Security Disengaged"
+		3: "Blast Door"
+		4: "Fire Door"
+		5: "Chemical Door"
+		6: "Radiation Door"
+		7: "Gen. Containment"
+		8: "Maintenance area"
+	]
+	_minlight(string) : "Minimum light level"
+]
+
+
+@SolidClass base(RenderFields, Targetname, Angles, ZhltLightFlags) = func_conveyor : "Conveyor Belt" 
+[
+	spawnflags(flags) =
+	[
+		1 : "No Push" : 0
+		2 : "Not Solid" : 0
+	]
+	speed(string) : "Conveyor Speed" : "100"
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Door, ZhltLightFlags) = func_door : "Basic door" []
+
+@SolidClass base(Door, ZhltLightFlags) = func_door_rotating : "Rotating door" 
+[
+	spawnflags(flags) =
+	[
+		2 : "Reverse Dir" : 0
+		16: "One-way" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	distance(integer) : "Distance (deg)" : 90
+	angles(string) : "Pitch Yaw Roll (Y Z X)" : "0 0 0"
+]
+
+@SolidClass base(RenderFields) = func_friction : "Surface with a change in friction" 
+[
+	modifier(integer) : "Percentage of standard (0 - 100)" : 15
+]
+
+@SolidClass base(Targetname, RenderFields, ZhltLightFlags, MoveWith) = func_illusionary : "Fake Wall/Light" 
+[
+
+	skin(choices) : "Contents" : -1 =
+	[
+		-1: "Empty"
+		-3: "Water"
+		-7: "Volumetric Light"
+		-17: "Zero-G"
+		-18: "Hover-Field"
+		-19: "Fog effect"
+	]
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Targetname, MoveWith) = func_ladder : "Ladder" [
+	spawnflags(flags) =
+	[
+		1 : "Silent" : 0
+	]
+]
+
+@SolidClass base(Targetname) = func_mortar_field : "Mortar Field" 
+[
+	m_flSpread(integer) : "Spread Radius" : 64
+	m_iCount(integer) : "Repeat Count" : 1
+	m_fControl(Choices) : "Targeting" : 0 =
+	[
+		0 : "Random"
+		1 : "Activator"
+		2 : "Table"
+	]
+	m_iszXController(target_destination) : "X Controller"
+	m_iszYController(target_destination) : "Y Controller"
+]
+
+@SolidClass base(Targetname, RenderFields, Angles, ZhltLightFlags, MoveWith) = func_pendulum : "Swings back and forth" 
+[
+	speed(integer) : "Speed" : 100
+	distance(integer) : "Distance (deg)" : 90
+	damp(integer) : "Damping (0-1000)" : 0
+	dmg(integer) : "Damage inflicted when blocked" : 0
+	spawnflags(flags) =
+	[
+		1: "Start ON" : 0
+		8: "Passable" : 0
+		16: "Auto-return" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+
+	_minlight(integer) : "_minlight"
+]
+
+@SolidClass base(Targetname, RenderFields, PlatSounds, ZhltLightFlags) = func_plat : "Elevator" 
+[
+	spawnflags(Flags) =
+	[
+		1: "Toggle" : 0
+	]
+	height(integer) : "Travel altitude (can be negative)" : 0
+	speed(integer) : "Speed" : 50
+	_minlight(string) : "Minimum light level"
+]	
+
+@SolidClass base(Targetname, RenderFields, PlatSounds, Angles, ZhltLightFlags) = func_platrot : "Moving Rotating platform" 
+[
+	spawnflags(Flags) =
+	[
+		1: "Toggle" : 1
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	speed(integer) : "Speed of rotation" : 50
+	height(integer) : "Travel altitude (can be negative)" : 0
+	rotation(integer) : "Spin amount" : 0
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Breakable, RenderFields, ZhltLightFlags) = func_pushable : "Pushable object"
+[
+	size(choices) : "Hull Size" : 0 =
+	[
+		0: "Point size"
+		1: "Player size"
+		2: "Big Size"
+		3: "Player duck"
+	]
+	spawnflags(flags) =
+	[
+		128: "Breakable" : 0
+	]
+	friction(integer) : "Friction (0-400)" : 50
+	buoyancy(integer) : "Buoyancy" : 20
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Targetname, Angles, ZhltLightFlags) = func_rot_button : "Rotating Button" 
+[
+	target(target_destination) : "Targetted object"
+	changetarget(target_destination) : "ChangeTarget Name"
+	master(string) : "Master" 
+	speed(integer) : "Speed" : 50
+	health(integer) : "Health (shootable if > 0)"
+	sounds(choices) : "Sounds" : 21 = 
+	[
+		21: "Squeaky"
+		22: "Squeaky Pneumatic"
+		23: "Ratchet Groan"
+		24: "Clean Ratchet"
+		25: "Gas Clunk"
+	]
+	wait(choices) : "Delay before reset" : 3 =
+	[
+		-1: "Stays pressed"
+	]
+	delay(string) : "Delay before trigger" : "0"
+	distance(integer) : "Distance (deg)" : 90
+	spawnflags(flags) =
+	[
+		1 : "Not solid" : 0
+		2 : "Reverse Dir" : 0
+		32: "Toggle" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+		256:"Touch Activates": 0
+	]
+	_minlight(integer) : "_minlight"
+]
+
+@SolidClass base(Targetname, RenderFields, Angles, ZhltLightFlags, MoveWith) = func_rotating : "Rotating Object"
+[
+	speed(integer)	: "Rotation Speed" : 0
+	volume(integer) : "Volume (10 = loudest)" : 10
+	fanfriction(integer) : "Friction (0 - 100%)" : 20
+	sounds(choices) : "Fan Sounds" : 0 =
+	[
+		0 : "No Sound" 
+		1 : "Fast Whine"
+		2 : "Slow Rush"
+		3 : "Medium Rickety"
+		4 : "Fast Beating"
+		5 : "Slow Smooth"
+	]
+	message(sound) : "WAV Name"
+	spawnflags(flags) =
+	[
+		1 : "Start ON" 		: 0
+		2 : "Reverse Direction" : 0
+		4 : "X Axis" 		: 0
+		8 : "Y Axis" 		: 0
+		16: "Acc/Dcc"		: 0
+		32: "Fan Pain"		: 0
+		64: "Not Solid"		: 0
+		128: "Small Radius" : 0
+		256: "Medium Radius" : 0
+		512: "Large Radius" : 1	
+	]
+	_minlight(integer) : "_minlight"
+	spawnorigin(string) : "X Y Z - Move here after lighting" : "0 0 0"
+	dmg(integer) : "Damage inflicted when blocked" : 0
+]
+
+@SolidClass base(BaseTank, ZhltLightFlags) = func_tank : "Brush Gun Turret" 
+[
+	bullet(choices) : "Bullets" : 0 = 
+	[
+		0: "None"
+		1: "9mm"
+		2: "MP5"
+		3: "12mm"
+	]
+]
+
+@SolidClass base(MoveWith) = func_tankcontrols  : "Tank controls"
+[
+	target(target_destination) : "Tank entity name"
+]
+
+@SolidClass base(BaseTank, ZhltLightFlags) = func_tankmortar : "Brush Mortar Turret" 
+[
+	iMagnitude(Integer) : "Explosion Magnitude" : 100
+]
+
+@SolidClass base(BaseTank, ZhltLightFlags) = func_tankrocket : "Brush Rocket Turret" []
+
+@SolidClass base(Trackchange) = func_trackautochange : "Automatic track changing platform"
+[
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Trackchange, ZhltLightFlags) = func_trackchange : "Train track changing platform"
+[
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Targetname, RenderFields, Angles, ZhltLightFlags) = func_tracktrain : "Track Train" 
+[
+	spawnflags(flags) =
+	[
+		1 : "No Pitch (X-rot)" : 0
+		2 : "No User Control" : 0
+		8 : "Passable" : 0
+	]
+	target(target_destination) : "First stop target"
+	sounds(choices) : "Sound" : 0 =
+	[
+		0: "None"
+		1: "Rail 1"
+		2: "Rail 2"
+		3: "Rail 3"
+		4: "Rail 4"
+		5: "Rail 6"
+		6: "Rail 7"
+	]
+	wheels(integer) : "Distance between the wheels" : 50
+	height(integer) : "Height above track" : 4
+	startspeed(integer) : "Initial speed" : 0
+	speed(integer) : "Speed (units per second)" : 64
+	dmg(integer) : "Damage on crush" : 0	
+	volume(integer) : "Volume (10 = loudest)" : 10
+	bank(string) : "Bank angle on turns" : "0"
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(Targetname, RenderFields, ZhltLightFlags) = func_train : "Moving platform" 
+[
+	target(target_source) : "First stop target"
+	movesnd(choices) : "Move Sound" : 0 = 
+	[
+		0: "No Sound"
+		//* plats/bigmove1.wav
+		1: "big elev 1"
+		//* plats/bigmove2.wav
+		2: "big elev 2"
+		//* plats/elevmove1.wav
+		3: "tech elev 1"
+		//* plats/elevmove2.wav
+		4: "tech elev 2"
+		//* plats/elevmove3.wav
+		5: "tech elev 3"
+		//* plats/freightmove1.wav
+		6: "freight elev 1"
+		//* plats/freightmove2.wav
+		7: "freight elev 2"
+		//* plats/heavymove1.wav
+		8: "heavy elev"
+		//* plats/rackmove1.wav
+		9: "rack elev"
+		//* plats/railmove1.wav
+		10: "rail elev"
+		//* plats/squeekmove1.wav
+		11: "squeek elev"
+		//* plats/talkmove1.wav
+		12: "odd elev 1"
+		//* plats/talkmove2.wav
+		13: "odd elev 2"
+
+		//* plats/vehicle1.wav
+		14: "Medium pitch"
+		//* plats/vehicle2.wav
+		15: "High pitch"
+		//* plats/vehicle3.wav
+		16: "Low pitch"
+		//* plats/vehicle4.wav
+		17: "Really low pitch"
+		//* plats/vehicle6.wav
+		19: "Medium low rough pitch"
+		//* plats/vehicle7.wav
+		19: "Medium low rough pitch"
+	]
+	stopsnd(choices) : "Stop Sound" : 0 = 
+	[
+		0: "No Sound"
+		//* plats/bigstop1.wav
+		1: "big elev stop1"
+		//* plats/bigstop2.wav
+		2: "big elev stop2"
+		//* plats/freightstop1.wav
+		3: "freight elev stop"
+		//* plats/heavystop2.wav
+		4: "heavy elev stop"
+		//* plats/rackstop1.wav
+		5: "rack stop"
+		//* plats/railstop1.wav
+		6: "rail stop"
+		//* plats/squeekstop1.wav
+		7: "squeek stop"
+		//* plats/talkstop1.wav
+		8: "quick stop"
+		//* plats/vehicle_brake1.wav
+		8: "screeching brakes"
+	]
+	speed(integer) : "Speed (units per second)" : 64
+    avelocity(string) : "Angular velocity (Y Z X)" : "0 0 0"
+	dmg(integer) : "Damage on crush" : 0
+	skin(integer) : "Contents" : 0
+	volume(string) : "Sound Volume 0.0 - 1.0" : "0.85"
+	spawnflags(flags) =
+	[
+		8 : "Not solid" : 0
+	]
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass = func_traincontrols : "Train Controls"
+[
+	target(target_destination) : "Train Name"
+]
+
+@SolidClass base(Targetname, RenderFields, ZhltLightFlags, MoveWith) = func_wall : "Wall" 
+[
+	_minlight(string) : "Minimum light level"
+]
+
+@SolidClass base(func_wall, ZhltLightFlags) = func_wall_toggle : "Toggleable geometry" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Invisible" : 0
+	]
+]
+
+@SolidClass base(Door) = func_water : "Liquid" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+		256:"Use Only" : 0
+	]
+	skin(choices) : "Contents" : -3 =
+	[
+		-3: "Water"
+		-4: "Slime"
+		-5: "Lava"
+	]
+	WaveHeight(string) : "Wave Height" : "0"
+]
+
+//
+// Miscellaneous entities
+//
+
+@SolidClass base(Target, Angles, ZhltLightFlags) = button_target : "Target Button"
+[
+	spawnflags(flags) =
+	[
+		1: "Use Activates" : 1
+		2: "Start On" : 0
+	]
+	master(string) : "Master" 
+	renderfx(choices) :"Render FX" : 0 =
+	[
+		0: "Normal"
+		1: "Slow Pulse"
+		2: "Fast Pulse"
+		3: "Slow Wide Pulse"
+		4: "Fast Wide Pulse"
+		9: "Slow Strobe"
+		10: "Fast Strobe"
+		11: "Faster Strobe"
+		12: "Slow Flicker"
+		13: "Fast Flicker"
+		5: "Slow Fade Away"
+		6: "Fast Fade Away"
+		7: "Slow Become Solid"
+		8: "Fast Become Solid"
+		14: "Constant Glow"
+		15: "Distort"
+		16: "Hologram (Distort + fade)"
+	]
+	rendermode(choices) : "Render Mode" : 0 =
+	[
+		0: "Normal"
+		1: "Color"
+		2: "Texture"
+		3: "Glow"
+		4: "Solid"
+		5: "Additive"
+	]
+	renderamt(integer) : "FX Amount (1 - 255)"
+	rendercolor(color255) : "FX Color (R G B)" : "0 0 0"
+]
+
+@SolidClass base(Door, ZhltLightFlags) = momentary_door : "Momentary/Continuous door" 
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Open" : 0
+	]
+]
+
+@SolidClass base(RenderFields, Targetname, Angles, ZhltLightFlags) = momentary_rot_button : "Direct wheel control" 
+[
+	target(target_destination) : "Targetted object"
+	speed(integer) : "Speed" : 50
+	master(string) : "Master" 
+	sounds(choices) : "Sounds" : 0 = 
+	[
+		0: "None"
+		1: "Big zap & Warmup"
+		2: "Access Denied"
+		3: "Access Granted"
+		4: "Quick Combolock"
+		5: "Power Deadbolt 1"
+		6: "Power Deadbolt 2"
+		7: "Plunger"
+		8: "Small zap"
+		9: "Keycard Sound"
+		21: "Squeaky"
+		22: "Squeaky Pneumatic"
+		23: "Ratchet Groan"
+		24: "Clean Ratchet"
+		25: "Gas Clunk"
+	]
+	distance(integer) : "Distance (deg)" : 90
+	returnspeed(integer) : "Auto-return speed" : 0
+	spawnflags(flags) =
+	[
+		1: "Door Hack" : 0
+		2: "Not useable" : 0
+		16: "Auto Return" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	_minlight(integer) : "_minlight"
+]
+
+// ----------------------------------------------------------------------------------------------------
+//   A watcher watches an entity, waiting for it to be in a given state. The default behaviour is for
+// the watcher to be 'On' if the watched entity is 'On', and to be 'Off' at all other times.
+//   The main use for a watcher is to fire another entity (the "entity to notify") each time the
+// watcher's state changes.
+// ----------------------------------------------------------------------------------------------------
+@PointClass iconsprite("sprites/watcher.spr") base(Targetname) = watcher : "State Watcher"
+[
+	m_iszWatch(string) : "Entity to watch"
+	//* The watcher will revert to this state if the watched entity is missing or killed.
+	m_fLogic(choices) : "Default State" : 0 =
+	[
+		0: "On"
+		1: "Off"
+	]
+	//*   This entity will be sent USE_ON or USE_OFF, as appropriate, whenever the watcher's state changes.
+	target(target_destination) : "Target to notify"
+	//*     The bottom 5 flags are used to specify what states are being watched for. Default is to just watch for 'On'.
+	spawnflags(flags) =
+	[
+		//* If this is enabled, the watcher will notify its target with USE_TOGGLE, instead of sending ON or OFF.
+		1:  "Send 'Toggle'" : 0
+		//* If this is enabled, the target won't be triggered when the watcher turns on.
+		2:  "Don't Send On" : 0
+		//* If this is enabled, the target won't be triggered when the watcher turns off.
+		4:  "Don't Send Off" : 0
+		8:  "NOT 'On'" : 0
+		16: "'Off'" : 0
+		32: "'Turn On'" : 0
+		64: "'Turn Off'" : 0
+		128:"'In Use'" : 0
+	]
+]
+
+//
+// 1019 - Mugsy added territorial control objective
+//
+
+//
+// 0629 - version 1.0 BETA
+//      - readded everything so destroy objective would work
+//
+
+//
+// DoD Spawn Points
+//
+// @PointClass base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(255 0 0) iconsprite("sprites/DoD/AlliesTeamStart.spr") = info_player_allies : "Allies team start"
+@PointClass base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(0 255 0) = info_player_allies : "Allies team start"
+[
+]
+
+// @PointClass base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(0 0 255)  iconsprite("sprites/DoD/AxisTeamStart.spr") = info_player_axis : "Axis team start"
+@PointClass base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(255 0 0) = info_player_axis : "Axis team start"
+[
+]
+
+@PointClass base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(0 0 255)  iconsprite("sprites/DoD/ObserverStart.spr") = info_player_observer : "Observer start"
+[
+]
+
+// --- Removed info_initial_player_allies as it is no longer used in 2.0
+// @PointClass  base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(255 0 0) iconsprite("sprites/DoD/AlliesInitialStart.spr") = info_initial_player_allies: "Allies initial start"
+// [
+// ]
+
+// --- Removed info_initial_player_axis as it is no longer used in 2.0
+// @PointClass base(Master,CPMaster) size(-16 -16 -36, 16 16 36) color(0 0 255)  iconsprite("sprites/DoD/AxisInitialStart.spr") = info_initial_player_axis : "Axis initial start"
+// [
+// ]
+
+
+//
+// Objectives!
+//
+
+// Object Objective
+@PointClass base(Targetname,Target, MoveWith) iconsprite("sprites/DoD/Enigma.spr")  = dod_object : "Object Objective"
+[
+	model(studio) : "Model" : "models/Tnt.mdl"
+	object_name(string) : "Objects Name" : ""
+	object_owner(choices) : "Team that can pick up" : 0 =
+	[
+		0 : "Both"
+		1 : "Allies"
+		2 : "Axis"
+	]
+	object_group(string) : "Group Name" : ""
+	object_takesound(sound) : "Sound when taken"
+	object_capsound(sound) : "Sound when captured"
+	object_dropsound(sound) : "Sound when dropped"
+	object_returnsound(sound) : "Sound when returned"
+	object_carryspeed(string) : "Carry speed (this*speed)" : "0.5"
+	object_resetontouch(choices) : "Reset on touch" : 1 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	object_resettime(integer) : "Reset time (secs, max. 600)" : 60
+	object_cappoints(integer) : "Points to capturer" : 10
+	object_otherpoints(integer) : "Points for teammates" : 5
+	object_donetarget(string) : "Target When Complete" : ""
+
+	object_player_sprite(sprite) : "Sprite to show above player if carried" : "sprites/obj_tnt_sm.spr"
+	object_hud_sprite(sprite) : "Sprite to show on HUD if carried" : "sprites/obj_tnt.spr"
+	master(string) : "Master" 
+]
+
+// Capture points
+@SolidClass base(Targetname,Target, MoveWith) = dod_object_goal : "Object Capturepoint"
+[
+	spawnflags(flags) =
+	[
+		1 : "Dont Multicap" : 0
+		2 : "Cap once per round" : 0
+	]
+	capobj_group(string) : "Group Name" : ""
+	capobj_donetarget(string) : "Target When Complete" : ""
+	capobj_hud_sprite(sprite) : "Sprite to show on HUD if in zone without object" : "sprites/obj_tnt.spr"
+	master(string) : "Master" 
+]
+
+// Scoring events
+@PointClass base(Targetname,Target)  iconsprite("sprites/DoD/PrimaryScore.spr")  = dod_score_ent : "Used for done sequences"
+[
+	team(choices) : "For Team" : 0 =
+	[
+		0 : "Both"
+		1 : "Allies"
+		2 : "Axis"
+	]
+	score_points(integer) : "Points" : 10
+	score_resetitemtime(integer) : "Reset Items Time (0 = none)" : 3
+	score_resetplayerstime(integer) : "Reset Players Time (0 = none)" : 3
+	noise(string) : "Reset Group (blank for all)" : ""
+	noise2(choices) : "End game?" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	message(string) : "Message" : ""
+	score_nextmap(string) : "Move to Next Map" : ""
+	score_nextmapdelay(integer) : "Change level delay ( 0 = none )" : 3
+]
+
+// Territorial Control Objectives - by Mugsy
+@PointClass base(Targetname,Target)  iconsprite("sprites/DoD/ControlPointMaster.spr") = dod_control_point_master : "Control Point Master"
+[
+	point_give_delay_time(integer) : "Time between point gives ( seconds )" : 20
+	allies_capture_target(string) : "Target when allies capture" : ""
+	axis_capture_target(string) : "Target when axis capture" : ""
+
+	master(string) : "Master" : ""
+	cpm_group(string) : "Group Name" : ""
+]
+
+
+@PointClass base(MoveWith,Master) iconsprite("sprites/DoD/ControlPoint.spr") =  dod_location : "Location" 
+[  
+location_name(string) : "Name of this location" : "" 
+]
+
+@PointClass base(Targetname,Target,MoveWith) iconsprite("sprites/DoD/ControlPoint.spr") = dod_control_point : "Control Point"
+[
+	spawnflags(flags) =
+	[
+		1: "Hide Control Point on HUD" : 0
+	]
+	point_name(string) : "Control Point Name" : "a control point"
+
+	point_can_allies_touch(choices) : "Can Allies Touch This Point?" : 0 =
+	[
+		0 : "Yes"
+		1 : "No"
+	]
+
+	point_can_axis_touch(choices) : "Can Axis Touch This Point?" : 0 =
+	[
+		0 : "Yes"
+		1 : "No"
+	]
+
+	point_pointvalue(integer) : "Time based points value" : 1
+	point_points_for_cap(integer) : "Points given to capturer" : 1
+	point_default_owner(choices) : "Default Owner of the control point" : 0 =
+	[
+		0 : "Neither"
+		1 : "Allies"
+		2 : "Axis"
+	]
+	point_axis_capsound(sound) : "Sound Made when Axis captures" : ""
+	point_allies_capsound(sound) : "Sound Made when Allies captures" : ""
+	point_resetsound(sound) : "Sound Made when point resets" : ""
+	point_allies_model(string) : "Model when allies capture" : "models/w_aflag.mdl"
+	point_axis_model(string) : "Model when axis capture" : "models/w_gflag.mdl"
+	point_reset_model(string) : "Model when point reset" : "models/w_wflag.mdl"
+
+	point_allies_target(string) : "Target when allies capture" : "" 
+	point_axis_target(string) : "Target when axis capture" : ""		
+	point_reset_target(string) : "Target when point reset" : ""
+
+	point_win_string(string) : "String to Show when capped (vars)" : "%p captured the %n for the %t"
+
+	point_group(string) : "Group Name" : ""
+
+	point_index(integer) : "Index of this point ( unique )" : -1
+
+//	point_cap_delaytime(integer) : "Time between possible captures(seconds)" : 1
+]
+
+@SolidClass base(Targetname,Target,MoveWith,Master) = dod_trigger_sandbag : "Sandbag Trigger"
+[
+	sandbag_range(integer) : "Degrees in either direction" : 15
+]
+
+@SolidClass base(Targetname,Target,MoveWith,Master) = dod_capture_area : "Capture Area"
+[
+	area_allies_cancap(choices) : "Can Allies Cap?" : 1 = 
+	[
+		1 : "Yes"
+		0 : "No"
+	]
+
+	area_axis_cancap(choices) : "Can Axis Cap?" : 1 = 
+	[
+		1 : "Yes"
+		0 : "No"
+	]
+
+	area_allies_numcap(integer) : "Number of Allies to cap" : 1 
+	area_axis_numcap(integer) : "Number of Axis to cap" : 1 
+
+	area_time_to_cap(integer) : "Time to cap (sec)" : 5 
+
+	area_allies_startcap(string) : "Target when allies start capture" : "" 
+	area_allies_breakcap(string) : "Target when allies cap is broken" : "" 
+	area_allies_endcap(string) : "Target when allies complete capture" : "" 
+
+	area_axis_startcap(string) : "Target when axis start capture" : ""
+	area_axis_breakcap(string) : "Target when axis cap is broken" : ""
+	area_axis_endcap(string) : "Target when axis complete capture" : ""
+
+	area_hud_sprite(sprite) : "Sprite to show on HUD" : ""
+
+	area_object_group(string) : "Requires Object from this group:" : ""
+]
+
+
+@PointClass base(Targetname,Target) iconsprite("sprites/DoD/PointRelay.spr") = dod_point_relay : "Capture Relay"
+[
+	dod_relay_team(choices) : "Relay triggers point with which team" : 1 =
+	[
+		1 : "Allies"
+		2 : "Axis"
+		0 : "Reset Point"
+	]
+]
+
+@PointClass base(Targetname,Target) iconsprite("sprites/DoD/RoundTimer.spr") = dod_round_timer : "DoD Timer"
+[
+	spawnflags(flags) =
+	[
+		1 : "Shown On HUD" : 1
+		2 : "Start Off" : 0
+	]
+
+	master(string) : "Master" 
+
+	round_timer_length(integer): "Timer Length( in seconds )" : 60 
+]
+
+
+//
+// Weapons!
+//
+
+@PointClass base(Weapon, Targetx)  = weapon_30cal : "30 cal MG" []
+@PointClass base(Weapon, Targetx)  = weapon_amerknife : "American Knife" []
+@PointClass base(Weapon, Targetx)  = weapon_bar: "BAR" []
+@PointClass base(Weapon, Targetx)  = weapon_colt : "Colt Pistol" []
+@PointClass base(Weapon, Targetx)  = weapon_garand : "Garand Rifle" []
+@PointClass base(Weapon, Targetx)  = weapon_gerknife : "German Knife" []
+@PointClass base(Weapon, Targetx)  = weapon_gewehr : "KAR Sniper Rifle" []
+@PointClass base(Weapon, Targetx)  = weapon_kar : "KAR Rifle" []
+@PointClass base(Weapon, Targetx)  = weapon_luger : "Luger Pistol" []
+@PointClass base(Weapon, Targetx)  = weapon_m1carbine : "M1 Carbine" []
+@PointClass base(Weapon, Targetx)  = weapon_mg34 : "MG34" []
+@PointClass base(Weapon, Targetx)  = weapon_mg42 : "MG42" []
+@PointClass base(Weapon, Targetx)  = weapon_mp40 : "MP40" []
+@PointClass base(Weapon, Targetx)  = weapon_mp44: "MP44" []
+@PointClass base(Weapon, Targetx)  = weapon_spade: "spade" []
+@PointClass base(Weapon, Targetx)  = weapon_spring: "Springfield Sniper Rifle" [] 
+@PointClass base(Weapon, Targetx)  = weapon_thompson: "Thompson" []
+
+@PointClass base(Weapon, Targetx)  = ammo_30cal: "30 cal Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_bar: "BAR Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_colt : "Colt Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_garand : "Garand Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_gewehr: "K98 Sniper Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_kar: "KAR Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_luger : "Luger Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_m1carbine : "M1 Carbine Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_mg34 : "MG34 Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_MG42 : "MG42 Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_mp40 : "MP40 Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_mp44 : "MP44 Ammo" []
+@PointClass base(Weapon, Targetx)  = ammo_spring : "Springfield Ammo" [] 
+@PointClass base(Weapon, Targetx)  = ammo_thompson : "Thompson Ammo" []

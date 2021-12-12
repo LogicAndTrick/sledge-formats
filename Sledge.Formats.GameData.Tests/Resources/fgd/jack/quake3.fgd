@@ -1,0 +1,555 @@
+//
+// Quake III Arena game definition file (.fgd)
+// for Jackhammer 1.1 and above
+//
+// written by:
+//	Scrama / scrama@ya.ru
+// 	XaeroX / support@hlfx.ru
+//
+
+//
+// worldspawn
+//
+
+@SolidClass = worldspawn : "This is the world entity. Each map can only contain one, and it's automatically created for you."
+[
+	message(string) : "Logon message"
+	music(sound) : "Music file" : : "Path/name of looping .wav file used for level's music (e.g. music/sonic5.wav)."
+	_ambient(integer) : "Ambient light level" : : "Adds a constant value to overall lighting. Use is not recommended. Ambient light will have a tendency to flatten out variations in light and shade."
+	color(color255) : "Ambient Color" : : "RGB value for ambient light color (default is 0 0 0)."
+	gravity(integer) : "Gravity" : : "Gravity of level (default normal gravity: 800)."
+	gridsize(string) : "Dynamic Light Granularity" : : "Granularity of the lightgrid created by q3map. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 128 128 256. Use larger powers of 2 to reduce BSP size and compile time on very large maps."
+	_blocksize(integer) : "BSP Block Size" : : "Q3Map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density (default 1024 1024 0, 0 values = disable)."
+	//-------- Q3MAP2 KEYS --------
+	_minlight(integer) : "Min Lightmap Intensity" : : "Minimum light value, levelwide. Uses the _color key to set color. Does not add unlike ambient."
+	_minvertexlight(integer) : "Min Vertex Intensity" : : "Minimum vertex lighting, levelwide."
+	_mingridlight(integer) : "Min Dynamic Intensity" : : "Minimum lightgrid (dynamic entity lighting) levelwide."
+	_keeplights(choices) : "Keep Light Entities" : 0 : "Keep light entities in the BSP. Normally stripped out by the BSP process and read from the .map file by the lighting phase." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_noshadersun(choices) : "Ignore Shader Sun" : 0 : "Ignore q3map_sun/sun directives in sky shaders and ONLY use entity sun lights." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_farplanedist(integer) : "Far Clip Distance" : : "Limit on how many units the vis phase of compilation can see. Used in combination with level-wide fog, it can help reduce r_speeds on large, open maps."
+	_foghull(string) : "Fog Hull Shader" : : "Shader to use for 'fog hull'. Foghull shader should be a sky shader. Omit the 'textures/' prefix."
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps on brushes/patches in the world. Can be overridden in func_group (or other entities) (default 1.0)."
+	_celshader(string) : "Cel Shader" : : "Sets the cel shader used for this geometry. Note: Omit the 'textures/' prefix."
+	_style1alphaGen(string) : "Style Light alphaGen" : : "*IMPORTANT* Replace 'N' in the key '_styleNalphaGen' with an integer between 1 and 31 as your style index. Values takes standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)"
+	_style1rgbGen(string) : "Style Light rgbGen" : : "*IMPORTANT* Replace 'N' in the key '_styleNrgbGen' with an integer between 1 and 31 as your style index. Values take standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)"
+	//-------- Q3MAP2 TERRAIN KEYS --------
+	_indexmap(string) : "Terrain Blending Map" : : "Path/name for the art file used to guide the mapping of textures on the terrain surface."
+	_layers(integer) : "Terrain Layers" : : "Integer value denotes number of unique root shaders that will be used on the terrain."
+	_shader(string) : "Terrain MetaShader" : : "Path to the metashader used to assign textures to the terrain entity. Note: Omit the 'textures/' prefix."	
+]
+
+@BaseClass = ShadowControl
+[
+	_castshadows(choices) : "Shadow Caster Level" : 0 : "Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. >1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world." =
+	[
+		0 : "No shadow casting"
+		1 : "Cast shadows on world"
+	]
+	_receiveshadows(choices) : "Shadow Reciever Level" : 0 : "Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. >1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities." =
+	[
+		0 : "No shadow casting"
+		1 : "Cast shadows on world"
+	]
+]
+
+@BaseClass = Angles
+[
+	angles(angle) : "Pitch Yaw Roll (Y Z X)" : "0 0 0" : "Sets the pitch (up / down), yaw (left / right) and roll (bank) respectively. The compass in Jackhammer corresponds to Yaw. The settings are not always (or not all) used."
+]
+
+@PointClass color(160 192 255) size(-4 -4 -4, 4 4 4) base(Angles) flags(Angle) = _skybox : "Compiler-only entity that specifies the origin of a skybox (a wholly contained, separate area of the map), similar to some games portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects."
+[
+	_scale(integer) : "Scale" : : "Scaling factor (default 64), good values are between 50 and 300, depending on the map."
+]
+
+@BaseClass = Targetname 
+[ 
+	targetname(target_source) : "Name" : : "Property used to identify entities."
+]
+@BaseClass = Target 
+[ 
+	target(target_destination) : "Target" : : "When an entity is activated, it triggers the entity with the name specified by Target."
+	targetShaderName(string) : "Target Shader Name" : : "Points to the name of the original shader to swap out for triggerable shader entities (see notes)."
+	targetShaderNewName(string) : "Target Shader New Name" : : "Points to the name of the new shader to swap in for triggerable shader entities (see notes)."
+]
+
+@BaseClass base(Target) = Targetx 
+[
+	delay(float) : "Delay before trigger" : 0.0 : "Usually the time in seconds before an entity should trigger its target (after being triggered itself). Under other SmartEdit names, delay might also be the time to wait before performing some other action."
+	killtarget(target_destination) : "KillTarget" : : "When an entity is triggered, it will remove from the game the entity specified by this property."
+]
+
+@BaseClass = Modes
+[
+	notfree(choices) : "Hidden For FFA" : 0 : "When set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	notteam(choices) : "Hidden For Teamplay" : 0 : "When set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	notsingle(choices) : "Hidden For SP" : 0 : "When set to 1, entity will not spawn in Single Player mode (bot play mode)." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	gametype(string) : "Game Type" : : "Defines the gametypes that will spawn this item. Q3A point release 1.32 only. Q3A values: ffa tournament single team ctf. Q3TA values: oneflag obelisk harvester teamtournament."
+	notbot(choices) : "Invisible To Bots" : 0 : "Used to make an item invisible for bot attraction." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
+
+@BaseClass = Respawn
+[
+	wait(float) : "Respawn Delay" : : "Time in seconds before item respawns after being picked up (default 40, -1 = never respawn)"
+	random(float) : "Respawn Delay Variance" : : "Random time variance in seconds added or subtracted from 'wait' delay (default 0). When the random key is set, its value is used to calculate a minimum and a maximum delay. The final time delay will be a random value anywhere between the minimum and maximum values: (min delay = wait - random) (max delay = wait + random)."
+	team(string) : "Team Name" : : "Set this to team items. Teamed items will respawn randomly after team master is picked up. The amount of time it takes for an item in the team to respawn is determined by the 'wait' value of the item that was picked up previously. So if one of the items in the team has it's 'wait' key set to -1 (never respawn), the random respawning cycle of the teamed items will stop after that item is picked up."
+]
+
+//
+// Ammo
+//
+@BaseClass size(-16 -16 -16, 16 16 16) offset(0 0 16) color(96 96 255) base(Target, Targetname, Respawn, Modes) bobparms( 180 8 0 ) = Ammo
+[
+	count(integer) : "Ammo Given" : : "Sets the amount of ammo given to the player when picked up."
+	spawnflags(Flags) = 
+	[
+		1 : "Suspended" 	: 0
+	]
+]
+@PointClass base(Ammo) studio("models/powerups/ammo/bfgam.md3") = ammo_bfg : "BFG ammo. Gives the player 15 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/machinegunam.md3") = ammo_bullets : "Machinegun ammo. Gives the player 50 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/plasmaam.md3") = ammo_cells : "Plasma Gun ammo. Gives the player 30 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/grenadeam.md3") = ammo_grenades : "Grenade Launcher ammo. Gives the player 5 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/lightningam.md3") = ammo_lightning : "Lightning Gun ammo. Gives the player 60 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/rocketam.md3") = ammo_rockets : "Rocket Launcher ammo. Gives the player 5 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/shotgunam.md3") = ammo_shells : "Shotgun ammo. Gives the player 10 by default." []
+@PointClass base(Ammo) studio("models/powerups/ammo/railgunam.md3") = ammo_slugs : "Railgun ammo. Gives the player 10 by default." []
+
+//
+// Holdable items
+//
+
+@BaseClass size(-16 -16 -16, 16 16 16) offset(0 0 16) color(75 75 255) base(Target, Targetname, Respawn, Modes) bobparms( 180 8 0 ) = Holdable
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Suspended" 	: 0
+	]
+]
+@PointClass base(Holdable) studio("models/powerups/holdable/teleporter.md3") = holdable_teleporter : "Personal teleporter." []
+@PointClass base(Holdable) studio("models/powerups/holdable/medkit.md3") = holdable_medkit : "Holdable medkit, restores health to maximum upon activation." []
+
+//
+// Bonus items
+//
+@BaseClass size(-16 -16 -16, 16 16 16) offset(0 0 16) color(0 255 255) base(Target, Targetname, Respawn, Modes) bobparms( 180 8 0, -180 8 12 ) = Bonus
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Suspended" 	: 0
+	]
+]
+@PointClass base(Bonus) studio("models/powerups/instant/quad.md3", "models/powerups/instant/quad_ring.md3") = item_quad : "Quad powerup." []
+@PointClass base(Bonus) studio("models/powerups/instant/enviro.md3", "models/powerups/instant/enviro_ring.md3") = item_enviro : "Environmental suit powerup." []
+@PointClass base(Bonus) studio("models/powerups/instant/haste.md3", "models/powerups/instant/haste_ring.md3") = item_haste : "Haste powerup." []
+@PointClass base(Bonus) studio("models/powerups/instant/invis.md3", "models/powerups/instant/invis_ring.md3") = item_invis : "Invisibility powerup." []
+@PointClass base(Bonus) studio("models/powerups/instant/regen.md3", "models/powerups/instant/regen_ring.md3") = item_regen : "Regeneration powerup." []
+@PointClass base(Bonus) studio("models/powerups/instant/flight.md3", "models/powerups/instant/flight_ring.md3") = item_flight : "Flight powerup." []
+@PointClass base(Bonus) studio("models/flags/r_flag.md3") = team_CTF_redflag : "Red team CTF flag. Only in CTF games." []
+@PointClass base(Bonus) studio("models/flags/b_flag.md3") = team_CTF_blueflag : "Blue team CTF flag. Only in CTF games." []
+
+//
+// Func entities
+//
+
+@SolidClass base(Targetname, ShadowControl) = func_bobbing : "Normally bobs on the Z axis." 
+[
+	height(float) : "Amplitude" : : "Amplitude of bob, in units, default 32."
+	speed(float) : "Cycle time (sec)" : : "Seconds to complete a bob cycle. Default 4."
+	phase(float) : "Phase" : 0.0 : "The 0.0 to 1.0 offset in the cycle to start at."
+	dmg(string) : "Damage inflicted when blocked" : : "Damage to inflict when object is blocked (2 default)."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+	spawnflags(Flags) = 
+	[
+		1 : "X Axis" 	: 0
+		2 : "Y Axis" 	: 0
+	]
+]
+@SolidClass base(Targetname, Target, ShadowControl) = func_button : "Brush button. When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again." 
+[
+	angle(float) : "Opening direction" : 0
+	speed(string) : "Movement speed" : : "Default 40."
+	wait(choices) : "Wait before returning" : 3 =
+	[
+		-1 : "Stay pressed"
+	]
+	lip(string) : "Lip" : : "Lip remaining at end of move, in units, default 4."
+	health(string) : "Health" : : "If set, the button must be killed instead of touched."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+]
+@SolidClass base(Targetname, ShadowControl) = func_door : "Brush door." 
+[
+	angle(float) : "Opening direction" : 0
+	speed(string) : "Movement speed" : : "Default 100."
+	wait(choices) : "Wait before returning" : 3 =
+	[
+		-1 : "Stay opened"
+	]
+	lip(string) : "Lip" : : "Lip remaining at end of move, in units, default 8."
+	dmg(string) : "Damage inflicted when blocked" : : "Damage to inflict when door is blocked (2 default)."
+	health(string) : "Health" : : "If set, the door must be shot open."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+	spawnflags(Flags) = 
+	[
+		1 : "Start Open" 	: 0
+		4 : "Crusher" 	: 0 : "Don't reverse if blocked."
+	]
+]
+@SolidClass = func_group : "Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities." 
+[
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+]
+@SolidClass base(Targetname, ShadowControl) = func_pendulum : "You need to have an origin brush as part of this entity. Pendulums always swing north / south on unrotated models. Add an angles field to the model to allow rotation in other directions. Pendulum frequency is a physical constant based on the length of the beam and gravity." 
+[
+	speed(string) : "Distance (deg)" : : "The number of degrees each way the pendulum swings. Default 30."
+	phase(float) : "Phase" : 0.0 : "The 0.0 to 1.0 offset in the cycle to start at."
+	dmg(string) : "Damage inflicted when blocked" : : "Damage to inflict when train is blocked (2 default)."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+]
+@SolidClass base(Targetname, ShadowControl) = func_plat : "Plats are always drawn in the extended position so they will light correctly." 
+[
+	height(float) : "Movement height" : : "Defaults to model height."
+	speed(string) : "Movement speed" : : "Default 200."
+	lip(string) : "Lip" : : "Protrusion above rest position, in units, default 8."
+	dmg(string) : "Damage inflicted when blocked" : : "Damage to inflict when plat is blocked (2 default)."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+]
+@SolidClass base(Targetname, ShadowControl) = func_rotating : "You need to have an origin brush as part of this entity.  The center of that brush will be the point around which it is rotated. It will rotate around the Z axis by default. You can check either the X_AXIS or Y_AXIS box to change that." 
+[
+	speed(string) : "Movement speed" : : "Default 100."
+	dmg(string) : "Damage inflicted when blocked" : : "Damage to inflict when train is blocked (2 default)."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+	spawnflags(Flags) = 
+	[
+		1 : "Start On" 	: 0
+		4 : "X Axis" 	: 0
+		8 : "Y Axis" 	: 0
+	]
+]
+@SolidClass base(Targetname, ShadowControl) = func_static : "A bmodel that just sits there, doing nothing. Can be used for conditional walls and models." 
+[
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+]
+@SolidClass base(Targetname, Target, ShadowControl) = func_train : "A train is a mover that moves between path_corner target points. Trains MUST HAVE AN ORIGIN BRUSH. The train spawns at the first target it is pointing at." 
+[
+	speed(string) : "Movement speed" : : "Default 100."
+	dmg(string) : "Damage inflicted when blocked" : : "Damage to inflict when train is blocked (2 default)."
+	noise(sound) : "Sound" : : "Looping sound to play when the object is in motion."
+	model2(studio) : "MD3 Model"
+	color(color1) : "Constant light color"
+	light(float) : "Constant light radius"
+	_lightmapscale(float) : "Lightmap Scale" : : "Floating point value scales the resolution of lightmaps (default 1.0)."
+	spawnflags(Flags) = 
+	[
+		1 : "Start On" 	: 0
+		2 : "Toggle" 	: 0
+		4 : "Crusher" 	: 0 : "Stop if blocked."
+	]
+]
+@PointClass base(Targetname, Target) size(-8 -8 -8, 8 8 8) = func_timer : "Repeatedly fires its targets. Can be turned on or off by using." 
+[
+	wait(float) : "Delay" : : "Seconds between triggerings, 0.5 default, -1 = one time only."
+	random(float) : "Wait variance" : : "Wait variance, default is 0"
+	spawnflags(flags) = 
+	[
+		1 : "Start On" : 0
+	]
+]
+
+//
+// Info entities
+//
+
+@PointClass base(Targetname, Target) color(0 255 0) size(-8 -8 -8, 8 8 8) = info_player_intermission : "The intermission will be viewed from this point. Target an info_notnull for the view direction." []
+@PointClass base(Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_camp : "Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay." []
+@PointClass base(Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_null : "Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay." []
+@PointClass base(Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_notnull : "Used as a positional target for in-game calculation, like jumppad targets. target_position does the same thing." []
+
+//
+// Items
+//
+
+@BaseClass size(-16 -16 -16, 16 16 16) offset(0 0 16) color(0 255 255) base(Target, Targetname, Respawn, Modes) bobparms( 180 8 0 ) = Item
+[
+	spawnflags(Flags) = 
+	[
+		1 : "Suspended" 	: 0
+	]
+]
+
+@PointClass base(Item) studio("models/powerups/armor/shard.md3") = item_armor_shard : "Armor shard, +5 Armor." []
+@PointClass base(Item) studio("models/powerups/armor/armor_yel.md3") = item_armor_combat : "Yellow armor, +50 Armor." []
+@PointClass base(Item) studio("models/powerups/armor/armor_red.md3") = item_armor_body : "Red armor, +100 Armor." []
+@PointClass base(Item) studio("models/powerups/health/small_cross.md3", "models/powerups/health/small_sphere.md3") = item_health_small : "Small medkit, +5 Health." []
+@PointClass base(Item) studio("models/powerups/health/medium_cross.md3", "models/powerups/health/medium_sphere.md3") = item_health : "Normal medkit, +25 Health." []
+@PointClass base(Item) studio("models/powerups/health/large_cross.md3", "models/powerups/health/large_sphere.md3") = item_health_large : "Large medkit, +50 Health." []
+@PointClass base(Item) studio("models/powerups/health/mega_cross.md3", "models/powerups/health/mega_sphere.md3") = item_health_mega : "Megahealth, +100 Health." []
+
+//
+// Misc entities
+//
+
+@PointClass base(Angles) size(-16 -16 -16, 16 16 16) flags(Angle) studio() = misc_model : "Entity for arbitrary .md3 file to display. Model will be compiled into the BSP file." 
+[
+	model(studio) : "Model"
+	modelscale(scale) : "Scale"
+	target(target_destination) : "Parent" : : "Parent entity to attach the model to."
+	spawnflags(flags) = 
+	[
+		2 : "Solid" : 0
+		4 : "Meta" : 0
+	]
+]
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = misc_portal_surface : "The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted. This must be within 64 world units of the surface!" []
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = misc_portal_camera : "The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view." 
+[
+	roll(float) : "Angle modifier" : : "An angle modifier is used to orient the camera around the target vector."
+	spawnflags(flags) = 
+	[
+		1 : "Slow Rotate" : 0
+		2 : "Fast Rotate" : 0
+	]
+]
+@PointClass base(Targetname) color(0 128 0) size(-16 -16 -24, 16 16 32) offset(0 0 24) = misc_teleporter_dest : "Point teleporters at these. Now that we don't have teleport destination pads, this is just an info_notnull." []
+
+//
+// Paths
+//
+
+@PointClass base(Targetname, Target) flags(Path) color(247 181 82) size(-8 -8 -8, 8 8 8) = path_corner : "Train path corners." 
+[
+	speed(float) : "Speed" : : "Speed to move to the next corner."
+	wait(float) : "Wait here (sec)" : : "Seconds to wait before beginning move to next corner."
+]
+
+//
+// Player spawn spots
+//
+
+@BaseClass base(Target, Angles) flags(Angle) size(-16 -16 -24, 16 16 32) offset(0 0 24) color(0 255 0) = PlayerClass []
+@PointClass base(PlayerClass) = info_player_deathmatch : "Potential spawning position for deathmatch games. The first time a player enters the game, they will be at an 'initial' spot. Targets will be fired when someone spawns in on them."
+[
+	nobots(choices) : "No Bots" : 0 : "Set to yes to prevent bots from using this spot." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	nohumans(choices) : "No Humans" : 0 : "Set to yes to prevent non-bots from using this spot." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	spawnflags(Flags) = 
+	[
+		1 : "Initial" 	: 0
+	]
+]
+@PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
+
+@PointClass base(PlayerClass) color(255 50 50) = team_CTF_redplayer : "Only in CTF games. Red players spawn here at game start." []
+@PointClass base(PlayerClass) color(255 50 50) = team_CTF_redspawn : "Potential spawning position for red team in CTF games. Targets will be fired when someone spawns in on them." []
+@PointClass base(PlayerClass) color(50 50 255) = team_CTF_blueplayer : "Only in CTF games. Blue players spawn here at game start." []
+@PointClass base(PlayerClass) color(50 50 255) = team_CTF_bluespawn : "Potential spawning position for blue team in CTF games. Targets will be fired when someone spawns in on them." []
+
+//
+// Lights
+//
+
+@BaseClass = Light 
+[
+	light(integer) : "Brightness" : 300
+	_color(color1) : "RGB Color" : "1 1 0.5"
+	spawnflags(flags) = 
+	[
+		1 : "Linear" : 0 : "Gives light linear falloff instead of inverse square."
+	]
+]
+@PointClass iconsprite("sprites/light.spr") base(Target, Light) flags(Light) = light : "Non-displayed light. Lights pointed at a target will be spotlights." []
+
+//
+// Shooters
+//
+
+@BaseClass base(Targetname, Target, Angles) flags(Angle) size(-16 -16 -16, 16 16 16) color(255 0 0) = BaseShooter : "Fires at either the target or the current direction."
+[
+	random(float) : "Target deviance (deg)" : 1.0
+]
+@PointClass base(BaseShooter) = shooter_rocket []
+@PointClass base(BaseShooter) = shooter_plasma []
+@PointClass base(BaseShooter) = shooter_grenade []
+
+//
+// Target entities
+//
+
+@PointClass base(Targetname, Target) size(-8 -8 -8, 8 8 8) = target_delay : "Delayed trigger." 
+[
+	wait(float) : "Delay" : : "Seconds to pause before firing targets."
+	random(float) : "Wait variance" : : "Wait variance, default is 0."
+]
+@PointClass base(Targetname, Target) size(-8 -8 -8, 8 8 8) = target_give : "Gives the activator all the items pointed to." []
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = target_kill : "Kills the activator." []
+@PointClass base(Targetname, Target, Angles) color(0 128 210) size(-8 -8 -8, 8 8 8) flags(Angle) = target_laser : "When triggered, fires a laser. You can either set a target or a direction." 
+[
+	spawnflags(flags) = 
+	[
+		1 : "Start On" : 0
+	]
+]
+@PointClass base(Targetname) color(100 255 100) size(-8 -8 -8, 8 8 8) = target_location : "Closest target_location in sight used for the location, if none in site, closest in distance." 
+[
+	message(string) : "Name of the location"
+	count(choices) : "Color" : 0 =
+	[
+		0 : "White"
+		1 : "Red"
+		2 : "Green"
+		3 : "Yellow"
+		4 : "Blue"
+		5 : "Cyan"
+		6 : "Magenta"
+	]
+]
+@PointClass base(Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = target_position : "Used as a positional target for in-game calculation, like jumppad targets." []
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = target_print : "Text message. If private, only the activator gets the message. If no checks, all clients get the message." 
+[
+	message(string) : "Message" : : "Text to print."
+	spawnflags(flags) = 
+	[
+		1 : "Red Team" : 0
+		2 : "Blue Team" : 0
+		4 : "Private" : 0
+	]
+]
+@PointClass base(Targetname, Target, Angles) size(-8 -8 -8, 8 8 8) flags(Angle) = target_push : "Pushes the activator in the direction of angle, or towards a target apex." 
+[
+	speed(integer) : "Push speed"
+	spawnflags(flags) = 
+	[
+		1 : "Bouncepad" : 0 : "Play bounce noise instead of windfly."
+	]
+]
+@PointClass base(Targetname, Target) size(-8 -8 -8, 8 8 8) = target_relay : "This doesn't perform any actions except fire its targets. The activator can be forced to be from a certain team." 
+[
+	spawnflags(flags) = 
+	[
+		1 : "Red Only" 	: 0 : "Force activator be from the Red Team."
+		2 : "Blue Only" : 0 : "Force activator be from the Blue Team."
+		4 : "Random" 	: 0 : "Only one of the targets will be fired, not all of them."
+	]
+]
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = target_remove_powerups : "Takes away all the activators powerups. Used to drop flight powerups into death puts." []
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = target_score : "The activator is given this many points." 
+[
+	count(integer) : "Score" : 1 : "Number of points to add."
+]
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) iconsprite("sprites/speaker.spr") = target_speaker : "A global sound will play full volume throughout the level. Activator sounds will play on the player that activated the target. Global and activator sounds can't be combined with looping. Normal sounds play each time the target is used. Looped sounds will be toggled by use functions. Multiple identical looping sounds will just increase volume without any speed cost." 
+[
+	noise(sound) : "Sound" : : "WAV file to play."
+	wait(choices) : "Wait (sec)" : 0 : "Seconds between auto-triggerings." =
+	[
+		0 : "Don't auto-retrigger"
+	]
+	random(float) : "Wait variance" : : "Wait variance, default is 0."
+	spawnflags(flags) = 
+	[
+		1 : "Looped (On)" 	: 0
+		2 : "Looped (Off)" 	: 0
+		4 : "Global" 		: 0
+		8 : "Activator" 	: 0
+	]
+]
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = target_teleporter : "The activator will be teleported away." []
+
+
+//
+// Triggers
+//
+
+@PointClass base(Target) size(-8 -8 -8, 8 8 8) = trigger_always : "This trigger will always fire. It is activated by the world." []
+
+@SolidClass base(Target) = trigger_multiple : "Variable sized repeatable trigger. Must be targeted at one or more entities. So, the basic time between firing is a random time between (wait - random) and (wait + random)"
+[
+	wait(float) : "Delay" : : "Seconds between triggerings, 0.5 default, -1 = one time only."
+	random(float) : "Wait variance" : : "Wait variance, default is 0"
+]
+@SolidClass base(Target) = trigger_push : "Must point at a target_position, which will be the apex of the leap. This will be client side predicted, unlike target_push." []
+@SolidClass base(Target) = trigger_teleport : "Allows client side prediction of teleportation events. Must point at a target_position, which will be the teleport destination." []
+@SolidClass base(Targetname) = trigger_hurt : "ny entity that touches this will be hurt. It does dmg points of damage each server frame. Targeting the trigger will toggle its on / off state."
+[
+	dmg(integer) : "Damage" : 5
+	spawnflags(flags) = 
+	[
+		1 : "Start Off" : 0
+		4 : "Silent" : 0 : "Supresses playing the sound."
+		8 : "No Protection" : 0 : "Nothing stops the damage."
+		16 : "Slow" : 0 : "Changes the damage rate to once per second."
+	]
+]
+
+//
+// Weapons
+//
+
+@BaseClass size(-16 -16 -16, 16 16 16) offset(0 0 16) color(0 0 200) base(Target, Targetname, Respawn, Modes, Angles) flags(EccentricFix) bobparms( 180 8 0 ) = Weapon []
+@PointClass base(Weapon) studio("models/weapons2/gauntlet/gauntlet.md3") = weapon_gauntlet : "Gauntlet." []
+@PointClass base(Weapon) studio("models/weapons2/machinegun/machinegun.md3") = weapon_machinegun : "Machinegun." []
+@PointClass base(Weapon) studio("models/weapons2/shotgun/shotgun.md3") = weapon_shotgun : "Shotgun." []
+@PointClass base(Weapon) studio("models/weapons2/grenadel/grenadel.md3") = weapon_grenadelauncher : "Grenade launcher." []
+@PointClass base(Weapon) studio("models/weapons2/rocketl/rocketl.md3") = weapon_rocketlauncher : "Rocket launcher." []
+@PointClass base(Weapon) studio("models/weapons2/plasma/plasma.md3") = weapon_plasmagun : "Plasma gun." []
+@PointClass base(Weapon) studio("models/weapons2/lightning/lightning.md3") = weapon_lightning : "Lightning gun." []
+@PointClass base(Weapon) studio("models/weapons2/railgun/railgun.md3") = weapon_railgun : "Railgun." []
+@PointClass base(Weapon) studio("models/weapons2/bfg/bfg.md3") = weapon_bfg : "BFG." []
+@PointClass base(Weapon) studio("models/weapons2/grapple/grapple.md3") = weapon_grapplinghook : "Grappling hook." []

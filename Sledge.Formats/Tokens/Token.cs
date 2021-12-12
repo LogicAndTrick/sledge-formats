@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Sledge.Formats.Tokens
 {
@@ -9,6 +10,7 @@ namespace Sledge.Formats.Tokens
         public string Value { get; }
         public int Line { get; set; }
         public int Column { get; set; }
+        public List<string> Warnings { get; set; } = new List<string>();
 
         public char Symbol
         {
@@ -30,6 +32,11 @@ namespace Sledge.Formats.Tokens
             Type = TokenType.Custom;
             CustomType = customType;
             Value = value;
+        }
+
+        public bool Is(TokenType type, object value = null)
+        {
+            return type == Type && (value == null || value.ToString() == Value);
         }
     }
 }
