@@ -6,5 +6,13 @@
         public VariableType VariableType { get; set; }
         public string Description { get; set; }
         public string Name { get; set; }
+
+        public IO(IOType ioType, VariableType variableType, string name)
+        {
+            IOType = ioType;
+            VariableType = variableType;
+            Name = name;
+            Description = "";
+        }
     }
 }

@@ -26,6 +26,7 @@ namespace Sledge.Formats.GameData
             Symbols.Plus,           // +
             Symbols.Comma,          // ,
             Symbols.Dot,            // .
+            Symbols.Slash,          // /
             
             // For TrenchBroom's extended syntax
             Symbols.OpenBrace,
@@ -109,6 +110,15 @@ namespace Sledge.Formats.GameData
                                 case "autovisgroup":
                                     ParseAutoVisgroup(def, it);
                                     break;
+                                case "gridnav":
+                                    ParseGridNav(def, it);
+                                    break;
+                                case "exclude":
+                                    ParseExclude(def, it);
+                                    break;
+                                case "entitygroup":
+                                    ParseEntityGroup(def, it);
+                                    break;
                                 case "baseclass":
                                 case "pointclass":
                                 case "solidclass":
@@ -116,10 +126,15 @@ namespace Sledge.Formats.GameData
                                 case "moveclass":
                                 case "npcclass":
                                 case "filterclass":
+                                case "pathclass":
+                                case "cableclass":
+                                case "overrideclass":
+                                case "modelgamedata":
+                                case "modelanimevent":
                                     ParseClass(def, it);
                                     break;
                                 default:
-                                    throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Not a known command: {t.Value}");
+                                    throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Not a known command: @{it.Current.Value}");
                             }
                             break;
                         case TokenType.End:
@@ -286,16 +301,72 @@ namespace Sledge.Formats.GameData
             def.AutoVisgroups.Add(section);
         }
 
-        private static readonly Dictionary<string, ClassType> ClassTypes = new Dictionary<string, ClassType>(StringComparer.InvariantCultureIgnoreCase)
+        private void ParseGridNav(GameDefinition def, IEnumerator<Token> it)
         {
-            {"baseclass", ClassType.Base},
-            {"pointclass", ClassType.Point},
-            {"solidclass", ClassType.Solid},
-            {"keyframeclass", ClassType.KeyFrame},
-            {"moveclass", ClassType.Move},
-            {"npcclass", ClassType.NPC},
-            {"filterclass", ClassType.Filter},
-        };
+            /* dota.fgd:
+            @gridnav(64, 32, 32, 16384)
+            */
+            // I don't really know what these values mean. Something to do with dota nav mesh I think...
+
+            var t = it.Current;
+            Debug.Assert(t != null, nameof(t) + " != null");
+
+            def.GridNavValues = new List<int>();
+
+            Expect(it, TokenType.Name, x => x.ToLower() == "gridnav");
+            Expect(it, TokenType.Symbol, Symbols.OpenParen);
+            while (it.Current?.Is(TokenType.Symbol, Symbols.CloseParen) == false)
+            {
+                def.GridNavValues.Add(ParseInteger(it));
+                if (it.Current?.Is(TokenType.Symbol, Symbols.Comma) == true) it.MoveNext();
+            }
+            Expect(it, TokenType.Symbol, Symbols.CloseParen);
+        }
+        
+        private void ParseExclude(GameDefinition def, IEnumerator<Token> it)
+        {
+            /* hlvr.fgd:
+            @exclude color_correction_volume
+            */
+            var t = it.Current;
+            Debug.Assert(t != null, nameof(t) + " != null");
+
+            Expect(it, TokenType.Name, x => x.ToLower() == "exclude");
+            var excluded = Expect(it, TokenType.Name).Value;
+
+            var cls = def.GetClass(excluded);
+            if (cls != null) def.Classes.Remove(cls);
+        }
+
+        private void ParseEntityGroup(GameDefinition def, IEnumerator<Token> it)
+        {
+            /* hlvr.fgd:
+            @EntityGroup "Player" {	start_expanded = true }
+            @EntityGroup "Items"
+            */
+            var t = it.Current;
+            Debug.Assert(t != null, nameof(t) + " != null");
+
+            Expect(it, TokenType.Name, x => x.ToLower() == "entitygroup");
+
+            var name = ParseAppendedString(it);
+            var group = new EntityGroup(name);
+            def.EntityGroups.Add(group);
+
+            if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+            {
+                Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+                while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
+                {
+                    var key = Expect(it, TokenType.Name).Value;
+                    Expect(it, TokenType.Symbol, Symbols.Equal);
+                    var value = Expect(it, TokenType.Name).Value;
+                    if (key == "start_expanded") group.StartExpanded = value == "true";
+                    else throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unknown entity group metadata key: {key}");
+                }
+                Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+            }
+        }
 
         private void ParseClass(GameDefinition def, IEnumerator<Token> it)
         {
@@ -346,10 +417,20 @@ namespace Sledge.Formats.GameData
             */
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
-            
-            var typeName = Expect(it, TokenType.Name, x => ClassTypes.ContainsKey(x));
-            var classType = ClassTypes[typeName.Value];
-            
+
+            var typeName = Expect(it, TokenType.Name).Value;
+            if (!Enum.TryParse(typeName, true, out ClassType classType))
+            {
+                typeName = typeName.Substring(0, typeName.Length - 5);
+
+                if (!Enum.TryParse(typeName, true, out classType))
+                {
+                    throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unknown class type {t.Value}");
+                }
+            }
+
+            //var classType = ClassTypes[typeName.Value];
+
             var cls = new GameDataClass("", "", classType);
 
             // Read behaviours
@@ -407,6 +488,27 @@ namespace Sledge.Formats.GameData
                         }
                     }
                 }
+                // New metadata syntax from source 2
+                else if ((bname.ToLower() == "metadata" || bname.ToLower() == "duration_info") && it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                {
+                    var dict = bname.ToLower() == "duration_info" ? cls.ModelDurationInfo : cls.Metadata;
+                    /*
+	                metadata
+	                {
+		                key1 = "Value1"
+		                key2 = "Value2"
+	                }
+                    */
+                    Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+                    while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
+                    {
+                        var metaKey = Expect(it, TokenType.Name).Value;
+                        Expect(it, TokenType.Symbol, Symbols.Equal);
+                        var metaValue = ParseAppendedString(it);
+                        dict[metaKey] = metaValue;
+                    }
+                    Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+                }
 
                 if (bname.ToLower() == "base")
                 {
@@ -453,7 +555,9 @@ namespace Sledge.Formats.GameData
 
             Expect(it, TokenType.Symbol, Symbols.CloseBracket);
 
-            def.MergeClass(cls);
+            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData;
+            if (isModelData) def.ModelDataClasses.Add(cls);
+            else def.MergeClass(cls);
         }
 
         private void ParseClassMember(GameDataClass cls, IEnumerator<Token> it)
@@ -462,18 +566,33 @@ namespace Sledge.Formats.GameData
             if (it.Current == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
 
             var second = it.Current;
+            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData;
 
-            if (first.Value == "input" || first.Value == "output")
+            if (!isModelData && (first.Value == "input" || first.Value == "output"))
             {
                 // input name(type) [ : "description" ]
-                throw new NotImplementedException();
+                // output name(type) [ : "description" ]
+                var iotype = first.Value == "input" ? IOType.Input : IOType.Output;
+                var name = Expect(it, TokenType.Name).Value;
+                Expect(it, TokenType.Symbol, Symbols.OpenParen);
+                var type = ParseVariableType(it);
+                Expect(it, TokenType.Symbol, Symbols.CloseParen);
+
+                var io = new IO(iotype, type, name);
+                cls.InOuts.Add(io);
+                if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
+                {
+                    // description
+                    it.MoveNext();
+                    io.Description = ParseAppendedString(it);
+                }
             }
             else if (second.Is(TokenType.Symbol, Symbols.OpenParen))
             {
                 // name(type) [ : "description" [ : [ default_value ] [ : "details" ] ] ] [ = options_decl ]
                 var name = first.Value;
                 Expect(it, TokenType.Symbol, Symbols.OpenParen);
-                var type = ParseVariableType(Expect(it, TokenType.Name));
+                var type = ParseVariableType(it);
                 Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
                 var prop = new Property(name, type);
@@ -482,11 +601,50 @@ namespace Sledge.Formats.GameData
                 var next = it.Current;
                 if (next == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
                 var nv = next.Value.ToLower();
-                if (next.Type == TokenType.Name && (nv == "readonly" || nv == "report"))
+
+                /* Source 1 metadata for properties
+                a(string) report
+                b(string) readonly
+                // Below not ever seen in the wild
+                c(string) readonly report
+                d(string) report readonly
+                // This all falls apart if a property with no description/default value is followed
+                // by a property with a name of "readonly" or "report"...hopefully this doesn't happen.
+                 */
+                while (next.Type == TokenType.Name && (nv == "readonly" || nv == "report"))
                 {
-                    if (nv == "readonly") prop.ReadOnly = true;
-                    else if (nv == "report") prop.ShowInEntityReport = true;
+                    prop.Metadata.Add(next.Value, "");
                     it.MoveNext();
+                    next = it.Current;
+                    if (next == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
+                    nv = next.Value.ToLower();
+                }
+
+                /* Source 2 metadata for properties:
+                test1(studio) [report] : ""Test1""
+                test2(float) [ min=""0.0"", max=""180.0"" ] : ""Test2"" : ""0"" : ""Test#2""
+                test3(boolean) [ group=""Test Group"" ] : ""Test3"" : 0 : ""Test#3""
+                 */
+                if (next.Is(TokenType.Symbol, Symbols.OpenBracket))
+                {
+                    Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+
+                    while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBracket) == false)
+                    {
+                        var metaName = Expect(it, TokenType.Name).Value;
+                        var metaValue = "";
+                        if (it.Current?.Is(TokenType.Symbol, Symbols.Equal) == true)
+                        {
+                            it.MoveNext();
+                            metaValue = ParseAppendedString(it);
+                        }
+                        prop.Metadata[metaName] = metaValue;
+
+                        // Skip comma if it exists
+                        if (it.Current?.Is(TokenType.Symbol, Symbols.Comma) == true) it.MoveNext();
+                    }
+
+                    Expect(it, TokenType.Symbol, Symbols.CloseBracket);
                 }
 
                 // Read description/default/details
@@ -614,14 +772,26 @@ namespace Sledge.Formats.GameData
             opt.Details = ParseAppendedString(it);
         }
 
-        private static VariableType ParseVariableType(Token token)
+        private VariableType ParseVariableType(IEnumerator<Token> it)
         {
-            var type = token.Value.ToLower().Replace("_", "");
+            var token = it.Current;
+            Debug.Assert(token != null, nameof(token) + " != null");
+
+            var type = Expect(it, TokenType.Name).Value;
+            // support the source2 `resource:model` syntax...
+            if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
+            {
+                it.MoveNext();
+                type += Expect(it, TokenType.Name).Value;
+            }
+
+            type = type.Replace("_", "").ToLower();
             if (Enum.TryParse(type, true, out VariableType vt))
             {
                 return vt;
             }
-            throw new Exception($"Parsing error (line {token.Line}, column {token.Column}): Unknown variable type {token.Value}");
+
+            throw new Exception($"Parsing error (line {token.Line}, column {token.Column}): Unknown variable type {type}");
         }
     }
 }

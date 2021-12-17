@@ -37,6 +37,7 @@ namespace Sledge.Formats.Tokens
 
             var tok = it.Current;
             if (tok == null || !tok.Is(TokenType.Symbol, open)) return tokens;
+            var startToken = tok;
             
             var stack = new Stack<Token>();
 
@@ -46,7 +47,7 @@ namespace Sledge.Formats.Tokens
                 if (tok.Is(TokenType.Symbol, open)) stack.Push(tok);
                 else if (tok.Is(TokenType.Symbol, close)) stack.Pop();
                 tokens.Add(tok);
-                if (!it.MoveNext()) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Unexpected end of file");
+                if (!it.MoveNext()) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Unexpected end of file - start token at {startToken.Type}({startToken.Value}) (line {startToken.Line}, column {startToken.Column})");
             } while (stack.Count > 0);
 
             return tokens;
@@ -54,6 +55,8 @@ namespace Sledge.Formats.Tokens
 
         public static string ParseAppendedString(IEnumerator<Token> it)
         {
+            if (it.Current?.Type != TokenType.String) return "";
+
             var str = Expect(it, TokenType.String).Value;
 
             while (it.Current?.Is(TokenType.Symbol, Symbols.Plus) == true)

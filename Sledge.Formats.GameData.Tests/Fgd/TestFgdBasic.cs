@@ -210,6 +210,8 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         1 : ""flag1"" : 0
         2 : ""flag2"" : 1
     ]
+    nine(string) report readonly
+    ten(string) readonly report
 ]
 ";
             var format = new FgdFormatter();
@@ -218,7 +220,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             var cls = def.Classes[0];
             Assert.AreEqual("Test", cls.Name);
 
-            Assert.AreEqual(9, cls.Properties.Count);
+            Assert.AreEqual(11, cls.Properties.Count);
 
             AssertProperty(cls.Properties[0], "one", VariableType.Integer, "", "", "", false, false);
             AssertProperty(cls.Properties[1], "two", VariableType.String, "description", "", "", false, false);
@@ -229,6 +231,8 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             AssertProperty(cls.Properties[6], "seven", VariableType.String, "d", "", "details", false, false);
             AssertProperty(cls.Properties[7], "eight", VariableType.Choices, "eight", "0", "", false, false);
             AssertProperty(cls.Properties[8], "spawnflags", VariableType.Flags, "", "", "", false, false);
+            AssertProperty(cls.Properties[9], "nine", VariableType.String, "", "", "", true, true);
+            AssertProperty(cls.Properties[10], "ten", VariableType.String, "", "", "", true, true);
 
             AssertOption(cls.Properties[7].Options[0], "0", "c1", false, "");
             AssertOption(cls.Properties[7].Options[1], "1", "c2", false, "details");
@@ -243,8 +247,8 @@ namespace Sledge.Formats.GameData.Tests.Fgd
                 Assert.AreEqual(desc, actual.Description);
                 Assert.AreEqual(dfault, actual.DefaultValue);
                 Assert.AreEqual(details, actual.Details);
-                Assert.AreEqual(ro, actual.ReadOnly);
-                Assert.AreEqual(report, actual.ShowInEntityReport);
+                Assert.AreEqual(ro, actual.Metadata.ContainsKey("readonly"));
+                Assert.AreEqual(report, actual.Metadata.ContainsKey("report"));
             }
 
             void AssertOption(Option actual, string key, string desc, bool on, string details)

@@ -5,42 +5,77 @@
         Axis,
         Angle,
         AngleNegativePitch,
+        BodyGroupChoices, // Source 2
         Bool,
         Boolean = Bool,
         Choices,
         Color255,
         Color1,
+        Curve, // Source 2 (alyx)
         Decal,
         FilterClass,
         Flags,
         Float,
+        GameItemClass, // Source 2 (dota)
+        GameUnitClass, // Source 2 (dota)
         InstanceFile,
         InstanceVariable,
         InstanceParm,
+        Int, // Source 2
         Integer,
+        LocalAxis, // Source 2
+        LocalPoint, // Source 2
+        LodLevel, // Source 2
         Material,
-        NodeId,
+        MaterialGroup, // Source 2
+        ModelStateChoices, // Source 2 (alyx)
+        ModelAttachment, // Source 2
+        ModelBreakPiece, // Source 2
         NodeDest,
+        NodeId,
+        NodeIdList, // Source 2
         NPCClass,
         Origin,
         Other,
+        ParentAttachment, // Source 2
         ParticleSystem,
         PointEntityClass,
+        RemoveKey, // Source 2 (alyx)
+        ResourceChoicesMaterial, // Source 2
+        ResourceChoicesModel, // Source 2
+        ResourceChoicesParticle, // Source 2
+        ResourceChoicesPostProcessing, // Source 2
+        ResourceChoicesTexture, // Source 2
+        ResourceMaterial, // Source 2
+        ResourceModel, // Source 2
+        ResourceParticle, // Source 2
+        ResourcePostProcessing, // Source 2
+        ResourceTexture, // Source 2
         Scale, // Quake 3
         Scene,
         Script,
         ScriptList,
+        Sequence, // Source 2
         SideList,
         Sky, // Quake 2
         Sound,
         Sprite,
         String,
         Studio,
+        SurfaceProperties, // Source 2
+        TagList, // Source 2 (alyx)
+        TagListDynamic, // Source 2 (alyx)
         TargetDestination,
         TargetNameOrClass,
         TargetSource,
+        TextBlock,
         Vecline,
         Vector,
-        Void
+        Void,
+        WorldPoint, // Source 2
+
+        PropDataName, // Source 2
+        ModelBodyGroup, // Source 2
+        ModelClothEffect, // Source 2
     }
 }

@@ -9,6 +9,12 @@
         Move,
         NPC,
         Point,
-        Solid
+        Solid,
+        Path, // Source 2
+        Cable, // Source 2
+        Override, // Source 2
+
+        ModelGameData, // Source 2
+        ModelAnimEvent, // Source 2
     }
 }

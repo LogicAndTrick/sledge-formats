@@ -17,11 +17,11 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             var assem = Assembly.GetExecutingAssembly();
             var files = new List<(string name, Stream stream)>();
 
-            path = assem.GetName().Name + ".Resources." + path.Replace('/', '.');
+            path = assem.GetName().Name + ".Resources." + path.Replace('/', '.') + '.';
 
             foreach (var name in assem.GetManifestResourceNames().Where(x => x.StartsWith(path)))
             {
-                files.Add((name.Substring(path.Length + 1), assem.GetManifestResourceStream(name)));
+                files.Add((name.Substring(path.Length), assem.GetManifestResourceStream(name)));
             }
 
             return files;
@@ -86,6 +86,24 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         {
             var format = new FgdFormatter();
             foreach (var (name, stream) in GetFiles("fgd/source"))
+            {
+                try
+                {
+                    var def = format.Read(new StreamReader(stream));
+                    Console.WriteLine($"Successfully parsed {name}.");
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Error parsing {name}", ex);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestSource2()
+        {
+            var format = new FgdFormatter();
+            foreach (var (name, stream) in GetFiles("fgd/source2"))
             {
                 try
                 {

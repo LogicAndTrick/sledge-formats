@@ -11,8 +11,7 @@ namespace Sledge.Formats.GameData.Objects
         public string Details { get; set; }
         public string DefaultValue { get; set; }
         public List<Option> Options { get; set; }
-        public bool ReadOnly { get; set; }
-        public bool ShowInEntityReport { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
 
         public Property(string name, VariableType variableType)
         {
@@ -22,8 +21,7 @@ namespace Sledge.Formats.GameData.Objects
             Details = "";
             DefaultValue = "";
             Options = new List<Option>();
-            ReadOnly = false;
-            ShowInEntityReport = false;
+            Metadata = new Dictionary<string, string>();
         }
     }
 }
