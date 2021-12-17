@@ -77,5 +77,8 @@
         PropDataName, // Source 2
         ModelBodyGroup, // Source 2
         ModelClothEffect, // Source 2
+        ResourceSnapshot, // Source 2
+        ModelBone, // Source 2
+        ModelMorphChannel, // Source 2
     }
 }

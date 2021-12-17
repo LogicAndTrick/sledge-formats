@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.GameData.Objects;
 
 namespace Sledge.Formats.GameData.Tests.Fgd
@@ -102,9 +97,11 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             var def = format.Read(fgd);
             Assert.AreEqual(1, def.Classes.Count);
             var cls = def.Classes[0];
-            Assert.AreEqual("Math Counter", cls.Metadata["entity_tool_name"]);
-            Assert.AreEqual("Logic", cls.Metadata["entity_tool_group"]);
-            Assert.AreEqual("Store a numeric value and perform arithmetic operations on it", cls.Metadata["entity_tool_tip"]);
+            var meta = cls.Dictionaries[0];
+            Assert.AreEqual("metadata", meta.Name);
+            Assert.AreEqual("Math Counter", meta["entity_tool_name"].Value);
+            Assert.AreEqual("Logic", meta["entity_tool_group"].Value);
+            Assert.AreEqual("Store a numeric value and perform arithmetic operations on it", meta["entity_tool_tip"].Value);
         }
 
         [TestMethod]
@@ -144,16 +141,67 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             var def = format.Read(fgd);
             Assert.AreEqual(1, def.ModelDataClasses.Count);
             Assert.AreEqual(ClassType.ModelAnimEvent, def.ModelDataClasses[0].ClassType);
-            Assert.AreEqual("Length", def.ModelDataClasses[0].ModelDurationInfo["LengthSeconds"]);
-            Assert.AreEqual("Length", def.ModelDataClasses[0].ModelDurationInfo["LengthSeconds"]);
-            Assert.AreEqual("Speed", def.ModelDataClasses[0].ModelDurationInfo["Speed"]);
-            Assert.AreEqual("Value", def.ModelDataClasses[0].ModelDurationInfo["Value"]);
+
+            var durInfo = def.ModelDataClasses[0].Dictionaries[0];
+            Assert.AreEqual("duration_info", durInfo.Name);
+            Assert.AreEqual("Length", durInfo["LengthSeconds"].Value);
+            Assert.AreEqual("Speed", durInfo["Speed"].Value);
+            Assert.AreEqual("Value", durInfo["Value"].Value);
 
             var p1 = def.ModelDataClasses[0].Properties[0];
 
             Assert.AreEqual("input", p1.Name);
             Assert.AreEqual(VariableType.String, p1.VariableType);
             Assert.AreEqual("Input", p1.Description);
+        }
+
+        [TestMethod]
+        public void TestNestedDictionaries()
+        {
+            const string fgd = @"
+@ModelBreakCommand
+	locator_axis
+	{
+		transform =
+		{
+			origin_key = ""anchor_position""
+			angles_key = ""anchor_angles""
+		}
+	}
+	physicsjoint_hinge
+	{
+		transform =
+		{
+			origin_key = ""anchor_position""
+			angles_key = ""anchor_angles""
+		}
+		enable_limit = ""enable_limit""
+		min_angle = ""min_angle""
+		max_angle = ""max_angle""
+        some_boolean = true
+	}
+= break_create_joint_revolute : ""Creates a revolute (hinge) joint between two spawned breakpieces""
+[]";
+            var format = new FgdFormatter();
+            var def = format.Read(fgd);
+
+            var locatorAxis = def.ModelDataClasses[0].Dictionaries[0];
+            var locatorAxisTransform = (GameDataDictionary) locatorAxis["transform"].Value;
+            Assert.AreEqual("locator_axis", locatorAxis.Name);
+            Assert.AreEqual("transform", locatorAxisTransform.Name);
+            Assert.AreEqual("anchor_position", locatorAxisTransform["origin_key"].Value);
+            Assert.AreEqual("anchor_angles", locatorAxisTransform["angles_key"].Value);
+
+            var physicsjointHinge = def.ModelDataClasses[0].Dictionaries[1];
+            var physicsjointHingeTransform = (GameDataDictionary) physicsjointHinge["transform"].Value;
+            Assert.AreEqual("physicsjoint_hinge", physicsjointHinge.Name);
+            Assert.AreEqual("transform", physicsjointHingeTransform.Name);
+            Assert.AreEqual("enable_limit", physicsjointHinge["enable_limit"].Value);
+            Assert.AreEqual("min_angle", physicsjointHinge["min_angle"].Value);
+            Assert.AreEqual("max_angle", physicsjointHinge["max_angle"].Value);
+            Assert.AreEqual(true, physicsjointHinge["some_boolean"].Value);
+            Assert.AreEqual("anchor_position", physicsjointHingeTransform["origin_key"].Value);
+            Assert.AreEqual("anchor_angles", physicsjointHingeTransform["angles_key"].Value);
         }
     }
 }

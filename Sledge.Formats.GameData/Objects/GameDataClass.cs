@@ -13,8 +13,7 @@ namespace Sledge.Formats.GameData.Objects
         public List<Behaviour> Behaviours { get; }
         public List<Property> Properties { get; }
         public List<IO> InOuts { get; }
-        public Dictionary<string, string> Metadata { get; }
-        public Dictionary<string, string> ModelDurationInfo { get; }
+        public List<GameDataDictionary> Dictionaries { get; }
 
         public GameDataClass(string name, string description, ClassType classType)
         {
@@ -26,8 +25,7 @@ namespace Sledge.Formats.GameData.Objects
             Behaviours = new List<Behaviour>();
             Properties = new List<Property>();
             InOuts = new List<IO>();
-            Metadata = new Dictionary<string, string>();
-            ModelDurationInfo = new Dictionary<string, string>();
+            Dictionaries = new List<GameDataDictionary>();
         }
 
         public void Inherit(IEnumerable<GameDataClass> parents)

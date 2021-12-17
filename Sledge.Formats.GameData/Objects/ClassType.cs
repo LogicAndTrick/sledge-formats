@@ -16,5 +16,6 @@
 
         ModelGameData, // Source 2
         ModelAnimEvent, // Source 2
+        ModelBreakCommand, // Source 2
     }
 }

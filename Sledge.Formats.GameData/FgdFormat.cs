@@ -131,6 +131,7 @@ namespace Sledge.Formats.GameData
                                 case "overrideclass":
                                 case "modelgamedata":
                                 case "modelanimevent":
+                                case "modelbreakcommand":
                                     ParseClass(def, it);
                                     break;
                                 default:
@@ -489,25 +490,11 @@ namespace Sledge.Formats.GameData
                     }
                 }
                 // New metadata syntax from source 2
-                else if ((bname.ToLower() == "metadata" || bname.ToLower() == "duration_info") && it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                else if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
                 {
-                    var dict = bname.ToLower() == "duration_info" ? cls.ModelDurationInfo : cls.Metadata;
-                    /*
-	                metadata
-	                {
-		                key1 = "Value1"
-		                key2 = "Value2"
-	                }
-                    */
-                    Expect(it, TokenType.Symbol, Symbols.OpenBrace);
-                    while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
-                    {
-                        var metaKey = Expect(it, TokenType.Name).Value;
-                        Expect(it, TokenType.Symbol, Symbols.Equal);
-                        var metaValue = ParseAppendedString(it);
-                        dict[metaKey] = metaValue;
-                    }
-                    Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+                    var dict = new GameDataDictionary(bname);
+                    cls.Dictionaries.Add(dict);
+                    ParseGameDataDictionary(it, dict);
                 }
 
                 if (bname.ToLower() == "base")
@@ -555,9 +542,55 @@ namespace Sledge.Formats.GameData
 
             Expect(it, TokenType.Symbol, Symbols.CloseBracket);
 
-            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData;
+            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData || cls.ClassType == ClassType.ModelBreakCommand;
             if (isModelData) def.ModelDataClasses.Add(cls);
             else def.MergeClass(cls);
+        }
+
+        private static void ParseGameDataDictionary(IEnumerator<Token> it, GameDataDictionary dict)
+        {
+            /*
+	        metadata
+	        {
+		        key1 = "Value1"
+		        key2 = "Value2"
+                child =
+                {
+                    key3 = "Value3"
+                }
+	        }
+            */
+            Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+            while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
+            {
+                var metaKey = Expect(it, TokenType.Name).Value;
+                Expect(it, TokenType.Symbol, Symbols.Equal);
+                if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                {
+                    var metaValue = new GameDataDictionary(metaKey);
+                    ParseGameDataDictionary(it, metaValue);
+                    dict[metaKey] = new GameDataDictionaryValue(metaValue);
+                }
+                else if (it.Current?.Is(TokenType.Name) == true)
+                {
+                    if (it.Current.Value == "true") dict[metaKey] = new GameDataDictionaryValue(true);
+                    else if (it.Current.Value == "false") dict[metaKey] = new GameDataDictionaryValue(false);
+                    else throw new Exception($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Unknown dictionary value {it.Current.Value}");
+                    it.MoveNext();
+                }
+                else if (it.Current?.Is(TokenType.Number) == true)
+                {
+                    var metaValue = ParseDecimal(it);
+                    dict[metaKey] = new GameDataDictionaryValue(metaValue);
+                }
+                else
+                {
+                    var metaValue = ParseAppendedString(it);
+                    dict[metaKey] = new GameDataDictionaryValue(metaValue);
+                }
+            }
+
+            Expect(it, TokenType.Symbol, Symbols.CloseBrace);
         }
 
         private void ParseClassMember(GameDataClass cls, IEnumerator<Token> it)
@@ -566,7 +599,7 @@ namespace Sledge.Formats.GameData
             if (it.Current == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
 
             var second = it.Current;
-            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData;
+            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData || cls.ClassType == ClassType.ModelBreakCommand;
 
             if (!isModelData && (first.Value == "input" || first.Value == "output"))
             {
