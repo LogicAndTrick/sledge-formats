@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Sledge.Formats.Tokens;
 
 namespace Sledge.Formats.GameData.Objects
 {
@@ -14,6 +15,7 @@ namespace Sledge.Formats.GameData.Objects
         public List<Property> Properties { get; }
         public List<IO> InOuts { get; }
         public List<GameDataDictionary> Dictionaries { get; }
+        public List<Token> Preamble { get; set; }
 
         public GameDataClass(string name, string description, ClassType classType)
         {
@@ -26,6 +28,7 @@ namespace Sledge.Formats.GameData.Objects
             Properties = new List<Property>();
             InOuts = new List<IO>();
             Dictionaries = new List<GameDataDictionary>();
+            Preamble = new List<Token>();
         }
 
         public void Inherit(IEnumerable<GameDataClass> parents)

@@ -133,7 +133,7 @@ namespace Sledge.Formats.GameData
                                 case "modelanimevent":
                                 case "modelbreakcommand":
                                 case "struct":
-                                    ParseClass(def, it);
+                                    ParseClass(def, it, t.Leaders);
                                     break;
                                 default:
                                     throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Not a known command: @{it.Current.Value}");
@@ -370,7 +370,7 @@ namespace Sledge.Formats.GameData
             }
         }
 
-        private void ParseClass(GameDefinition def, IEnumerator<Token> it)
+        private void ParseClass(GameDefinition def, IEnumerator<Token> it, List<Token> preamble)
         {
             /*
             half-life.fgd:
@@ -428,7 +428,8 @@ namespace Sledge.Formats.GameData
 
             //var classType = ClassTypes[typeName.Value];
 
-            var cls = new GameDataClass("", "", classType);
+            var cls = new GameDataClass("", "", classType); 
+            cls.Preamble.AddRange(preamble.Where(x => x.Type != TokenType.Whitespace));
 
             // Read behaviours
             while (it.Current?.Is(TokenType.Name) == true)
@@ -814,7 +815,6 @@ namespace Sledge.Formats.GameData
                 it.MoveNext();
                 subType += Expect(it, TokenType.Name).Value;
             }
-            if (subType.Length > 0) Console.WriteLine(type + ":" +subType);
 
             type = type.Replace("_", "").ToLower();
             if (Enum.TryParse(type, true, out VariableType vt))

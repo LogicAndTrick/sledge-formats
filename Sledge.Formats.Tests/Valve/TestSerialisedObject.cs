@@ -24,7 +24,7 @@ namespace Sledge.Formats.Tests.Valve
             var fmt = new SerialisedObjectFormatter();
             using var input = Streamify($@"Test
 {{
-    {Q}Key1{Q} {Q}Value1{Q}
+    {Q}Key1{Q} {Q}Value1{Q} // This is a comment
     {Q}Key2{Q} {Q}Value2{Q}
 }}
 ");

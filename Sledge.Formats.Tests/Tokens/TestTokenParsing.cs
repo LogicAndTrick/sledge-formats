@@ -127,8 +127,8 @@ namespace Sledge.Formats.Tests.Tokens
             AssertString("\"Test\" + \"Test\" +", "TestTest");
             AssertString("\"Test\" + \"Test\" + +", "TestTest");
             AssertString("\"Test\" + \"Test\" + \"Test\"", "TestTestTest");
-            
-            AssertFailure("1");
+
+            AssertString("1", "");
 
             void AssertString(string text, string expected)
             {
@@ -136,13 +136,6 @@ namespace Sledge.Formats.Tests.Tokens
                 it.MoveNext();
                 var actual = TokenParsing.ParseAppendedString(it);
                 Assert.AreEqual(expected, actual);
-            }
-
-            void AssertFailure(string text)
-            {
-                using var it = tokeniser.Tokenise(text).GetEnumerator();
-                it.MoveNext();
-                Assert.ThrowsException<Exception>(() => TokenParsing.ParseAppendedString(it));
             }
         }
     }

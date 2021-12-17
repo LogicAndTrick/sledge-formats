@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sledge.Formats.Tokens
 {
@@ -27,65 +29,62 @@ namespace Sledge.Formats.Tokens
 
         public IEnumerable<Token> Tokenise(TextReader input)
         {
+            var reader = new CountingTextReader(input);
             var custom = CustomReaders.Any();
-            var line = 1;
-            var col = 0;
             int b;
-            while ((b = input.Read()) >= 0)
+            var leaders = new List<Token>();
+            var currentWhitespace = "";
+            while ((b = reader.Read()) >= 0)
             {
-                col++;
+                if (b == '\r' || b == 0) continue;
 
                 // Whitespace
-                if (b == ' ' || b == '\t' || b == '\r' || b == 0)
+                if (b == ' ' || b == '\t' || b == '\n')
                 {
-                    continue;
-                }
-
-                // Newline
-                if (b == '\n')
-                {
-                    line++;
-                    col = 0;
+                    currentWhitespace += (char)b;
                     continue;
                 }
 
                 // Comment
-                if (b == '/')
+                if (b == '/' && reader.Peek() == '/')
                 {
-                    // Need to check the next character
-                    if (input.Read() == '/')
+                    if (currentWhitespace.Length > 0)
                     {
-                        // It's a comment, skip everything until we hit a newline
-                        var done = false;
-                        while ((b = input.Read()) >= 0)
-                        {
-                            if (b == '\n')
-                            {
-                                line++;
-                                col = 0;
-                                done = true;
-                                break;
-                            }
-                        }
-
-                        if (done) continue;
-                        break; // EOF
+                        leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
+                        currentWhitespace = "";
                     }
 
-                    // It's not a comment, so it's invalid
-                    yield return new Token(TokenType.Invalid, $"Unexpected token: {(char) b}") {Line = line, Column = col};
+                    var comment = TokenComment(reader);
+                    if (comment.Type == TokenType.Invalid)
+                    {
+                        comment.Line = reader.Line;
+                        comment.Column = reader.Column;
+                        yield return comment;
+                        yield break;
+                    }
+
+                    leaders.Add(comment);
+                    continue;
+                }
+
+                if (currentWhitespace.Length > 0)
+                {
+                    leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
+                    currentWhitespace = "";
                 }
 
                 Token t;
-                if (custom && ReadCustom(b, input, out var ct)) t = ct;
-                else if (b == '"') t = TokenString(input);
-                else if (b >= '0' & b <= '9') t = TokenNumber(b, input);
+                if (custom && ReadCustom(b, reader, out var ct)) t = ct;
+                else if (b == '"') t = TokenString(reader);
+                else if (b >= '0' & b <= '9') t = TokenNumber(b, reader);
                 else if (_symbolSet.Contains(b)) t = new Token(TokenType.Symbol, ((char) b).ToString());
-                else if (b >= 'a' && b <= 'z' || (b >= 'A' && b <= 'Z') || b == '_') t = TokenName(b, input);
+                else if (b >= 'a' && b <= 'z' || (b >= 'A' && b <= 'Z') || b == '_') t = TokenName(b, reader);
                 else t = new Token(TokenType.Invalid, $"Unexpected token: {(char) b}");
 
-                t.Line = line;
-                t.Column = col;
+                t.Line = reader.Line;
+                t.Column = reader.Column;
+                t.Leaders.AddRange(leaders);
+                leaders.Clear();
 
                 yield return t;
 
@@ -108,6 +107,27 @@ namespace Sledge.Formats.Tokens
 
             token = null;
             return false;
+        }
+
+        private Token TokenComment(TextReader input)
+        {
+            // Need to check the next character
+            var b = input.Read();
+            if (b == '/')
+            {
+                // It's a comment, read everything until we hit a newline
+                var text = "";
+                while ((b = input.Read()) >= 0)
+                {
+                    if (b == '\r') continue;
+                    if (b == '\n') break;
+                    text += (char)b;
+                }
+                return new Token(TokenType.Comment, text);
+            }
+
+            // It's not a comment, so it's invalid
+            return new Token(TokenType.Invalid, $"Unexpected token: {(char)b}");
         }
 
         private Token TokenString(TextReader input)
@@ -197,6 +217,42 @@ namespace Sledge.Formats.Tokens
             }
 
             return new Token(TokenType.Name, name);
+        }
+
+        private class CountingTextReader : TextReader
+        {
+            private readonly TextReader _reader;
+
+            public int Line { get; set; } = 1;
+            public int Column { get; set; } = 0;
+
+            public CountingTextReader(TextReader reader)
+            {
+                _reader = reader;
+            }
+
+            public override int Read()
+            {
+                var num = _reader.Read();
+                Column++;
+                if (num == '\n') (Line, Column) = (Line + 1, 0);
+                return num;
+            }
+
+            public override void Close() => _reader.Close();
+            public override int Peek() => _reader.Peek();
+            protected override void Dispose(bool disposing) => _reader.Dispose();
+            public override object InitializeLifetimeService() => _reader.InitializeLifetimeService();
+
+            // Technically these should count also, but meh
+            public override int Read(char[] buffer, int index, int count) => _reader.Read(buffer, index, count);
+            public override Task<int> ReadAsync(char[] buffer, int index, int count) => _reader.ReadAsync(buffer, index, count);
+            public override int ReadBlock(char[] buffer, int index, int count) => _reader.ReadBlock(buffer, index, count);
+            public override Task<int> ReadBlockAsync(char[] buffer, int index, int count) => _reader.ReadBlockAsync(buffer, index, count);
+            public override string ReadLine() => _reader.ReadLine();
+            public override Task<string> ReadLineAsync() => _reader.ReadLineAsync();
+            public override string ReadToEnd() => _reader.ReadToEnd();
+            public override Task<string> ReadToEndAsync() => _reader.ReadToEndAsync();
         }
     }
 }

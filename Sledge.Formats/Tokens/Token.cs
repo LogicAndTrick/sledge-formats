@@ -10,7 +10,8 @@ namespace Sledge.Formats.Tokens
         public string Value { get; }
         public int Line { get; set; }
         public int Column { get; set; }
-        public List<string> Warnings { get; set; } = new List<string>();
+        public List<string> Warnings { get; } = new List<string>();
+        public List<Token> Leaders { get; } = new List<Token>();
 
         public char Symbol
         {

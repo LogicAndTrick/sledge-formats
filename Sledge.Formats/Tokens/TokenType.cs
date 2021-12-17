@@ -7,6 +7,8 @@
         Name,
         String,
         Number,
+        Whitespace,
+        Comment,
         Custom,
         End
     }
