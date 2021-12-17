@@ -69,7 +69,7 @@ namespace Sledge.Formats.GameData.Objects
 
         public void RemoveDuplicates()
         {
-            foreach (var g in Classes.Where(x => x.ClassType != ClassType.Base).GroupBy(x => x.Name.ToLowerInvariant()).Where(g => g.Count() > 1).ToList())
+            foreach (var g in Classes.Where(x => x.ClassType != ClassType.BaseClass).GroupBy(x => x.Name.ToLowerInvariant()).Where(g => g.Count() > 1).ToList())
             {
                 foreach (var obj in g.Skip(1)) Classes.Remove(obj);
             }
@@ -78,7 +78,7 @@ namespace Sledge.Formats.GameData.Objects
         public GameDataClass GetClass(string name)
         {
             return Classes
-                .Where(x => x.ClassType != ClassType.Base)
+                .Where(x => x.ClassType != ClassType.BaseClass)
                 .FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
         }
     }

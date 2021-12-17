@@ -132,6 +132,7 @@ namespace Sledge.Formats.GameData
                                 case "modelgamedata":
                                 case "modelanimevent":
                                 case "modelbreakcommand":
+                                case "struct":
                                     ParseClass(def, it);
                                     break;
                                 default:
@@ -422,12 +423,7 @@ namespace Sledge.Formats.GameData
             var typeName = Expect(it, TokenType.Name).Value;
             if (!Enum.TryParse(typeName, true, out ClassType classType))
             {
-                typeName = typeName.Substring(0, typeName.Length - 5);
-
-                if (!Enum.TryParse(typeName, true, out classType))
-                {
-                    throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unknown class type {t.Value}");
-                }
+                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unknown class type {t.Value}");
             }
 
             //var classType = ClassTypes[typeName.Value];

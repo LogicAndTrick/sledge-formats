@@ -3,19 +3,22 @@
     public enum ClassType
     {
         Any,
-        Base,
-        Filter,
-        KeyFrame,
-        Move,
-        NPC,
-        Point,
-        Solid,
-        Path, // Source 2
-        Cable, // Source 2
-        Override, // Source 2
 
+        BaseClass,
+        PointClass,
+        SolidClass,
+
+        FilterClass, // Source
+        KeyFrameClass, // Source
+        MoveClass, // Source
+        NPCClass, // Source
+
+        PathClass, // Source 2
+        CableClass, // Source 2
+        OverrideClass, // Source 2
         ModelGameData, // Source 2
         ModelAnimEvent, // Source 2
         ModelBreakCommand, // Source 2
+        Struct, // Source 2
     }
 }

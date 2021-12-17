@@ -90,7 +90,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             Assert.AreEqual(1, def.Classes.Count);
             var cls = def.Classes[0];
             Assert.AreEqual("Test", cls.Name);
-            Assert.AreEqual(ClassType.Base, cls.ClassType);
+            Assert.AreEqual(ClassType.BaseClass, cls.ClassType);
             Assert.AreEqual("", cls.AdditionalInformation);
             Assert.AreEqual("", cls.Description);
             Assert.IsFalse(cls.BaseClasses.Any());
@@ -110,7 +110,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             Assert.AreEqual(1, def.Classes.Count);
             var cls = def.Classes[0];
             Assert.AreEqual("PlayerClass", cls.Name);
-            Assert.AreEqual(ClassType.Base, cls.ClassType);
+            Assert.AreEqual(ClassType.BaseClass, cls.ClassType);
             Assert.AreEqual("", cls.AdditionalInformation);
             Assert.AreEqual("", cls.Description);
 
@@ -143,7 +143,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             Assert.AreEqual(1, def.Classes.Count);
             var cls = def.Classes[0];
             Assert.AreEqual("Test", cls.Name);
-            Assert.AreEqual(ClassType.Base, cls.ClassType);
+            Assert.AreEqual(ClassType.BaseClass, cls.ClassType);
             Assert.AreEqual("Description", cls.Description);
             Assert.AreEqual("", cls.AdditionalInformation);
             Assert.IsFalse(cls.BaseClasses.Any());
@@ -163,7 +163,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             Assert.AreEqual(1, def.Classes.Count);
             var cls = def.Classes[0];
             Assert.AreEqual("Test", cls.Name);
-            Assert.AreEqual(ClassType.Base, cls.ClassType);
+            Assert.AreEqual(ClassType.BaseClass, cls.ClassType);
             Assert.AreEqual("Description", cls.Description);
             Assert.AreEqual("Additional information", cls.AdditionalInformation);
             Assert.IsFalse(cls.BaseClasses.Any());
