@@ -5,6 +5,7 @@
         Axis,
         Angle,
         AngleNegativePitch,
+        Array,
         BodyGroupChoices, // Source 2
         Bool,
         Boolean = Bool,
@@ -41,16 +42,8 @@
         ParticleSystem,
         PointEntityClass,
         RemoveKey, // Source 2 (alyx)
-        ResourceChoicesMaterial, // Source 2
-        ResourceChoicesModel, // Source 2
-        ResourceChoicesParticle, // Source 2
-        ResourceChoicesPostProcessing, // Source 2
-        ResourceChoicesTexture, // Source 2
-        ResourceMaterial, // Source 2
-        ResourceModel, // Source 2
-        ResourceParticle, // Source 2
-        ResourcePostProcessing, // Source 2
-        ResourceTexture, // Source 2
+        Resource, // Source 2
+        ResourceChoices, // Source 2
         Scale, // Quake 3
         Scene,
         Script,
@@ -77,7 +70,6 @@
         PropDataName, // Source 2
         ModelBodyGroup, // Source 2
         ModelClothEffect, // Source 2
-        ResourceSnapshot, // Source 2
         ModelBone, // Source 2
         ModelMorphChannel, // Source 2
     }

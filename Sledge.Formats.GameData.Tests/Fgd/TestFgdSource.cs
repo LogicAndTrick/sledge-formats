@@ -139,20 +139,39 @@ namespace Sledge.Formats.GameData.Tests.Fgd
 ]";
             var format = new FgdFormatter();
             var def = format.Read(fgd);
-            Assert.AreEqual(1, def.ModelDataClasses.Count);
-            Assert.AreEqual(ClassType.ModelAnimEvent, def.ModelDataClasses[0].ClassType);
+            Assert.AreEqual(1, def.Classes.Count);
+            Assert.AreEqual(ClassType.ModelAnimEvent, def.Classes[0].ClassType);
 
-            var durInfo = def.ModelDataClasses[0].Dictionaries[0];
+            var durInfo = def.Classes[0].Dictionaries[0];
             Assert.AreEqual("duration_info", durInfo.Name);
             Assert.AreEqual("Length", durInfo["LengthSeconds"].Value);
             Assert.AreEqual("Speed", durInfo["Speed"].Value);
             Assert.AreEqual("Value", durInfo["Value"].Value);
 
-            var p1 = def.ModelDataClasses[0].Properties[0];
+            var p1 = def.Classes[0].Properties[0];
 
             Assert.AreEqual("input", p1.Name);
             Assert.AreEqual(VariableType.String, p1.VariableType);
             Assert.AreEqual("Input", p1.Description);
+        }
+
+        [TestMethod]
+        public void TestGenericVariableTypes()
+        {
+            const string fgd = @"
+@PointClass = test
+[
+    resourceTexture(resource:texture) : ""Resource:Texture""
+    arrayStructMapExtension(array:struct:map_extension) : ""Array:Struct:MapExtension""
+]";
+            var format = new FgdFormatter();
+            var def = format.Read(fgd);
+            Assert.AreEqual(1, def.Classes.Count);
+            var cls = def.Classes[0];
+            Assert.AreEqual(VariableType.Resource, cls.Properties[0].VariableType);
+            Assert.AreEqual("texture", cls.Properties[0].SubType);
+            Assert.AreEqual(VariableType.Array, cls.Properties[1].VariableType);
+            Assert.AreEqual("struct:map_extension", cls.Properties[1].SubType);
         }
 
         [TestMethod]
@@ -185,14 +204,14 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             var format = new FgdFormatter();
             var def = format.Read(fgd);
 
-            var locatorAxis = def.ModelDataClasses[0].Dictionaries[0];
+            var locatorAxis = def.Classes[0].Dictionaries[0];
             var locatorAxisTransform = (GameDataDictionary) locatorAxis["transform"].Value;
             Assert.AreEqual("locator_axis", locatorAxis.Name);
             Assert.AreEqual("transform", locatorAxisTransform.Name);
             Assert.AreEqual("anchor_position", locatorAxisTransform["origin_key"].Value);
             Assert.AreEqual("anchor_angles", locatorAxisTransform["angles_key"].Value);
 
-            var physicsjointHinge = def.ModelDataClasses[0].Dictionaries[1];
+            var physicsjointHinge = def.Classes[0].Dictionaries[1];
             var physicsjointHingeTransform = (GameDataDictionary) physicsjointHinge["transform"].Value;
             Assert.AreEqual("physicsjoint_hinge", physicsjointHinge.Name);
             Assert.AreEqual("transform", physicsjointHingeTransform.Name);

@@ -10,7 +10,6 @@ namespace Sledge.Formats.GameData.Objects
         public int? MapSizeLow { get; set; }
         public int? MapSizeHigh { get; set; }
         public List<GameDataClass> Classes { get; }
-        public List<GameDataClass> ModelDataClasses { get; }
         public List<string> Includes { get; }
         public List<string> MaterialExclusions { get; }
         public List<AutoVisgroupSection> AutoVisgroups { get; }
@@ -21,7 +20,6 @@ namespace Sledge.Formats.GameData.Objects
         public GameDefinition()
         {
             Classes = new List<GameDataClass>();
-            ModelDataClasses = new List<GameDataClass>();
             Includes = new List<string>();
             MaterialExclusions = new List<string>();
             AutoVisgroups = new List<AutoVisgroupSection>();

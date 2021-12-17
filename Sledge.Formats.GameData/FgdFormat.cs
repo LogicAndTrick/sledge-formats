@@ -538,9 +538,7 @@ namespace Sledge.Formats.GameData
 
             Expect(it, TokenType.Symbol, Symbols.CloseBracket);
 
-            var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData || cls.ClassType == ClassType.ModelBreakCommand;
-            if (isModelData) def.ModelDataClasses.Add(cls);
-            else def.MergeClass(cls);
+            def.MergeClass(cls);
         }
 
         private static void ParseGameDataDictionary(IEnumerator<Token> it, GameDataDictionary dict)
@@ -607,7 +605,7 @@ namespace Sledge.Formats.GameData
                 var type = ParseVariableType(it);
                 Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
-                var io = new IO(iotype, type, name);
+                var io = new IO(iotype, type.type, type.subType, name);
                 cls.InOuts.Add(io);
                 if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
                 {
@@ -624,7 +622,7 @@ namespace Sledge.Formats.GameData
                 var type = ParseVariableType(it);
                 Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
-                var prop = new Property(name, type);
+                var prop = new Property(name, type.type, type.subType);
                 cls.Properties.Add(prop);
 
                 var next = it.Current;
@@ -801,23 +799,27 @@ namespace Sledge.Formats.GameData
             opt.Details = ParseAppendedString(it);
         }
 
-        private VariableType ParseVariableType(IEnumerator<Token> it)
+        private (VariableType type, string subType) ParseVariableType(IEnumerator<Token> it)
         {
             var token = it.Current;
             Debug.Assert(token != null, nameof(token) + " != null");
 
             var type = Expect(it, TokenType.Name).Value;
-            // support the source2 `resource:model` syntax...
-            if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
+
+            var subType = "";
+            // support the source2 `resource:model` syntax... (also `array:struct:map_extension`)
+            while (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
             {
+                if (subType.Length > 0) subType += ":";
                 it.MoveNext();
-                type += Expect(it, TokenType.Name).Value;
+                subType += Expect(it, TokenType.Name).Value;
             }
+            if (subType.Length > 0) Console.WriteLine(type + ":" +subType);
 
             type = type.Replace("_", "").ToLower();
             if (Enum.TryParse(type, true, out VariableType vt))
             {
-                return vt;
+                return (vt, subType);
             }
 
             throw new Exception($"Parsing error (line {token.Line}, column {token.Column}): Unknown variable type {type}");

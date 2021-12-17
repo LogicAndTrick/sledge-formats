@@ -7,16 +7,18 @@ namespace Sledge.Formats.GameData.Objects
     {
         public string Name { get; set; }
         public VariableType VariableType { get; set; }
+        public string SubType { get; set; }
         public string Description { get; set; }
         public string Details { get; set; }
         public string DefaultValue { get; set; }
         public List<Option> Options { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
 
-        public Property(string name, VariableType variableType)
+        public Property(string name, VariableType variableType, string subType)
         {
             Name = name;
             VariableType = variableType;
+            SubType = subType;
             Description = "";
             Details = "";
             DefaultValue = "";
