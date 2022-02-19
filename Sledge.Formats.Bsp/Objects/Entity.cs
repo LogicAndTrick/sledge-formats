@@ -6,9 +6,23 @@ namespace Sledge.Formats.Bsp.Objects
 {
     public class Entity
     {
-        public int Model { get; set; }
-        public string ClassName { get; set; }
-        public Dictionary<string, string> KeyValues { get; set; }
+        public int Model
+        {
+            get
+            {
+                var val = Get("model", "");
+                return val.Length > 0 && int.TryParse(val.Substring(1), out var m) ? m : 0;
+            }
+            set => KeyValues["model"] = value == 0 ? "" : $"*{value}";
+        }
+
+        public string ClassName
+        {
+            get => Get("classname", "");
+            set => KeyValues["classname"] = value;
+        }
+
+        public Dictionary<string, string> KeyValues { get; }
 
         public Entity()
         {

@@ -124,15 +124,6 @@ namespace Sledge.Formats.Bsp.Lumps
             void SetKeyValue(Entity e, string k, string v)
             {
                 e.KeyValues[k] = v;
-                switch (k)
-                {
-                    case "classname":
-                        e.ClassName = v;
-                        break;
-                    case "model":
-                        if (int.TryParse(v.Substring(1), out var m)) e.Model = m;
-                        break;
-                }
             }
         }
 
@@ -154,19 +145,9 @@ namespace Sledge.Formats.Bsp.Lumps
             {
                 sb.Append("{\n");
 
-                if (entity.Model > 0)
-                {
-                    sb.Append($"\"model\" \"*{entity.Model}\"\n");
-                }
-
                 foreach (var kv in entity.KeyValues.Where(x => x.Key?.Length > 0 && x.Value?.Length > 0))
                 {
                     sb.Append($"\"{kv.Key}\" \"{kv.Value}\"\n");
-                }
-
-                if (entity.ClassName?.Length > 0)
-                {
-                    sb.Append($"\"classname\" \"{entity.ClassName}\"\n");
                 }
 
                 sb.Append("}\n");
