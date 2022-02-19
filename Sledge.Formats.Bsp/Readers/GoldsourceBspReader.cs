@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Sledge.Formats.Bsp.Lumps;
 
 namespace Sledge.Formats.Bsp.Readers
@@ -9,12 +10,12 @@ namespace Sledge.Formats.Bsp.Readers
         public Version SupportedVersion => Version.Goldsource;
         public int NumLumps => (int) Lump.NumLumps;
 
-        public void StartHeader(BspFile file, BinaryReader br)
+        public void StartHeader(BspFile file, BinaryReader br, BspFileOptions options)
         {
             // 
         }
 
-        public Blob ReadBlob(BinaryReader br)
+        public Blob ReadBlob(BinaryReader br, BspFileOptions options)
         {
             return new Blob
             {
@@ -23,12 +24,79 @@ namespace Sledge.Formats.Bsp.Readers
             };
         }
 
-        public void EndHeader(BspFile file, BinaryReader br)
+        public void EndHeader(BspFile file, BinaryReader br, BspFileOptions options)
         {
-            //
+            var bshiftFormat = options.UseBlueShiftFormat;
+            if (options.AutodetectBlueShiftFormat)
+            {
+                bshiftFormat = false;
+
+                // The first two lumps are switched in the blue shift format
+                // Since the first lump is entities and the second is planes,
+                // use some basic heuristics to try and detect if they are swapped.
+                // If unsure, assume it's not the blue shift format.
+                var entBlob = file.Blobs.FirstOrDefault(x => (Lump) x.Index == Lump.Entities);
+                var plnBlob = file.Blobs.FirstOrDefault(x => (Lump) x.Index == Lump.Planes);
+                if (entBlob.Offset > 0 && plnBlob.Offset > 0)
+                {
+                    var pos = br.BaseStream.Position;
+
+                    // make sure we hit at least 2 of the 3 heuristics:
+                    // - entity blob is a multiple of the plane struct size
+                    // - plane blob is NOT a multiple of the plane struct size
+                    // - entity blob starts with '{'
+                    br.BaseStream.Seek(entBlob.Offset, SeekOrigin.Begin);
+                    var entBlobStart = br.ReadByte();
+                    const int planeStructSize = (3 * 4) + 4 + 4; // float(3), float, int32
+
+                    var confidence = 0;
+                    if (entBlob.Length % planeStructSize == 0) confidence++;
+                    if (plnBlob.Length % planeStructSize != 0) confidence++;
+                    if (entBlobStart == '{') confidence++;
+
+                    bshiftFormat = confidence >= 2;
+
+                    br.BaseStream.Seek(pos, SeekOrigin.Begin);
+                }
+            }
+
+            if (bshiftFormat)
+            {
+                // Switch the entity and planes blobs around
+                var entBlob = file.Blobs.FirstOrDefault(x => (Lump) x.Index == Lump.Entities);
+                var plnBlob = file.Blobs.FirstOrDefault(x => (Lump) x.Index == Lump.Planes);
+                if (entBlob.Offset > 0 && plnBlob.Offset > 0)
+                {
+                    // Blob is a struct so we need to go through this... not sure why I made that decision
+                    for (var i = 0; i < file.Blobs.Count; i++)
+                    {
+                        var idx = (Lump)file.Blobs[i].Index;
+                        if (idx == Lump.Entities)
+                        {
+                            file.Blobs[i] = new Blob
+                            {
+                                Index = entBlob.Index,
+                                Offset = plnBlob.Offset,
+                                Length = plnBlob.Length
+                            };
+                        }
+                        else if (idx == Lump.Planes)
+                        {
+                            file.Blobs[i] = new Blob
+                            {
+                                Index = plnBlob.Index,
+                                Offset = entBlob.Offset,
+                                Length = entBlob.Length
+                            };
+                        }
+                    }
+                }
+            }
+
+            options.UseBlueShiftFormat = bshiftFormat;
         }
 
-        public ILump GetLump(Blob blob)
+        public ILump GetLump(Blob blob, BspFileOptions options)
         {
             switch ((Lump) blob.Index)
             {

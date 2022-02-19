@@ -16,7 +16,7 @@ namespace Sledge.Formats.Bsp.Writers
             bw.Seek(headerSize, SeekOrigin.Current);
         }
 
-        public void WriteHeader(BspFile file, IEnumerable<Blob> blobs, BinaryWriter bw)
+        public void WriteHeader(BspFile file, IEnumerable<Blob> blobs, BinaryWriter bw, BspFileOptions options)
         {
             bw.Write((int) Version.Goldsource);
             foreach (var blob in blobs)
@@ -26,7 +26,7 @@ namespace Sledge.Formats.Bsp.Writers
             }
         }
 
-        public IEnumerable<ILump> GetLumps(BspFile bsp)
+        public IEnumerable<ILump> GetLumps(BspFile bsp, BspFileOptions options)
         {
             var types = new[]
             {
@@ -46,6 +46,8 @@ namespace Sledge.Formats.Bsp.Writers
                 typeof(Surfedges),
                 typeof(Models),
             };
+
+            if (options.UseBlueShiftFormat) (types[0], types[1]) = (types[1], types[0]);
 
             return types
                 .Select(x => bsp.Lumps.FirstOrDefault(l => l.GetType() == x) ?? Activator.CreateInstance(x))

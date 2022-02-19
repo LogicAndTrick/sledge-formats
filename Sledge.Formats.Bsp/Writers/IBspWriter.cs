@@ -11,8 +11,8 @@ namespace Sledge.Formats.Bsp.Writers
         Version SupportedVersion { get; }
 
         void SeekToFirstLump(BinaryWriter bw);
-        void WriteHeader(BspFile file, IEnumerable<Blob> blobs, BinaryWriter bw);
+        void WriteHeader(BspFile file, IEnumerable<Blob> blobs, BinaryWriter bw, BspFileOptions options);
 
-        IEnumerable<ILump> GetLumps(BspFile bsp);
+        IEnumerable<ILump> GetLumps(BspFile bsp, BspFileOptions options);
     }
 }

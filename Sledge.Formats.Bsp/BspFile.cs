@@ -15,9 +15,11 @@ namespace Sledge.Formats.Bsp
         public Version Version { get; set; }
         public List<Blob> Blobs { get; set; }
         public List<ILump> Lumps { get; set; }
+        public BspFileOptions Options { get; set; }
 
-        public BspFile(Stream stream)
+        public BspFile(Stream stream, BspFileOptions options = null)
         {
+            Options = (options ?? BspFileOptions.Default).Copy();
             using (var br = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 // Read the version number
@@ -37,23 +39,23 @@ namespace Sledge.Formats.Bsp
                 // Initialise the reader
                 var reader = _readers.First(x => x.SupportedVersion == Version);
 
-                reader.StartHeader(this, br);
+                reader.StartHeader(this, br, Options);
 
                 // Read the blobs
                 Blobs = new List<Blob>();
                 for (var i = 0; i < reader.NumLumps; i++)
                 {
-                    var blob = reader.ReadBlob(br);
+                    var blob = reader.ReadBlob(br, Options);
                     blob.Index = i;
                     Blobs.Add(blob);
                 }
 
-                reader.EndHeader(this, br);
+                reader.EndHeader(this, br, Options);
 
                 Lumps = new List<ILump>();
                 foreach (var blob in Blobs)
                 {
-                    var lump = reader.GetLump(blob);
+                    var lump = reader.GetLump(blob, Options);
                     if (lump == null) continue;
 
                     var pos = br.BaseStream.Position;
@@ -84,7 +86,7 @@ namespace Sledge.Formats.Bsp
             using (var bw = new BinaryWriter(s, Encoding.ASCII, true))
             {
                 writer.SeekToFirstLump(bw);
-                var lumps = writer.GetLumps(this)
+                var lumps = writer.GetLumps(this, Options)
                     .Select((x, i) => new Blob
                     {
                         Offset = (int) bw.BaseStream.Position,
@@ -93,7 +95,7 @@ namespace Sledge.Formats.Bsp
                     })
                     .ToList();
                 bw.Seek(0, SeekOrigin.Begin);
-                writer.WriteHeader(this, lumps, bw);
+                writer.WriteHeader(this, lumps, bw, Options);
             }
         }
 

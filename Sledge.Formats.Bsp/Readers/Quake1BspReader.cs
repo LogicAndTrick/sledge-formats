@@ -9,12 +9,12 @@ namespace Sledge.Formats.Bsp.Readers
         public Version SupportedVersion => Version.Quake1;
         public int NumLumps => (int) Lump.NumLumps;
 
-        public void StartHeader(BspFile file, BinaryReader br)
+        public void StartHeader(BspFile file, BinaryReader br, BspFileOptions options)
         {
             // 
         }
 
-        public Blob ReadBlob(BinaryReader br)
+        public Blob ReadBlob(BinaryReader br, BspFileOptions options)
         {
             return new Blob
             {
@@ -23,12 +23,12 @@ namespace Sledge.Formats.Bsp.Readers
             };
         }
 
-        public void EndHeader(BspFile file, BinaryReader br)
+        public void EndHeader(BspFile file, BinaryReader br, BspFileOptions options)
         {
             //
         }
 
-        public ILump GetLump(Blob blob)
+        public ILump GetLump(Blob blob, BspFileOptions options)
         {
             switch ((Lump) blob.Index)
             {

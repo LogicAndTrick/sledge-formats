@@ -8,10 +8,10 @@ namespace Sledge.Formats.Bsp.Readers
         Version SupportedVersion { get; }
         int NumLumps { get; }
 
-        void StartHeader(BspFile file, BinaryReader br);
-        Blob ReadBlob(BinaryReader br);
-        void EndHeader(BspFile file, BinaryReader br);
+        void StartHeader(BspFile file, BinaryReader br, BspFileOptions options);
+        Blob ReadBlob(BinaryReader br, BspFileOptions options);
+        void EndHeader(BspFile file, BinaryReader br, BspFileOptions options);
 
-        ILump GetLump(Blob blob);
+        ILump GetLump(Blob blob, BspFileOptions options);
     }
 }
