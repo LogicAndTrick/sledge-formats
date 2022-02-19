@@ -23,6 +23,7 @@ namespace Sledge.Formats.Bsp.Lumps
             for (var i = 0; i < numTextures; i++) offsets[i] = br.ReadInt32();
             foreach (var offset in offsets)
             {
+                if (offset < 0) continue; // ignore negative offsets
                 br.BaseStream.Seek(blob.Offset + offset, SeekOrigin.Begin);
                 var tex = MipTexture.Read(br, version == Version.Goldsource);
                 _textures.Add(tex);
