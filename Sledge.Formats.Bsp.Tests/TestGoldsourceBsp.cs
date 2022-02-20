@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Bsp.Lumps;
@@ -14,13 +13,12 @@ namespace Sledge.Formats.Bsp.Tests
         private static MemoryStream GetFile(string name)
         {
             var assem = Assembly.GetExecutingAssembly();
-            var files = new List<(string name, Stream stream)>();
 
-            name = assem.GetName().Name + ".Resources." + name.Replace('/', '.') + ".gz";
+            name = assem.GetName().Name + ".Resources." + name.Replace('/', '.');
+            var res = assem.GetManifestResourceStream(name)!;
 
-            using var gz = new GZipStream(assem.GetManifestResourceStream(name)!, CompressionMode.Decompress, false);
             var ms = new MemoryStream();
-            gz.CopyTo(ms);
+            res.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
             return ms;
         }
@@ -74,6 +72,13 @@ namespace Sledge.Formats.Bsp.Tests
                 }
             });
         }
+
+        [TestMethod]
+        public void TestFalsePositiveBlueShiftFormatMap()
+        {
+            using var file = GetFile("goldsource/c1a0b.bsp");
+            var bsp = new BspFile(file);
+        }
         
         [TestMethod]
         public void TestThatOneFileWithANegativeTextureOffest()
@@ -115,6 +120,32 @@ namespace Sledge.Formats.Bsp.Tests
             CollectionAssert.AreEqual(orig[16..20], bshi[8..12]); // length (swapped)
             CollectionAssert.AreEqual(orig[20..124], bshi[20..124]); // rest of the header is the same
             Assert.AreEqual(orig.Length, bshi.Length); // length is the same
+        }
+
+        [TestMethod]
+        public void TestAllBlueShiftMapsAreDetectedAsBlueShift()
+        {
+            var random = new Random();
+            const string blueShiftMapsFolder = @"F:\Steam\steamapps\common\Half-Life\bshift\maps";
+            foreach (var file in Directory.GetFiles(blueShiftMapsFolder, "*.bsp").OrderBy(x => random.Next()).Take(20))
+            {
+                using var stream = File.OpenRead(file);
+                var bsp = new BspFile(stream);
+                Assert.AreEqual(true, bsp.Options.UseBlueShiftFormat, $"{Path.GetFileName(file)} was not detected as a blue shift format map.");
+            }
+        }
+
+        [TestMethod]
+        public void TestAllValveMapsAreDetectedAsNotBlueShift()
+        {
+            var random = new Random();
+            const string halfLifeMapsFolder = @"F:\Steam\steamapps\common\Half-Life\valve\maps";
+            foreach (var file in Directory.GetFiles(halfLifeMapsFolder, "*.bsp").OrderBy(x => random.Next()).Take(20))
+            {
+                using var stream = File.OpenRead(file);
+                var bsp = new BspFile(stream);
+                Assert.AreEqual(false, bsp.Options.UseBlueShiftFormat, $"{Path.GetFileName(file)} was not detected as a blue shift format map.");
+            }
         }
     }
 }

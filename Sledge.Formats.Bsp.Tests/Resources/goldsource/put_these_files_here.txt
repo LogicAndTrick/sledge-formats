@@ -1,0 +1,6 @@
+I've ignored these files because including them is questionable in terms of copyright.
+put them here so it loads the stuff
+
+ba_hazard6: Half-Life: Blue Shift
+c1a0b: Half-Life
+grunts2: Sven Co-op 5

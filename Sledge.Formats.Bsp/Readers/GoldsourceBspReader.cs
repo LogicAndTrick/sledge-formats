@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Sledge.Formats.Bsp.Lumps;
 
 namespace Sledge.Formats.Bsp.Readers
@@ -41,20 +42,14 @@ namespace Sledge.Formats.Bsp.Readers
                 {
                     var pos = br.BaseStream.Position;
 
-                    // make sure we hit at least 2 of the 3 heuristics:
+                    // make sure the following is true
                     // - entity blob is a multiple of the plane struct size
-                    // - plane blob is NOT a multiple of the plane struct size
-                    // - entity blob starts with '{'
-                    br.BaseStream.Seek(entBlob.Offset, SeekOrigin.Begin);
-                    var entBlobStart = br.ReadByte();
+                    // - plane blob starts with '{\n'
+                    br.BaseStream.Seek(plnBlob.Offset, SeekOrigin.Begin);
+                    var plnBlobStart = plnBlob.Length < 2 ? "" : br.ReadFixedLengthString(Encoding.ASCII, 2);
                     const int planeStructSize = (3 * 4) + 4 + 4; // float(3), float, int32
 
-                    var confidence = 0;
-                    if (entBlob.Length % planeStructSize == 0) confidence++;
-                    if (plnBlob.Length % planeStructSize != 0) confidence++;
-                    if (entBlobStart == '{') confidence++;
-
-                    bshiftFormat = confidence >= 2;
+                    bshiftFormat = entBlob.Length % planeStructSize == 0 && plnBlobStart == "{\n";
 
                     br.BaseStream.Seek(pos, SeekOrigin.Begin);
                 }

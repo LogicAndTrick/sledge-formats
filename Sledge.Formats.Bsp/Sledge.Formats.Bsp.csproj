@@ -4,15 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>LogicAndTrick</Authors>
     <Description>A BSP parser for Half-Life and Quake 1. Currently supports Quake 1 (v29), Quake 2 (IBSP v38), and Half-Life 1 (v30) BSP formats.</Description>
-    <Copyright>2020 LogicAndTrick</Copyright>
+    <Copyright>2022 LogicAndTrick</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Add support for blue shift format</PackageReleaseNotes>
-    <Version>1.0.2</Version>
+    <PackageReleaseNotes>Fix bug in blue shift format detection</PackageReleaseNotes>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

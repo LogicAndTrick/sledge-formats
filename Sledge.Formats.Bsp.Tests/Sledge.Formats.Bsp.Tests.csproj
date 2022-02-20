@@ -8,15 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\goldsource\aaa.bsp.gz" />
-    <None Remove="Resources\goldsource\ba_hazard6.bsp.gz" />
-    <None Remove="Resources\goldsource\grunts2.bsp.gz" />
+    <None Remove="Resources\goldsource\aaa.bsp" />
+    <None Remove="Resources\goldsource\ba_hazard6.bsp" />
+    <None Remove="Resources\goldsource\c1a0b.bsp" />
+    <None Remove="Resources\goldsource\grunts2.bsp" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\goldsource\aaa.bsp.gz" />
-    <EmbeddedResource Include="Resources\goldsource\ba_hazard6.bsp.gz" />
-    <EmbeddedResource Include="Resources\goldsource\grunts2.bsp.gz" />
+    <EmbeddedResource Include="Resources\goldsource\aaa.bsp" />
+    <EmbeddedResource Include="Resources\goldsource\ba_hazard6.bsp" />
+    <EmbeddedResource Include="Resources\goldsource\c1a0b.bsp" />
+    <EmbeddedResource Include="Resources\goldsource\grunts2.bsp" />
   </ItemGroup>
 
   <ItemGroup>
