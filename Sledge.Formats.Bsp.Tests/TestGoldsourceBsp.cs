@@ -12,10 +12,14 @@ namespace Sledge.Formats.Bsp.Tests
     {
         private static MemoryStream GetFile(string name)
         {
-            var assem = Assembly.GetExecutingAssembly();
-
-            name = assem.GetName().Name + ".Resources." + name.Replace('/', '.');
-            var res = assem.GetManifestResourceStream(name)!;
+            // Walk up the folder tree until we hit Sledge.Formats.Bsp.Tests
+            var dir = Environment.CurrentDirectory;
+            while (dir != null && !File.Exists(Path.Combine(dir, "Resources", name)))
+            {
+                dir = Path.GetDirectoryName(dir);
+            }
+            var file = Path.Combine(dir, "Resources", name);
+            using var res = File.OpenRead(file);
 
             var ms = new MemoryStream();
             res.CopyTo(ms);

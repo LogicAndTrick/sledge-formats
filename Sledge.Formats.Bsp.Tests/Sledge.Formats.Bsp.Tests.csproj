@@ -8,20 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\goldsource\aaa.bsp" />
-    <None Remove="Resources\goldsource\ba_hazard6.bsp" />
-    <None Remove="Resources\goldsource\c1a0b.bsp" />
-    <None Remove="Resources\goldsource\grunts2.bsp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\goldsource\aaa.bsp" />
-    <EmbeddedResource Include="Resources\goldsource\ba_hazard6.bsp" />
-    <EmbeddedResource Include="Resources\goldsource\c1a0b.bsp" />
-    <EmbeddedResource Include="Resources\goldsource\grunts2.bsp" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.7" />
