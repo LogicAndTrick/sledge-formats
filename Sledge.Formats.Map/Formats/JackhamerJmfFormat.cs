@@ -10,6 +10,7 @@ using Path = Sledge.Formats.Map.Objects.Path;
 
 namespace Sledge.Formats.Map.Formats
 {
+    // Some code borrowed from https://github.com/pwitvoet/mess/blob/master/MESS/Formats/JmfFormat.cs
     public class JackhammerJmfFormat : IMapFormat
     {
         public string Name => "Jackhammer JMF";
@@ -168,10 +169,10 @@ namespace Sledge.Formats.Map.Formats
                 var vis = new Camera
                 {
                     EyePosition = br.ReadVector3(),
-                    LookPosition = br.ReadVector3()
+                    LookPosition = br.ReadVector3(),
+                    IsActive = ((JmfFlags) br.ReadInt32()).HasFlag(JmfFlags.Selected)
                 };
-                br.ReadInt32(); // something
-                br.ReadInt32(); // something 2
+                br.ReadRGBAColour(); // colour
                 map.Cameras.Add(vis);
             }
         }
@@ -247,7 +248,7 @@ namespace Sledge.Formats.Map.Formats
 
                 ent.Flags = br.ReadInt32();
                 ent.GroupID = br.ReadInt32();
-                br.ReadInt32(); // group id again
+                var rootGroupId = br.ReadInt32(); // We don't care about the root group id as we are assembling the tree later
                 ent.Entity.Color = br.ReadRGBAColour();
                 
                 // useless (?) list of 13 strings
@@ -255,7 +256,22 @@ namespace Sledge.Formats.Map.Formats
 
                 ent.Entity.SpawnFlags = br.ReadInt32();
 
-                br.ReadBytes(76); // unknown (!)
+                // Some special properties, but these are duplicated in the keyvalues, so we don't care about them
+                var angles = br.ReadVector3();
+                var rendering = (JmfRendering) br.ReadInt32();
+
+                var fxColor = br.ReadRGBAColour();
+
+                var renderMode = br.ReadInt32();
+                var renderFx = br.ReadInt32();
+                var body = br.ReadInt16();
+                var skin = br.ReadInt16();
+                var sequence = br.ReadInt32();
+                var framerate = br.ReadSingle();
+                var scale = br.ReadSingle();
+                var radius = br.ReadSingle();
+
+                br.ReadBytes(28); // unknown
 
                 var numProps = br.ReadInt32();
                 for (var i = 0; i < numProps; i++)
@@ -295,7 +311,7 @@ namespace Sledge.Formats.Map.Formats
             var numPatches = br.ReadInt32();
             solid.Flags = br.ReadInt32();
             solid.GroupID = br.ReadInt32();
-            br.ReadInt32(); // group id again
+            var rootGroupId = br.ReadInt32(); // We don't care about the root group id as we are assembling the tree later
             solid.Solid.Color = br.ReadRGBAColour();
             
             var numVisgroups = br.ReadInt32();
@@ -322,7 +338,7 @@ namespace Sledge.Formats.Map.Formats
         {
             var face = new Face();
 
-            br.ReadInt32(); // something
+            var renderFlags = br.ReadInt32();
 
             var numVertices = br.ReadInt32();
             ReadSurfaceProperties(face, br);
@@ -335,9 +351,11 @@ namespace Sledge.Formats.Map.Formats
 
             for (var i = 0; i < numVertices; i++)
             {
-                br.ReadVector3(); // texture coordinate
                 face.Vertices.Add(br.ReadVector3());
+                br.ReadVector3(); // texture U/V coordinate
             }
+
+            face.Vertices.Reverse(); // They're backwards...
 
             return face;
         }
@@ -348,7 +366,6 @@ namespace Sledge.Formats.Map.Formats
             {
                 Width = br.ReadInt32(),
                 Height = br.ReadInt32(),
-                
             };
 
             ReadSurfaceProperties(mesh, br);
@@ -439,6 +456,25 @@ namespace Sledge.Formats.Map.Formats
             public int Flags { get; set; }
             public int GroupID { get; set; }
             public Solid Solid { get; set; }
+        }
+
+
+        private enum JmfRendering : int
+        {
+            Glow = 0x00000025, // HL render modes 3 (glow) and 5 (additive)
+            Normal = 0x00000100, // HL render mode 0 (normal)
+            Translucent = 0x00040065, // HL render modes 1 (color) and 2 (texture)
+            TransparentColorKey = 0x00400165, // HL render mode 4 (solid)
+        }
+
+        [Flags]
+        private enum JmfFlags
+        {
+            None = 0x00,
+            PointBased = 0x01,   // Or maybe 'HasOrigin'?
+            Selected = 0x02,
+            Hidden = 0x08,
+            RenderMode = 0x10,   // Any other render mode than 'normal'
         }
     }
 }

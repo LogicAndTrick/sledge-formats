@@ -73,10 +73,10 @@ types:
         type: point
       - id: lookat
         type: point
-      - id: something
+      - id: flags
         type: s4
-      - id: something2
-        type: s4
+      - id: color
+        type: color
   path:
     seq:
       - id: classname
@@ -125,7 +125,7 @@ types:
         type: u4
       - id: group_id
         type: u4
-      - id: group_id_again
+      - id: root_group_id
         type: u4
       - id: color
         type: color
@@ -135,8 +135,30 @@ types:
         repeat-expr: 13
       - id: spawnflags
         type: u4
+      - id: angles
+        size: point
+      - id: rendering
+        type: u4
+      - id: fx_color
+        type: color
+      - id: render_mode
+        type: u4
+      - id: render_fx
+        type: u4
+      - id: body
+        type: u2
+      - id: skin
+        type: u2
+      - id: sequence
+        type: u4
+      - id: framerate
+        type: f4
+      - id: scale
+        type: f4
+      - id: radius
+        type: f4
       - id: unknown
-        size: 76
+        size: 28
       - id: num_keyvalues
         type: s4
       - id: keyvalues
@@ -163,7 +185,7 @@ types:
         type: u4
       - id: group_id
         type: u4
-      - id: group_id_again
+      - id: root_group_id
         type: u4
       - id: color
         type: color
