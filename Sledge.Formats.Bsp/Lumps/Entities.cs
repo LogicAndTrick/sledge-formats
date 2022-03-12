@@ -153,6 +153,8 @@ namespace Sledge.Formats.Bsp.Lumps
                 sb.Append("}\n");
             }
             bw.Write(Encoding.ASCII.GetBytes(sb.ToString()));
+            //Null terminate string.
+            bw.Write((byte)0);
             return (int)(bw.BaseStream.Position - pos);
         }
 

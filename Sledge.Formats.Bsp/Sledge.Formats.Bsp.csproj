@@ -12,7 +12,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
     <PackageReleaseNotes>Fix bug in blue shift format detection</PackageReleaseNotes>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
