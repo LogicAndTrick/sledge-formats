@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace Sledge.Formats.Map.Objects
 {
@@ -9,6 +10,8 @@ namespace Sledge.Formats.Map.Objects
         public string Type { get; set; }
         public PathDirection Direction { get; set; }
         public List<PathNode> Nodes { get; set; }
+        public Color Color { get; set; }
+        public int Flags { get; set; }
 
         public Path()
         {

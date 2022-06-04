@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 
 namespace Sledge.Formats.Map.Objects
 {
@@ -7,5 +8,6 @@ namespace Sledge.Formats.Map.Objects
         public Vector3 EyePosition { get; set; }
         public Vector3 LookPosition { get; set; }
         public bool IsActive { get; set; }
+        public Color Color { get; set; }
     }
 }

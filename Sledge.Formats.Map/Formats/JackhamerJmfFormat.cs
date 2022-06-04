@@ -17,7 +17,7 @@ namespace Sledge.Formats.Map.Formats
         public string Description => "The .jmf file format used by Jackhammer and JACK.";
         public string ApplicationName => "JACK";
         public string Extension => "jmf";
-        public string[] AdditionalExtensions => new[] { "jmf" };
+        public string[] AdditionalExtensions => new[] { "jmx" };
         public string[] SupportedStyleHints => new[] { "" };
 
         public MapFile Read(Stream stream)
@@ -43,8 +43,7 @@ namespace Sledge.Formats.Map.Formats
 
                 var groups = ReadGroups(map, br);
                 ReadVisgroups(map, br);
-                var cordonLow = br.ReadVector3();
-                var cordonHigh = br.ReadVector3();
+                map.CordonBounds = (br.ReadVector3(), br.ReadVector3());
                 ReadCameras(map, br);
                 ReadPaths(map, br);
                 var entities = ReadEntities(map, br);
@@ -166,14 +165,14 @@ namespace Sledge.Formats.Map.Formats
             var numCameras = br.ReadInt32();
             for (var i = 0; i < numCameras; i++)
             {
-                var vis = new Camera
+                var cam = new Camera
                 {
                     EyePosition = br.ReadVector3(),
                     LookPosition = br.ReadVector3(),
-                    IsActive = ((JmfFlags) br.ReadInt32()).HasFlag(JmfFlags.Selected)
+                    IsActive = ((JmfFlags) br.ReadInt32()).HasFlag(JmfFlags.Selected),
+                    Color = br.ReadRGBAColour()
                 };
-                br.ReadRGBAColour(); // colour
-                map.Cameras.Add(vis);
+                map.Cameras.Add(cam);
             }
         }
 
@@ -192,10 +191,10 @@ namespace Sledge.Formats.Map.Formats
             {
                 Type = ReadString(br),
                 Name = ReadString(br),
-                Direction = (PathDirection) br.ReadInt32()
+                Direction = (PathDirection) br.ReadInt32(),
+                Flags = br.ReadInt32(),
+                Color = br.ReadRGBAColour()
             };
-            br.ReadInt32(); // flags
-            br.ReadRGBAColour(); // colour
 
             var numNodes = br.ReadInt32();
             for (var i = 0; i < numNodes; i++)
@@ -215,7 +214,7 @@ namespace Sledge.Formats.Map.Formats
 
                 node.Properties["spawnflags"] = br.ReadInt32().ToString();
 
-                br.ReadRGBAColour(); // colour
+                node.Color = br.ReadRGBAColour();
 
                 var numProps = br.ReadInt32();
                 for (var j = 0; j < numProps; j++)
@@ -259,9 +258,7 @@ namespace Sledge.Formats.Map.Formats
                 // Some special properties, but these are duplicated in the keyvalues, so we don't care about them
                 var angles = br.ReadVector3();
                 var rendering = (JmfRendering) br.ReadInt32();
-
                 var fxColor = br.ReadRGBAColour();
-
                 var renderMode = br.ReadInt32();
                 var renderFx = br.ReadInt32();
                 var body = br.ReadInt16();
@@ -271,7 +268,7 @@ namespace Sledge.Formats.Map.Formats
                 var scale = br.ReadSingle();
                 var radius = br.ReadSingle();
 
-                br.ReadBytes(28); // unknown
+                br.ReadBytes(28); // unknown - these bytes are all 0 in a bunch of different files I tried
 
                 var numProps = br.ReadInt32();
                 for (var i = 0; i < numProps; i++)
@@ -418,8 +415,128 @@ namespace Sledge.Formats.Map.Formats
 
         public void Write(Stream stream, MapFile map, string styleHint)
         {
+            using (var bw = new BinaryWriter(stream, Encoding.ASCII, true))
+            {
+                bw.WriteFixedLengthString(Encoding.ASCII, 4, "JHMF"); // Header
+
+                bw.Write(121); // Version
+                
+                bw.Write(0); // Num export strings (we don't have this information)
+                // No export strings here
+
+                var groups = CreateGroups(map);
+
+                WriteGroups(groups.Values, bw);
+                WriteVisgroups(map, bw);
+                bw.WriteVector3(map.CordonBounds.min);
+                bw.WriteVector3(map.CordonBounds.max);
+                WriteCameras(map, bw);
+                WritePaths(map, bw);
+                WriteEntities(map, groups, bw);
+            }
             throw new NotImplementedException();
         }
+
+        private Dictionary<Group, JmfGroup> CreateGroups(MapFile map)
+        {
+            // In the JMF format, entities cannot have groups within them, only solids - so we only need to traverse nested groups
+            var id = 1;
+            var ret = new Dictionary<Group, JmfGroup>();
+            foreach (var group in map.Worldspawn.Children.OfType<Group>())
+            {
+                CreateGroupsRecursive(0, group);
+            }
+            return ret;
+
+            void CreateGroupsRecursive(int parentId, Group group)
+            {
+                var g = new JmfGroup
+                {
+                    ID = id,
+                    ParentID = parentId,
+                    Color = group.Color,
+                    Flags = 0,
+                    NumObjects = group.FindAll().Count - 1, // includes self so subtract 1
+                };
+                ret[group] = g;
+                id++;
+                foreach (var ch in group.Children.OfType<Group>())
+                {
+                    CreateGroupsRecursive(g.ID, ch);
+                }
+            }
+        }
+
+        private void WriteGroups(IEnumerable<JmfGroup> groups, BinaryWriter bw)
+        {
+            var list = groups.ToList();
+            bw.Write(list.Count);
+            foreach (var g in list)
+            {
+                bw.Write(g.ID);
+                bw.Write(g.ParentID);
+                bw.Write(g.Flags);
+                bw.Write(g.NumObjects);
+                bw.WriteRGBAColour(g.Color);
+                Console.WriteLine($"Group {g.ID} / {g.ParentID} / {g.NumObjects}");
+            }
+        }
+
+        private void WriteVisgroups(MapFile map, BinaryWriter bw)
+        {
+            bw.Write(map.Visgroups.Count);
+            foreach (var vg in map.Visgroups)
+            {
+                WriteString(vg.Name, bw);
+                bw.Write(vg.ID);
+                bw.WriteRGBAColour(vg.Color);
+                bw.Write(vg.Visible);
+            }
+        }
+
+        private void WriteCameras(MapFile map, BinaryWriter bw)
+        {
+            bw.Write(map.Cameras.Count);
+            foreach (var cam in map.Cameras)
+            {
+                bw.WriteVector3(cam.EyePosition);
+                bw.WriteVector3(cam.LookPosition);
+                var flags = JmfFlags.None;
+                if (cam.IsActive) flags |= JmfFlags.Selected;
+                bw.Write((int) flags);
+                bw.WriteRGBAColour(cam.Color);
+            }
+        }
+
+        private void WritePaths(MapFile map, BinaryWriter bw)
+        {
+            bw.Write(map.Paths.Count);
+            foreach (var path in map.Paths)
+            {
+                WritePath(path, bw);
+            }
+        }
+
+        private void WritePath(Path path, BinaryWriter bw)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void WriteEntities(MapFile map, Dictionary<Group, JmfGroup> groups, BinaryWriter bw)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void WriteSolid(Solid solid, Dictionary<Group, JmfGroup> groups, BinaryWriter bw)
+        {
+
+        }
+
+        private void WriteFace(Face face, BinaryWriter bw)
+        {
+
+        }
+
 
         private static string ReadString(BinaryReader br)
         {
@@ -427,6 +544,19 @@ namespace Sledge.Formats.Map.Formats
             if (len < 0) return null;
             var chars = br.ReadChars(len);
             return new string(chars).Trim('\0');
+        }
+
+        private static void WriteString(string s, BinaryWriter bw)
+        {
+            if (s == null)
+            {
+                bw.Write(0);
+            }
+            else
+            {
+                bw.Write(s.Length);
+                bw.Write(s.ToCharArray());
+            }
         }
         
         private class JmfGroup
