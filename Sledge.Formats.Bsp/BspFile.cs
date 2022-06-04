@@ -17,6 +17,19 @@ namespace Sledge.Formats.Bsp
         public List<ILump> Lumps { get; set; }
         public BspFileOptions Options { get; set; }
 
+        /// <summary>
+        /// Create an empty BSP file
+        /// </summary>
+        /// <param name="version">The version of the file</param>
+        /// <param name="options">Options for the file</param>
+        public BspFile(Version version, BspFileOptions options = null)
+        {
+            Version = version;
+            Blobs = new List<Blob>();
+            Lumps = new List<ILump>();
+            Options = options ?? new BspFileOptions();
+        }
+
         public BspFile(Stream stream, BspFileOptions options = null)
         {
             Options = (options ?? BspFileOptions.Default).Copy();
