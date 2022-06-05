@@ -20,4 +20,4 @@ jobs:
     - name: Create packages
       run: dotnet pack --no-build --configuration Release --output . --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Publish packages
-      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json -k ${{secrets.CLIARGS_NUGET}} --skip-duplicate
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate
