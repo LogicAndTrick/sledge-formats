@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Map.Formats;
+using Sledge.Formats.Map.Objects;
+using Path = System.IO.Path;
 
 namespace Sledge.Formats.Map.Tests.Formats
 {
@@ -26,6 +29,17 @@ namespace Sledge.Formats.Map.Tests.Formats
                     }
                 }
             }
+        }
+
+        [TestMethod]
+        public void TestRmfVersion18()
+        {
+            var format = new WorldcraftRmfFormat();
+            var map = format.ReadFromFile(@"D:\Downloads\worldcraft\rmfs\test18.rmf");
+            Assert.AreEqual(0, map.Paths.Count);
+            Assert.AreEqual(0, map.Worldspawn.FindAll().OfType<Group>().Count());
+            Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Entity>().Count());
+            Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Solid>().Count());
         }
     }
 }

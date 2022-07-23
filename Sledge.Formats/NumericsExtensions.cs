@@ -108,5 +108,33 @@ namespace Sledge.Formats
 
             return new Plane(normal, d);
         }
+
+        // https://github.com/ericwa/ericw-tools/blob/master/qbsp/map.cc @TextureAxisFromPlane
+        public static (Vector3 uAxis, Vector3 vAxis, Vector3 snappedNormal) GetQuakeTextureAxes(this Plane plane)
+        {
+            var baseaxis = new[]
+            {
+                new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(0, -1, 0), // floor
+                new Vector3(0, 0, -1), new Vector3(1, 0, 0), new Vector3(0, -1, 0), // ceiling
+                new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, -1), // west wall
+                new Vector3(-1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, -1), // east wall
+                new Vector3(0, 1, 0), new Vector3(1, 0, 0), new Vector3(0, 0, -1), // south wall
+                new Vector3(0, -1, 0), new Vector3(1, 0, 0), new Vector3(0, 0, -1) // north wall
+            };
+
+            var best = 0f;
+            var bestaxis = 0;
+
+            for (var i = 0; i < 6; i++)
+            {
+                var dot = plane.Normal.Dot(baseaxis[i * 3]);
+                if (!(dot > best)) continue;
+
+                best = dot;
+                bestaxis = i;
+            }
+
+            return (baseaxis[bestaxis * 3 + 1], baseaxis[bestaxis * 3 + 2], baseaxis[bestaxis * 3]);
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using Sledge.Formats.Map.Objects;
 using Path = Sledge.Formats.Map.Objects.Path;
 
+// ReSharper disable UnusedParameter.Local - We pass through the version parameter even if we don't need it, for consistency
 namespace Sledge.Formats.Map.Formats
 {
     public class WorldcraftRmfFormat : IMapFormat
@@ -16,7 +17,13 @@ namespace Sledge.Formats.Map.Formats
         public string ApplicationName => "Worldcraft";
         public string Extension => "rmf";
         public string[] AdditionalExtensions => new[] { "rmx" };
-        public string[] SupportedStyleHints => new[] { "2.2" };
+        public string[] SupportedStyleHints => new[] { "1.8", "2.2" };
+
+        public enum RmfVersion
+        {
+            Version18 = 18,
+            Version22 = 22,
+        }
 
         const int MaxVariableStringLength = 127;
 
@@ -24,9 +31,13 @@ namespace Sledge.Formats.Map.Formats
         {
             using (var br = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                // Only RMF version 2.2 is supported for the moment.
-                var version = Math.Round(br.ReadSingle(), 1);
-                Util.Assert(Math.Abs(version - 2.2) < 0.01, $"Unsupported RMF version number. Expected 2.2, got {version}.");
+                // Only RMF versions 1.8 and 2.2 are supported for the moment.
+                var versionDouble = Math.Round(br.ReadSingle(), 1);
+                Util.Assert(
+                    Math.Abs(versionDouble - 2.2) < 0.01 ||
+                    Math.Abs(versionDouble - 1.8) < 0.01,
+                    $"Unsupported RMF version number. Expected 1.8 or 2.2, got {versionDouble}.");
+                var version = (RmfVersion)(int)Math.Round(versionDouble * 10);
 
                 // RMF header test
                 var header = br.ReadFixedLengthString(Encoding.ASCII, 3);
@@ -34,8 +45,8 @@ namespace Sledge.Formats.Map.Formats
 
                 var map = new MapFile();
 
-                ReadVisgroups(map, br);
-                ReadWorldspawn(map, br);
+                ReadVisgroups(map, version, br);
+                ReadWorldspawn(map, version, br);
 
                 // Some RMF files might not have the DOCINFO block so we check if we're at the end of the stream
                 if (stream.Position < stream.Length)
@@ -44,7 +55,7 @@ namespace Sledge.Formats.Map.Formats
                     var docinfo = br.ReadFixedLengthString(Encoding.ASCII, 8);
                     Util.Assert(docinfo == "DOCINFO", $"Incorrect RMF format. Expected 'DOCINFO', got '{docinfo}'.");
 
-                    ReadCameras(map, br);
+                    ReadCameras(map, version, br);
                 }
 
                 return map;
@@ -53,7 +64,7 @@ namespace Sledge.Formats.Map.Formats
 
         #region Read
 
-        private static void ReadVisgroups(MapFile map, BinaryReader br)
+        private static void ReadVisgroups(MapFile map, RmfVersion version, BinaryReader br)
         {
             var numVisgroups = br.ReadInt32();
             for (var i = 0; i < numVisgroups; i++)
@@ -70,34 +81,34 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private static void ReadWorldspawn(MapFile map, BinaryReader br)
+        private static void ReadWorldspawn(MapFile map, RmfVersion version, BinaryReader br)
         {
-            var e = (Worldspawn) ReadObject(map, br);
+            var e = (Worldspawn) ReadObject(map, version, br);
 
             map.Worldspawn.SpawnFlags = e.SpawnFlags;
             foreach (var p in e.Properties) map.Worldspawn.Properties[p.Key] = p.Value;
             map.Worldspawn.Children.AddRange(e.Children);
         }
 
-        private static MapObject ReadObject(MapFile map, BinaryReader br)
+        private static MapObject ReadObject(MapFile map, RmfVersion version, BinaryReader br)
         {
             var type = br.ReadCString();
             switch (type)
             {
                 case "CMapWorld":
-                    return ReadRoot(map, br);
+                    return ReadRoot(map, version, br);
                 case "CMapGroup":
-                    return ReadGroup(map, br);
+                    return ReadGroup(map, version, br);
                 case "CMapSolid":
-                    return ReadSolid(map, br);
+                    return ReadSolid(map, version, br);
                 case "CMapEntity":
-                    return ReadEntity(map, br);
+                    return ReadEntity(map, version, br);
                 default:
                     throw new ArgumentOutOfRangeException("Unknown RMF map object: " + type);
             }
         }
 
-        private static void ReadMapBase(MapFile map, MapObject obj, BinaryReader br)
+        private static void ReadMapBase(MapFile map, RmfVersion version, MapObject obj, BinaryReader br)
         {
             var visgroupId = br.ReadInt32();
             if (visgroupId > 0)
@@ -110,25 +121,25 @@ namespace Sledge.Formats.Map.Formats
             var numChildren = br.ReadInt32();
             for (var i = 0; i < numChildren; i++)
             {
-                var child = ReadObject(map, br);
+                var child = ReadObject(map, version, br);
                 if (child != null) obj.Children.Add(child);
             }
         }
 
-        private static Worldspawn ReadRoot(MapFile map, BinaryReader br)
+        private static Worldspawn ReadRoot(MapFile map, RmfVersion version, BinaryReader br)
         {
             var wld = new Worldspawn();
-            ReadMapBase(map, wld, br);
-            ReadEntityData(wld, br);
+            ReadMapBase(map, version, wld, br);
+            ReadEntityData(version, wld, br);
             var numPaths = br.ReadInt32();
             for (var i = 0; i < numPaths; i++)
             {
-                map.Paths.Add(ReadPath(br));
+                map.Paths.Add(ReadPath(version, br));
             }
             return wld;
         }
 
-        private static Path ReadPath(BinaryReader br)
+        private static Path ReadPath(RmfVersion version, BinaryReader br)
         {
             var path = new Path
             {
@@ -158,31 +169,31 @@ namespace Sledge.Formats.Map.Formats
             return path;
         }
 
-        private static Group ReadGroup(MapFile map, BinaryReader br)
+        private static Group ReadGroup(MapFile map, RmfVersion version, BinaryReader br)
         {
             var grp = new Group();
-            ReadMapBase(map, grp, br);
+            ReadMapBase(map, version, grp, br);
             return grp;
         }
 
-        private static Solid ReadSolid(MapFile map, BinaryReader br)
+        private static Solid ReadSolid(MapFile map, RmfVersion version, BinaryReader br)
         {
             var sol = new Solid();
-            ReadMapBase(map, sol, br);
+            ReadMapBase(map, version, sol, br);
             var numFaces = br.ReadInt32();
             for (var i = 0; i < numFaces; i++)
             {
-                var face = ReadFace(br);
+                var face = ReadFace(version, br);
                 sol.Faces.Add(face);
             }
             return sol;
         }
 
-        private static Entity ReadEntity(MapFile map, BinaryReader br)
+        private static Entity ReadEntity(MapFile map, RmfVersion version, BinaryReader br)
         {
             var ent = new Entity();
-            ReadMapBase(map, ent, br);
-            ReadEntityData(ent, br);
+            ReadMapBase(map, version, ent, br);
+            ReadEntityData(version, ent, br);
             br.ReadBytes(2); // Unused
             var origin = br.ReadVector3();
             ent.Properties["origin"] = $"{origin.X.ToString("0.000", CultureInfo.InvariantCulture)} {origin.Y.ToString("0.000", CultureInfo.InvariantCulture)} {origin.Z.ToString("0.000", CultureInfo.InvariantCulture)}";
@@ -190,7 +201,7 @@ namespace Sledge.Formats.Map.Formats
             return ent;
         }
 
-        private static void ReadEntityData(Entity e, BinaryReader br)
+        private static void ReadEntityData(RmfVersion version, Entity e, BinaryReader br)
         {
             e.ClassName = br.ReadCString();
             br.ReadBytes(4); // Unused bytes
@@ -208,17 +219,33 @@ namespace Sledge.Formats.Map.Formats
             br.ReadBytes(12); // More unused bytes
         }
 
-        private static Face ReadFace(BinaryReader br)
+        private static Face ReadFace(RmfVersion version, BinaryReader br)
         {
+            /*
+             * RMF version differences for faces:
+             * 1.8: quake style - texname, rotation, xshift, yshift, xscale, yscale
+             * 2.2: valve style - texname, uaxis, xshift, vaxis, yshift, rotation, xscale, yscale
+             */
+
             var face = new Face();
             var textureName = br.ReadFixedLengthString(Encoding.ASCII, 256);
             br.ReadBytes(4); // Unused
             face.TextureName = textureName;
-            face.UAxis = br.ReadVector3();
-            face.XShift = br.ReadSingle();
-            face.VAxis = br.ReadVector3();
-            face.YShift = br.ReadSingle();
-            face.Rotation = br.ReadSingle();
+            if (version == RmfVersion.Version18)
+            {
+                // We need to use quake editor logic to work out the texture axes, for that we need the plane data - see below
+                face.XShift = br.ReadSingle();
+                face.YShift = br.ReadSingle();
+                face.Rotation = br.ReadSingle();
+            }
+            else // if (version == RmfVersion.Version22)
+            {
+                face.UAxis = br.ReadVector3();
+                face.XShift = br.ReadSingle();
+                face.VAxis = br.ReadVector3();
+                face.YShift = br.ReadSingle();
+                face.Rotation = br.ReadSingle();
+            }
             face.XScale = br.ReadSingle();
             face.YScale = br.ReadSingle();
             br.ReadBytes(16); // Unused
@@ -228,10 +255,15 @@ namespace Sledge.Formats.Map.Formats
                 face.Vertices.Add(br.ReadVector3());
             }
             face.Plane = br.ReadPlane();
+            if (version == RmfVersion.Version18)
+            {
+                // Now work out what the texture axes are
+                (face.UAxis, face.VAxis, _) = face.Plane.GetQuakeTextureAxes();
+            }
             return face;
         }
 
-        private static void ReadCameras(MapFile map, BinaryReader br)
+        private static void ReadCameras(MapFile map, RmfVersion version, BinaryReader br)
         {
             br.ReadSingle(); // Appears to be a version number for camera data. Unused.
             var activeCamera = br.ReadInt32();
@@ -252,6 +284,10 @@ namespace Sledge.Formats.Map.Formats
 
         public void Write(Stream stream, MapFile map, string styleHint)
         {
+            if (!String.IsNullOrWhiteSpace(styleHint) && styleHint != "2.2")
+            {
+                throw new NotImplementedException("Only saving v2.2 RMFs is supported.");
+            }
             using (var bw = new BinaryWriter(stream, Encoding.ASCII, true))
             {
                 // RMF 2.2 header

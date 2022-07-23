@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,16 +7,16 @@
     <Company></Company>
     <Product />
     <Description>This is the base package for Sledge.Formats. It contains parsers for Quake MipTexture, Valve Liblist, and Valve VDF formats. It also contains data structures used in other Sledge.Formats packages, such as geometry classes.</Description>
-    <Copyright>2020 LogicAndTrick</Copyright>
+    <Copyright>2022 LogicAndTrick</Copyright>
     <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve liblist vdf</PackageTags>
-    <PackageReleaseNotes>Add very basic pointfile support</PackageReleaseNotes>
+    <PackageReleaseNotes>Add support for RMF v1.8</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.6</Version>
+    <Version>1.0.7</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
