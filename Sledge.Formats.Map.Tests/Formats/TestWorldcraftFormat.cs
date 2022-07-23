@@ -32,10 +32,32 @@ namespace Sledge.Formats.Map.Tests.Formats
         }
 
         [TestMethod]
+        public void TestRmfVersion22()
+        {
+            var format = new WorldcraftRmfFormat();
+            var map = format.ReadFromFile(@"D:\Downloads\worldcraft\rmfs\test22.rmf");
+            Assert.AreEqual(0, map.Paths.Count);
+            Assert.AreEqual(0, map.Worldspawn.FindAll().OfType<Group>().Count());
+            Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Entity>().Count());
+            Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Solid>().Count());
+        }
+
+        [TestMethod]
         public void TestRmfVersion18()
         {
             var format = new WorldcraftRmfFormat();
             var map = format.ReadFromFile(@"D:\Downloads\worldcraft\rmfs\test18.rmf");
+            Assert.AreEqual(0, map.Paths.Count);
+            Assert.AreEqual(0, map.Worldspawn.FindAll().OfType<Group>().Count());
+            Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Entity>().Count());
+            Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Solid>().Count());
+        }
+
+        [TestMethod]
+        public void TestRmfVersion16()
+        {
+            var format = new WorldcraftRmfFormat();
+            var map = format.ReadFromFile(@"D:\Downloads\worldcraft\rmfs\test16.rmf");
             Assert.AreEqual(0, map.Paths.Count);
             Assert.AreEqual(0, map.Worldspawn.FindAll().OfType<Group>().Count());
             Assert.AreEqual(1, map.Worldspawn.FindAll().OfType<Entity>().Count());

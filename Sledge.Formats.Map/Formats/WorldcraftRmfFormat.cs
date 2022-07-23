@@ -17,13 +17,7 @@ namespace Sledge.Formats.Map.Formats
         public string ApplicationName => "Worldcraft";
         public string Extension => "rmf";
         public string[] AdditionalExtensions => new[] { "rmx" };
-        public string[] SupportedStyleHints => new[] { "1.8", "2.2" };
-
-        public enum RmfVersion
-        {
-            Version18 = 18,
-            Version22 = 22,
-        }
+        public string[] SupportedStyleHints => new[] { "1.6", "1.8", "2.2" };
 
         const int MaxVariableStringLength = 127;
 
@@ -35,7 +29,8 @@ namespace Sledge.Formats.Map.Formats
                 var versionDouble = Math.Round(br.ReadSingle(), 1);
                 Util.Assert(
                     Math.Abs(versionDouble - 2.2) < 0.01 ||
-                    Math.Abs(versionDouble - 1.8) < 0.01,
+                    Math.Abs(versionDouble - 1.8) < 0.01 ||
+                    Math.Abs(versionDouble - 1.6) < 0.01,
                     $"Unsupported RMF version number. Expected 1.8 or 2.2, got {versionDouble}.");
                 var version = (RmfVersion)(int)Math.Round(versionDouble * 10);
 
@@ -223,15 +218,25 @@ namespace Sledge.Formats.Map.Formats
         {
             /*
              * RMF version differences for faces:
-             * 1.8: quake style - texname, rotation, xshift, yshift, xscale, yscale
-             * 2.2: valve style - texname, uaxis, xshift, vaxis, yshift, rotation, xscale, yscale
+             * 1.6: quake style - texname(40) , rotation, xshift, yshift, xscale, yscale, unused(4)
+             * 1.8: quake style - texname(256), rotation, xshift, yshift, xscale, yscale, unused(16)
+             * 2.2: valve style - texname(256), uaxis, xshift, vaxis, yshift, rotation, xscale, yscale, unused(16)
              */
 
             var face = new Face();
-            var textureName = br.ReadFixedLengthString(Encoding.ASCII, 256);
-            br.ReadBytes(4); // Unused
-            face.TextureName = textureName;
-            if (version == RmfVersion.Version18)
+            if (version <= RmfVersion.Version16)
+            {
+                face.TextureName = br.ReadFixedLengthString(Encoding.ASCII, 40);
+            }
+            else
+            {
+                // Rather than 256 + 4 unused bytes, the texture name is likely 260 bytes as that is the maximum in Windows:
+                // https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry
+                // In the Windows API, the maximum length for a path is MAX_PATH, which is defined as 260 characters.
+                face.TextureName = br.ReadFixedLengthString(Encoding.ASCII, 260);
+            }
+
+            if (version <= RmfVersion.Version18)
             {
                 // We need to use quake editor logic to work out the texture axes, for that we need the plane data - see below
                 face.XShift = br.ReadSingle();
@@ -246,20 +251,33 @@ namespace Sledge.Formats.Map.Formats
                 face.YShift = br.ReadSingle();
                 face.Rotation = br.ReadSingle();
             }
+
             face.XScale = br.ReadSingle();
             face.YScale = br.ReadSingle();
-            br.ReadBytes(16); // Unused
+
+            if (version <= RmfVersion.Version16)
+            {
+                br.ReadBytes(4); // Unused
+            }
+            else //if (version >= RmfVersion.Version18)
+            {
+                br.ReadBytes(16); // Unused
+            }
+
             var numVerts = br.ReadInt32();
             for (var i = 0; i < numVerts; i++)
             {
                 face.Vertices.Add(br.ReadVector3());
             }
+
             face.Plane = br.ReadPlane();
-            if (version == RmfVersion.Version18)
+
+            if (version <= RmfVersion.Version18)
             {
                 // Now work out what the texture axes are
                 (face.UAxis, face.VAxis, _) = face.Plane.GetQuakeTextureAxes();
             }
+
             return face;
         }
 
@@ -489,5 +507,42 @@ namespace Sledge.Formats.Map.Formats
         }
 
         #endregion
+
+        private enum RmfVersion
+        {
+            // Currently unsupported, but known, RMF versions
+            /*
+            /// <summary>
+            /// RMF Version 0.8, used by Worldcraft 1.0a - 1.1
+            /// </summary>
+            Version08 = 8,
+
+            /// <summary>
+            /// RMF Version 0.9, used by Worldcraft 1.1a
+            /// </summary>
+            Version09 = 9,
+
+            /// <summary>
+            /// RMF Version 1.4, used by Worldcraft 1.3
+            /// </summary>
+            Version14 = 14,
+            */
+
+            /// <summary>
+            /// RMF Version 1.6, used by Worldcraft 1.5b
+            /// </summary>
+            Version16 = 16,
+
+            /// <summary>
+            /// RMF Version 1.8, used by Worldcraft 1.6 - 2.1
+            /// </summary>
+            Version18 = 18,
+
+            /// <summary>
+            /// RMF Version 2.2, used by Worldcraft 3.3 and Valve Hammer Editor 3.4 - 3.5
+            /// </summary>
+            // ReSharper disable once UnusedMember.Local
+            Version22 = 22,
+        }
     }
 }
