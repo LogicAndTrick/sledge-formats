@@ -8,6 +8,10 @@ namespace Sledge.Formats.Texture.Wad.Lumps
         public byte[] PaletteData { get; set; }
         const int Length = 256 * 3;
 
+        public PaletteLump()
+        {
+        }
+
         public PaletteLump(BinaryReader br)
         {
             PaletteData = br.ReadBytes(Length);

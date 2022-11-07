@@ -6,6 +6,10 @@ namespace Sledge.Formats.Texture.Wad.Lumps
     {
         public override LumpType Type => LumpType.MipTexture;
 
+        public MipTextureLump()
+        {
+        }
+
         public MipTextureLump(BinaryReader br) : base(br, true)
         {
             //

@@ -18,6 +18,10 @@ namespace Sledge.Formats.Texture.Wad.Lumps
         public byte[] ImageData { get; set; }
         public byte[] Palette { get; set; }
 
+        public FontLump()
+        {
+        }
+
         public FontLump(BinaryReader br)
         {
             Width = br.ReadInt32();
