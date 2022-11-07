@@ -23,10 +23,20 @@ namespace Sledge.Formats.Bsp.Lumps
             for (var i = 0; i < numTextures; i++) offsets[i] = br.ReadInt32();
             foreach (var offset in offsets)
             {
-                if (offset < 0) continue; // ignore negative offsets
-                br.BaseStream.Seek(blob.Offset + offset, SeekOrigin.Begin);
-                var tex = MipTexture.Read(br, version == Version.Goldsource);
-                _textures.Add(tex);
+                if (offset >= 0)
+                {
+                    br.BaseStream.Seek(blob.Offset + offset, SeekOrigin.Begin);
+                    var tex = MipTexture.Read(br, version == Version.Goldsource);
+                    _textures.Add(tex);
+                }
+                else
+                {
+                    // Compiler couldn't find the texture in any wad referenced by the map.
+                    // Insert a dummy texture (matches engine behavior).
+                    // TODO: only -1 refers to missing textures. Any other negative value
+                    // indicates integer overflow in the compiler and should be handled as a fatal error.
+                    _textures.Add(new MipTexture { Name = string.Empty });
+                }
             }
         }
 
