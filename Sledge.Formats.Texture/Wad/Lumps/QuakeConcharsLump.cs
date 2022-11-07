@@ -9,6 +9,10 @@ namespace Sledge.Formats.Texture.Wad.Lumps
         public int Height { get; set; }
         public byte[] ImageData { get; set; }
 
+        public QuakeConcharsLump()
+        {
+        }
+
         public QuakeConcharsLump(BinaryReader br)
         {
             Width = 128;
