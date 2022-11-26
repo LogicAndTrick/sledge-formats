@@ -68,7 +68,28 @@ namespace Sledge.Formats.Bsp.Lumps
                 var height = (int) Math.Ceiling(maxv / 16) - (int)Math.Floor(minv / 16) + 1;
                 var bpp = bsp.Version == Version.Quake1 ? 1 : 3;
 
-                var data = new byte[bpp * width * height];
+                // It's possible for the calculated size of the texture to exceed the remaining amount of data, so don't try to over-read.
+                var idealSizeInBytes = bpp * width * height;
+                var sizeInBytes = Math.Min(idealSizeInBytes, _lightmapData.Length - face.LightmapOffset);
+
+                if (idealSizeInBytes != sizeInBytes)
+                {
+                    // Try to find the closest texture size that matches the data we have.
+                    var size = sizeInBytes / bpp;
+
+                    // See if the size is a multiple of either width or height.
+                    if ((size % height) == 0)
+                    {
+                        width = size / height;
+                    }
+                    else
+                    {
+                        // If size is not a multiple of width this will truncate height to avoid invalid access.
+                        height = size / width;
+                    }
+                }
+
+                var data = new byte[sizeInBytes];
                 Array.Copy(_lightmapData, face.LightmapOffset, data, 0, data.Length);
 
                 var map = new Lightmap
