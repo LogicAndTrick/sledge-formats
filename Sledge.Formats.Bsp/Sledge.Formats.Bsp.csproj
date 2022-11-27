@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Add empty constructor for BspFile</PackageReleaseNotes>
-    <Version>1.0.6</Version>
+    <PackageReleaseNotes>Bugfix for oversized lightmaps</PackageReleaseNotes>
+    <Version>1.0.7</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
