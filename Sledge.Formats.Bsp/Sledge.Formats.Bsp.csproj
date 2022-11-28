@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Bugfix for oversized lightmaps</PackageReleaseNotes>
-    <Version>1.0.7</Version>
+    <PackageReleaseNotes>Add field for null content type</PackageReleaseNotes>
+    <Version>1.0.8</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
