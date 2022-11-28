@@ -16,6 +16,7 @@
         Current270 = -12,
         CurrentUp = -13,
         CurrentDown = -14,
-        Translucent = -15
+        Translucent = -15,
+        Null = -17
     }
 }
