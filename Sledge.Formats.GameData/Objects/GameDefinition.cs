@@ -12,7 +12,17 @@ namespace Sledge.Formats.GameData.Objects
         public List<GameDataClass> Classes { get; }
         public List<string> Includes { get; }
         public List<string> MaterialExclusions { get; }
+
+        /// <summary>
+        /// Source 1 style auto-visgroups
+        /// </summary>
         public List<AutoVisgroupSection> AutoVisgroups { get; }
+
+        /// <summary>
+        /// Source 2 style auto-visgroups
+        /// </summary>
+        public List<VisgroupFilter> VisgroupFilters { get; }
+
         public List<Token> Warnings { get; set; }
         public List<int> GridNavValues { get; set; } // not fully understood what these values mean at this point
         public List<EntityGroup> EntityGroups { get; set; }
@@ -23,6 +33,7 @@ namespace Sledge.Formats.GameData.Objects
             Includes = new List<string>();
             MaterialExclusions = new List<string>();
             AutoVisgroups = new List<AutoVisgroupSection>();
+            VisgroupFilters = new List<VisgroupFilter>();
             Warnings = new List<Token>();
             EntityGroups = new List<EntityGroup>();
         }

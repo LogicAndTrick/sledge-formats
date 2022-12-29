@@ -12,7 +12,7 @@ namespace Sledge.Formats.GameData.Objects
         public string Details { get; set; }
         public string DefaultValue { get; set; }
         public List<Option> Options { get; set; }
-        public Dictionary<string, string> Metadata { get; set; }
+        public GameDataDictionary Metadata { get; set; }
 
         public Property(string name, VariableType variableType, string subType)
         {
@@ -23,7 +23,7 @@ namespace Sledge.Formats.GameData.Objects
             Details = "";
             DefaultValue = "";
             Options = new List<Option>();
-            Metadata = new Dictionary<string, string>();
+            Metadata = new GameDataDictionary(string.Empty);
         }
     }
 }

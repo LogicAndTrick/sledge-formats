@@ -72,5 +72,16 @@
         ModelClothEffect, // Source 2
         ModelBone, // Source 2
         ModelMorphChannel, // Source 2
+        VDataChoice, // Source 2
+        SubclassChoice, // Source 2
+        NPCAbilityName, // Source 2
+        PathNodeClass, // Source 2
+        Color255Alpha, // Source 2
+        ParticleCfg, // Source 2
+        ModelClothVertexMap, // Source 2
+        Kv3, // Source 2
+        Vector2d, // Source 2
+        PanoramaImage, // Source 2
+        Struct, // Source 2
     }
 }

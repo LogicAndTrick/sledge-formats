@@ -110,6 +110,9 @@ namespace Sledge.Formats.GameData
                                 case "autovisgroup":
                                     ParseAutoVisgroup(def, it);
                                     break;
+                                case "visgroupfilter":
+                                    ParseVisgroupFilter(def, it);
+                                    break;
                                 case "gridnav":
                                     ParseGridNav(def, it);
                                     break;
@@ -119,24 +122,22 @@ namespace Sledge.Formats.GameData
                                 case "entitygroup":
                                     ParseEntityGroup(def, it);
                                     break;
-                                case "baseclass":
-                                case "pointclass":
-                                case "solidclass":
-                                case "keyframeclass":
-                                case "moveclass":
-                                case "npcclass":
-                                case "filterclass":
-                                case "pathclass":
-                                case "cableclass":
-                                case "overrideclass":
-                                case "modelgamedata":
-                                case "modelanimevent":
-                                case "modelbreakcommand":
-                                case "struct":
-                                    ParseClass(def, it, t.Leaders);
+                                case "helpinfo":
+                                    // helpinfo command only found in Dota2 Test repo, doesn't appear to be used in newer FGD files - ignore it for now
+                                    // it looks like: `@helpinfo( "entity_name", "path/to/some/file.txt" )`
+                                    it.Current.Warnings.Add("The `@helpinfo` command doesn't appear to be used, ignoring it for now.");
+                                    Expect(it, TokenType.Name, x => x.ToLower() == "helpinfo");
+                                    Expect(it, TokenType.Symbol, Symbols.OpenParen);
+                                    while (it.Current?.Is(TokenType.Symbol, Symbols.CloseParen) == false) it.MoveNext();
+                                    Expect(it, TokenType.Symbol, Symbols.CloseParen);
                                     break;
                                 default:
-                                    throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Not a known command: @{it.Current.Value}");
+                                    if (!Enum.TryParse(it.Current.Value, true, out ClassType _))
+                                    {
+                                        throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Not a known command: @{it.Current.Value}");
+                                    }
+                                    ParseClass(def, it, t.Leaders);
+                                    break;
                             }
                             break;
                         case TokenType.End:
@@ -301,6 +302,27 @@ namespace Sledge.Formats.GameData
             Expect(it, TokenType.Symbol, Symbols.CloseBracket);
 
             def.AutoVisgroups.Add(section);
+        }
+
+        private void ParseVisgroupFilter(GameDefinition def, IEnumerator<Token> it)
+        {
+            /* dota base.fgd:
+            @VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsclip.vmat"				group =	"Clip"				parent_group = "Tool Brushes" }
+            ... etc ...
+
+            @VisGroupFilter { filter_type = "entityTag"		tag = "Lighting"		group = "Lighting"			parent_group = "Entities" }
+            ... etc ...
+            */
+
+            var t = it.Current;
+            Debug.Assert(t != null, nameof(t) + " != null");
+
+            Expect(it, TokenType.Name, x => x.ToLower() == "visgroupfilter");
+
+            var dict = new GameDataDictionary(string.Empty);
+            ParseGameDataDictionary(it, dict);
+
+            def.VisgroupFilters.Add(new VisgroupFilter(dict));
         }
 
         private void ParseGridNav(GameDefinition def, IEnumerator<Token> it)
@@ -542,6 +564,41 @@ namespace Sledge.Formats.GameData
             def.MergeClass(cls);
         }
 
+        private static GameDataDictionaryValue ParseGameDataDictionaryValue(IEnumerator<Token> it)
+        {
+            if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBracket) == true)
+            {
+                var vals = new List<GameDataDictionaryValue>();
+                Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+                while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBracket) == false)
+                {
+                    vals.Add(ParseGameDataDictionaryValue(it));
+                    if (it.Current?.Is(TokenType.Symbol, Symbols.Comma) == true) it.MoveNext();
+                    else break;
+                }
+                Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+                return new GameDataDictionaryValue(vals);
+            }
+            else if (it.Current?.Is(TokenType.Name) == true)
+            {
+                var cur = it.Current;
+                it.MoveNext();
+                if (cur.Value == "true") return new GameDataDictionaryValue(true);
+                else if (cur.Value == "false") return new GameDataDictionaryValue(false);
+                else throw new Exception($"Parsing error (line {cur.Line}, column {cur.Column}): Unknown dictionary value {cur.Value}");
+            }
+            else if (it.Current?.Is(TokenType.Number) == true)
+            {
+                var metaValue = ParseDecimal(it);
+                return new GameDataDictionaryValue(metaValue);
+            }
+            else
+            {
+                var metaValue = ParseAppendedString(it);
+                return new GameDataDictionaryValue(metaValue);
+            }
+        }
+
         private static void ParseGameDataDictionary(IEnumerator<Token> it, GameDataDictionary dict)
         {
             /*
@@ -552,6 +609,7 @@ namespace Sledge.Formats.GameData
                 child =
                 {
                     key3 = "Value3"
+                    key4 = ["2", "3"]
                 }
 	        }
             */
@@ -566,22 +624,9 @@ namespace Sledge.Formats.GameData
                     ParseGameDataDictionary(it, metaValue);
                     dict[metaKey] = new GameDataDictionaryValue(metaValue);
                 }
-                else if (it.Current?.Is(TokenType.Name) == true)
-                {
-                    if (it.Current.Value == "true") dict[metaKey] = new GameDataDictionaryValue(true);
-                    else if (it.Current.Value == "false") dict[metaKey] = new GameDataDictionaryValue(false);
-                    else throw new Exception($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Unknown dictionary value {it.Current.Value}");
-                    it.MoveNext();
-                }
-                else if (it.Current?.Is(TokenType.Number) == true)
-                {
-                    var metaValue = ParseDecimal(it);
-                    dict[metaKey] = new GameDataDictionaryValue(metaValue);
-                }
                 else
                 {
-                    var metaValue = ParseAppendedString(it);
-                    dict[metaKey] = new GameDataDictionaryValue(metaValue);
+                    dict[metaKey] = ParseGameDataDictionaryValue(it);
                 }
             }
 
@@ -653,7 +698,7 @@ namespace Sledge.Formats.GameData
                 test2(float) [ min=""0.0"", max=""180.0"" ] : ""Test2"" : ""0"" : ""Test#2""
                 test3(boolean) [ group=""Test Group"" ] : ""Test3"" : 0 : ""Test#3""
                  */
-                if (next.Is(TokenType.Symbol, Symbols.OpenBracket))
+                if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBracket) == true)
                 {
                     Expect(it, TokenType.Symbol, Symbols.OpenBracket);
 
@@ -673,6 +718,16 @@ namespace Sledge.Formats.GameData
                     }
 
                     Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+                }
+
+                /* Source 2 dictionary-based metadata:
+                color(color255) { enabled={ variable="colormode" value="0" } } : "Color" : "255 255 255"
+	            colortemperature(float) { min="1500" max="15000" enabled={ variable="colormode" value="1" } } : "Color Temperature (K)" : "6600"
+	            brightness_lumens(float) { min="0.0" max="4000" enabled={ variable="brightness_units" value="1" } } : "Brightness (Lumens)" : "224" : "Brightness in lumens"
+                 */
+                if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                {
+                    ParseGameDataDictionary(it, prop.Metadata);
                 }
 
                 // Read description/default/details
@@ -809,11 +864,17 @@ namespace Sledge.Formats.GameData
 
             var subType = "";
             // support the source2 `resource:model` syntax... (also `array:struct:map_extension`)
-            while (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
+            // it also supports file paths, such as: `scripts/grenades.vdata`
+            // or &'d together like: `scripts/grenades.vdata&scripts/misc.vdata&scripts/npc_abilities.vdata`
+            // in these cases we just add them all into the subtype, the editor can work out what to do with it.
+            if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
             {
-                if (subType.Length > 0) subType += ":";
-                it.MoveNext();
-                subType += Expect(it, TokenType.Name).Value;
+                Expect(it, TokenType.Symbol, Symbols.Colon);
+                while (it.Current?.Is(TokenType.Symbol, Symbols.CloseParen) == false)
+                {
+                    subType += it.Current.Value;
+                    it.MoveNext();
+                }
             }
 
             type = type.Replace("_", "").ToLower();

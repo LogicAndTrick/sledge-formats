@@ -52,6 +52,11 @@
 	// TODO: additional control points?
 ]
 
+@ModelGameData game_data_list( particle_cfg_list ) = particle_cfg
+[
+	name(resource:particle) : "Particle"
+	config(particle_cfg) : "Config Name"
+]
 
 @ModelAnimEvent = AE_CL_BODYGROUP_SET_VALUE
 [
@@ -71,6 +76,7 @@
 [
 	name(resource:particle)		[report, group="Particles"]	: "Particle System"
 	detach_from_owner(bool)		[group="Particles"]			: "Detach From Owner" : "0"
+	always_run(bool)			[group="Particles"]			: "Always Run" : "0"
 	stop_on_seq_change(bool)	[group="Sequence"]			: "Stop On Sequence Change" : "0"
 	stop_immediately(bool)		[group="Sequence"]			: "Sequence Change Stop Is Instant" : "0"
 	use_layer_sequence(bool)	[group="Sequence"]			: "Use Layer Sequence" : "0"
@@ -214,7 +220,34 @@
 	stop_immediately(bool)		[group="Sequence"]			: "Sequence Change Stop Is Instant" : "0"
 	use_layer_sequence(bool)	[group="Sequence"]			: "Use Layer Sequence" : "0"
 	tags(string)											: "Tags"
-	config(string)											: "Config"
+	config(particle_cfg)									: "Config"
+]
+
+@ModelAnimEvent = AE_SV_CREATE_PARTICLE_EFFECT_CFG 
+[
+	name(resource:particle)	[report]	: "Particle System"
+	detach_from_owner(bool)				: "Detach From Owner" : "0"
+	config(particle_cfg)				: "Config"
+]
+
+@ModelAnimEvent = AE_SV_STOP_PARTICLE_EFFECT
+[
+	name(resource:particle) [report] : "Particle System"
+	stop_instantly(bool) : "Stop Instantly" : "0"
+	play_endcap(bool)    : "Play Endcap" : "0"
+]
+
+
+@ModelAnimEvent = AE_CL_HIDE_PARTICLE_EFFECT 
+[
+	name(resource:particle)		[report] : "Particle System"
+	stop_on_seq_change(bool)			: "Stop On Sequence Change" : "0"
+]
+
+@ModelAnimEvent = AE_CL_SHOW_PARTICLE_EFFECT 
+[
+	name(resource:particle)		[report] : "Particle System"
+	stop_on_seq_change(bool)			: "Stop On Sequence Change" : "0"
 ]
 
 @ModelAnimEvent = AE_SCRIPT_EVENT_FIRE_INPUT 
@@ -273,12 +306,13 @@
 	script(string): "Script"
 ]
 
-@ModelAnimEvent duration_info { LengthSeconds="Length" Speed="Speed" Value="Value" } = AE_CL_CLOTH_STIFFEN
+@ModelAnimEvent duration_info { LengthSeconds="Length" SpeedIn="SpeedIn" SpeedOut="SpeedOut" Value="Value" } = AE_CL_CLOTH_STIFFEN
 [
 	Value(float) : "Stiffness" : 1
-	Speed(float) : "Blend Speed (0=infinite speed)" : 10
+	SpeedIn(float) : "Ease-In Speed (0=infinite speed)" : 10
+	SpeedOut(float) : "Ease-Out Speed (0=infinite speed)" : 10
 	Length(float) : "Stiffen for Seconds" : 1
-	VertexSet(string) : "Vertex Set Name"
+	VertexSet(model_cloth_vertex_map) : "Vertex Set Name"
 ]
 
 @ModelAnimEvent = AE_CL_CLOTH_GROUND_OFFSET
@@ -290,4 +324,67 @@
 @ModelAnimEvent = AE_CL_CLOTH_EFFECT
 [
 	FeEffectName(model_cloth_effect) : "Effect Name"
+	use_layer_sequence(bool)	[group="Sequence"]			: "Use Layer Sequence" : "0"
+	tags(string)			[group="Sequence"]			: "Tags"
+]
+
+@ModelAnimEvent = AE_CL_CREATE_ANIM_SCOPE_PROP
+[
+	name(resource:model) : "Model Name"
+	attachment(model_attachment) : "Attachment"
+	parent(bool) : "Parent When Created" : "1"
+	activity(string) : "Activity or Sequence"
+	stop_immediately(bool)		[group="Sequence"]			: "Sequence Change Stop Is Instant" : "0"
+	use_layer_sequence(bool)	[group="Sequence"]			: "Use Layer Sequence" : "0"
+	tags(string)			[group="Sequence"]			: "Tags"
+]
+
+
+@ModelGameData
+capsule
+{
+	transform =
+	{
+		bone_key = "bonename"
+	}
+	point0_key = "point0"
+	point1_key = "point1"
+	radius_key = "radius"
+}
+game_data_list( ao_proxy_capsule_list )
+ = ao_proxy_capsule
+[
+	bonename(model_bone) : "Bone"
+	radius(float) [ scale_bone_relative ] : "Radius" : 5
+	point0(local_point) [ scale_bone_relative ] : "Point 0" : "0 0 0"
+	point1(local_point) [ scale_bone_relative ] : "Point 1" : "10 0 0"
+]
+
+@ModelGameData
+box
+{
+	transform =
+	{
+		bone_key = "bonename"
+		origin_key = "offset_origin"
+		angles_key = "offset_angles"
+	}
+	dimensions_key = "dimensions"
+}
+locator_axis
+{
+	transform =
+	{
+		bone_key = "bonename"
+		origin_key = "offset_origin"
+		angles_key = "offset_angles"
+	}
+}
+game_data_list( ao_proxy_box_list )
+= ao_proxy_box
+[
+	bonename(model_bone) : "Bone"
+	dimensions(vector) [ scale_bone_relative ] : "Dimensions" : "10 10 10"
+	offset_origin(vector) [ scale_bone_relative ] : "Offset" : "0 0 0"
+	offset_angles(angle) : "Angles" : "0 0 0"
 ]

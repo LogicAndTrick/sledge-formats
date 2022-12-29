@@ -7,6 +7,50 @@
 @mapsize(-16384, 16384)
 
 
+//--------------------------------------------------------------------------------------------------
+// Auto vis groups
+//--------------------------------------------------------------------------------------------------
+
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsclip.vmat"				group =	"Clip"				parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsplayerclip.vmat"		group =	"Player Clip"		parent_group = "Clip" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsnpcclip.vmat"			group =	"NPC Clip"			parent_group = "Clip" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsnavclip.vmat"			group =	"Nav Clip"			parent_group = "Clip" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsteleportclip.vmat"		group =	"Teleport Clip"		parent_group = "Clip" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolscontrolclip.vmat"		group =	"Control Clip"		parent_group = "Clip" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsnodraw.vmat"			group =	"Nodraw"			parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsskybox.vmat"			group =	"Skybox"			parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolstrigger.vmat"			group =	"Trigger"			parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsblocklight.vmat"		group =	"Block Light"		parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolssolidblocklight.vmat"	group =	"Block Light"		parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolslightmapres.vmat"		group =	"Lightmap Space"	parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "visblocker.vmat"			group =	"Vis Blocker"		parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "skyvisblocker.vmat"			group =	"Vis Blocker"		parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsinvisible.vmat"		group =	"Invisible"			parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsinvisibleladder.vmat"	group =	"Ladder"			parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsmarkupvolumeai.vmat"	group =	"Markup Volume AI"	parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsskip.vmat"				group =	"Skip"				parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsoccluder.vmat"			group =	"Occluder"			parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsprecipitation.vmat"	group =	"Precipitation"		parent_group = "Tool Brushes" }
+@VisGroupFilter { filter_type = "toolsMaterial"		material = "toolsblockbullets.vmat"		group =	"Bullets"			parent_group = "Clip" }
+
+@VisGroupFilter { filter_type = "entityTag"		tag = "Lighting"		group = "Lighting"			parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Sound"			group = "Sound"				parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Logic"			group = "Logic"				parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Filter"			group = "Logic"				parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Info"			group = "Info"				parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "AI"				group = "AI"				parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "NPC"				group = "NPCs"				parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Choreo"			group = "Choreo"			parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Trigger"			group = "Triggers"			parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "NavMarkup"		group = "Nav Markup"		parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Particles"		group = "Particles"			parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Physics"			group = "Physics"			parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "PropPhysics"		group = "Physics Props"		parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "PropDynamic"		group = "Dynamic Props"		parent_group = "Entities" }
+@VisGroupFilter { filter_type = "entityTag"		tag = "Overlay"			group = "Dynamic Overlays"	parent_group = "Entities" }
+
+
+
 //-------------------------------------------------------------------------
 //
 // PhysicsType Base Classes
@@ -111,7 +155,13 @@
 	skin(materialgroup) [ group="Render Properties" ] : "Skin" : "default" : "Some models have multiple versions of their textures, called skins."
 	bodygroups(bodygroupchoices) [ group="Render Properties" ] : "Body Groups" : ""
 	
-	disableshadows(boolean) [ group="Misc" ] : "Disable Shadows" : 0 : "Used to disable dynamic shadows on this entity."
+	disableshadows(choices) [ group="Render Properties" ] : "Cast Shadows" : 0 : "Used to disable shadow casting from this entity." = 
+	[
+		0: "Enabled"
+		1: "No Shadows"
+		2: "Only Realtime Shadows"
+		3: "Only Baked Shadows"
+	]
 
 	// Inputs
 	input Skin(integer) : "Changes the model skin to the specified number."
@@ -119,6 +169,7 @@
 	input EnableShadow(void) : "Turn shadow on."
 	input AlternativeSorting(bool) : "Used to attempt to fix sorting problems when rendering. True activates, false deactivates"
 	input SetRenderAttribute(string) : "Set the value of a render attribute used in material dynamic expressions. Examples: $myfloat=0.25 $myfloat4=1.0,0.0,1.0,1.0"
+	input ClearRenderAttribute(string) : "Remove a render attribute previously set by SetRenderAttribute, restoring it to its previous value."
 
 	// Outputs
 	output OnIgnite(void) : "Fired when this object catches fire."
@@ -130,14 +181,6 @@
 	input Toggle(void) : "Toggles the platform's state."
 	input GoUp(void) : "Tells the platform to go up."
 	input GoDown(void) : "Tells the platform to go down."
-]
-
-
-@BaseClass = BaseBrush
-[
-	// Inputs
-	input SetTextureIndex(integer) : "Used by HL1Port. Sets the brush texture index. Use a material_modify_control entity instead."
-	input IncrementTextureIndex(void) : "Used by HL1Port. Increments the brush texture index. Use a material_modify_control entity instead."
 ]
 
 
@@ -201,7 +244,13 @@
 
 @BaseClass = Shadow
 [
-	disableshadows(boolean) [ group="Misc" ] : "Disable shadows" : 0
+	disableshadows(choices) [ group="Render Properties" ] : "Cast Shadows" : 0 : "Used to disable shadow casting from this entity." = 
+	[
+		0: "Enabled"
+		1: "No Shadows"
+		2: "Only Realtime Shadows"
+		3: "Only Baked Shadows"
+	]
 
 	input DisableShadow(void) : "Turn shadow off."
 	input EnableShadow(void) : "Turn shadow on."
@@ -220,6 +269,7 @@
 	glowrange(integer) [ group="Glow Properties" ] : "Glow Range" : 0 : "Range at which the glow becomes visible. (0 = always visible)"
 	glowrangemin(integer) [ group="Glow Properties" ] : "Glow Range Min" : 0 : "Range at which the glow stops being visible. (0 = always visible)"
 	glowcolor(color255) [ group="Glow Properties" ] : "Glow Color Override (R G B)" : "0 0 0" : "Change the render color of the glow."
+	glowteam(integer) [ group="Glow Properties" ] : "Glow Team" : "-1" : "Change the team we glow for."
 
 	input StartGlowing(void) : "Turn on a permanent glow effect for this prop."
 	input StopGlowing(void) : "Turn off this prop's glow effect."
@@ -281,12 +331,17 @@
 	input Alpha(integer) : "Set the sprite's alpha (0 - 255)."
 	input Color(color255) : "Set the sprite's color (R G B)."
 
-	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist" : -1 : "Distance at which the overlay starts to fade (<0 = subtract from fademaxdist)."
+	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist" : -1 : "Distance at which the overlay starts to fade (-1 = subtract from fademaxdist)."
 	fademaxdist(float) [ group="Render Properties" ] : "End Fade Dist" : 0 : "Maximum distance at which the overlay is visible (0 = don't fade out)."
-	fadescale(float) [ group="Render Properties" ] : "Fade Scale" : 1 : "If you specify a fade in the worldspawn, or if the engine is running under low end/medium end/XBox360," +
-												 " then the engine will forcibly fade out props even if fademindist/fademaxdist isn't specified." +
-												 " This scale factor gives you some control over the fade. Using 0 here turns off the forcible fades." +
-												 " Numbers smaller than 1 cause the prop to fade out at further distances, and greater than 1 cause it to fade out at closer distances."
+
+	object_culling(choices) [ group="Render Properties" ] : "Culling Behaviour" : 0 : "Modifies culling behaviour when the object is small / distant" =
+	[
+		0 : "Default"
+		1 : "Smaller than default"
+		2 : "Much smaller than default"
+		3 : "When extremely small"
+	]
+
 	rendertocubemaps(boolean) [ group="Render Properties" ] : "Render to Cubemaps" : 0 : "If true, this geometry renders into baked cube maps"	
 	lightmapstatic(choices) [ group="Render Properties" ] : "Lightmap Static" : 0 : "How this geometry influences baked lighting." =
 	[
@@ -449,8 +504,6 @@
 		2: "Use Precise Gib Dir"
 	]
 
-	gibdir(angle) : "Precise Gib Direction" : "0 0 0" : "Specifies the direction to throw gibs when this breakable breaks. Be sure to select Use Precise Gib Dir in the Gibs Direction field!"
-
 	nodamageforces(boolean) : "Damaging it Doesn't Push It" : 0 : "Used to determine whether or not damage should cause the brush to move."
 
 	// Inputs
@@ -459,6 +512,7 @@
 
 	spawnobject(choices) : "Spawn On Break" : 0 : "When broken, an entity of the selected type will be created." =
 	[
+		0:	""
 		1:	"item_battery"				
 		2:	"item_healthkit"			
 		3:	"item_ammo_pistol"			
@@ -514,249 +568,6 @@
 
 	// Outputs
 	output OnTakeDamage(void) : "Fired each time this breakable takes any damage."
-	output OnPhysCannonDetach(void) : "Fired when the physcannon has ripped this breakable off of the wall. Only fired if ACT_PHYSCANNON_DETACH is defined in the model this breakable is using."
-	output OnPhysCannonAnimatePreStarted(void) : "Fired when this prop starts playing the Pre physcannon-pull activity, caused by the player trying to grab this prop with the physcannon. Only fired if the ACT_PHYSCANNON_ANIMATE_PRE activity is defined in the model this breakable is using."
-	output OnPhysCannonAnimatePullStarted(void) : "Fired when this prop starts playing the physcannon-pull activity, caused by the player trying to grab this prop with the physcannon. Only fired if the ACT_PHYSCANNON_ANIMATE activity is defined in the model this breakable is using. If the prop has Pre pull anim, this will be fired after the Pre anim has finished playing."
-	output OnPhysCannonPullAnimFinished(void) : "Fired when this prop has finished playing the physcannon-pull activity, caused by the player trying to grab this prop with the physcannon. Only fired if the ACT_PHYSCANNON_ANIMATE activity is defined in the model this breakable is using. If the prop has Pre & Post pull anims, this will be fired after the Post anim has finished playing."
-	output OnPhysCannonAnimatePostStarted(void) : "Fired when this prop starts playing the Post physcannon-pull activity. Only fired if the ACT_PHYSCANNON_ANIMATE_POST activity is defined in the model this breakable is using."
-]
-
-@BaseClass base(Targetname, RenderFields, DamageFilter, ResponseContext, Shadow, PosableSkeleton) color(0 200 200) = BaseNPC
-[
-	target(target_destination) [ group="NPC Properties" ] : "Target Path Corner" : : "If set, the name of a path corner entity that this NPC will walk to, after spawning."
-	squadname(String) [ group="NPC Properties" ] : "Squad Name" : : "NPCs that are in the same squad (i.e. have matching squad names) will share information about enemies, and will take turns attacking and covering each other."
-	hintgroup(String) [ group="NPC Properties" ] : "Hint Group" : "" : "Hint groups are used by NPCs to restrict their hint-node searching to a subset of the map's hint nodes. Only hint nodes with matching hint group names will be considered by this NPC."
-	hintlimiting(boolean) [ group="NPC Properties" ] : "Hint Limit Nav" : 0 : "Limits NPC to using specified hint group for navigation requests, but does not limit local navigation."
-	allowgenericnodes(boolean) [ group="NPC Properties" ] : "If a Hint Group is specified, whether to also allow the use of generic nodes."
-
-	spawnflags(Flags) = 
-	[
-		1 : "Wait Till Seen" : 0
-		2 : "Gag (No IDLE sounds until angry)" : 0
-		4 : "Fall to ground (unchecked means *teleport* to ground)" : 1
-		8 : "Drop Healthkit" : 0
-		16 : "Efficient - Don't acquire enemies or avoid obstacles" : 0
-		128: "Wait For Script" : 0
-		256: "Long Visibility/Shoot" : 0
-		512: "Fade Corpse" : 1
-		1024: "Think outside PVS" : 0
-		2048: "Template NPC (used by npc_maker, will not spawn)" : 0
-		4096: "Do Alternate collision for this NPC (player avoidance)" : 0
-		8192: "Don't drop weapons" : 0
-		16384 : "Ignore player push (dont give way to player)" : 0
-	]
-
-	//initialidle(string) [ group="NPC Properties" ] : "Initial Idle Activity" :: "Activity the NPC should use to idle until becomes alert"
-	sleepstate(choices) [ group="NPC Properties" ] : "Sleep State" : 0 : "Holds the NPC in stasis until specified condition. See also 'Wake Radius' and 'Wake Squad'." =
-	[
-		0 : "None"
-		1 : "Waiting for threat"
-		2 : "Waiting for PVS"
-		3 : "Waiting for input, ignore PVS"
-		4 : "Auto PVS"
-		5 : "Auto PVS after PVS"
-	]
-
-	wakeradius(float) [ group="NPC Properties" ] : "Wake Radius" : 0 : "Auto-wake if player within this distance"
-	wakesquad(boolean) [ group="NPC Properties" ] : "Wake Squad" : 0 : "Wake all of the NPCs squadmates if the NPC is woken"
-
-	enemyfilter(target_destination) [ group="NPC Properties" ] : "Enemy Filter" : "" : "Filter by which to filter potential enemies"
-
-	ignoreunseenenemies(boolean) [ group="NPC Properties" ] : "Ignore unseen enemies" : 0 : "Prefer visible enemies, regardless of distance or relationship priority"
-
-	physdamagescale(float) [ group="Physics Properties" ] : "Physics Impact Damage Scale" : "1.0" : "Scales damage energy when this character is hit by a physics object. With a value of 0 the NPC will take no damage from physics."
-
-	NavRestrictionVolume(target_destination) [ group="NPC Properties" ] : "Nav Restriction Volume" : "" : "Markup volume entity to restrict unit navigation"
-
-	spawnasragdoll(choices) [ group="NPC Properties" ] : "Spawn as Temp Ragdoll" : 0 : "Specifies if the NPC will spawn as a temporary ragdoll and the behavior after becoming a ragdoll." =
-	[
-		0 : "Disabled"
-		1 : "Ragdoll and get up when settled"
-		2 : "Ragdoll and remain ragdoll"
-	]
-
-	UseAltNpcAvoid(choices) [ group="NPC Properties" ] : "Use Alt NPC Avoidance" : 0 : "Specifies if the NPC should be using any algorithm variants when avoiding other NPCs." =
-	[
-		0 : "Disabled"
-		1 : "Alt 1"
-	]
-
-	DefaultAnim(sequence) : "Preview Animation" : "" : "Name of an animation to preview in Hammer, does not do anything in game."
-
-	// Outputs
-	output OnDamaged(void) : "Fired when this NPC takes damage."
-	output OnDeath(void) : "Fired when this NPC is killed." 
-	output OnHalfHealth(void) : "Fired when this NPC reaches half of its maximum health."
-	output OnHearWorld(void) : "Fired when this NPC hears a sound (other than combat or the player)."
-	output OnHearPlayer(void) : "Fired when this NPC hears the player."
-	output OnHearCombat(void) : "Fired when this NPC hears combat sounds."
-	output OnFoundEnemy(string) : "Fired when this NPC establishes line of sight to its enemy (outputs entity)."
-	output OnLostEnemyLOS(void) : "Fired when this NPC loses line of sight to its enemy."
-	output OnLostEnemy(void) : "Fired when this NPC loses its enemy. Usually due to the enemy being killed/removed, or because this NPC has selected a newer, more dangerous enemy."
-	output OnFoundPlayer(string) : "Fired when this NPC establishes line of sight to its enemy, and that enemy is a player (outputs player entity)."
-	output OnLostPlayerLOS(void) : "Fired when this NPC loses line of sight to its enemy, and that enemy is a player."
-	output OnLostPlayer(void) : "Fired when this NPC loses its enemy, and that enemy was a player. Usually due to the enemy being killed/removed, or because this NPC has selected a newer, more dangerous enemy."
-	output OnDamagedByPlayer(void) : "Fired when this NPC is hurt by a player."
-	output OnDamagedByPlayerSquad(void) : "Fired when this NPC is hurt by a player OR by one of the player's squadmates."
-	output OnDenyCommanderUse(void) : "Fired when this NPC has refused to join the player's squad."
-	output OnSleep(void) : "Fired when this NPC enters a sleep state."
-	output OnWake(void) : "Fired when this NPC comes out of a sleep state."
-	output OnForcedInteractionStarted(void) : "Fired when the NPC starts a forced interaction."
-	output OnForcedInteractionAborted(void) : "Fired when the NPC aborts a forced interaction for some reason (target NPC died, couldn't be pathed to, etc)"
-	output OnForcedInteractionFinished(void) : "NPCs in actbusies can no longer perform dynamic interactions."
-	output OnUnragdollFinished(void) : "This NPC just finished getting up after being a ragdoll."
-
-	// Inputs
-	input OverrideHealth(integer) : "Overrides this entity's health, ignoring max health constraints. This is for prototyping only and all uses of this input should be audited before shipping! Values <=0 are ignored."
-	input SetRelationship(string) : "Changes this entity's relationship with another entity or class. Format: <entityname/classname> <D_HT/D_FR/D_LI/D_NU> <priority>"
-	input SetEnemyFilter(string) : "Changes this NPC's enemy filter to the named filter."
-	input SetHealth(integer) : "Set this NPC's health."
-	input SetBodyGroup(string) : "Sets NPC bodygroup. Format is <BodygroupName,index> "
-	input physdamagescale(float) : "Sets the value that scales damage energy when this character is hit by a physics object. NOTE: 0 means this feature is disabled for backwards compatibility."
-	input Ignite(void) : "Ignite, burst into flames"
-	input IgniteLifetime(float) : "Ignite, with a parameter lifetime."
-	input IgniteNumHitboxFires(integer) : "Ignite, with a parameter number of hitbox fires."
-	input IgniteHitboxFireScale(float) : "Ignite, with a parameter hitbox fire scale."
-	input Break(void) : "Break, smash into pieces"
-	input StartScripting(void) : "Enter scripting state. In this state, NPCs ignore a variety of stimulus that would make them break out of their scripts: They ignore danger sounds, ignore +USE, don't idle speak or respond to other NPC's idle speech, and so on."
-	input StopScripting(void) : "Exit scripting state."
-	input SetSquad(string) : "Set the name of this NPC's squad. It will be removed from any existing squad automatically. Leaving the parameter blank will remove the NPC from any existing squad."
-	input Wake(void) : "Wakes up the NPC if it is sleeping."
-	input ForgetEntity(string) : "Clears out the NPC's knowledge of a named entity."
-	input GagEnable(void) : "Turn on the NPC Gag flag. NPC won't speak outside of choreographed scenes."
-	input GagDisable(void) : "Turn off the NPC Gag flag."
-	input IgnoreDangerSounds(float) : "Ignore danger sounds for the specified number of seconds."
-	input HolsterWeapon(void) : "Force the NPC to holster their weapon. Ignored if the NPC is scripting, if the NPC's weapon is already holstered, or if the NPC doesn't use weapons."
-	input HolsterAndDestroyWeapon(void) : "Identical to HolsterWeapon, except the weapon is destroyed once it has been holstered and concealed."
-	input UnholsterWeapon(void) : "Force the NPC to draw their weapon. Ignored if the NPC is scripting, if the NPC's weapon is already drawn, or if the NPC doesn't use weapons."
-	input ForceInteractionWithNPC(string) : "Force the NPC to use a dynamic interaction with another NPC. Parameter format: <target NPC name> <dynamic interaction name>"
-	input UpdateEnemyMemory(string) : "Update (or Create) this NPC's memory of an enemy and its location"
-	input BecomeRagdoll(void) : "This NPC will instantly become a ragdoll with ZERO force (just go limp). OnDeath, OnHalfHealth, etc. Outputs will **NOT** BE FIRED."
-	input BecomeTemporaryRagdoll(float) : "Become a temporary ragdoll that then can be later unrgadolled."
-	input StopTemporaryRagdoll(void) : "Rise from your grave."
-	input StopTemporaryRagdollAndSetEnemy(string) : "Rise from your grave to attack an enemy. Animgraph NPCs will turn to face the enemy during their unragdoll. Parameter is the enemy, usually the !activator on the trigger that's firing this input."
-	input WalkTowardsTarget(target_destination) : "Walks towards a target."
-	input StartResilientPathFollow(string) : "Walks towards the specified path corner. Will resiliently restart the walk if it's interrupted for any reason."
-	input SetAnimGraphParameter(string) : "Set an animation graph parameter Format: <name=value>"
-	input SetEasingParameter(string) : "Set an easing parameter Format: <name=value>"
-	input EnableTeleportBuffer(void) : "Enable the teleport buffer around this NPC, if it's been disabled previously."
-	input DisableTeleportBuffer(void) : "Disable the teleport buffer around this NPC."
-	input EnableChoreoPhysProxy(void) : "Enable the phys proxy."
-	input DisableChoreoPhysProxy(void) : "Disable the phys proxy."
-]
-
-@PointClass base(Targetname, Parentname) tags( Info ) iconsprite("editor/info_target.vmat") = info_npc_spawn_destination : 
-	"NPC Spawn Destination. (Consult npc_template_maker help for more info)"
-[
-	ReuseDelay(float) : "Reuse Delay" : 1 : "After an NPC is spawned at this destination, the delay before this destination is eligible for selection again."
-	RenameNPC(target_destination) : "New NPC Name" : "" : "If an NPC spawns at this destination, change that NPC's targetname to this."
-
-	// Outputs
-	output OnSpawnNPC(void) : "Fired when an NPC spawns at this destination."
-]
-
-@BaseClass base(Targetname, Parentname) iconsprite("editor/npc_maker.vmat") color(0 0 255) = BaseNPCMaker
-[
-	StartDisabled(boolean) : "Start Disabled" : 1
-
-	spawnflags(Flags) = 
-	[
-		// Only in npc__maker, npc_template_maker uses flag from template NPC
-		16 : "Fade Corpse" : 0
-		32 : "Infinite Children" : 0
-		64 : "Do Not Drop" : 0
-		128 : "Don't Spawn While Visible" : 0
-	]
-
-	Radius(float) : "Radius" : 256 : "Radius around this maker within which NPCs are to be placed. Spawned NPCs will try and find empty space within this radius to spawn."
-
-	DestinationGroup(target_destination) : "Name of Destination Group" : : "If you'd like spawned NPCs to be created at an info_npc_spawn_destination entity, enter the name of that entity here. If you have more than one destination entity by that name, the Destination Criteria will be used to select one from the group."
-	CriterionVisibility(Choices) : "Dest. Criterion: Visible to player?" : 2 : "Should the NPC try to spawn at a destination that the player can see? Only applicable if a Destination Group is being used." =
-	[
-		0 : "Yes"
-		1 : "No"
-		2 : "Don't Care"
-	]
-	CriterionDistance(Choices) : "Dest. Criterion: Distance to player?" : 2 : "Should the NPC try to spawn nearest to or farthest from the player's current location? Only applicable if a Destination Group is being used." =
-	[
-		0 : "Nearest"
-		1 : "Farthest"
-		2 : "Don't Care"
-	]
-
-	MinSpawnDistance(integer) : "Minimum spawn distance from player" : 0 : "The spawn destination node distance to the player will have to be further or equal than this value."
-
-	MaxNPCCount(integer) : "Num. of NPCs" : 1 : "Number of NPCs that will spawn before this spawner is exhausted."
-	SpawnFrequency(integer) : "Frequency" : 5 : "How often (in seconds) a new NPC will be spawned. If set to -1, a new NPC will be made when the last NPC dies."
-	RetryFrequency(integer) : "Retry Frequency" : -1 : "How long (in seconds) to wait before trying again after failing to spawn an NPC when no valid spot could be found. If set to -1, Spawn Frequency is used."
-	MaxLiveChildren(integer) : "Max Live NPCs" : 5 : "Maximum number of live children allowed at any one time (new ones will not be made until one dies). If set to -1, no limit is applied."
-	HullCheckMode(Choices) : "Hull Check Mode" : 0 : "How NPC's hull should be checked at spawn destination?" =
-	[
-		0 : "Default"
-		1 : "No hull check"
-	]
-	
-	// Outputs
-	output OnSpawnNPC(string) : "Fired when an NPC is spawned. The activator is the NPC, and the string is the name of the NPC." 
-	output OnAllSpawned(void) : "Fired when the spawned is exhausted (all children have been spawned)."
-	output OnAllSpawnedDead(void) : "Fired when the spawner is exhausted (all children have been spawned) and all spawned children have died."
-	output OnAllLiveChildrenDead(void) : "Fired when all spawned children have died. This does not mean the spawned is exhausted, so a new child may be spawned any time after this (unless the maker is disabled)."
-
-	// Inputs
-	input Spawn(void) : "Spawns an NPC."
-	input Toggle(void) : "Toggles the spawner enabled/disabled state."
-	input Enable(void) : "Enables the spawner."
-	input Disable(void) : "Disables the spawner."
-	input AddMaxChildren(integer) : "Adds to the number of NPCs that can spawn before the spawner is exhausted. If an exhausted spawner is given some children to spawn, it still wont begin spawning until it is re-enabled with the Enable input."
-	input SetMaxChildren(integer) : "Sets the number of NPCs that can spawn before the spawner is exhausted. If an exhausted spawner is given some children to spawn, it still won't begin spawning until it is re-enabled with the Enable input."
-	input SetMaxLiveChildren(integer) : "Sets the maximum number of NPCs that can be alive at any one time from this spawner."
-	input SetSpawnFrequency(float) : "Sets how often (in seconds) a new NPC will be spawned."
-	input SpawnInRadius(void) : "Spawn an NPC somewhere within the maker's radius."
-	input SpawnInLine(void) : "Spawn an NPC somewhere within a line behind the maker."
-	input SpawnMultiple(integer) : "Spawn multiple NPCs (uses destination group, else radius)."
-	input ChangeDestinationGroup(string) : "Switch to a different set of Destination entities."
-	input SetMinimumSpawnDistance(integer) : "Set the minimum spawn distance from player to destination node."
-]
-
-@PointClass base(BaseNPCMaker) tags( Logic ) iconsprite("editor/npc_maker.vmat") = npc_template_maker : 
-	"An entity that creates NPCs. The NPCs it creates are clones of a template NPC. NPCs are spawned around this maker's origin, or at specified destination points."
-[
-	spawnflags(Flags) = 
-	[
-		512 : "Don't preload template models" : 0
-	]
-
-	TemplateName(target_destination) : "Name of template NPC" : "" : "Template NPC that this maker should be creating clones of."
-]
-
-@BaseClass base( BaseNPC ) = BaseHelicopter
-[
-	InitialSpeed(string) : "Initial Speed" : "0" : "Sets the helicopter's desired speed that it should try to reach as soon as it's spawned."
-	target(target_destination) : "Target path_track" : : "(Optional) The name of a path_track entity that this NPC will fly to after spawning."
-
-	// Inputs
-	input MoveTopSpeed(void) : "The helicopter will immediately move at top speed toward its current goal, or in its current orientation if it's on top of its goal."
-	input MoveSpecifiedSpeed(float): "The helicopter will immediately move at the specified speed (you provide this as parameter override in units per second) towards its current goal."
-	input SetMaxSpeed(float): "Change the helicopter's max speed."
-	input ChangePathCorner(target_destination) : "Tell the helicopter to move to a path corner on a new path."
-	input SelfDestruct(void) : "Self Destruct."
-	input Activate(void) : "Activate. Use to wake up a helicopter that spawned with the 'Await Input' spawnflag on."
-	input SetTrack(target_destination) : "Set a track for the helicopter to adhere to. The helicopter will do nothing if he's on the same path, and will move to the closest point on the specified track if he's on a different path."
-	input FlyToSpecificTrackViaPath(target_destination) : "The helicopter will first fly to the closest point on the path if he's on a different path. Then he'll fly along the path to the specified track point."
-	input StartPatrol(void) : "Start patrolling back and forth along the current track."
-	input StopPatrol(void) : "Stop patrolling back and forth along the track. This will cause the helicopter to come to rest at the track which he's currently flying toward."
-	input ChooseFarthestPathPoint(void) : "When tracking an enemy, choose the point on the path furthest from the enemy, but still in firing range."
-	input ChooseNearestPathPoint(void) : "When tracking an enemy, choose the point on the path nearest from the enemy."
-	input StartBreakableMovement(void) : "The helicopter is now allowed to disobey direct commands to go to particular points if he senses an enemy. He will move to the closest point (or farthest point, if ChooseFarthestPathPoint is used), on the path if he senses an enemy."
-	input StopBreakableMovement(void) : "The helicopter can not disobey direct commands. He will continue to fly along his patrol path or to his specified target even if he senses an enemy."
-
-	spawnflags(Flags) =
-	[
-		// AWAIT INPUT will make the helicopter spawn disabled, awaiting 
-		// the "Activate" input to start acting.
-		32 : "No Rotorwash" : 0
-		64 : "Await Input" : 0
-	]
 ]
 
 @BaseClass color(0 255 0) = PlayerClass []
@@ -797,128 +608,6 @@
 	input FadeToPattern(string) : "Fades from first value in old pattern, to first value in the new given pattern. Pattern format is a string of characters, where 'a' is total darkness, 'z' fully bright. i.e. 'aaggnnttzz' would be a steppy fade in from dark to light."
 ]
 
-@BaseClass = Node 
-[
-	nodeid(node_id) [readonly] : "Node ID"
-]
-
-@BaseClass base(Node) tags( AI ) = HintNode 
-[
-	spawnflags(flags) = 
-	[
-		65536: "Allow jump up" : 0
-	]
-	
-	hinttype(choices) : "Hint" : 0 = 
-	[
-		  0 : "None"
-
-		  2: "World: Window"
-		 12: "World: Act Busy Hint"
-		 13: "World: Visually Interesting"
-		 14: "World: Visually Interesting (Don't aim at)"
-		 15: "World: Inhibit Combine Mines within 15 feet"
-		 16: "World: Visually Interesting (Stealth mode)"
-
-		 17: "Generic"
-
-		100: "Tactical: Crouch Cover Medium"
-		101: "Tactical: Crouch Cover Low"
-//		102: "Waste Scanner Spawn"
-		103: "Tactical: Entrance / Exit Pinch"
-//		104: "Guard Point"
-		105: "Tactical: Enemy Disadvantage Point"
-//		106: "Health Kit"
-		107: "Tactical: High Ground"
-		108: "Tactical: Wall Cover Left"
-		109: "Tactical: Wall Cover Right"
-		110: "Tactical: Wall Cover Both"
-
-		400: "Antlion: Burrow Point"
-		401: "Antlion: Thumper Flee Point"
-
-		450: "Headcrab: Burrow Point"
-		451: "Headcrab: Exit Pod Point"
-
-		500: "Roller: Patrol Point"
-		501: "Roller: Cleanup Spot"
-
-		700: "Crow: Fly to point"
-		701: "Crow: Perch point"
-
-		900: "Follower: Wait point"
-		901: "Override jump permission"
-		902: "Player squad transition point"
-		903: "NPC exit point"
-		904: "Strider node"
-
-		950: "Player Ally: Push away destination"
-		951: "PLayer Ally: Fear withdrawal destination"
-
-		1000: "HL1 World: Machinery"
-		1001: "HL1 World: Blinking Light"
-		1002: "HL1 World: Human Blood"
-		1003: "HL1 World: Alien Blood"
-	
-//		1100: "CS Hostage: Escape Point"
-
-		1200: "Ep3 Blob Shake Position"
-		1201: "Ep3 Blob Fire Cover Position"
-		1202: "Ep3 Blob Brain Cover Position"
-		1203: "Ep3 Blob Brain Regenerate Position"
-		1204: "Ep3 Blob Spit Position"
-		1205: "Ep3 Blob Spawn Regenerator Position"
-
-		1300: "Aperture: Nest"
-	]
-	
-	generictype(string) : "Generic Hint" : "" : "String identifying what the hint type is, if generic."
-
-	hintactivity(string) : "Hint Activity" : "" : "Activity associated with this hint node. Various parts of the NPC AI play this activity at times. i.e. Actbusy nodes will play this activity when an NPC acts busy on the node."
-
-	nodeFOV(choices) : "Node FOV" : 180 : "Imagine this node requires that an NPC be in the node's field of view in order to use this hint." =
-	[
-		45 : "45 Degrees"
-		90 : "90 Degrees"
-		180 : "180 Degrees"
-		360 : "360 Degrees"
-	]
-
-	// Does not inherit from EnableDisable, as node itself will
-	// use that.  This is enabling/disabling of the hint only
-	StartHintDisabled(boolean) : "Start Hint Disabled" : 0
-
-	Group(string) : "Hint Group" : "" : "If specified, gives the hint a specific group name.  Useful for hint nodes that need to be logically grouped together. NPCs may also refuse to use hint nodes that don't match their hint group."
-
-	TargetNode(node_dest) : "Target node" : -1 : "The node ID of an associated target node, if any."
-
-	radius(integer) : "Radius" : 0 : "How close an NPC must be to consider this hint. 0 means infinite."
-	IgnoreFacing(choices) : "Ignore Facing" : 2 : "Don't pay attention to the facing of the node. May not apply to a given hint type." =
-	[
-		0 : "No"
-		1 : "Yes"
-		2 : "Default"
-	]
-
-	MinimumState(choices) : "Minimum State" : 1 : "Require an NPC have a minimum state to use the hint." =
-	[
-		1 : "Idle"
-		2 : "Alert"
-		3 : "Combat"
-	]
-
-	MaximumState(choices) : "Maximum State" : 3 : "Require an NPC have a maximum state to use the hint." =
-	[
-		1 : "Idle"
-		2 : "Alert"
-		3 : "Combat"
-	]
-
-	// Inputs
-	input EnableHint(void) : "Enable hint."
-	input DisableHint(void) : "Disable hint."
-]
-
 @BaseClass base(Targetname, Parentname, EnableDisable, Global) tags( Trigger )
 	metadata
 	{
@@ -930,7 +619,7 @@
 	[
 		1: "Clients" : 1
 		2: "NPCs" : 0
-		4: "Pushables": 0
+		4: "Projectiles": 0
 		8: "Physics Objects" : 0
 		16: "Only player ally NPCs" : 0
 		32: "Only clients in vehicles" : 0
@@ -970,6 +659,7 @@
 		0 : "Disabled"
 		1 : "Test map (open space, no skybox)"
 		10 : "Full visibility solve"
+		11 : "Partitioned solve (large map volume)"
 	]
 
 	newunit(choices) : "New Level Unit" : 0 : "Used to clear out savegame data of previous levels to keep the savegame size as small as possible. Only set it to Yes if the player cannot return to any previous levels." = 
@@ -994,7 +684,6 @@
 		2 : "Teleport (w/non-up floor)"
 	]
 ]
-
 
 @PointClass base(Targetname, Parentname) tags( Sound ) iconsprite("editor/ambient_generic.vmat") sphere() = ambient_generic : "Universal ambient sound. Use it to play and control a single sound."
 [
@@ -1062,7 +751,6 @@
 	input FadeOut(integer) : "Fades the sound to silence over a specified number of seconds, with a range from 0 to 100 seconds."
 ]
 
-
 @PointClass base(Targetname, Parentname) tags( Sound ) iconsprite("editor/snd_event.vmat") = point_soundevent :
 	"Plays a sound event from a point. The point can be this entity or a specified entity's position."
 [
@@ -1096,6 +784,22 @@
 [
 	box_mins(vector) : "Box Mins" : "-64 -64 -64"
 	box_maxs(vector) : "Box Maxs" : "64 64 64"
+]
+
+@PointClass base(Targetname, Parentname) tags( Sound ) iconsprite("editor/snd_event.vmat") = snd_event_path_corner :
+	"Plays some number of soundevents (up to max) along segments of a path corner network"
+[
+	soundName(sound) [report]: "Sound Event Name" : "" : "Name of the sound event to play"
+	startOnSpawn(boolean) : "Start On Spawn" : "" : "Play the sound immediately upon spawning"
+
+	pathCornerEntity(target_destination) : "Path Corner Entity Name" : "" : "Name of the first path corner node in the chain"
+	soundeventCountMax(integer) : "Max Soundevents" : "5" : "The max number of soundevents the path corner chain will emit"
+	distanceMax(float) : "Max Distance" : "500" : "The distance beyond which a segment will not emit a soundevent"
+	dotProductMax(float) : "Max Dot Product" : "1.1" : "For excluding soundevents that are close to eachother"
+
+	//Inputs
+	input StartSound(void) : "Start the sound event. If an entity name is provided, the sound will originate from that entity"
+	input StopSound(void) : "Stop the sound event"
 ]
 
 @PointClass base(Targetname) tags( Sound ) iconsprite("editor/snd_event.vmat") = snd_stack_save :
@@ -1165,7 +869,8 @@
 	stackName(string) : "Stack Name" : "" : "The name of the stack the operator is in"
 	operatorName(string) : "Operator Name" : "" : "The name of the operator the OpVar is in"
 	opvarName(string) : "OpVar Name" : "" : "The name of the OpVar to change"
-	opvarArrayIndex(integer) : "OpVar Index" : "" : "Index of the OpVar array to set"
+	opvarUseAutoCompare(bool) : "Use Auto Compare" : "0" : "All entities that point to the same opvar and have this selected will automatically have their values compared and the largest set to the opvar value"
+	opvarArrayIndex(integer){ enabled={ variable="opvarUseAutoCompare" value="0" } } : "OpVar Index" : "" : "Index of the OpVar array to set"
 	distanceMapMin(float) : "Distance Map Minimum" : "" : "Minimum value to map distance to"
 	distanceMapMax(float) : "Distance Map Maximum" : "" : "Maximum value to map distance to"
 	occlusionRadius(float) : "Occlusion Radius" : "" : "Size of the occlusion sphere"
@@ -1202,17 +907,19 @@
 	output OnEnter(void) : "Fired when the player enters the outer distance."
 	output OnExit(void) : "Fired when the player exits the outer distance."
 ]
-
-@BaseClass = SndOpvarSetPointBaseAddition
+@BaseClass = SndOpvarSetPointBaseAddition1
 [ 
 	distanceMin(float) : "Minimum Distance" : "5.0" : "Minimum distance to map the OpVar value to"
 	distanceMax(float) : "Maximum Distance" : "25.0" : "Maximum distance to map the OpVar value to"
-	sourceEntityName(target_destination) : "Source Entity Name" : "" : "Name of the entity to check distance/occlusion from"
-	
+]
+
+@BaseClass = SndOpvarSetPointBaseAddition2
+[ 
+	sourceEntityName(target_destination) : "Source Entity Name" : "" : "Name of the entity to check distance/occlusion from"	
 	input SetSourceEntity(string) : "Set the name of the entity to check distance/occlusion from. This check will follow the entity as it moves."
 ]
 
-@PointClass base( Targetname, SndOpvarSetPointBaseAddition, SndOpvarSetPointBase ) tags( Sound ) iconsprite("editor/snd_opvar_set.vmat") sphere(distanceMin) sphere(distanceMax) vecline_local( dynamicProxyPoint, 200, 255, 200 ) sphere(occlusionRadius, 255, 255, 0) = snd_opvar_set_point :
+@PointClass base( Targetname, SndOpvarSetPointBaseAddition1, SndOpvarSetPointBaseAddition2, SndOpvarSetPointBase ) tags( Sound ) iconsprite("editor/snd_opvar_set.vmat") sphere(distanceMin) sphere(distanceMax) vecline_local( dynamicProxyPoint, 200, 255, 200 ) sphere(occlusionRadius, 255, 255, 0) = snd_opvar_set_point :
 	"Sets an opvar value on a library stack"
 [
 	dynamicEntityName(target_destination) : "Dynamic Entity Name" : "" : "Name of the dynamic prop_door_rotating_physics entity to check for dynamic factor calculation."
@@ -1241,17 +948,55 @@
 [
 ]
 
-
-@SolidClass base(Targetname) sphere(DisappearMinDist) sphere(DisappearMaxDist) = func_lod : 
-	"Brush-built model that fades out over a specified distance. Useful for creating world detail that doesn't need to be drawn far away, for performance reasons."
+@PointClass base( Targetname, SndOpvarSetPointBaseAddition1, SndOpvarSetPointBase ) tags( Sound ) iconsprite("editor/snd_opvar_set.vmat") = snd_opvar_set_path_corner:
 [
-	DisappearMinDist(integer)    : "Disappear Min Distance" : 2000 : "Distance at which these brushes should starting fade out."
-	DisappearMaxDist(integer)    : "Disappear Max Distance" : 2200 : "Distance at which these brushes should be completely faded out."
-	Solid(choices) : "Solid" : 0 : "Set whether or not these brushes should collide with other entities." =
-	[
-		0: "Solid"
-		1: "Nonsolid"
-	]
+	pathCornerEntityName(target_destination) : "Path Corner Starting Entity" : "" : "The name of the entity that is at the start of the path"
+]
+
+@PointClass base( Targetname ) tags( Sound ) iconsprite("editor/snd_opvar_set.vmat") box_oriented( box_mins, box_maxs ) = snd_opvar_set_wind_obb:
+[
+	stackName(string) : "Stack Name" : "" : "The name of the stack the operator is in"
+	operatorName(string) : "Operator Name" : "" : "The name of the operator the OpVar is in"
+	opvarName(string) : "OpVar Name" : "" : "The name of the OpVar to change"
+	opvarUseAutoCompare(bool) : "Use Auto Compare" : "0" : "All entities that point to the same opvar and have this selected will automatically have their values compared and the largest set to the opvar value"
+	opvarArrayIndex(integer){ enabled={ variable="opvarUseAutoCompare" value="0" } } : "OpVar Index" : "" : "Index of the OpVar array to set"
+	wind_min(float) : "Minimum Wind Value" : "0.0" : "Minimum value of env_wind"
+	wind_max(float) : "Maximum Wind Value" : "1.0" : "Maximum value of env_wind"
+	wind_map_min(float) : "Minimum Wind Map Value" : "0.0" : "Minimum value to map env_wind to opvar"
+	wind_map_max(float) : "Maximum Wind Map Value" : "1.0" : "Maximum value to map env_wind to opvar"
+	box_mins(vector) : "Box Mins" : "-32 -32 -32"
+	box_maxs(vector) : "Box Maxs" : "32 32 32"	
+	
+	// inputs
+	input SetStackName(string) : "Change the target stack name"
+	input SetOperatorName(string) : "Change the target operator name"
+	input SetOpvarName(string) : "Change the target opvar name"	
+	input SetOpvarIndex(integer) : "Change the target opvar index"	
+	input SetSoundEventGUID(integer) : "Start the sound event using a snd_event_point and pass its guid output to this."
+]
+
+@BaseClass = SndSoundAreaBase
+[ 
+	soundAreaType(string) : "Sound Area Type" : "" : "Name of the type of Sound Area"
+	startDisabled(bool) : "Start Disabled" : 0
+	
+	//Inputs
+	input Enable(void) : "Enable the entity"
+	input Disable(void) : "Disable the entity"
+	
+]
+
+@PointClass base( Targetname, SndSoundAreaBase ) tags( Sound ) iconsprite("editor/snd_opvar_set.vmat") sphere(areaRadius) = snd_sound_area_sphere :
+	"Creates a spherical Sound Area"
+[
+	areaRadius(float) : "Sound Area Radius" : "25.0" : "The radius of the Sound Area"
+]
+
+@PointClass base( Targetname, SndSoundAreaBase ) tags( Sound ) iconsprite("editor/snd_opvar_set.vmat") box_oriented( areaMin, areaMax ) = snd_sound_area_obb :
+	"Creates a box Sound Area"
+[
+	areaMin(vector) : "Sound Area Min" : "-32 -32 -32"
+	areaMax(vector) : "Sound Area Max" : "32 32 32"	
 ]
 
 @PointClass base(Targetname) = env_zoom : 
@@ -1300,21 +1045,6 @@
 	input	SwitchOverlay(float) : "Switch to displaying a specific overlay. Pass in the desired overlay number in the parameter."
 ]
 
-@PointClass base(Targetname) = env_screeneffect :
-	"Allows screenspace effects to be played on the player's view."
-[
-	type(choices) : "Effect Type" : 0 : "Which effect to use." =
-	[
-		0 : "Advisor Stun"
-		1 : "Intro Blur"
-		2 : "Groggy Vision"
-	]
-
-	// Inputs
-	input	StartEffect(float) : "Start the effect with the duration in seconds as the passed parameter."
-	input   StopEffect(float) : "Stop the effect."
-]
-
 @PointClass base(Targetname) iconsprite("editor/env_texturetoggle.vmat") = env_texturetoggle : 
 	"An entity that allows you to change the textures on other brush-built entities."
 [
@@ -1324,6 +1054,27 @@
 	input	IncrementTextureIndex(void) : "Increments target brush's current texture frame by one."
 	input	SetTextureIndex(integer) : "Sets target brush's texture frame to the specified index."
 ]
+
+@PointClass base(Targetname) box_oriented( anim_bounds_min, anim_bounds_max) model() = texture_based_animatable
+[
+	model(studio) : "Model" : ""
+	fps(float) : "Frames Per Second" : "60"
+	loop(boolean) : "Loop" : "0"
+	texture_based_animation_preview_sequence(float) [ min="0.0", max="1.0" ] : "Preview Sequence"
+	texture_based_animation_position_keys(resource:texture) : "Position Keyframes"
+	texture_based_animation_rotation_keys(resource:texture) : "Rotation Keyframes"
+	anim_bounds_min(vector) : "Animation Bounds Min" : "0 0 0" : "Minimum extents of the model throughout the whole animation" 
+	anim_bounds_max(vector) : "Animation Bounds Max" : "0 0 0" : "Maximum extents of the model throughout the whole animation" 
+	lightingorigin(target_destination) : "Lighting Origin" : "" : "Select an info_lighting to specify a location to sample lighting from, instead of its own origins."
+
+
+	input Start(void) : "Starts the animation"
+	input Stop(void) : "Stops the animation"
+	StartDisabled(boolean) : "Start Disabled" : 0
+	input Enable(void) : "Enable the Object."
+	input Disable(void): "Disable the Object."
+]
+
 
 @PointClass base(Targetname) = env_splash : 
 	"An entity that creates a splash effect at its origin. If the 'find water surface' spawnflag is set, it will instead trace down below itself to find the water surface on which to create splashes."
@@ -1340,34 +1091,29 @@
 	]
 ]
 
-@PointClass base(Parentname) tags( Particles ) color(180 10 180) = env_particlelight : 
-	"An entity that can be used to light the smoke particles emitted by env_smokestack entities. Does not light any other particle types."
-[
-	Color(color255) : "Color" : "255 0 0" : "Color emitted by this light." 
-	Intensity(integer) : "Intensity" : 5000
-
-	directional(boolean) : "Directional" : 0 : "If this is specified, then this light will use the bump map on the particles. Each particle system can have one ambient and one directional light."
-
-	PSName(string) : "Particle System Entity" : "" : "Set this to the name of the env_smokestack that you want this light to affect."
-]
-
-@PointClass base(Targetname) color(255 0 0) = env_sun : 
+@PointClass base(Targetname) color(255 255 255) 
+	editormodel( "models/editor/light_environment", lightModeTint, "124 255 157", "255 64 64" )
+	iconsprite
+	{
+		image = "materials/editor/env_sun.vmat"
+		tintKey = "color"
+	}	
+	helper_env_sun() = env_sun : 
 	"An entity to control & draw a sun effect in the sky."
 [
-	target(target_destination) : "Viewer entity" : : "Name of an entity used to determine where the sun is in the skybox. The sun should be lined up on a line from this entity to the env_sun entity."
-	
-	use_angles(boolean) : "UseAngles" : 0 : "The old way to orient env_sun is to point it at a target. The new way is to specify the angles. If you use the new way, set this property to YES."
-
-	rendercolor(color255) : "Sun Color (R G B)" : "100 80 80"
-	overlaycolor(color255) : "Overlay Color (R G B)" : "0 0 0" : "A value of 0 0 0 will act the old way."
-	
-	size(integer) : "Size" : 16
-	overlaysize(integer) : "Overlay Size" : -1 : "A value of -1 means the overlay will act the old way."
-	
-	material(sprite) : "Material Name" : "materials/sprites/light_glow02_add_noz" : "Material of the inner glow."
-	overlaymaterial(sprite) : "Overlay Material Name" : "materials/sprites/light_glow02_add_noz" : "Material of the overlay glow."
-
-	HDRColorScale(float) : "HDR color scale." : "1.0" : "float value to multiply sprite color by when running in HDR mode."
+	 effect_name(particlesystem) [report] : "Particle Sun flare" : "particles/environment/env_sun_clear.vpcf"
+	 effect_namess(particlesystem) [report] : "Sceenspace effect (addition)" : "" : ""
+	 full_luminositycolorvalue(boolean) : "Remap to Max Luminosity" : 1 : "Regardless of color Value set to max luminocity. This is mainly for additive things like the sun"
+	 colortint(color255) : "Sun Color (R G B)" : "100 80 80"
+	 scale(float) : "Size" : "4.0" : "Increased control on scaling the sun in the particle system. This read into control point 17 which should drive the system."
+	 selfillumscale(float) : "HDR color scale (0-10)" : 4 : "float value to multiply sprite color by when running in HDR mode. Cp 17 y."
+	 hazescale(float) : "Haze Scale (0-10)" : 4 : "additional control for creating things like haze. Treat this like another float input on cp 17 z."
+	 rotation(float) [ group="Advanced Properties" ] : "Sprite Rotation" : "0.0" : "Rotate the sprite. passed to Particle through Control point 15"
+	 alphascale(float) [ group="Advanced Properties" ] : "Core Alpha" : "1.0" : "Rotate the sprite. passed to Particle through Control point 18 x"
+	 alphahdr(float) [ group="Advanced Properties" ] : "Hdr Alpha" : "1.0" : "Rotate the sprite. passed to Particle through Control point 18 y"
+	 alphahaze(float) [ group="Advanced Properties" ] : "Haze Alpha" : "1.0" : "Alpha sprite. passed to Particle through Control point 18 z"
+	 mapfarz(integer) [ group="Advanced Properties" ] : "Map Farz" : 10000 : "The farz set in the map's env_fog_controller. this is to help preview for size in hammer only. Not used in game. "
+	 farzscale(float) [ group="Advanced Properties" ] : "FarZ Scale" : ".95" : "Default is .9, it will let you scale the distance of the sun to the player incase of fog fading out the sun.  "
 
 	// Inputs
 	input TurnOn(void) : "Enable sun rendering."
@@ -1419,20 +1165,6 @@
 	
 	input SetMaxPieces(integer)	: "Set the max gib count."
 	input SetMaxPiecesDX8(integer)	: "Set the max gib count under DX8."
-]
-
-@PointClass base(Targetname) iconsprite("editor/env_dof_controller.vmat") = env_dof_controller : 
-	"An entity that controls the depth of field settings for the player. Depth of field simulates camera blur of out-of-focus regions of the scene."
-[
-	// Inputs
-	input SetNearBlurDepth(float) : "Set the distance in front of the focus region at which the scene will be completely blurred using the near blur radius. Must be smaller than NearFocusDepth."
-	input SetNearFocusDepth(float) : "The area between the near focus and far focus distances is perfectly in focus. Must be smaller than FarFocusDepth."
-	input SetFarFocusDepth(float) : "The area between the near focus and far focus distances is perfectly in focus. Must be smaller than FarBlurDepth."
-	input SetFarBlurDepth(float) : "Set the distance beyond the focus region at which the scene will be completely blurred using the far blur radius. Must be larger than FarFocusDepth."
-	input SetNearBlurRadius(float) : "Set the blur radius (in pixels) to use at the near blur distance. Set to 0 to disable near blur."
-	input SetFarBlurRadius(float) : "Set the blur radius (in pixels) to use at the far blur distance. Set to 0 to disable far blur."
-	input SetFocusTarget(string) : "Set the focal target for the effect."
-	input SetFocusTargetRange(float) : "Set the distance behind the focal point that will remain in focus."
 ]
 
 @PointClass base(Parentname, Targetname) tags( Particles ) color(255 128 0) editormodel("models/editor/axis_helper_thick") = env_lightglow : 
@@ -1516,38 +1248,6 @@
 	output OnBeginFade(void) : "Fired when the fade has begun."
 ]
 
-@PointClass base(Targetname) tags( Trigger ) = env_player_surface_trigger : 
-	"An entity that monitors the material of the surface the player is standing on, and fires outputs whenever it changes to/from a specific material."
-[
-	gamematerial(choices) : "Game Material to Watch" : "0" : "The material to watch. When the player stands on/off this material, this entity's outputs will be fired." =
-	[
-		0 : "None (player's in the air)"
-		67 : "Concrete"
-		77 : "Metal"
-		68 : "Dirt"
-		86 : "Vent"
-		71 : "Grate"
-		84 : "Tile"
-		83 : "Slosh"
-		87 : "Wood"
-		80 : "Computer"
-		89 : "Glass"
-		70 : "Flesh"
-		73 : "Clip"
-		79 : "Foliage"
-		78 : "Sand"
-	]
-	
-	// Inputs
-	input Enable(void) : "Start watching the player's surface."
-	input Disable(void) : "Stop watching the player's surface."
-
-	// Outputs
-	output OnSurfaceChangedToTarget(void) : "Fired when the player moves onto the specified game material."
-	output OnSurfaceChangedFromTarget(void) : "Fired when the player moves off the specified game material."
-]
-
-
 @SolidClass base(Targetname) tags( Trigger ) = trigger_tonemap : "Changes tonemap controllers for players touching the trigger."
 [
 	TonemapName(target_destination) : "Tonemap Name" : : "The name of the tonemap controller entity associated with this trigger."
@@ -1578,39 +1278,10 @@
 	ladderSurfaceProperties(string) : "Surface properties (optional)"
 ]
 
-@PointClass base(Targetname, Parentname) tags( Info ) size( -16 -16 0, 16 16 72 ) color(127 127 127) = func_ladderendpoint : 
-	"An entity used to specify the endpoints of a ladder. This entity is functional, but has been replaced by the " + 
-	"easier-to-use func_useableladder entity. Left in only for backwards-compatibility!<br><br>" +
-	"To be valid, a full sized player hull traced between the start and end points must not be obstructed at level " + 
-	"activation time. The angle determines in which direction the player leaves the ladder if the player presses the " +
-	"+jump button.<br><br>" +
-	"Note: This entity is non-functional in Counter-Strike: Source. In CS:S, use func_ladder instead."
-[
-	target(target_destination) : "Other" : : "A ladder goes between any two func_ladderendpoints pointing at each other."
-	// TODO:  Allow individual ladder end points to be enabled, disabled
-	// TODO:  Allow ladder to specify movement speed or a speed scale while on ladder
-	// TODO:  Allow specifying radius within with you must be in order to +use to get on the ladder
-]
-
 @PointClass base(Parentname) tags( Info ) size( -16 -16 0, 16 16 4 ) color(255 128 255)= info_ladder_dismount : 
 	"An entity to handle endpoints for multiple ladders that are too close to each other."
 [
 	target(target_destination) : "LadderName" : : "If multiple ladders are near multiple endpoints, use this to stop them from interfering with each other."
-]
-
-@SolidClass base(Targetname) color(0 128 255) = func_areaportalwindow : 
-	"An entity that can be used to optimize the visibility in a map. If you seal off an area with them, when the viewer moves the specified distance away from them, they will go opaque and the parts inside the area will not be drawn. The 'target' brush model should enclose the func_areaportal window so no parts of it are culled by the window. If you use the optional foreground brush model, then it should enclose the 'target' brush model."
-[
-	target(target_destination)  : "Rendered Window" : : "The name of a brush model to render as the window."
-	FadeStartDist(integer) : "Fade Start Distance" : 128 : "When the viewer is closer than this distance, the alpha is set to 'TranslucencyLimit'."
-	FadeDist(integer) : "Fade End Distance"   : 512 : "When the viewer is at this distance, the portal becomes solid and closes off."
-	TranslucencyLimit(string) : "Translucency limit"  : "0" : "This value limits the translucency of the bmodel and prevents it from becoming invisible when the viewer is right on top of it."
-	BackgroundBModel(string) : "Foreground bmodel"   : "" : "(Optional) brush model that is drawn after the fading brush model. This model should have alpha in its textures so you can see through it."
-	PortalVersion(integer)	[readonly]	: "Portal Version"      : 1  : "(Don't change). Differentiates between shipping HL2 maps and maps using new engine features."
-	
-	// Inputs
-	input SetFadeStartDistance(integer) : "Set fade start distance."
-	input SetFadeEndDistance(integer) : "Set fade end distance."
 ]
 
 @SolidClass base(Targetname, RenderFields, Global, Shadow)  sphere(fademindist) sphere(fademaxdist) = func_wall : 
@@ -1658,6 +1329,7 @@
 	input SetInvert( integer ) : "Set the state of invversion for NPC class exclusion (0 or 1)"
 	input SetSolid( void ) : "Enables all collisions with this func_brush."
 	input SetNonsolid( void ) : "Disables all collisions with this func_brush."
+	input Toggle(void) : "Toggle enable state."
 ]
 
 
@@ -1676,11 +1348,6 @@
 	// Inputs
 	input SetActive(void) : "Make the vgui screen visible."
 	input SetInactive(void) : "Make the vgui screen invisible."
-]
-
-@PointClass base(VGUIScreenBase) size(-4 -4 -4, 4 4 4) = vgui_screen : 
-	"A VGUI screen. Useful for in-world monitors." 
-[
 ]
 
 @PointClass base(Targetname, Parentname) editormodel("models/editor/axis_helper_thick.vmdl") = vgui_slideshow_display : "Slideshow Display"
@@ -1746,7 +1413,12 @@
 //
 //-------------------------------------------------------------------------
 
-@PointClass base(Targetname, Parentname, RenderFxChoices, RenderFields, CanBeClientOnly) model() model_archetypes(animated_model) = cycler :
+@PointClass base(Targetname, Parentname, CanBeClientOnly, RenderFxChoices, RenderFields) model()
+	metadata
+	{
+		model_archetypes = [ "animated_model" ]
+	}
+= cycler :
 	"An entity used to display a model for testing purposes. Shooting it with cycle through the model's animations."
 [
 	spawnflags(flags) =
@@ -1782,7 +1454,12 @@
 ]
 
 
-@PointClass base(Targetname, Parentname, RenderFxChoices, RenderFields, Studiomodel) model() model_archetypes(animated_model) = func_orator : 
+@PointClass base(Targetname, Parentname, RenderFxChoices, RenderFields, Studiomodel) model()
+	metadata
+	{
+		model_archetypes = [  "animated_model" ]
+	}
+= func_orator : 
 	"A very simple model entity that has animations and response rules."
 [
 	spawnflags(flags) =
@@ -2038,6 +1715,7 @@
 	"An entity that creates an explosion at its origin. If the no-damage spawnflag is set, the explosion won't be visible, but will apply force to any physics objects within its radius."
 [
 	magnitude(string) : "Magnitude" : "100" : "Amount of physics force applied by the explosion."
+	damage(string) : "Damage" : "0" : "If specified, amount of damage to deal. If unspecified, magnitude is used as the damage."
 	radius(string) : "Clamp Radius (0 = auto)" : "0" : "If specified, the radius in which the explosion damages entities. If unspecified, the radius will be based on the magnitude."
 	targetentityname(target_destination) : "Limit to Entity" : "" : "If specified, the explosion will only affect the matching entity."
 	explodeonspawn(boolean) : "Explode on spawn" : "Performs the physics explosion immediately upon spawning."
@@ -2335,16 +2013,6 @@
 	output OnShowMessage(void) : "Fired when the message is activated."
 ]
 
-@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = env_hudhint : 
-	"An entity to control the display of HUD hints. HUD hints are used to show the player what key is bound to a particular command."
-[
-	message(string) : "Hint Text (localized)" : "" : "This should be set to match the desired HUD hint entry in the hl2\resource\valve_english.txt."
-
-	// Inputs
-	input ShowHudHint(void) : "Shows the hint message."
-	input HideHudHint(void) : "Hides the hint message."
-]
-
 @PointClass sphere() iconsprite("editor/env_shake.vmat") base(Targetname, Parentname) = env_shake : 
 	"An entity to control screen shake on players." 
 [
@@ -2501,6 +2169,8 @@
 [
 	radius(integer) : "Radius" : 128 : "If set to -1, then the player can hear the soundscape as long as he can see it (regardless of distance to it)."
 	soundscape(string) : "Soundscape" : "Nothing" : "The name of the soundscape to use. Corresponds to an entry in the soundscapes*.txt file in the scripts directory."
+	enablesoundevent(boolean) : "Override soundscape with sound event" : 0
+	soundevent(sound) : "Sound Event" : "" : "The name of the sound event to start from the soundscape entity."
 
 	position0(target_destination) : "Sound Position 0" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
 	position1(target_destination) : "Sound Position 1" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
@@ -2718,13 +2388,6 @@
 	input SetAmmoModifier(float): "Adjust the ammo modifier."
 ]
 
-@PointClass base(Targetname) iconsprite("editor/game_end.vmat") = game_end : 
-	"An entity that ends a multiplayer game." 
-[
-	master(string) : "Master (Obsolete)" : : "Legacy support: The name of a master entity. If the master hasn't been activated, this entity will not activate."
-	input EndGame(void) : "End the multiplayer game."
-]
-
 @PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = game_player_equip : 
 	"An entity that gives equipment to the player who activates it. To use, add new keys to this entity, where each key is the classname of a weapon/item, and the corresponding value is the number of those weapons/items to give to the player who uses this entity. If the 'Use Only' spawnflag isn't set, then players can just touch this entity to get the equipment."
 [
@@ -2733,35 +2396,6 @@
 		1: "Use Only" : 0
 	]
 	master(string) : "Team Master (Obsolete)" : : "Legacy support: The name of a master entity. If the master hasn't been activated, this entity will not activate."	
-]
-
-@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = game_player_team : 
-	"An entity that changes the team of the player who activates it."
-[
-	spawnflags(flags) =
-	[
-		1 : "Remove On fire" : 0
-		2 : "Kill Player" : 0
-		4 : "Gib Player" : 0
-	]
-	target(string) : "game_team_master to use" 
-	master(string) : "Master (Obsolete)" : : "Legacy support: The name of a master entity. If the master hasn't been activated, this entity will not activate."	
-]
-
-@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = game_score : 
-	"An entity that awards/deducts points from the player who activates it." 
-[
-	spawnflags(flags) =
-	[
-		1: "Allow Negative" : 0
-		2: "Team Points" : 0
-	]
-
-	points(integer) : "Points to add (+/-)" : 1
-	master(string) : "Master (Obsolete)" : : "Legacy support: The name of a master entity. If the master hasn't been activated, this entity will not activate."
-	
-	// Inputs
-	input ApplyScore(void) : "Add score to player."
 ]
 
 @PointClass base(Targetname) iconsprite("editor/game_text.vmat") = game_text : 
@@ -2825,64 +2459,6 @@
 	input SetMessage(string) : "Sets the message text to display."
 ]
 
-
-@PointClass base(Targetname, Parentname, RenderFields) editormodel("models/editor/cone_helper.vmdl") = point_spotlight : 
-	"An entity to draw a spotlight. Will draw a beam when the player views it side on, and a halo when it's facing towards the player. "+
-	"Unless the 'No Dynamic Light' spawnflag is checked, it will also create a dynamic light wherever the end of the spotlight rests."
-[
-	spawnflags(Flags) = 
-	[
-		1 :  "Start On" : 1
-		2 :  "No Dynamic Light" : 1
-	]
-
-	spotlightlength(integer) : "Spotlight Length" : 500 : "Length of the spotlight beam."
-	spotlightwidth(integer) : "Spotlight Width" : 50 : "Width of the spotlight beam."
-	rendercolor(color255) : "Color (R G B)" : "255 255 255"
-	HaloScale(float) : "Halo size scale." : "60" : "float value to determine the size of the halo."
-	HDRColorScale(float) : "HDR color scale." : "1.0" : "float value to multiply sprite color by when running in HDR mode."
-	
-	// Inputs
-	input LightOn(void) : "Turn the spotlight on."
-	input LightOff(void) : "Turn the spotlight off"
-	input ForceUpdate(void) : "Force an update of the spotlight position and orientation"
-	
-	// outputs
-	output OnLightOn(void) : "Fires when light turns on."
-	output OnLightOff(void) : "Fires when light turns off."
-
-]
-
-@PointClass base(Targetname, Parentname) size(-8 -8 -8, 8 8 8) = point_tesla : 
-	"An entity that creates tesla lightning arcs around its origin."
-[
-	m_SourceEntityName(string) : "Source Entity" : "" : "If specified, tesla lightning will originate from the specified entity. Otherwise, they originate from this entity."
-	m_SoundName(string) : "Sound Name" : "DoSpark" : "Sound to be played whenever lightning is created."
-
-	texture(sprite) : "Sprite Name" : "sprites/physbeam.vmat" : "Material to use for the tesla lightning beams."
-
-	m_Color(color255) : "Color" : "255 255 255"
-
-	m_flRadius(integer) : "Radius" : 200 : "Radius around the origin to find a point to strike with a tesla lightning beam."
-
-	beamcount_min(integer) : "Min # of Beams" : 6 : "Minimum number of tesla lightning beams to create when creating an arc."
-	beamcount_max(integer) : "Max # of Beams" : 8 : "Maximum number of tesla lightning beams to create when creating an arc."
-	
-	thick_min(string) : "Min Beam Width" : "4" : "Minimum width of the tesla lightning beams."
-	thick_max(string) : "Max Beam Width" : "5" : "Maximum width of the tesla lightning beams."
-	
-	lifetime_min(string) : "Min Time Visible" : "0.3" : "Minimum lifetime of the tesla lightning beams."
-	lifetime_max(string) : "Max Time Visible" : "0.3" : "Maximum lifetime of the tesla lightning beams."
-	
-	interval_min(string) : "Min Time Between Arcs":"0.5" : "Minimum time delay between random arcing."
-	interval_max(string) : "Max Time Between Arcs":"2" : "Maximum time delay between random arcing."
-
-	// Inputs
-	input TurnOn(void) : "Turn emitter on." 
-	input TurnOff(void) : "Turn emitter off."
-	input DoSpark(void) : "Force a single arc."
-]
-
 @PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = point_clientcommand : 
 	"An entity that issues commands to the client console, as if it was typed in by the player (if activator is a player, or the local player in single player)."
 [
@@ -2914,46 +2490,6 @@
 	input Unlock(void) : "Unlocks the filename/map combination."
 	input Complete(void) : "Completes the filename/map combination."
 	input Save(void) : "Saves bonus map data."
-]
-
-@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = game_ui : 
-	"An entity used to override player input when the player is looking at it."
-[
-	spawnflags(flags) =
-	[
-		32 : "Freeze Player" : 1
-		64 : "Hide Weapon" : 1
-		128 : "+Use Deactivates" : 1
-		256 : "Jump Deactivates" : 1
-	]
-	
-	FieldOfView(float) : "FieldOfView" : "-1.0" : "The amount of tolerance in the view checking when determining whether the player's input is still under control. 1.0 = straight ahead, 0.0 = +/- 90 degrees, -1.0 = all directions. If the player isn't within the tolerance, the player regains control."
-
-	// Inputs
-	input Deactivate(void) : "Return Player Control."
-	input Activate(string) : "Take Player Control."
-
-	// Outputs
-	output PlayerOn(void) : "Fired whenever this entity starts controlling the player's input."
-	output PlayerOff(void) : "Fired whenever this entity stops controlling the player's input."
-	output PressedMoveLeft(void) : "Fired whenever the player presses the moveleft key."
-	output PressedMoveRight(void) : "Fired whenever the player presses the moveright key."
-	output PressedForward(void) : "Fired whenever the player presses the forward key."
-	output PressedBack(void) : "Fired whenever the player presses the backward key."
-	output PressedAttack(void) : "Fired whenever the player presses the attack key."
-	output PressedAttack2(void) : "Fired whenever the player presses the secondary attack key."
-
-	output UnpressedMoveLeft(void) : "Fired whenever the player releases the moveleft key."
-	output UnpressedMoveRight(void) : "Fired whenever the player releases the moveright key."
-	output UnpressedForward(void) : "Fired whenever the player releases the forward key."
-	output UnpressedBack(void) : "Fired whenever the player releases the backward key."
-	output UnpressedAttack(void) : "Fired whenever the player releases the attack key."
-	output UnpressedAttack2(void) : "Fired whenever the player releases the secondary attack key."
-
-	output XAxis(string) : "An output that fires whenever the X axis of the player's input changes. i.e. -1 when the player has moveleft key down, 1 when the player has moveright key down, and 0 if neither."
-	output YAxis(string) : "An output that fires whenever the Y axis of the player's input changes. i.e. -1 when the player has backward key down, 1 when the player has forward key down, and 0 if neither."
-	output AttackAxis(string) : "An output that fires whenever the state of the player's attack key changes. i.e. 1 when the player has the attack key down, 0 otherwise."
-	output Attack2Axis(string) : "An output that fires whenever the state of the player's secondary attack key changes. i.e. 1 when the player has the secondary attack key down, 0 otherwise."
 ]
 
 @PointClass base(Targetname) = point_entity_finder :
@@ -3006,13 +2542,6 @@
 
 	// Inputs
 	input Activate(void) : "Force the decal to apply itself to the world."
-]
-
-@PointClass tags( Lighting ) = info_no_dynamic_shadow : 
-	"Use this entity to mark surfaces that shouldn't receive dynamic shadows. Useful to apply to walls and floors "+
-	"where shadows are drawn improperly, giving away the location of enemies."
-[
-	sides(sidelist) : "Brush faces"
 ]
 
 @PointClass base(Targetname, EnableDisable, PlayerClass) tags( Info ) editormodel("models/editor/playerstart.vmdl", fixedbounds) = info_player_start :
@@ -3109,7 +2638,7 @@
 [
 ]
 
-@PointClass tags( Info ) base(Targetname, Parentname) iconsprite("editor/info_target.vmat") = info_target : 
+@PointClass tags( Info ) base(Targetname, Parentname) editormodel("models/editor/info_target", nobounds ) = info_target : 
 	"An entity that does nothing. Very useful as a positioning entity for other entities to refer to (i.e. the endpoint of an env_beam)"
 [
 	spawnflags( Flags ) =
@@ -3126,87 +2655,94 @@
 ]
 
 
-@PointClass base(Targetname, Parentname, CanBeClientOnly) tags( Particles ) editormodel("models/editor/cone_helper.vmdl") particle() line(255 255 255, targetname, cpoint1) line(255 255 255, targetname, cpoint2) line(255 255 255, targetname, cpoint3) line(255 255 255, targetname, cpoint4) line(255 255 255, targetname, cpoint5) line(255 255 255, targetname, cpoint6) line(255 255 255, targetname, cpoint7) line(255 255 255, targetname, cpoint8) line(255 255 255, targetname, cpoint9) line(255 255 255, targetname, cpoint10) line(255 255 255, targetname, cpoint11) line(255 255 255, targetname, cpoint12) line(255 255 255, targetname, cpoint13) line(255 255 255, targetname, cpoint14) line(255 255 255, targetname, cpoint15) line(255 255 255, targetname, cpoint16) line(255 255 255, targetname, cpoint17) line(255 255 255, targetname, cpoint18) line(255 255 255, targetname, cpoint19) line(255 255 255, targetname, cpoint20) line(255 255 255, targetname, cpoint21) line(255 255 255, targetname, cpoint22) line(255 255 255, targetname, cpoint23) line(255 255 255, targetname, cpoint24) line(255 255 255, targetname, cpoint25) line(255 255 255, targetname, cpoint26) line(255 255 255, targetname, cpoint27) line(255 255 255, targetname, cpoint28) line(255 255 255, targetname, cpoint29) line(255 255 255, targetname, cpoint30) line(255 255 255, targetname, cpoint31) line(255 255 255, targetname, cpoint32) line(255 255 255, targetname, cpoint33) line(255 255 255, targetname, cpoint34) line(255 255 255, targetname, cpoint35) line(255 255 255, targetname, cpoint36) line(255 255 255, targetname, cpoint37) line(255 255 255, targetname, cpoint38) line(255 255 255, targetname, cpoint39) line(255 255 255, targetname, cpoint40) line(255 255 255, targetname, cpoint41) line(255 255 255, targetname, cpoint42) line(255 255 255, targetname, cpoint43) line(255 255 255, targetname, cpoint44) line(255 255 255, targetname, cpoint45) line(255 255 255, targetname, cpoint46) line(255 255 255, targetname, cpoint47) line(255 255 255, targetname, cpoint48) line(255 255 255, targetname, cpoint49) line(255 255 255, targetname, cpoint50) line(255 255 255, targetname, cpoint51) line(255 255 255, targetname, cpoint52) line(255 255 255, targetname, cpoint53) line(255 255 255, targetname, cpoint54) line(255 255 255, targetname, cpoint55) line(255 255 255, targetname, cpoint56) line(255 255 255, targetname, cpoint57) line(255 255 255, targetname, cpoint58) line(255 255 255, targetname, cpoint59) line(255 255 255, targetname, cpoint60) line(255 255 255, targetname, cpoint61) line(255 255 255, targetname, cpoint62) line(255 255 255, targetname, cpoint63) = info_particle_system : 
+@PointClass base(Targetname, Parentname, CanBeClientOnly) tags( Particles ) editormodel("models/editor/cone_helper_xyz.vmdl", postocclusionquery) particle() line(255 255 255, targetname, cpoint1) line(255 255 255, targetname, cpoint2) line(255 255 255, targetname, cpoint3) line(255 255 255, targetname, cpoint4) line(255 255 255, targetname, cpoint5) line(255 255 255, targetname, cpoint6) line(255 255 255, targetname, cpoint7) line(255 255 255, targetname, cpoint8) line(255 255 255, targetname, cpoint9) line(255 255 255, targetname, cpoint10) line(255 255 255, targetname, cpoint11) line(255 255 255, targetname, cpoint12) line(255 255 255, targetname, cpoint13) line(255 255 255, targetname, cpoint14) line(255 255 255, targetname, cpoint15) line(255 255 255, targetname, cpoint16) line(255 255 255, targetname, cpoint17) line(255 255 255, targetname, cpoint18) line(255 255 255, targetname, cpoint19) line(255 255 255, targetname, cpoint20) line(255 255 255, targetname, cpoint21) line(255 255 255, targetname, cpoint22) line(255 255 255, targetname, cpoint23) line(255 255 255, targetname, cpoint24) line(255 255 255, targetname, cpoint25) line(255 255 255, targetname, cpoint26) line(255 255 255, targetname, cpoint27) line(255 255 255, targetname, cpoint28) line(255 255 255, targetname, cpoint29) line(255 255 255, targetname, cpoint30) line(255 255 255, targetname, cpoint31) line(255 255 255, targetname, cpoint32) line(255 255 255, targetname, cpoint33) line(255 255 255, targetname, cpoint34) line(255 255 255, targetname, cpoint35) line(255 255 255, targetname, cpoint36) line(255 255 255, targetname, cpoint37) line(255 255 255, targetname, cpoint38) line(255 255 255, targetname, cpoint39) line(255 255 255, targetname, cpoint40) line(255 255 255, targetname, cpoint41) line(255 255 255, targetname, cpoint42) line(255 255 255, targetname, cpoint43) line(255 255 255, targetname, cpoint44) line(255 255 255, targetname, cpoint45) line(255 255 255, targetname, cpoint46) line(255 255 255, targetname, cpoint47) line(255 255 255, targetname, cpoint48) line(255 255 255, targetname, cpoint49) line(255 255 255, targetname, cpoint50) line(255 255 255, targetname, cpoint51) line(255 255 255, targetname, cpoint52) line(255 255 255, targetname, cpoint53) line(255 255 255, targetname, cpoint54) line(255 255 255, targetname, cpoint55) line(255 255 255, targetname, cpoint56) line(255 255 255, targetname, cpoint57) line(255 255 255, targetname, cpoint58) line(255 255 255, targetname, cpoint59) line(255 255 255, targetname, cpoint60) line(255 255 255, targetname, cpoint61) line(255 255 255, targetname, cpoint62) line(255 255 255, targetname, cpoint63) = info_particle_system : 
 	"An entity that spawns a particle system built using the particle editor."
 [
 	effect_name(particlesystem) [report] : "Particle System Name"
 	start_active(boolean) : "Start Active?" : 1
+	no_save(boolean) : "Don't Save" : 0
 
-	snapshot_file(string) : "Particle Snapshot File" : "" : "Name of .PSF (Particle Snapshot File) to be loaded and used by this particle system (e.g. 'smoke_snapshot1')"
-	snapshot_mesh(node_id) : "Particle Snapshot Mesh" : "" : "Id of a mesh in the map to be used to generate a particle snapshot, if specified Particle Snapshot File is ignored."
+	snapshot_file(resource:vsnap) { enabled={ variable="snapshot_mesh" value="0" } } : "Particle Snapshot File" : "" : "Name of .VSNAP (Particle Snapshot File) to be loaded and used by this particle system (e.g. 'smoke_snapshot1')"
+	snapshot_mesh(node_id) : "Particle Snapshot Node" : "" : "Id of a node in the map to be used to generate a particle snapshot, if specified Particle Snapshot File is ignored."
 
-	cpoint0(target_destination) : "Control Point 0" : : "If set, control point 0 of the effect will be at this entity's location. (Otherwise it is at the info_particle_system origin)"
-	cpoint1(target_destination) : "Control Point 1" : : "If set, control point 1 of the effect will be at this entity's location."
-	cpoint2(target_destination) : "Control Point 2" : : "If set, control point 2 of the effect will be at this entity's location. If control point 1 is not set, this will be ignored."
-	cpoint3(target_destination) : "Control Point 3" : : "If set, control point 3 of the effect will be at this entity's location. If control point 2 is not set, this will be ignored."
-	cpoint4(target_destination) : "Control Point 4" : : "If set, control point 4 of the effect will be at this entity's location. If control point 3 is not set, this will be ignored."
-	cpoint5(target_destination) : "Control Point 5" : : "If set, control point 5 of the effect will be at this entity's location. If control point 4 is not set, this will be ignored."
-	cpoint6(target_destination) : "Control Point 6" : : "If set, control point 6 of the effect will be at this entity's location. If control point 5 is not set, this will be ignored."
-	cpoint7(target_destination) : "Control Point 7" : : "If set, control point 7 of the effect will be at this entity's location. If control point 6 is not set, this will be ignored."
-	cpoint8(target_destination) : "Control Point 8" : : "If set, control point 8 of the effect will be at this entity's location. If control point 7 is not set, this will be ignored."
-	cpoint9(target_destination) : "Control Point 9" : : "If set, control point 9 of the effect will be at this entity's location. If control point 8 is not set, this will be ignored."
-	cpoint10(target_destination) : "Control Point 10" : : "If set, control point 10 of the effect will be at this entity's location. If control point 9 is not set, this will be ignored."
-	cpoint11(target_destination) : "Control Point 11" : : "If set, control point 11 of the effect will be at this entity's location. If control point 10 is not set, this will be ignored."
-	cpoint12(target_destination) : "Control Point 12" : : "If set, control point 12 of the effect will be at this entity's location. If control point 11 is not set, this will be ignored."
-	cpoint13(target_destination) : "Control Point 13" : : "If set, control point 13 of the effect will be at this entity's location. If control point 12 is not set, this will be ignored."
-	cpoint14(target_destination) : "Control Point 14" : : "If set, control point 14 of the effect will be at this entity's location. If control point 13 is not set, this will be ignored."
-	cpoint15(target_destination) : "Control Point 15" : : "If set, control point 15 of the effect will be at this entity's location. If control point 14 is not set, this will be ignored."
-	cpoint16(target_destination) : "Control Point 16" : : "If set, control point 16 of the effect will be at this entity's location. If control point 15 is not set, this will be ignored."
-	cpoint17(target_destination) : "Control Point 17" : : "If set, control point 17 of the effect will be at this entity's location. If control point 16 is not set, this will be ignored."
-	cpoint18(target_destination) : "Control Point 18" : : "If set, control point 18 of the effect will be at this entity's location. If control point 17 is not set, this will be ignored."
-	cpoint19(target_destination) : "Control Point 19" : : "If set, control point 19 of the effect will be at this entity's location. If control point 18 is not set, this will be ignored."
-	cpoint20(target_destination) : "Control Point 20" : : "If set, control point 20 of the effect will be at this entity's location. If control point 19 is not set, this will be ignored."
-	cpoint21(target_destination) : "Control Point 21" : : "If set, control point 21 of the effect will be at this entity's location. If control point 10 is not set, this will be ignored."
-	cpoint22(target_destination) : "Control Point 22" : : "If set, control point 22 of the effect will be at this entity's location. If control point 21 is not set, this will be ignored."
-	cpoint23(target_destination) : "Control Point 23" : : "If set, control point 23 of the effect will be at this entity's location. If control point 22 is not set, this will be ignored."
-	cpoint24(target_destination) : "Control Point 24" : : "If set, control point 24 of the effect will be at this entity's location. If control point 23 is not set, this will be ignored."
-	cpoint25(target_destination) : "Control Point 25" : : "If set, control point 25 of the effect will be at this entity's location. If control point 24 is not set, this will be ignored."
-	cpoint26(target_destination) : "Control Point 26" : : "If set, control point 26 of the effect will be at this entity's location. If control point 25 is not set, this will be ignored."
-	cpoint27(target_destination) : "Control Point 27" : : "If set, control point 27 of the effect will be at this entity's location. If control point 26 is not set, this will be ignored."
-	cpoint28(target_destination) : "Control Point 28" : : "If set, control point 28 of the effect will be at this entity's location. If control point 27 is not set, this will be ignored."
-	cpoint29(target_destination) : "Control Point 29" : : "If set, control point 29 of the effect will be at this entity's location. If control point 28 is not set, this will be ignored."
-	cpoint30(target_destination) : "Control Point 30" : : "If set, control point 30 of the effect will be at this entity's location. If control point 29 is not set, this will be ignored."
-	cpoint31(target_destination) : "Control Point 31" : : "If set, control point 31 of the effect will be at this entity's location. If control point 30 is not set, this will be ignored."
-	cpoint32(target_destination) : "Control Point 32" : : "If set, control point 32 of the effect will be at this entity's location. If control point 31 is not set, this will be ignored."
-	cpoint33(target_destination) : "Control Point 33" : : "If set, control point 33 of the effect will be at this entity's location. If control point 32 is not set, this will be ignored."
-	cpoint34(target_destination) : "Control Point 34" : : "If set, control point 34 of the effect will be at this entity's location. If control point 33 is not set, this will be ignored."
-	cpoint35(target_destination) : "Control Point 35" : : "If set, control point 35 of the effect will be at this entity's location. If control point 34 is not set, this will be ignored."
-	cpoint36(target_destination) : "Control Point 36" : : "If set, control point 36 of the effect will be at this entity's location. If control point 35 is not set, this will be ignored."
-	cpoint37(target_destination) : "Control Point 37" : : "If set, control point 37 of the effect will be at this entity's location. If control point 36 is not set, this will be ignored."
-	cpoint38(target_destination) : "Control Point 38" : : "If set, control point 38 of the effect will be at this entity's location. If control point 37 is not set, this will be ignored."
-	cpoint39(target_destination) : "Control Point 39" : : "If set, control point 39 of the effect will be at this entity's location. If control point 38 is not set, this will be ignored."
-	cpoint40(target_destination) : "Control Point 40" : : "If set, control point 40 of the effect will be at this entity's location. If control point 39 is not set, this will be ignored."
-	cpoint41(target_destination) : "Control Point 41" : : "If set, control point 41 of the effect will be at this entity's location. If control point 40 is not set, this will be ignored."
-	cpoint42(target_destination) : "Control Point 42" : : "If set, control point 42 of the effect will be at this entity's location. If control point 41 is not set, this will be ignored."
-	cpoint43(target_destination) : "Control Point 43" : : "If set, control point 43 of the effect will be at this entity's location. If control point 42 is not set, this will be ignored."
-	cpoint44(target_destination) : "Control Point 44" : : "If set, control point 44 of the effect will be at this entity's location. If control point 43 is not set, this will be ignored."
-	cpoint45(target_destination) : "Control Point 45" : : "If set, control point 45 of the effect will be at this entity's location. If control point 44 is not set, this will be ignored."
-	cpoint46(target_destination) : "Control Point 46" : : "If set, control point 46 of the effect will be at this entity's location. If control point 45 is not set, this will be ignored."
-	cpoint47(target_destination) : "Control Point 47" : : "If set, control point 47 of the effect will be at this entity's location. If control point 46 is not set, this will be ignored."
-	cpoint48(target_destination) : "Control Point 48" : : "If set, control point 48 of the effect will be at this entity's location. If control point 47 is not set, this will be ignored."
-	cpoint49(target_destination) : "Control Point 49" : : "If set, control point 49 of the effect will be at this entity's location. If control point 48 is not set, this will be ignored."
-	cpoint50(target_destination) : "Control Point 50" : : "If set, control point 50 of the effect will be at this entity's location. If control point 49 is not set, this will be ignored."
-	cpoint51(target_destination) : "Control Point 51" : : "If set, control point 51 of the effect will be at this entity's location. If control point 50 is not set, this will be ignored."
-	cpoint52(target_destination) : "Control Point 52" : : "If set, control point 52 of the effect will be at this entity's location. If control point 51 is not set, this will be ignored."
-	cpoint53(target_destination) : "Control Point 53" : : "If set, control point 53 of the effect will be at this entity's location. If control point 52 is not set, this will be ignored."
-	cpoint54(target_destination) : "Control Point 54" : : "If set, control point 54 of the effect will be at this entity's location. If control point 53 is not set, this will be ignored."
-	cpoint55(target_destination) : "Control Point 55" : : "If set, control point 55 of the effect will be at this entity's location. If control point 54 is not set, this will be ignored."
-	cpoint56(target_destination) : "Control Point 56" : : "If set, control point 56 of the effect will be at this entity's location. If control point 55 is not set, this will be ignored."
-	cpoint57(target_destination) : "Control Point 57" : : "If set, control point 57 of the effect will be at this entity's location. If control point 56 is not set, this will be ignored."
-	cpoint58(target_destination) : "Control Point 58" : : "If set, control point 58 of the effect will be at this entity's location. If control point 57 is not set, this will be ignored."
-	cpoint59(target_destination) : "Control Point 59" : : "If set, control point 59 of the effect will be at this entity's location. If control point 58 is not set, this will be ignored."
-	cpoint60(target_destination) : "Control Point 60" : : "If set, control point 60 of the effect will be at this entity's location. If control point 59 is not set, this will be ignored."
-	cpoint61(target_destination) : "Control Point 61" : : "If set, control point 61 of the effect will be at this entity's location. If control point 60 is not set, this will be ignored."
-	cpoint62(target_destination) : "Control Point 62" : : "If set, control point 62 of the effect will be at this entity's location. If control point 61 is not set, this will be ignored."
-	cpoint63(target_destination) : "Control Point 63" : : "If set, control point 63 of the effect will be at this entity's location. If control point 62 is not set, this will be ignored."
+	data_cp(integer) : "Data Control Point (-1 unused)" : -1 : "What controlpoint to set data on.  -1 means this is not used."
+	data_cp_value(vector) : "Data Control Point Value" : "0 0 0" : "Data Control Point Value to set."
+
+	tint_cp(integer) : "Tint Control Point (-1 unused)" : -1 : "What controlpoint to set color on.  -1 means this is not used."
+	tint_cp_color(color255) : "Tint CP Color" : "255 255 255" : "Color for the specified Control Point"
+
+	cpoint0(target_destination) [ group="Control Points" ] : "Control Point 0" : : "If set, control point 0 of the effect will be at this entity's location. (Otherwise it is at the info_particle_system origin)"
+	cpoint1(target_destination) [ group="Control Points" ]  : "Control Point 1" : : "If set, control point 1 of the effect will be at this entity's location."
+	cpoint2(target_destination) [ group="Control Points" ]  : "Control Point 2" : : "If set, control point 2 of the effect will be at this entity's location. If control point 1 is not set, this will be ignored."
+	cpoint3(target_destination) [ group="Control Points" ]  : "Control Point 3" : : "If set, control point 3 of the effect will be at this entity's location. If control point 2 is not set, this will be ignored."
+	cpoint4(target_destination) [ group="Control Points" ]  : "Control Point 4" : : "If set, control point 4 of the effect will be at this entity's location. If control point 3 is not set, this will be ignored."
+	cpoint5(target_destination) [ group="Control Points" ]  : "Control Point 5" : : "If set, control point 5 of the effect will be at this entity's location. If control point 4 is not set, this will be ignored."
+	cpoint6(target_destination) [ group="Control Points" ]  : "Control Point 6" : : "If set, control point 6 of the effect will be at this entity's location. If control point 5 is not set, this will be ignored."
+	cpoint7(target_destination) [ group="Control Points" ]  : "Control Point 7" : : "If set, control point 7 of the effect will be at this entity's location. If control point 6 is not set, this will be ignored."
+	cpoint8(target_destination) [ group="Control Points" ]  : "Control Point 8" : : "If set, control point 8 of the effect will be at this entity's location. If control point 7 is not set, this will be ignored."
+	cpoint9(target_destination) [ group="Control Points" ]  : "Control Point 9" : : "If set, control point 9 of the effect will be at this entity's location. If control point 8 is not set, this will be ignored."
+	cpoint10(target_destination) [ group="Control Points" ]  : "Control Point 10" : : "If set, control point 10 of the effect will be at this entity's location. If control point 9 is not set, this will be ignored."
+	cpoint11(target_destination) [ group="Control Points" ]  : "Control Point 11" : : "If set, control point 11 of the effect will be at this entity's location. If control point 10 is not set, this will be ignored."
+	cpoint12(target_destination) [ group="Control Points" ]  : "Control Point 12" : : "If set, control point 12 of the effect will be at this entity's location. If control point 11 is not set, this will be ignored."
+	cpoint13(target_destination) [ group="Control Points" ]  : "Control Point 13" : : "If set, control point 13 of the effect will be at this entity's location. If control point 12 is not set, this will be ignored."
+	cpoint14(target_destination) [ group="Control Points" ]  : "Control Point 14" : : "If set, control point 14 of the effect will be at this entity's location. If control point 13 is not set, this will be ignored."
+	cpoint15(target_destination) [ group="Control Points" ]  : "Control Point 15" : : "If set, control point 15 of the effect will be at this entity's location. If control point 14 is not set, this will be ignored."
+	cpoint16(target_destination) [ group="Control Points" ]  : "Control Point 16" : : "If set, control point 16 of the effect will be at this entity's location. If control point 15 is not set, this will be ignored."
+	cpoint17(target_destination) [ group="Control Points" ]  : "Control Point 17" : : "If set, control point 17 of the effect will be at this entity's location. If control point 16 is not set, this will be ignored."
+	cpoint18(target_destination) [ group="Control Points" ]  : "Control Point 18" : : "If set, control point 18 of the effect will be at this entity's location. If control point 17 is not set, this will be ignored."
+	cpoint19(target_destination) [ group="Control Points" ]  : "Control Point 19" : : "If set, control point 19 of the effect will be at this entity's location. If control point 18 is not set, this will be ignored."
+	cpoint20(target_destination) [ group="Control Points" ]  : "Control Point 20" : : "If set, control point 20 of the effect will be at this entity's location. If control point 19 is not set, this will be ignored."
+	cpoint21(target_destination) [ group="Control Points" ]  : "Control Point 21" : : "If set, control point 21 of the effect will be at this entity's location. If control point 10 is not set, this will be ignored."
+	cpoint22(target_destination) [ group="Control Points" ]  : "Control Point 22" : : "If set, control point 22 of the effect will be at this entity's location. If control point 21 is not set, this will be ignored."
+	cpoint23(target_destination) [ group="Control Points" ]  : "Control Point 23" : : "If set, control point 23 of the effect will be at this entity's location. If control point 22 is not set, this will be ignored."
+	cpoint24(target_destination) [ group="Control Points" ]  : "Control Point 24" : : "If set, control point 24 of the effect will be at this entity's location. If control point 23 is not set, this will be ignored."
+	cpoint25(target_destination) [ group="Control Points" ]  : "Control Point 25" : : "If set, control point 25 of the effect will be at this entity's location. If control point 24 is not set, this will be ignored."
+	cpoint26(target_destination) [ group="Control Points" ]  : "Control Point 26" : : "If set, control point 26 of the effect will be at this entity's location. If control point 25 is not set, this will be ignored."
+	cpoint27(target_destination) [ group="Control Points" ]  : "Control Point 27" : : "If set, control point 27 of the effect will be at this entity's location. If control point 26 is not set, this will be ignored."
+	cpoint28(target_destination) [ group="Control Points" ]  : "Control Point 28" : : "If set, control point 28 of the effect will be at this entity's location. If control point 27 is not set, this will be ignored."
+	cpoint29(target_destination) [ group="Control Points" ]  : "Control Point 29" : : "If set, control point 29 of the effect will be at this entity's location. If control point 28 is not set, this will be ignored."
+	cpoint30(target_destination) [ group="Control Points" ]  : "Control Point 30" : : "If set, control point 30 of the effect will be at this entity's location. If control point 29 is not set, this will be ignored."
+	cpoint31(target_destination) [ group="Control Points" ]  : "Control Point 31" : : "If set, control point 31 of the effect will be at this entity's location. If control point 30 is not set, this will be ignored."
+	cpoint32(target_destination) [ group="Control Points" ]  : "Control Point 32" : : "If set, control point 32 of the effect will be at this entity's location. If control point 31 is not set, this will be ignored."
+	cpoint33(target_destination) [ group="Control Points" ]  : "Control Point 33" : : "If set, control point 33 of the effect will be at this entity's location. If control point 32 is not set, this will be ignored."
+	cpoint34(target_destination) [ group="Control Points" ]  : "Control Point 34" : : "If set, control point 34 of the effect will be at this entity's location. If control point 33 is not set, this will be ignored."
+	cpoint35(target_destination) [ group="Control Points" ]  : "Control Point 35" : : "If set, control point 35 of the effect will be at this entity's location. If control point 34 is not set, this will be ignored."
+	cpoint36(target_destination) [ group="Control Points" ]  : "Control Point 36" : : "If set, control point 36 of the effect will be at this entity's location. If control point 35 is not set, this will be ignored."
+	cpoint37(target_destination) [ group="Control Points" ]  : "Control Point 37" : : "If set, control point 37 of the effect will be at this entity's location. If control point 36 is not set, this will be ignored."
+	cpoint38(target_destination) [ group="Control Points" ]  : "Control Point 38" : : "If set, control point 38 of the effect will be at this entity's location. If control point 37 is not set, this will be ignored."
+	cpoint39(target_destination) [ group="Control Points" ]  : "Control Point 39" : : "If set, control point 39 of the effect will be at this entity's location. If control point 38 is not set, this will be ignored."
+	cpoint40(target_destination) [ group="Control Points" ]  : "Control Point 40" : : "If set, control point 40 of the effect will be at this entity's location. If control point 39 is not set, this will be ignored."
+	cpoint41(target_destination) [ group="Control Points" ]  : "Control Point 41" : : "If set, control point 41 of the effect will be at this entity's location. If control point 40 is not set, this will be ignored."
+	cpoint42(target_destination) [ group="Control Points" ]  : "Control Point 42" : : "If set, control point 42 of the effect will be at this entity's location. If control point 41 is not set, this will be ignored."
+	cpoint43(target_destination) [ group="Control Points" ]  : "Control Point 43" : : "If set, control point 43 of the effect will be at this entity's location. If control point 42 is not set, this will be ignored."
+	cpoint44(target_destination) [ group="Control Points" ]  : "Control Point 44" : : "If set, control point 44 of the effect will be at this entity's location. If control point 43 is not set, this will be ignored."
+	cpoint45(target_destination) [ group="Control Points" ]  : "Control Point 45" : : "If set, control point 45 of the effect will be at this entity's location. If control point 44 is not set, this will be ignored."
+	cpoint46(target_destination) [ group="Control Points" ]  : "Control Point 46" : : "If set, control point 46 of the effect will be at this entity's location. If control point 45 is not set, this will be ignored."
+	cpoint47(target_destination) [ group="Control Points" ]  : "Control Point 47" : : "If set, control point 47 of the effect will be at this entity's location. If control point 46 is not set, this will be ignored."
+	cpoint48(target_destination) [ group="Control Points" ]  : "Control Point 48" : : "If set, control point 48 of the effect will be at this entity's location. If control point 47 is not set, this will be ignored."
+	cpoint49(target_destination) [ group="Control Points" ]  : "Control Point 49" : : "If set, control point 49 of the effect will be at this entity's location. If control point 48 is not set, this will be ignored."
+	cpoint50(target_destination) [ group="Control Points" ]  : "Control Point 50" : : "If set, control point 50 of the effect will be at this entity's location. If control point 49 is not set, this will be ignored."
+	cpoint51(target_destination) [ group="Control Points" ]  : "Control Point 51" : : "If set, control point 51 of the effect will be at this entity's location. If control point 50 is not set, this will be ignored."
+	cpoint52(target_destination) [ group="Control Points" ]  : "Control Point 52" : : "If set, control point 52 of the effect will be at this entity's location. If control point 51 is not set, this will be ignored."
+	cpoint53(target_destination) [ group="Control Points" ]  : "Control Point 53" : : "If set, control point 53 of the effect will be at this entity's location. If control point 52 is not set, this will be ignored."
+	cpoint54(target_destination) [ group="Control Points" ]  : "Control Point 54" : : "If set, control point 54 of the effect will be at this entity's location. If control point 53 is not set, this will be ignored."
+	cpoint55(target_destination) [ group="Control Points" ]  : "Control Point 55" : : "If set, control point 55 of the effect will be at this entity's location. If control point 54 is not set, this will be ignored."
+	cpoint56(target_destination) [ group="Control Points" ]  : "Control Point 56" : : "If set, control point 56 of the effect will be at this entity's location. If control point 55 is not set, this will be ignored."
+	cpoint57(target_destination) [ group="Control Points" ]  : "Control Point 57" : : "If set, control point 57 of the effect will be at this entity's location. If control point 56 is not set, this will be ignored."
+	cpoint58(target_destination) [ group="Control Points" ]  : "Control Point 58" : : "If set, control point 58 of the effect will be at this entity's location. If control point 57 is not set, this will be ignored."
+	cpoint59(target_destination) [ group="Control Points" ]  : "Control Point 59" : : "If set, control point 59 of the effect will be at this entity's location. If control point 58 is not set, this will be ignored."
+	cpoint60(target_destination) [ group="Control Points" ]  : "Control Point 60" : : "If set, control point 60 of the effect will be at this entity's location. If control point 59 is not set, this will be ignored."
+	cpoint61(target_destination) [ group="Control Points" ]  : "Control Point 61" : : "If set, control point 61 of the effect will be at this entity's location. If control point 60 is not set, this will be ignored."
+	cpoint62(target_destination) [ group="Control Points" ]  : "Control Point 62" : : "If set, control point 62 of the effect will be at this entity's location. If control point 61 is not set, this will be ignored."
+	cpoint63(target_destination) [ group="Control Points" ]  : "Control Point 63" : : "If set, control point 63 of the effect will be at this entity's location. If control point 62 is not set, this will be ignored."
 	
-	cpoint1_parent(integer) : "Control Point 1's Parent" : 0 : "If set and nonzero, control point 1 of the effect will use this point for its parent."
-	cpoint2_parent(integer) : "Control Point 2's Parent" : 0 : "If set and nonzero, control point 2 of the effect will use this point for its parent."
-	cpoint3_parent(integer) : "Control Point 3's Parent" : 0 : "If set and nonzero, control point 3 of the effect will use this point for its parent."
-	cpoint4_parent(integer) : "Control Point 4's Parent" : 0 : "If set and nonzero, control point 4 of the effect will use this point for its parent."
-	cpoint5_parent(integer) : "Control Point 5's Parent" : 0 : "If set and nonzero, control point 5 of the effect will use this point for its parent."
-	cpoint6_parent(integer) : "Control Point 6's Parent" : 0 : "If set and nonzero, control point 6 of the effect will use this point for its parent."
-	cpoint7_parent(integer) : "Control Point 7's Parent" : 0 : "If set and nonzero, control point 7 of the effect will use this point for its parent."
+	cpoint1_parent(integer) [ group="Control Points Parents" ] : "Control Point 1's Parent" : 0 : "If set and nonzero, control point 1 of the effect will use this point for its parent."
+	cpoint2_parent(integer) [ group="Control Points Parents" ] : "Control Point 2's Parent" : 0 : "If set and nonzero, control point 2 of the effect will use this point for its parent."
+	cpoint3_parent(integer) [ group="Control Points Parents" ] : "Control Point 3's Parent" : 0 : "If set and nonzero, control point 3 of the effect will use this point for its parent."
+	cpoint4_parent(integer) [ group="Control Points Parents" ] : "Control Point 4's Parent" : 0 : "If set and nonzero, control point 4 of the effect will use this point for its parent."
+	cpoint5_parent(integer) [ group="Control Points Parents" ] : "Control Point 5's Parent" : 0 : "If set and nonzero, control point 5 of the effect will use this point for its parent."
+	cpoint6_parent(integer) [ group="Control Points Parents" ] : "Control Point 6's Parent" : 0 : "If set and nonzero, control point 6 of the effect will use this point for its parent."
+	cpoint7_parent(integer) [ group="Control Points Parents" ] : "Control Point 7's Parent" : 0 : "If set and nonzero, control point 7 of the effect will use this point for its parent."
 
 	// Inputs
 	input Start(void) : "Tell the particle system to start emitting."
@@ -3248,10 +2784,10 @@
 
 //-------------------------------------------------------------------------
 //
-// Nodes and Hints
+// Combat Character Hull Flags
 //
 //-------------------------------------------------------------------------
-@BaseClass tags( AI ) = AiHullFlags
+@BaseClass tags( AI ) = HullFlags
 [
 	aihull_human(boolean) : "Force human AI Hull" : 0
 	aihull_small_centered(boolean) : "Force small_centered AI Hull" : 0
@@ -3262,130 +2798,6 @@
 	aihull_large(boolean) : "Force large AI Hull" : 0
 	aihull_large_centered(boolean) : "Force large_centered AI Hull" : 0
 	aihull_medium_tall(boolean) : "Force medium_tall AI Hull" : 0
-]
-
-@PointClass base(Node,AiHullFlags) editormodel("models/editor/ground_node.vmdl", fixedbounds) color(232 219 8) = info_node :
-	"A navigation node for ground moving NPCs. Navigation nodes are baked into the nodegraph so that NPCs can move " +
-	"to them. Ground nodes fall to the ground when they spawn."
-[
-	ai_node_dont_drop(boolean) : "Keep editor position" : 0
-]
-
-@PointClass base(Targetname, HintNode) editormodel("models/editor/ground_node_hint.vmdl", fixedbounds) sphere(radius) color(232 219 8) = info_node_hint :
-	"A navigation node for ground moving NPCs that includes some context information for NPCs that are interested in it. The hint might " +
-	"indicate a window that could be looked out of, or an item of interest that could be commented on. Many hint nodes are NPC-specific, " +
-	"so it's helpful to use naming conventions like 'Crow: Fly to point' in the hint choices list. The angles of a hint node indicate what direction " +
-	"the NPC should face to perform the hint behavior.<br><br>" +
-	"It's important to understand the distinction between scripts, such as scripted_sequence and scripted_schedule, and info_hint entities. Scripts summon " +
-	"NPCs to specific cue points to play their parts, while hints provide context information to the AI that they use to perform their " +
-	"behaviors. Hints require code support in the NPC, while scripts are generic and may require only animations to play. Use a hint if the behavior is driven " +
-	"by the AI, use a script if the behavior is driven by the map."
-
-[
-	ai_node_dont_drop(boolean) : "Keep editor position" : 0
-
-	// Outputs
-	output OnNPCStartedUsing(string) : "Fired when an NPC has reached this node and started using it. Passes along the NPC."
-	output OnNPCStoppedUsing(string) : "Fired when an NPC has stopped using this node. Passes along the NPC."
-]
-
-@PointClass base(Node) tags( AI ) editormodel("models/editor/air_node.vmdl", fixedbounds) color(232 171 8) = info_node_air :
-	"A navigation node for flying NPCs. Air navigation nodes are baked into the nodegraph so that NPCs can move " +
-	"to them. Air nodes do not fall to the ground when they spawn."
-[
-	nodeheight(integer) : "NodeHeight"  : 0
-]
-
-@PointClass base(Targetname, HintNode) editormodel("models/editor/air_node_hint.vmdl", fixedbounds) sphere(radius) color(232 171 8) line(255 255 255, nodeid, TargetNode) = info_node_air_hint :
-	"A navigation node for flying NPCs that includes some context information for NPCs that are interested in it. The hint might " +
-	"indicate a window that could be looked into, or an item of interest that could be commented on. Many hint nodes are NPC-specific, " +
-	"so it's helpful to use naming conventions like 'Crow: Fly to point' in the hint choices list. The angles of a hint node indicate what direction " +
-	"the NPC should face to perform the hint behavior."
-
-[
-	nodeheight(integer) : "NodeHeight"  : 0
-]
-
-@PointClass base(Targetname, HintNode) editormodel("models/editor/node_hint.vmdl", fixedbounds) sphere(radius) color(255 255 255) = info_hint :
-	"A hint that is not used for navigation. They don't go into the nodegraph, nor do they fall to the ground. Use these to provide " +
-	"some spatial context for NPCs, such as 'look here if you can't find the player' or 'throw rocks at this spot'."
-[
-]
-
-
-@BaseClass tags( AI ) = BaseNodeLink
-[
-	initialstate(choices) : "Initial State" : 1 =
-	[
-		0 : "Off - navigation between the nodes is disabled"
-		1 : "On - navigation between the nodes is enabled"
-	]
-
-	AllowUse(string) : "Allow Pass When Off" : : "Entity or class to allow passage even when node is off."
-	InvertAllow(boolean) : "Invert exclusion rules" : 0 : "Allowed entity is the only entity NOT allowed when this is checked."
-
-	priority(choices) : "Priority" : 0 =
-	[
-		0 : "Normal"
-		1 : "Use As Last Resort"
-	]
-
-	input TurnOn(void) : "Turn the link on, enabling travel between the nodes."
-	input TurnOff(void) : "Turn the link off, disabling travel between the nodes."
-]
-
-@PointClass base(Targetname, BaseNodeLink,AiHullFlags) color(220 180 0) size(-8 -8 -8, 8 8 8) line(255 255 255, nodeid, StartNode, nodeid, EndNode) = info_node_link :
-	"A dynamic connection between two navigation nodes. You specify the node IDs of the start and end nodes, and then you can use entity I/O " +
-	"to turn on and off the connection. This could be used to create or destroy a connection in the nodegraph because of some event in your map " +
-	"(a bridge being created/destroyed, etc)."
-[
-	StartNode(node_dest) : "Start node ID" : : "The node ID of one end of the node connection."
-	EndNode(node_dest) : "End node ID" : : "The node ID of one end of the node connection."
-
-	linktype(choices) : "Type of Connection" : 1 =
-	[
-		1 : "Ground"
-		2 : "Jump"
-		4 : "Fly"
-		8 : "Climb"
-		16 : "Crawl"
-	]
-	preciseMovement(boolean) : "Precise Movement" : 0 : "Movement through this link must be precise. Used for NPCs " +
-		"that have sloppy movement characteristics to move through things like doors or windows"
-
-	// Inputs
-	input TurnOn(void) : "Turn the link on."
-	input TurnOff(void) : "Turn the link off."
-]
-
-
-@PointClass wirebox(mins, maxs) base(Targetname, BaseNodeLink) = info_node_link_controller :
-	"An entity that controls all connections between nodes that intersect the controller's volume. "+
-	"This allows for mass enabling/disabling of all node connections through a volume."
-[
-	mins(vector) : "Mins" : "-8 -32 -36"
-	maxs(vector) : "Maxs" : "8 32 36"
-
-	useairlinkradius(boolean) : "Use Larger Radius (for air links)" : 0 : "Check this if this controller is intended to control air links. "+
-		"Air links connect using a larger search radius so leaving this unchecked might miss some air links."
-	
-
-	// Inputs
-	input SetAllowed(string) : "Change the allowed pass when off"
-	input SetInvert(integer) : "Change the invert exclusion rule"
-	input TestHuman(void) : "Tests to see if the controlled links are navigable by a human hull and enables the ones that are."
-]
-
-
-@PointClass sphere(radius) base(Targetname, Parentname) = info_radial_link_controller :
-	"This entity automatically severs node connections that pass through its radius. If it moves, it will restore those connections."
-[
-	radius(float) : "Radius (Use Helper!)" : 120
-]
-
-@PointClass base(Targetname, HintNode) editormodel("models/editor/climb_node.vmdl", fixedbounds) sphere(radius) color(153 215 103) = info_node_climb : 
-	"A climb-node for AI navigation. Only usable by NPCs that can climb."
-[
 ]
 
 
@@ -3442,31 +2854,6 @@
 	input TurnOff(void) : "Turn the light on."
 	input Toggle(void) : "Toggle the light on/off."
 ]
-
-
-//-------------------------------------------------------------------------
-// Shadow control
-//-------------------------------------------------------------------------
-@PointClass base(Targetname) iconsprite("editor/shadow_control.vmat") = shadow_control : 
-	"An entity to control the shadows in the map."
-[
-	angles(string) : "Pitch Yaw Roll (Y Z X)" : "80 30 0" : "This is the shadow direction. Pitch is rotation around the Y axis, yaw is the rotation around the Z axis, and roll is the rotation around the X axis."
-
-	color(color255) : "Shadow Color" : "128 128 128" : "This is the color of the shadows."
-	distance(float) : "Maximum Distance" : 75 : "This is the maximum distance the shadow is allowed to cast, in inches."
-	disableallshadows(boolean) : "All Shadows Disabled" : 0
-
-	enableshadowsfromlocallights(boolean) : "Enable Local Light Shadows" : 0
-	
-	// Inputs
-	input color(color255) : "Set the shadow color."
-	input direction(vector) : "Set the shadow direction."
-	input SetDistance(float) : "Set the maximum shadow cast distance."
-	input SetAngles(string) : "Set the shadow direction."
-	input SetShadowsDisabled(integer) : "Set shadows disabled state."
-	input SetShadowsFromLocalLightsEnabled(integer) : "Set local light shadows enabled state."
-]
-
 
 
 //-------------------------------------------------------------------------
@@ -3537,24 +2924,28 @@
 	]
 ]
 
-@SolidClass base(Targetname, Parentname, RenderFields) drawangles( movedir, movedir_islocal ) = func_movelinear :
+@SolidClass base(Targetname, Parentname, RenderFields) drawangles_local( movedir ) = func_movelinear :
 	"A brush entity that moves linearly along a given distance, in a given direction."
 [
 	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "The direction the brushes will move, when told to."
-	movedir_islocal(boolean) : "Move Direction is Expressed in Local Space" : "1" : "If checked, the movement direction angle is in local space and should be rotated by the entity's angles after spawning."
 	spawnflags(flags) =
 	[
 		8 : "Not Solid" : 0
 	]
 
 	startposition(float) : "Start Position" : 0 : "Position of brush when spawned. The range is a value between 0.0 and 1.0, where 0 is the starting position and 1 is the starting position + (move direction * move distance)."	
+	authoredposition(choices) : "Authored position" : 0 : "The entity may be authored in one of three positions for convenience." =
+	[
+		0 : "Start position (position = 'Start Position' key)"
+		1 : "Open position (position = 1)"
+		2 : "Closed position (position = 0)"
+	]
 	speed(integer) : "Speed" : 100 : "The speed that the brush moves, in inches per second."
 	movedistance(float) : "Move Distance" : 100 : "The distance from the starting point that the brush should move, in inches."
 	blockdamage(float) : "Block Damage" : 0 : "The amount of damage to do to any entity that blocks the brushes, per frame."
 	startsound(sound) : "Sound played when the brush starts moving."
 	stopsound(sound) : "Sound played when the brush stops moving."
 	CreateNavObstacle(boolean) : "Create Nav Obstacle" : "0" : "Create a navigation obstacle to assist NPC pathfinding"
-
 	// Inputs
 	input Open(void) : "Move the brush to the end position (starting position + (move direction * move distance))."
 	input Close(void) : "Move the brush to the starting position."
@@ -3611,6 +3002,7 @@
 		256: "Medium Sound Radius" : 0
 		512: "Large Sound Radius" : 1
 		1024: "Client-side Animation" : 0
+		2048: "Unblockable by Player" : 0
 	]
 	_minlight(string) : "Minimum Light Level" : : "The minimum level of ambient light that hits this brush."
 	dmg(integer) : "Blocking Damage" : 0 : "Damage done to any entity that blocks the rotation, per frame."
@@ -3749,20 +3141,23 @@
     displaytext(string) : "Display Text" : : "Place localization text here and it will be displayed in tooltips, etc."
 ]
 
-@BaseClass base(Targetname, Parentname, RenderFields,DamageFilter, Button) = BaseFuncButton
+@BaseClass = ButtonSounds
 [
-	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "Specifies the direction of motion to move when the button is used."
-	movedir_islocal(boolean) : "Move Direction is Expressed in Local Space" : "1" : "If checked, the movement direction angle is in local space and should be rotated by the entity's angles after spawning."
-	speed(integer) : "Speed" : 5 : "The speed that the button moves, in inches per second."
-	glow(target_destination) : "Glow Entity" : : "The name of an entity that will get the +use glow for this button."
-	wait(integer) : "Delay Before Reset (-1 stay)" : 3 : "Amount of time, in seconds, after the button has been pressed before it returns to the starting position. Once it has returned, it can be used again. If the value is set to -1, the button never returns."
 	use_sound(sound) : "Use sound" : ""  : "Sound event played when the button is successfully used."
 	locked_sound(sound) : "Locked Sound" : "" : "Sound played when the player tries to use the button, and fails because it's locked."
 	unlocked_sound(sound) : "Unlocked Sound" : "" : "Sound played when the button is unlocked."
+]
+
+@BaseClass base(Targetname, Parentname, RenderFields,DamageFilter, Button, ButtonSounds) = BaseFuncButton
+[
+	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "Specifies the direction of motion to move when the button is used."
+	speed(integer) : "Speed" : 5 : "The speed that the button moves, in inches per second."
+	glow(target_destination) : "Glow Entity" : : "The name of an entity that will get the +use glow for this button."
+	wait(float) : "Delay Before Reset (-1 stay)" : 3 : "Amount of time, in seconds, after the button has been pressed before it returns to the starting position. Once it has returned, it can be used again. If the value is set to -1, the button never returns."
 	_minlight(string) : "Minimum Light Level" : : "The minimum level of ambient light that hits this brush."
 ]
 
-@SolidClass base(BaseFuncButton) drawangles( movedir, movedir_islocal ) = func_button : 
+@SolidClass base(BaseFuncButton) drawangles_local( movedir ) = func_button : 
 	"A brush entity that's designed to be used for a player-useable button. When used by the player, it moves to a pressed position."
 [
 	lip(integer) : "Lip" : 0 : "The amount, in inches, of the button to leave sticking out of the wall it recedes into when pressed. Negative values make the button recede even further into the wall."
@@ -3782,7 +3177,7 @@
 	]
 ]
 
-@SolidClass base(BaseFuncButton) drawangles( movedir, movedir_islocal ) = func_physical_button : 
+@SolidClass base(BaseFuncButton) drawangles_local( movedir ) = func_physical_button : 
 	"A brush entity that's designed to be used for a rotating player-useable button. When used by the player, it rotates to a pressed position."
 [
 	spawnflags(flags) =
@@ -3794,21 +3189,12 @@
 	]
 ]
 
-@SolidClass base(Targetname, Parentname, Global, Button, EnableDisable) = func_rot_button : 
+@SolidClass base(Targetname, Parentname, Global, Button, ButtonSounds, EnableDisable) = func_rot_button : 
 	"A brush entity that's designed to be used for a rotating player-useable button. When used by the player, it rotates to a pressed position."
 [
 	master(string) : "Master (Obsolete)" : : "Legacy support: The name of a master entity. If the master hasn't been activated, this button cannot be used."
 	speed(integer) : "Speed" : 50 : "The speed that the button rotates, in degrees per second."
 	health(integer) : "Health (Obsolete)" : 0 : "Legacy method of specifying whether or not the button can be shot to activate it. Use the 'Damage Activates' spawnflag instead."
-	sounds(choices) : "Sounds" : 21 = 
-	[
-		0: "None (Silent)"
-		21: "Squeaky"
-		22: "Squeaky Pneumatic"
-		23: "Ratchet Groan"
-		24: "Clean Ratchet"
-		25: "Gas Clunk"
-	]
 	wait(integer) : "Delay Before Reset (-1 stay)" : 3 : "Amount of time, in seconds, after the button has been pressed before it returns to the starting position. Once it has returned, it can be used again. If the value is set to -1, the button never returns."
 	distance(integer) : "Distance (deg)" : 90 : "The amount, in degrees, that the button should rotate when it's pressed."
 	// TODO: move spawnflags into Button base class?
@@ -3932,31 +3318,6 @@
 		2048: "Starts locked" : 0
 		4096:	"Door Silent" : 0
 	]
-	locked_sentence(choices) : "Locked Sentence" : 0 : "A sentence played when the player tries to use the door, and fails because it's locked." =  
-	[
-		0: "None"
-		1: "Gen. Access Denied"
-		2: "Security Lockout"
-		3: "Blast Door"
-		4: "Fire Door"
-		5: "Chemical Door"
-		6: "Radiation Door"
-		7: "Gen. Containment"
-		8: "Maintenance Door"
-		9: "Broken Shut Door"
-	]
-	unlocked_sentence(choices) : "Unlocked Sentence" : 0 : "A sentence played when the door is unlocked." = 
-	[
-		0: "None"
-		1: "Gen. Access Granted"
-		2: "Security Disengaged"
-		3: "Blast Door"
-		4: "Fire Door"
-		5: "Chemical Door"
-		6: "Radiation Door"
-		7: "Gen. Containment"
-		8: "Maintenance area"
-	]	
 	_minlight(string) : "Minimum Light Level" : : "The minimum level of ambient light that hits this brush."
 	loopmovesound(boolean) : "Loop Moving Sound?" : 0 : "If set to true, the door's 'Start Sound' will be continually looped until the door finishes moving."
 
@@ -3980,11 +3341,12 @@
 	input SetSpeed(float) : "Set the door speed."
 ]
 
-@SolidClass base(Door) drawangles( movedir, movedir_islocal ) = func_door : 
+@SolidClass base(Door) drawangles_local( movedir ) = func_door : 
 	"A brush entity for use as a player-useable door."
 [
 	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "The direction the door will move, when it opens."
-	movedir_islocal(boolean) : "Move Direction is Expressed in Local Space" : "1" : "If checked, the movement direction angle is in local space and should be rotated by the entity's angles after spawning."
+
+	CreateNavObstacle(boolean) : "Create Nav Obstacle" : "1" : "Create a navigation obstacle to assist NPC pathfinding"
 
 	filtername(filterclass) : "Block Filter Name" : : "Filter to use to determine entities that block the door. ( Half-Life: Source port only )"
 ]
@@ -4013,9 +3375,6 @@
 [
 	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist" : -1 : "Distance at which the prop starts to fade (<0 = subtract from fademaxdist)."
 	fademaxdist(float) [ group="Render Properties" ] : "End Fade Dist" : 0 : "Max fade distance at which the prop is visible (0 = don't fade out)"
-	fadescale(float) [ group="Render Properties" ] : "Fade Scale" : 1 : "If you specify a fade in the worldspawn, or if the engine is running under low end/medium end/XBox360, then the engine will forcibly fade out props even if fademindist/fademaxdist isn't specified." +
-												 " This scale factor gives you some control over the fade. Using 0 here turns off the forcible fades." +
-												 " Numbers smaller than 1 cause the prop to fade out at further distances, and greater than 1 cause it to fade out at closer distances."												 
 	rendercolor(color255) : "Color (R G B)" : "255 255 255"
 ]
 
@@ -4040,7 +3399,6 @@
 		3 : "Ajar (use Ajar Angle)"
 	]
 	
-	axis(axis) : "Hinge Axis"
 	distance(float) : "Rotation Distance (deg)" : 90 : "The amount, in degrees, that the door should rotate when opened."
 	speed(integer) : "Speed" : 100 : "The speed at which the door moves."
 	soundopenoverride(sound) : "Fully Open Sound" : : "Sound played when the door has finished opening."
@@ -4123,53 +3481,11 @@
 	input TurnOff(void) : "Turn off."
 ]
 
-@SolidClass base(Targetname, BModelParticleSpawner) = func_dustmotes : 
-	"A brush entity that spawns sparkling dust motes within its volume."
-[
-	SizeMin(string) : "Minimum Particle Size" : 10
-	SizeMax(string) : "Maximum Particle Size" : 20
-
-	Alpha(integer) : "Alpha" : 255
-]
-
-@SolidClass base( Targetname, BModelParticleSpawner ) = func_dustcloud : 
-	"A brush entity that spawns a translucent dust cloud within its volume."
-[
-	Alpha(integer) : "Alpha" : 30
-
-	SizeMin(string) : "Minimum Particle Size" : 100
-	SizeMax(string) : "Maximum Particle Size" : 200
-]
-
-@PointClass base( Targetname, Parentname ) size( -8 -8 -8, 8 8 8 ) = env_dustpuff : 
-	"An entity that can emit dust puffs."
-[
-	scale(float) : "Scale" : 8 : "Size of the dust puff."
-	speed(float) : "Speed" : 16 : "Speed at which the dust particles should move."
-
-	color(color255) : "Dust color" : "128 128 128"
-
-	// Inputs
-	input SpawnDust(void) : "Spawn a dust puff."
-]
-
 @PointClass base( Targetname, Parentname ) tags( Particles ) size( -8 -8 -8, 8 8 8 ) = env_particlescript : 
 	"An entity that has special animation events that can be fired by a model with an animation inside its .qc designed for"+
 	"use by this entity."
 [
 	model(studio) : "Script Model" : "models/Ambient_citadel_paths.vmdl" : "Model to use for animation sequences."
-
-	// Inputs
-	input SetSequence(string) : "Sets the script model's sequence."
-]
-
-
-// NEEDHELP
-@PointClass base( Targetname, Parentname ) size( -8 -8 -8, 8 8 8 ) = env_effectscript : 
-	"An entity that allows you to script special visual effects via a script file."
-[
-	model(studio) : "Script Model" : "models/Effects/teleporttrail.vmdl" : "Model to use for animation sequences."
-	scriptfile(string) : "Script File" : "scripts/effects/testeffect.txt" : "Name of the script to use for this model." 
 
 	// Inputs
 	input SetSequence(string) : "Sets the script model's sequence."
@@ -4306,8 +3622,8 @@
 	"If the input value is greater than the compare value, the OnGreaterThan output is fired with the input value."
 [
 	// Keys
-	InitialValue(integer) : "Initial value" : : "Initial value for the input value."
-	CompareValue(integer) : "Compare value" : : "The value to compare against."
+	InitialValue(float) : "Initial value" : : "Initial value for the input value."
+	CompareValue(float) : "Compare value" : : "The value to compare against."
 	
 	// Inputs
 	input SetValue(float) : "Set the value that will be compared against the compare value."
@@ -4384,7 +3700,7 @@
 		entity_tool_group = "Logic"
 	}
 = logic_case :
-	"Compares an input to up to 16 preset values. If the input value is the same as " +
+	"Compares an input to up to 32 preset values. If the input value is the same as " +
 	"any of the preset values, an output corresponding to that value is fired.<br><br>" +
 	"For example: if Case01 is set to 2 and Case02 is set to 5, and the input value is 5, " +
 	"the OnCase02 output will be fired.<br><br>" +
@@ -4408,6 +3724,22 @@
 	Case14(string) : "Case 14"
 	Case15(string) : "Case 15"
 	Case16(string) : "Case 16"
+	Case17(string) : "Case 17"
+	Case18(string) : "Case 18"
+	Case19(string) : "Case 19"
+	Case20(string) : "Case 20"
+	Case21(string) : "Case 21"
+	Case22(string) : "Case 22"
+	Case23(string) : "Case 23"
+	Case24(string) : "Case 24"
+	Case25(string) : "Case 25"
+	Case26(string) : "Case 26"
+	Case27(string) : "Case 27"
+	Case28(string) : "Case 28"
+	Case29(string) : "Case 29"
+	Case30(string) : "Case 30"
+	Case31(string) : "Case 31"
+	Case32(string) : "Case 32"
 
 	// Inputs
 	input InValue(string) : "Compares the Input value to the case values, and fires the appropriate output, if any."
@@ -4416,6 +3748,7 @@
 	input ResetShuffle(void) : "Starts the shuffle over so that the next PickRandomShuffle can select from all cases."
 	
 	// Outputs
+	output OnDefault(void) : "Fired when the input value does not equal any of the Case values."
 	output OnCase01(void) : "Fired when the input value equals the Case01 value."
 	output OnCase02(void) : "Fired when the input value equals the Case02 value."
 	output OnCase03(void) : "Fired when the input value equals the Case03 value."
@@ -4432,7 +3765,22 @@
 	output OnCase14(void) : "Fired when the input value equals the Case14 value."
 	output OnCase15(void) : "Fired when the input value equals the Case15 value."
 	output OnCase16(void) : "Fired when the input value equals the Case16 value."
-	output OnDefault(void) : "Fired when the input value does not equal any of the Case values."
+	output OnCase17(void) : "Fired when the input value equals the Case17 value."
+	output OnCase18(void) : "Fired when the input value equals the Case18 value."
+	output OnCase19(void) : "Fired when the input value equals the Case19 value."
+	output OnCase20(void) : "Fired when the input value equals the Case20 value."
+	output OnCase21(void) : "Fired when the input value equals the Case21 value."
+	output OnCase22(void) : "Fired when the input value equals the Case22 value."
+	output OnCase23(void) : "Fired when the input value equals the Case23 value."
+	output OnCase24(void) : "Fired when the input value equals the Case24 value."
+	output OnCase25(void) : "Fired when the input value equals the Case25 value."
+	output OnCase26(void) : "Fired when the input value equals the Case26 value."
+	output OnCase27(void) : "Fired when the input value equals the Case27 value."
+	output OnCase28(void) : "Fired when the input value equals the Case28 value."
+	output OnCase29(void) : "Fired when the input value equals the Case29 value."
+	output OnCase30(void) : "Fired when the input value equals the Case30 value."
+	output OnCase31(void) : "Fired when the input value equals the Case31 value."
+	output OnCase32(void) : "Fired when the input value equals the Case32 value."
 ]
 
 // NEEDHELP: Unused in HL2, not clear what it's useful for.
@@ -4574,42 +3922,6 @@
 ]
 
 
-@PointClass base(Targetname, EnableDisable) tags( Logic ) iconsprite("editor/logic_random_outputs.vmat") = logic_random_outputs :
-	"A message forwarder. Fires up to eight separate outputs, each with a different chance of firing."
-[
-	spawnflags(flags) =
-	[
-		1: "Only trigger once" : 0
-		2: "Allow fast retrigger" : 0
-	]
-	OnTriggerChance1(float) : "OnTrigger1 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger1 output firing when this entity is triggered."
-	OnTriggerChance2(float) : "OnTrigger2 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger2 output firing when this entity is triggered."
-	OnTriggerChance3(float) : "OnTrigger3 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger3 output firing when this entity is triggered."
-	OnTriggerChance4(float) : "OnTrigger4 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger4 output firing when this entity is triggered."
-	OnTriggerChance5(float) : "OnTrigger5 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger5 output firing when this entity is triggered."
-	OnTriggerChance6(float) : "OnTrigger6 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger6 output firing when this entity is triggered."
-	OnTriggerChance7(float) : "OnTrigger7 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger7 output firing when this entity is triggered."
-	OnTriggerChance8(float) : "OnTrigger8 Chance" : "1.0" : "Chance (from 0 to 1) of the OnTrigger8 output firing when this entity is triggered."
-
-	// Inputs
-	input Trigger(void) : "Trigger this entity, causing its OnTrigger outputs to fire if it is enabled."
-	input Toggle(void) : "Toggle this entity between enabled and disabled."
-	input CancelPending(void) : "Cancel any events fired by this entity that are currently pending in the I/O event queue."
-	
-	// Outputs
-	output OnSpawn(void) : "Fired when this entity is spawned. If this entity is set to only trigger once, it will "+
-		"delete itself after firing this output."
-	output OnTrigger1(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger2(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger3(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger4(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger5(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger6(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger7(void) : "This output has a chance to fire when the entity is triggered."
-	output OnTrigger8(void) : "This output has a chance to fire when the entity is triggered."
-]
-
-
 @PointClass base(Targetname) tags( Logic ) iconsprite("editor/logic_script.vmat") = logic_script : "An entity that acts as a container for scripts"
 [
 	Group00(target_destination) : "EntityGroup[0]"
@@ -4698,6 +4010,8 @@
 	input UpperRandomBound(float) : "Set a new Maximum Random Interval."
 	input AddToTimer(float) : "Add time to the timer if it is currently enabled.  Does not change the Refire Interval."
 	input SubtractFromTimer(float) : "Subtract time from the timer if it is currently enabled.  Does not change the Refire Interval."
+	input PauseTimer(void) : "Pauses the timer, maintaining its current remaining time."
+	input UnpauseTimer(void) : "Unpauses the timer, continuing from where it left off when frozen."
 
 
 	// Outputs
@@ -4933,17 +4247,6 @@
 	input Disable(void) : "Enable the entity"
 ]
 
-@PointClass base(Targetname) tags( Logic ) = logic_playmovie : "Plays a movie and allows for various playback options"
-[
-	MovieFilename(string) : "Movie to play" : "" : "Filename of the movie to play"
-	allowskip(boolean) : "Allow User to Skip" : 0 : "Whether or not the user may skip the video with common keys"
-
-	input PlayMovie(void) : "Play the movie."
-
-	// Outputs
-	output OnPlaybackFinished(void) : "Fired when the movie has completed playing back or was skipped by the user."
-]
-
 @PointClass base( Targetname ) tags( Info ) iconsprite("editor/info_world_layer.vmat") = info_world_layer :
 [
 	layerName(string) : "World layer name" : "" : "Name of the world layer which this entity will control"
@@ -4971,7 +4274,7 @@
 	output OnEntitiesSpawned(void) : "Fired when the entities associated with the layer have been spawned."
 ]
 
-@PointClass base( Targetname ) tags( Logic ) 
+@PointClass base( Targetname, CanBeClientOnly ) tags( Logic ) 
 	selected_line( 255 255 255, targetname, Template01 )
 	selected_line( 255 255 255, targetname, Template02 )
 	selected_line( 255 255 255, targetname, Template03 )
@@ -5158,12 +4461,12 @@
 		16 : "ForceSpawn: Only if the player isn't looking" : 0
 	]
 
-	EntityTemplate(target_destination) : "Point_template To Spawn" : "" : "Name of the point_template to spawn here."
+	EntityTemplate(target_destination) : "Point_template To Spawn" : "" : "Name of the point_template to spawn here. If there is an offset between the point_template and its spawned entities in hammer, that offset will be maintained when spawning happens relative to the env_entity_maker."
 
 	PostSpawnSpeed(float) : "PostSpawn Movement Speed" : "0" : "If specified, all the entities created in the template will move this fast in the specified PostSpawn Movement Direction."
-	PostSpawnDirection(angle) : "PostSpawn Movement Direction" : "0 0 0" : "If a PostSpawn Movement Speed is specified, all the entities created in the template will move in this direction."
+	PostSpawnDirection(angle) : "PostSpawn Movement Direction" : "0 0 0" : "If a PostSpawn Movement Speed is specified, this angle will be added to the movement direction all the entities created by the template."
 	PostSpawnDirectionVariance(float) : "PostSpawn Direction Variance" : "0.15" : "This variance is applied to the PostSpawn Movement Direction for each spawned entity in the template. Use it to apply some randomness to the directions."
-	PostSpawnInheritAngles(boolean) : "PostSpawn Inherit Angles" : 0 : "If in hierarchy, is spawn direction in world space, or object local space of parent"
+	PostSpawnInheritAngles(boolean) : "PostSpawn Inherit Angles" : 0 : "If checked, uses the parent's forward vector as the spawn direction. Otherwise uses the entity maker's forward."
 
 	// Inputs
 	input ForceSpawn(void)				: "Spawn an instance of the template at this origin and angle."
@@ -5236,7 +4539,7 @@
 		"all entities EXCEPT those whose name matches the string will pass the filter."
 ]
 
-@FilterClass base(BaseFilter) iconsprite("editor/filter_name.vmat") = filter_activator_model :
+@FilterClass base(BaseFilter) iconsprite("editor/filter_model.vmat") = filter_activator_model :
 	"A filter that filters by the model of the activator."
 [
 	model(studio) : "Filter Model" : : "The model to filter by. If the filter mode is Allow, only entities whose "+
@@ -5295,6 +4598,14 @@
 		1048576 : "ACID"
 		2097152 : "SLOWBURN"
 	]
+]
+
+@FilterClass base(BaseFilter) iconsprite("editor/filter_class.vmat") = filter_activator_attribute_int :
+	"A filter that filters by the mass of the activator."
+[
+	filterattribute(string) : "Attribute Name" : : "The attribute to filter by. If the filter mode is Allow, only entities who "+
+		"have the attribute with a value > 0 will pass the filter. If the filter mode is Disallow, "+
+		"all entities EXCEPT those who have the attribute with a value > 0 will pass the filter."
 ]
 
 @FilterClass base(BaseFilter) iconsprite("editor/filter_class.vmat") sphere(filter_radius) sphere(filter_outer_radius) = filter_enemy :
@@ -5482,21 +4793,6 @@
 	input Toggle(void) : "Toggle this entity between On/Off state."
 ]
 
-@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = point_playermoveconstraint : 
-	"An entity that constrains players to a radius around itself, slowing them down the closer they get to the edge of the radius."
-[
-	radius(float) : "Radius" : 256 : "Radius to constrain players to."
-	width(float) : "Constraint Width" : "75.0" : "Width of the constraint edge. This is the distance in which to start slowing players down as they approach the edge of the radius."
-	speedfactor(float) : "Speed Factor" : "0.15" : "Factor applied to the player's max speed as they approach the radius edge."
-
-	// Inputs
-	input TurnOn(void) : "Start constraining any players within the radius."
-	input TurnOff(void) : "Stop constraining any players previously constrained."
-
-	// Outputs
-	output OnConstraintBroken(void) : "Fired when a player breaks through the constraint."
-]
-
 //-------------------------------------------------------------------------
 //
 //	Physics entities
@@ -5527,13 +4823,8 @@
 		16384 : "Debris - Don't collide with the player or other debris" : 0
 		32768 : "Motion Disabled" : 0
 		65536 : "Use Preferred Carry Angles" : 0
-		131072: "Enable motion on Physcannon grab" : 0
-		262144: "Ignore +USE for Pickup" : 0
-		524288: "Generate output on +USE " : 1
 		1048576 : "Start Asleep" : 0
-		2097152 : "Physgun is NOT allowed to pick this up." : 0 
-		4194304 : "Physgun is NOT allowed to punt this object." : 0
-		8388608: "Prevent motion enable on player bump" : 0
+		8388608 : "Prevent motion enable on player bump" : 0
 		16777216: "Force nav-ignore" : 0
 	]
 	
@@ -5547,6 +4838,11 @@
 	massScale(float) : "Mass Scale" : "0" : "A scale multiplier for the object's mass."
 	damagetoenablemotion(integer) : "Health Level to Override Motion" : 0 : "If specified, this object will start motion disabled. Once its health has dropped below this specified amount, it will enable motion."
 	forcetoenablemotion(float) : "Physics Impact Force to Override Motion" : 0 : "If specified, this object will start motion disabled. Any impact that imparts a force greater than this value on the physbox will enable motion."
+	enableuseoutput(boolean) : "Enable +Use Output" : 0 : "Enables OnPlayerUse output being fired when this object is used"
+	cannotgravitygrab(boolean) : "Cannot Gravity Grab" : 0
+	cannotgravitypunt(boolean) : "Cannot Gravity Punt" : 0
+	enablemotionongravitygrab(boolean) : "Enable Motion On Grab" : 0
+	gravitygrabignoremassandsize(boolean) : "Grab Ignores Mass" : 0 : "Gravity Grab is possible regardless of whether the object is too heavy or large."
 	health(integer) : "Strength" : 0 : "Number of points of damage to take before breaking.  0 means don't break."
 	preferredcarryangles(vector) : "Preferred Player-carry Angles" : "0 0 0" : "If the 'Use Preferred Carry Angles' spawnflag is set, this angle is the angle which the object should orient to when the player picks it up, with the physgun or +USE."
 	notsolid(choices) : "Not solid to world" : 0 =
@@ -5575,10 +4871,6 @@
 	output OnDamaged(void) : "Fired when this entity is damaged."
 	output OnAwakened(void) : "Fired when this entity becomes awake (collision/force is applied)."
 	output OnMotionEnabled(void) : "Fired when motion is enabled due to damage/physcannon/force."
-	output OnPhysGunPickup(void) : "Fired when a player picks this object up, either with the physgun or +USE."
-	output OnPhysGunPunt(void) : "Fired when a player punts this object with the physgun."
-	output OnPhysGunOnlyPickup(void) : "Fired when a player picks this object up WITH THE PHYSGUN. +USE pickups do not fire this output."
-	output OnPhysGunDrop(void) : "Fired when a player drops this object."
 	output OnPlayerUse(void) : "Fired when the player tries to +USE the physbox. This output will fire only if the Generate output on +USE spawnflag is set."
 	output OnStartTouch(void) : "Fired when it touches with another entity. Activator is the other entity."
 ]
@@ -5665,12 +4957,6 @@
 	"Attach the desired constraint to this entity, and then parent this entity to the entity you want the constraint to apply to."
 [
 	massScale(float) : "Amount to scale the mass of this body in the constraint solver" : "1"
-]
-
-@PointClass size(-4 -4 -4, 4 4 4) tags( Physics ) = info_mass_center :
-	"An entity that overrides the mass center of the target physics prop, or func_physbox, by moving it to the info_mass_center's location."
-[
-	target(target_destination) : "Target object" : ""  : "The entity whose mass center will be overridden."
 ]
 
 @PointClass halfgridsnap  editormodel("models/editor/axis_helper") base(Targetname, BasePhysicsNoSettleAttached) tags( Physics ) = phys_spring : 
@@ -5792,14 +5078,21 @@
 ]
 
 
-@PointClass base(TwoObjectPhysics) iconsprite("editor/phys_ballsocket.vmat") tags( Physics ) = phys_ballsocket : 
-	"A constraint that keeps the position of two objects fixed, relative to the constraint's origin. It does not affect rotation."
+@PointClass editormodel("models/editor/axis_helper") base(TwoObjectPhysics) iconsprite("editor/phys_ballsocket.vmat") tags( Physics ) = phys_ballsocket : 
+	"A constraint that keeps the position of two objects fixed, relative to the constraint's origin. You can optionally specify limits for the relative twist and swing rotation."
 [
 	spawnflags(flags) =
 	[
 	]
 
 	friction(float) : "Friction" : "0" : "Resistance/friction in the constraint"
+
+	enable_swing_limit(boolean) : "Enable Swing Limit" : 0 : "Limit relative rotation away from the constraint's Z axis"
+	swing_limit(float) : "Swing Limit" : "0" : "Maximum swing angle in degrees, if the swing limit is enabled"
+
+	enable_twist_limit(boolean) : "Enable Twist Limit" : 0 : "Limit relative rotation about the Z axis"
+	min_twist_angle(float) : "Min Twist Angle" : "0" : "Minimum relative twist angle in degrees, if the twist limit is enabled"
+	max_twist_angle(float) : "Max Twist Angle" : "0" : "Maximum relative twist angle in degrees, if the twist limit is enabled"
 ]
 
 
@@ -5975,23 +5268,12 @@
 	output NotifyForceReachedZ(void) : "The requested force has been reached on the Z axis.  Won't fire if force min time is zero."
 ]
 
-@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) color(0 0 255) tags( Physics ) = phys_convert : 
-	"Turns an arbitrary entity into a physically simulated entity. i.e. brush entities will behave like func_physbox, model entities behave like prop_physics."
+@PointClass base(TwoObjectPhysics) editormodel("models/editor/axis_helper_thick") tags( Physics ) = phys_splineconstraint :
+	"Constrain an entity to a spline."
 [
 	spawnflags(flags) =
 	[
-		1: "Convert Asleep" : 0
-		2: "Convert As Debris" : 0
 	]
-	target(target_destination) : "Entity to convert" : : "Name of the entity that will be converted to a physics object when the ConvertTarget input is fired."
-	swapmodel(string) : "Model Swap Entity"
-	massoverride(float) : "Mass Override" : "0" : "Sets the mass when the object(s) are converted (0 means auto-calculate)"
-
-	// Outputs
-	output OnConvert(void) : "Fires after the conversion has taken place."
-
-	// Inputs
-	input ConvertTarget(void) : "Converts this entity's target to a physically simulated object." 
 ]
 
 @BaseClass base(Targetname, BasePhysicsNoSettleAttached) = ForceController
@@ -6102,11 +5384,6 @@
 //
 //-------------------------------------------------------------------------
 
-@BaseClass = prop_detail_base
-[
-	model(studio) : "World model"
-]
-
 @BaseClass base(SystemLevelChoice) = prop_static_base
 [
 	model(studio) [report] : "World Model"
@@ -6118,13 +5395,18 @@
 		3: "Use oriented Box"
 		6: "Use VPhysics"
 	]
-	disableshadows(boolean) [ group="Render Properties" ] : "Disable Shadows" : 0
+
+	disableshadows(choices) [ group="Render Properties" ] : "Cast Shadows" : 0 : "Used to disable shadow casting fromthis entity." = 
+	[
+		0: "Enabled"
+		1: "No Shadows"
+		2: "Only Realtime Shadows"
+		3: "Only Baked Shadows"
+	]
+
 	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist/Pixels" : -1 : "Distance at which the prop starts to fade (<0 = subtract from fademaxdist)."
 	fademaxdist(float) [ group="Render Properties" ] : "End Fade Dist/Pixels" : 0 : "Maximum distance at which the prop is visible (0 = don't fade out)."
-	fadescale(float) [ group="Render Properties" ] : "Fade Scale" : 1 : "If you specify a fade in the worldspawn, or if the engine is running under low end/medium end/XBox360, then the engine will forcibly fade out props even if fademindist/fademaxdist isn't specified." +
-		 " This scale factor gives you some control over the fade. Using 0 here turns off the forcible fades." +
-		 " Numbers smaller than 1 cause the prop to fade out at further distances," +
-		 " and greater than 1 cause it to fade out at closer distances."
+
 	detailgeometry(boolean) [ group="Render Properties" ] : "Detail Geometry" : 0 : "If true this geometry is not important for precomputed lighting"	
 	visoccluder(boolean) [ group="Render Properties" ] : "Vis Occluder" : 0 : "If true this geometry is used as an occluder for precomputed visibility"	
 	renderamt(integer) [ group="Render Properties" ] : "Alpha" : 255 : "Alpha of the fade, where 0 = fully transparent and 255 = fully opaque." 
@@ -6137,7 +5419,7 @@
 	]
 ]
 
-@BaseClass base(Parentname, Global, Studiomodel, BreakableProp, SystemLevelChoice, RenderFields, Glow) tags( PropDynamic ) = prop_dynamic_base
+@BaseClass base(Parentname, CanBeClientOnly, Global, Studiomodel, BreakableProp, SystemLevelChoice, RenderFields, Glow) tags( PropDynamic ) = prop_dynamic_base
 [
 	solid(choices) : "Collisions" : 6 =
 	[
@@ -6160,7 +5442,8 @@
 		1: "Yes"
 	]
 
-	DefaultAnim(sequence) : "Default Animation" : "" : "The name of the idle animation that this prop will revert to whenever it finishes a random or forced animation."
+	DefaultAnim(sequence) { enabled={ function="NotUsingAnimGraph" } } : "Default Animation" : "" : "The name of the idle animation that this prop will revert to whenever it finishes a random or forced animation. This setting is ignored for models with an animgraph when Use Animgraph is enabled."
+	use_animgraph(boolean) { enabled={ function="ModelHasAnimGraph" } } : "Use Animgraph" : 1 : "Allow the model to use its animgraph it has one. If the model has no animgraph this setting has no effect and is disabled"
 
 	RandomAnimation(boolean) : "Randomly Animate" : 0 : "If set, this prop will randomly choose and play animations, based upon the times specified in 'Min/Max Random Anim Time'. Inbetween the random animations, it will revert to playing the 'Default Animation'."
 	HoldAnimation(boolean) : "Hold Animation" : 0 : "If set, the prop will not loop its animation, but hold the last frame."
@@ -6204,20 +5487,21 @@
 	updatechildren(boolean) : "Update children" : 0 : "Update touches for any children that are attached to attachment points as this prop animates. "+
 		"This allows SetParentAttached triggers or func_brushes to touch properly."
 
-	use_animgraph(boolean) : "Allow Animgraph" : 0 : "Allow this entity to use its animgraph"
-
 	CreateNavObstacle(boolean) : "Create Nav Obstacle" : "0" : "Create a navigation obstacle to assist NPC pathfinding"
 
 	forcenpcexclude(boolean) : "Force NPC Exclude" : "0" : "If set, NPC movement will ignore this prop"
 ]
 
-@PointClass base(prop_detail_base) model() = prop_detail : 
-	"Detail Prop"
-[
-	model(studio) : "World model"
-]
-
-@PointClass base(PosableSkeleton) tags( PropStatic ) color(255 255 0) line(255 0 255, targetname, cubemap) sphere(fademindist, 200 200 200) sphere(fademaxdist, 200, 200, 200) sphere(grass_exclusion_radius, 100 200 100, singleSelect) model(static) model_archetypes(static_prop_model) = prop_static
+@PointClass base(PosableSkeleton) tags( PropStatic ) color(255 255 0) line(255 0 255, targetname, cubemap) sphere(fademindist, 200 200 200) sphere(fademaxdist, 200, 200, 200) sphere(grass_exclusion_radius, 100 200 100, singleSelect) model(static) 
+	metadata
+	{
+		model_archetypes = [ "static_prop_model" ]
+		entity_tool_name = "Static Prop"
+		entity_tool_group = "Content"
+		entity_tool_tip = "Adds a static model"
+		static_prop = true
+	}
+= prop_static
 [
 	model(resource:model) [report] : "World Model"
 	solid(choices) : "Collisions" : 6 =
@@ -6227,36 +5511,37 @@
 		3: "Use oriented Box"
 		6: "Use VPhysics"
 	]
-	disableshadows(boolean) [ group="Render Properties" ] : "Disable Shadows" : 0
-	screenspacefade(boolean) [ group="Render Properties" ] : "Screen Space Fade" : 0 : "The method by which the fading distance should be determined. If 'No', the fade distances is the distance from the player's view to the object, in inches. If 'Yes', the fade distance is the size of the object onscreen, in pixels."
+	
+	disableshadows(choices) [ group="Render Properties" ] : "Cast Shadows" : 0 : "Used to disable shadow casting from this entity." = 
+	[
+		0: "Enabled"
+		1: "No Shadows"
+		2: "Only Realtime Shadows"
+		3: "Only Baked Shadows"
+	]
 
 	skin(materialgroup) [ group="Render Properties" ] : "Skin" : "default" : "Some models have multiple versions of their textures, called skins."
 	lodlevel(lod_level)  [ group="Render Properties" ] : "LOD Level" : "-1" : "LOD level to be displayed in game. Set to Auto for standard automatic selection, or set to a specific level to always use that level."
 
-	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist/Pixels" : -1 : "Distance at which the prop starts to fade (<0 = use fademaxdist). If 'Screen Space Fade' is selected, this represents the number of pixels wide covered by the prop when it starts to fade."
-	fademaxdist(float) [ group="Render Properties" ] : "End Fade Dist/Pixels" : 0 : "Maximum distance at which the prop is visible (0 = don't fade out). If 'Screen Space Fade' is selected, this represents the *minimum* number of pixels wide covered by the prop when it fades."
-	fadescale(float) [ group="Render Properties" ] : "Fade Scale" : 1 : "If you specify a fade in the worldspawn, or if the engine is running under dx7 [hl2/ep1/portal] or dx8 [ep2/tf], then the engine will forcibly fade out props even if fademindist/fademaxdist isn't specified." +
-		" This scale factor gives you some control over the fade. Using 0 here turns off the forcible fades." +
-		" Numbers smaller than 1 cause the prop to fade out at further distances," +
-		"and greater than 1 cause it to fade out at closer distances."
+	fademindist(float) [ group="Render Properties" ] : "Start Fade Dist" : -1 : "Distance at which the prop starts to fade (-1 = use fademaxdist)."
+	fademaxdist(float) [ group="Render Properties" ] : "End Fade Dist" : 0 : "Maximum distance at which the prop is visible (0 = don't fade out)."
+
 	detailgeometry(boolean) : "Detail Geometry" : 0 : "If true this geometry is not important for precomputed lighting"	
 	visoccluder(boolean) : "Vis Occluder" : 0 : "If true this geometry is used as an occluder for precomputed visibility"	
-	baketoworld(boolean) : "Bake To World" : 0 : "If true this geometry will be baked into the world geometry of the map so that the model is not referenced at runtime."
+	baketoworld(boolean) [ group="Build Settings" ] : "Bake To World" : 0 : "If true this geometry will be baked into the world geometry of the map so that the model is not referenced at runtime."
+	disablemerging(boolean) [ group="Build Settings" ] : "Disable Mesh Merging" : 0 : "If true this will not be merged with other geometry during map compile (reduces rendering efficiency)."
 	renderamt(integer) [ group="Render Properties" ] : "Alpha" : 255 : "Alpha of the fade, where 0 = fully transparent and 255 = fully opaque." 
 	rendercolor(color255) : "Color (R G B)" : "255 255 255"
 	lightingorigin(target_destination) [ group="Render Properties" ]: "Lighting Origin" : "" : "Select a an entity to specify a location to sample lighting from, instead of using this entity's bounding box center."
 	lightgroup(string) [ group="Render Properties" ] : "Light Group" : "" : "Will only be lit by lights affecting this group."
 	rendertocubemaps(boolean) [ group="Render Properties" ] : "Render to Cubemaps" : 1 : "If true, this geometry renders into baked cube maps"	
 	precomputelightprobes(boolean) [ group="Render Properties" ] : "Precompute Light Probes" : 1 : "Pre-compute environment map and light probe volume used on this object."
+	bakelightdoublesided(boolean) [ group = "Render Properties" ] : "Bake Lighting As If Double-Sided" : 0 : "Bake lighting as if this were double-sided geometry. Useful on geometry with pre-culled backfaces whose neighbors have lighting errors caused by saw-too-many-backfaces sample invalidation."
+	emissive(boolean) [ group = "Render Properties" ] : "Emissive Lighting" : 1 : "Allow this prop to emit lighting for raytraced lighting"
 	materialoverride(material) [ group="Render Properties" ] : "Override Material" : ""
 	disableinlowquality(boolean) [ group="Render Properties" ] : "Disable in low quality mode" : 0 : "Do not render this prop when using the lowest quality video settings, it is an non-essential detail."
 	lightmapscalebias(choices) [ group="Render Properties" ] : "Lightmap Scale Bias" : 0 : "Use to scale the resolution of the lightmap for this object." =
 	[
-		-8 : "Scale down by 256"
-		-7 : "Scale down by 128"
-		-6 : "Scale down by 64"
-		-5 : "Scale down by 32"
-		-4 : "Scale down by 16"
 		-3 : "Scale down by 8"
 		-2 : "Scale down by 4"
 		-1 : "Scale down by 2"
@@ -6264,11 +5549,6 @@
 		1 : "Scale up by 2"
 		2 : "Scale up by 4"
 		3 : "Scale up by 8"
-		4 : "Scale up by 16"
-		5 : "Scale up by 32"
-		6 : "Scale up by 64"
-		7 : "Scale up by 128"
-		8 : "Scale up by 256"
 	]
 
 	bakelighting(choices) [ group="Render Properties" ] : "Bake Lighting" : -1 =
@@ -6282,7 +5562,15 @@
 ]
 
 
-@PointClass base(prop_dynamic_base, EnableDisable) sphere(fademindist) sphere(fademaxdist) model() model_archetypes(animated_model) = prop_dynamic :
+@PointClass base(prop_dynamic_base, EnableDisable) sphere(fademindist) sphere(fademaxdist) model()
+	metadata
+	{
+		model_archetypes = [ "animated_model" ]
+		entity_tool_name = "Dynamic Prop"
+		entity_tool_group = "Content"
+		entity_tool_tip = "Adds a dynamic model - use this for models that have animation or movement"
+	}
+= prop_dynamic :
 	"A prop that can be placed in hierarchy and can play animations and/or simulate cloth. It can also be configured to break when it takes enough damage. "+
 	"Note that the health of the object will be overridden by the health inside the model, to ensure consistent health game-wide. "+
 	"If the model used by the prop is configured to be used as a prop_physics (i.e. it should be physically simulated) then it CANNOT be "+
@@ -6307,7 +5595,6 @@
 		4 : "Debris - Don't collide with the player or other debris" : 0
 		8 : "Motion Disabled" : 0
 		64 : "Enable motion on Physcannon grab (This also applies to the HLVR hand interaction)" : 0
-		128 : "Not affected by rotor wash" : 0
 		256 : "Generate output on +USE " : 1
 		512 : "Prevent pickup" : 0
 		1024: "Prevent motion enable on player bump" : 0
@@ -6369,10 +5656,6 @@
 	// Outputs
 	output OnMotionEnabled(void) : "Fired when motion is enabled on this prop, either via 'Health Level to Override Motion' or from the EnableMotion input."
 	output OnAwakened(void) : "Fired when this entity becomes awake (collision/force is applied to it while it's asleep)."
-	output OnPhysGunPickup(void) : "Fired when the player picks up the prop with the physcannon or +USE."
-	output OnPhysGunPunt(void) : "Fired when a player punts this object with the physgun."
-	output OnPhysGunOnlyPickup(void) : "Fired when a player picks this object up WITH THE PHYSGUN. +USE pickups do not fire this output."
-	output OnPhysGunDrop(void) : "Fired when the player drops the prop with the physcannon or USE."
 	output OnPlayerUse(void) : "Fired when the player tries to +USE the prop. This output will fire only if the Generate output on +USE spawnflag is set."
 	output OnPlayerPickup(void) : "Fired whenever the player picks up this prop (with the physcannon or with +USE)."
 	output OnOutOfWorld(void) : "Fired whenever the prop is out of the allowed world bounds."
@@ -6383,6 +5666,7 @@
 	"or other constraints. It can also be configured to break when it takes enough damage. Health can be overridden on this version."
 [
 	health(integer) : "Health" : 0 : "Number of points of damage to take before breaking.  0 means don't break."
+	propdata_override(string) : "Prop Data Override" : "" : "Prop Data names defined in propdata.txt are typically defined in the VMDL used by this prop. For prototyping, this allows you to select a specific one and ignore the name in the VMDL."
 	
 	// Inputs
 	input Ignite(void) : "Ignite, burst into flames."
@@ -6393,7 +5677,12 @@
 	lightgroup(string) [ group="Render Properties" ] : "Light Group" : "" : "Will only be lit by lights affecting this group."
 ]
 
-@PointClass base(BasePropPhysics, RenderFields, BasePhysicsSimulated) model() sphere(fademindist) sphere(fademaxdist) model_archetypes(physics_prop_model,breakable_prop_model) = prop_physics :
+@PointClass base(BasePropPhysics, RenderFields, BasePhysicsSimulated) model() sphere(fademindist) sphere(fademaxdist) 
+	metadata
+	{
+		model_archetypes = [ "physics_prop_model", "breakable_prop_model" ]
+	}
+= prop_physics :
 	"A prop that physically simulates as a single rigid body. It can be constrained to other physics objects using hinges "+
 	"or other constraints. It can also be configured to break when it takes enough damage. "+
 	"Note that the health of the object will be overridden by the health inside the model, to ensure consistent health game-wide. "+
@@ -6407,16 +5696,6 @@
 		1: "Explosive"
 	]
 
-	CollisionGroupOverride(choices) [ group="Misc" ] : "Collision Group Override" : -1 =
-	[
-		-1: "UNUSED"
-		0: "COLLISION_GROUP_ALWAYS"
-		1: "COLLISION_GROUP_NONPHYSICAL"
-		4: "COLLISION_GROUP_DEFAULT"
-		5: "COLLISION_GROUP_DEBRIS"
-		14: "COLLISION_GROUP_WEAPON"
-	]
-
 	SilentToZombies(boolean) : "Silent To Zombies" : 0 : "Should this prop generate sounds that blind zombies can hear."
 
 	// Inputs
@@ -6426,7 +5705,14 @@
 	input IgniteHitboxFireScale(float) : "Ignite, with a parameter hitbox fire scale."
 ]
 
-@PointClass base(prop_physics) model() sphere(fademindist) sphere(fademaxdist) = prop_physics_multiplayer :
+@PointClass base(prop_physics) model() sphere(fademindist) sphere(fademaxdist) 
+	metadata
+	{
+	entity_tool_name = "Physics Prop"
+	entity_tool_group = "Content"
+	entity_tool_tip = "Adds a physically simulated model that is affected by gravity and other forces"
+	}
+= prop_physics_multiplayer :
 	"This class is the same as prop_physics, except the runtime collisions use a more bouncy method that avoids " +
 	"the prediction errors normal physics objects get."
 [
@@ -6477,32 +5763,197 @@
 	input Detach(string) : "Detach from the Target Entity and become invisible. The ornament can be re-attached with the SetAttached input."
 ]
 
+
+//-------------------------------------------------------------------------
+// Vehicles.
+//-------------------------------------------------------------------------
+@BaseClass base(Targetname, Global) = BaseVehicle
+[
+	subclass_name( subclass_choice:scripts/vehicles.vdata ) : "Vehicle Subclass" : "" : "Subclass of the Vehicle."
+
+	vehicle_locked(boolean) : "Start locked" : 0
+
+	// Outputs
+	output PassengerEntered(integer) : "Passenger entered the vehicle (argument is passenger index)"
+	output PassengerExited(integer) : "Passenger exited the vehicle (argument is passenger index)"
+
+	input Lock(void) : "Prevent passengers from entering or exiting the vehicle."
+	input Unlock(void) : "Re-allow passengers to enter or exit the vehicle."
+]
+
+//==================================================================================================
+@PointClass base(BaseVehicle) 
+	vdata_model{my_key = "subclass_name" vdata_key = "m_sModelName" use_class_when_blank = true}
+= vehicle_entityio :
+	"Vehicle which does nothing but fire outputs based on IN_BUTTONS, typically used for prototyping."
+[
+	button1(choices) : "Button 1" : "" : "The button which fires the Button1-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button2(choices) : "Button 2" : "" : "The button which fires the Button2-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button3(choices) : "Button 3" : "" : "The button which fires the Button3-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button4(choices) : "Button 4" : "" : "The button which fires the Button4-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button5(choices) : "Button 5" : "" : "The button which fires the Button5-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button6(choices) : "Button 6" : "" : "The button which fires the Button6-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button7(choices) : "Button 7" : "" : "The button which fires the Button7-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	button8(choices) : "Button 8" : "" : "The button which fires the Button8-related outputs." =
+	[
+		1 : "IN_ATTACK"
+		2 : "IN_JUMP"
+		4 : "IN_DUCK"
+		8 : "IN_FORWARD"
+		16 : "IN_BACK"
+	//	32 : "IN_CANCEL"
+	//	64 : "IN_TURNLEFT"
+	//	128 : "IN_TURNRIGHT"
+		256 : "IN_MOVELEFT"
+		512 : "IN_MOVERIGHT"
+		1024 : "IN_ATTACK2"
+	//	2048 : "IN_RUN"
+		4096 : "IN_RELOAD"
+	]
+
+	// Outputs
+	output OnButtonStart1(integer) : "Passenger started hitting button 1 (argument is passenger index)"
+	output OnButtonEnd1(integer) : "Passenger stopped hitting button 1 (argument is passenger index)"
+
+	output OnButtonStart2(integer) : "Passenger started hitting button 1 (argument is passenger index)"
+	output OnButtonEnd2(integer) : "Passenger stopped hitting button 2 (argument is passenger index)"
+
+	output OnButtonStart3(integer) : "Passenger started hitting button 3 (argument is passenger index)"
+	output OnButtonEnd3(integer) : "Passenger stopped hitting button 3 (argument is passenger index)"
+
+	output OnButtonStart4(integer) : "Passenger started hitting button 4 (argument is passenger index)"
+	output OnButtonEnd4(integer) : "Passenger stopped hitting button 4 (argument is passenger index)"
+
+	output OnButtonStart5(integer) : "Passenger started hitting button 5 (argument is passenger index)"
+	output OnButtonEnd5(integer) : "Passenger stopped hitting button 5 (argument is passenger index)"
+
+	output OnButtonStart6(integer) : "Passenger started hitting button 6 (argument is passenger index)"
+	output OnButtonEnd6(integer) : "Passenger stopped hitting button 6 (argument is passenger index)"
+
+	output OnButtonStart7(integer) : "Passenger started hitting button 7 (argument is passenger index)"
+	output OnButtonEnd7(integer) : "Passenger stopped hitting button 7 (argument is passenger index)"
+
+	output OnButtonStart8(integer) : "Passenger started hitting button 8 (argument is passenger index)"
+	output OnButtonEnd8(integer) : "Passenger stopped hitting button 8 (argument is passenger index)"
+]
+
 //-------------------------------------------------------------------------
 //
 // Solid Entities
 //
 //-------------------------------------------------------------------------
-
-@SolidClass base(Targetname) color(0 255 255) = func_areaportal :
-	"A portal brush used to manage visibility in maps. Portals define areas, which are spaces " +
-	"that are connected in the map. Both sides of a portal cannot touch the same area, for example, a " +
-	"doughnut shaped map would require at least two portals to divide the map into two areas. A linear map " +
-	"could be divided into two areas with a single area portal."
-[
-	target(target_destination) : "Name of Linked Door" : : "(Optional) The name of a door whose open/closed state controls the on/off state of this area portal."
-	StartOpen(choices) : "Initial State" : 1 =
-	[
-		0 : "Closed"
-		1 : "Open"
-	]
-
-	PortalVersion(integer)	[readonly]	: "Portal Version"      : 1  : "(Don't change). Differentiates between shipping HL2 maps and maps using new engine features."
-
-	// Inputs
-	input Open(void) : "Open the portal. When the portal is open is can be seen through."
-	input Close(void) : "Close the portal. When the portal is closed it cannot be seen through."
-	input Toggle(void) : "Toggle the open/closed state of the portal."
-]
 
 @SolidClass base(BreakableBrush, RenderFields, Shadow) = func_breakable : 
 	"A brush entity that can be broken from damage, or an input." 
@@ -6510,30 +5961,15 @@
 	minhealthdmg(integer) : "Min Damage to Hurt" : 0 : "The prop will ignore any damage events if the damage is less than this amount."
 	gamemass(integer) : "Game Mass Override" : 0 : "Set the game mass by hand instead of using the code defaults."
 
+	overrideBlockLOS(choices) : "Block LOS override" : 0 : "Should this entity block or not-block LOS" =
+	[
+		0 : "use default"
+		1 : "Force no block LOS"
+		2 : "Force block LOS"
+	]
+
 	_minlight(string) : "Minimum Light Level" : : "The minimum level of ambient light that hits this brush."
 	physdamagescale(float) [ group="Physics Properties" ] : "Physics Impact Damage Scale" : "1.0" : "Scales damage energy when this object is hit by a physics object. NOTE: 0 means this feature is disabled for backwards compatibility.<br>Set to 1.0 for materials as strong as flesh, smaller numbers indicate stronger materials."
-]
-
-@SolidClass base(Targetname, Parentname, RenderFields, Shadow) = func_conveyor : 
-	"Conveyor Belt"			// NEEDHELP
-[
-	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "The direction conveyor moves."
-	spawnflags(flags) =
-	[
-		1 : "No Push" : 0
-		2 : "Not Solid" : 0
-	]
-	speed(string) : "Conveyor Speed" : "100"
-	_minlight(string) : "Minimum Light Level" : : "The minimum level of ambient light that hits this brush."
-
-	// Inputs
-	input ToggleDirection(void) : "ToggleDirection"
-	input SetSpeed(integer) : "SetSpeed"
-]
-
-@SolidClass color(180 180 0) = func_viscluster : 
-	"Any leaves touching this brush will have their vis merged together into a single cluster.  Use multiple func_viscluster entities to reduce vis time"
-[
 ]
 
 @SolidClass base(Targetname, Parentname, RenderFields, Shadow) = func_illusionary : 
@@ -6542,26 +5978,27 @@
 	_minlight(string) : "Minimum Light Level" : : "The minimum level of ambient light that hits this brush."
 ]
 
-
-@SolidClass base(Targetname, Parentname) = func_precipitation : 
-	"A brush entity that creates rain and snow inside its volume."
+@SolidClass base(Trigger) = func_precipitation :
+	"A brush entity that creates precipitation inside its volume."
 [
-	renderamt(integer) : "Density (0-100%)" : 100	
-	preciptype(choices) : "Precipitation Type" : 4 =	
+	spawnflags(flags) = 
 	[
-		4 : "Particle Rain"
-		5 : "Particle Ash"
-		6 : "Particle Rainstorm"
-		7 : "Particle Bugs"
-		8 : "Particle Smoke"
-		9 : "Particle Snow"
-		10 : "Particle Xen Particulate"
-		11 : "Particle Dust Motes"
-		12 : "Particle Embers"
-		13 : "Particle Ground Fog"
+		1: "Clients" : 1
+		2: "NPCs" : 0
+		4: "Pushables": 0
+		8: "Physics Objects" : 0
+		16: "Only player ally NPCs" : 0
+		32: "Only clients in vehicles" : 0
+		64: "Everything (not including physics debris)" : 1
+		512: "Only clients *not* in vehicles" : 0
+		1024: "Physics debris" : 0
+		2048: "Only NPCs in vehicles (respects player ally flag)" : 0
+		4096: "Correctly account for object mass (trigger_push used to assume 100Kg) and multiple component physobjs (car, blob...)" : 1
+		8192: "Ignore client's hands" : 0
 	]
+	subclass_name( subclass_choice:scripts/precipitation.vdata ) : "Precipitation Subclass" : "" : "The Type of Precipitation."
+	renderamt(integer) : "Density (0-100%)" : 100	
 ]
-
 
 @SolidClass base(Targetname, Parentname) = func_precipitation_blocker : 
 	"A brush entity that prevents rain and snow inside its volume."
@@ -6776,11 +6213,19 @@
 	"When it spawns it will automatically rotate to face the next path_track on the path."
 [
 
+	// Inputs
+	input MoveToPathNode(string) : "Start moving to a destination and stop when you get there. This must be in the same path."
+	input TeleportToPathNode(string) : "Teleport to a destination and stop there. This can be in a new path."
+	input LockOrientation(void) : "Lock the current orientation of the train."
+	input UnlockOrientation(void) : "Unlock the current orientation of the train."
+
+	input SetMaxSpeed(float) : "Set a new max speed for the train."
+
 	// Outputs
 	output OnStart(void) : "Fired when the train starts moving in either direction."
 	output OnNext(string) : "Fires when this train picks a new point to move towards (and just after OnStart)."
 	
-
+	output OnArrivedAtDestinationNode(void) : "Fired when this train arrives at a destination that was specified by the MoveToPathNode Input."	
 ]
 
 @SolidClass base(BaseTrain) = func_tanktrain :
@@ -6924,21 +6369,6 @@
 	gravity(integer) : "Gravity (0-1)" : 1
 ]
 
-@SolidClass base(Trigger) = trigger_playermovement : 
-	"An entity that can be used to disable player's automatic ducking/unducking when jumping."
-[
-	spawnflags(flags) = 
-	[
-	// Remove this after maps fixed up:
-		16: "(OBSOLETE, Uncheck me)" : 0
-		128: "Disable auto player movement" : 1
-		2048: "Auto-duck while in trigger" : 0
-		4096: "Auto-walk while in trigger" : 0
-		8192: "Disable jump while in trigger" : 0
-	]
-]
-
-
 // NEEDHELP
 @SolidClass base(Trigger) = trigger_soundscape : 
 	"Soundscape trigger. " +
@@ -7010,7 +6440,7 @@
 @SolidClass base(Trigger) = trigger_multiple :
 	"A trigger volume that can be triggered multiple times."
 [
-	wait(integer) : "Delay Before Reset" : 1 : "Amount of time, in seconds, after the trigger_multiple has triggered before it can be triggered again. If set to -1, it will never trigger again (in which case you should just use a trigger_once)."
+	wait(float) : "Delay Before Reset" : 1 : "Amount of time, in seconds, after the trigger_multiple has triggered before it can be triggered again. If set to -1, it will never trigger again (in which case you should just use a trigger_once)."
 	 
 	// Inputs
 	input TouchTest(void) : "Tests if the trigger is being touched and fires an output based on whether the value is true or false." 
@@ -7073,11 +6503,10 @@
 	output OnEndLook(void) : "Fired when the player was looking and unlooked while still touching."
 ]
 
-@SolidClass base(Trigger) drawangles( pushdir, pushdir_islocal )= trigger_push : 
+@SolidClass base(Trigger) drawangles_local( pushdir )= trigger_push : 
 	"A trigger volume that pushes entities that touch it."
 [
 	pushdir(angle) : "Push Direction (Pitch Yaw Roll)" : "0 0 0" : "Angles indicating the direction to push touched entities."
-	pushdir_islocal(boolean) : "Push direction is expressed in local space" : "0": "If checked, the push direction angle is in local space and will be rotated by the entity's angles before being applied."
 
 	spawnflags(flags) = 
 	[ 
@@ -7166,29 +6595,6 @@
 
 
 
-
-//-------------------------------------------------------------------------
-//
-// AI
-//
-//-------------------------------------------------------------------------
-
-@PointClass base(Targetname,ResponseContext,EnableDisable) tags( AI ) = ai_speechfilter : 
-	"An entity that can be used to control the idle speech patterns of a set of NPCs."
-[
-	subject(target_destination) : "Subject(s)" : "" : "This is the NPC(s) whose speech we're filtering. May be a targetname or a classname."	
-
-	IdleModifier(float) : "Idle modifier." : "1.0" : "Multiplier to the percentage chance that our NPC(s) will idle speak. Set to 0 to prevent all idle speech."
-	NeverSayHello(choices) : "Greet Player?" : 0 : "If set to Yes, our NPC(s) won't greet the player when they first meet him." =
-	[
-		0 : "Yes"
-		1 : "No"
-	]
-
-	input SetIdleModifier(float) : "Allows designers to change the idle modifier at runtime"
-]
-
-
 //-------------------------------------------------------------------------
 // Water LOD control
 //-------------------------------------------------------------------------
@@ -7233,26 +6639,27 @@
 	input SetOnAndTurnOthersOff(void) : "Turn the camera on, and turn all other cameras off."
 	input SetOn(void) : "Turn the camera on."
 	input SetOff(void) : "Turn the camera off."
+	input EnableDOF(void) : "Enable Depth of Field."
+	input DisableDOF(void) : "Disable Depth of Field."
+	input SetDOFNearBlurry(float) : "Set DOF Near Blurry Range."
+	input SetDOFNearCrisp(float) : "Set DOF Near Crisp Range."
+	input SetDOFFarCrisp(float) : "Set DOF Far Crisp Range."
+	input SetDOFFarBlurry(float) : "Set DOF Far Blurry Range."
+	input SetDOFTiltToGround(float) : "Set DOF Tilt to Ground Amount (0..1)."
 ]
 
 //-------------------------------------------------------------------------
-// Used to allow entities to use point_cameras for their materials
+// Camera entity vertical FOV for panorama panels
 //-------------------------------------------------------------------------
-
-@PointClass base(Targetname) tags( Info ) = info_camera_link :
-	"An entity that can use point_cameras to render images for materials used by entities. "+
-	"To author the material, use the special identifier _rt_Camera " +
-	"for the $baseTexture (or whatever texture you want, like envmap, etc.) in the .vmat " +
-	"then connect the 'target' field to the entity which uses that material, and the 'PointCamera' " +
-	"field to the point_camera you want to have appear on that entity's material"
+@PointClass base(Parentname, Targetname, CanBeClientOnly)  frustum( VerticalFOV, ZNear, ZFar, rendercolor ) editormodel("models/editor/camera.vmdl")  = point_camera_vertical_fov : "Camera Vertical FOV"
 [
-	target(target_destination) : "Entity Whose Material Uses _rt_camera"
-	PointCamera(target_destination) : "Camera Name" : : "The name of a point_camera entity in the map that the material should be rendered from."
+	VerticalFOV(float) : "VerticalFOV" : 90 : "Vertical Field of view in degrees"
+	ZNear(float) : "ZNear" : 4 : "Distance to the near plane"
+	ZFar(float) : "ZFar" : 10000 : "Distance to the far plane"
 	
-	// Inputs
-	input SetCamera(string) : "Set the camera to use. The parameter should be the name of a point_camera entity in the map."
+	aspectRatio(float) : "Aspect Ratio" : 1
+	rendercolor(color255) : "Color (R G B)" : "128 128 128"
 ]
-
 
 //-------------------------------------------------------------------------
 // Used to allow entities to mimic the motions of other entities
@@ -7288,24 +6695,6 @@
 // Misc
 //-------------------------------------------------------------------------
 
-@PointClass base(BaseNPC, Parentname) tags( PropDynamic ) model() model_archetypes(animated_model) = npc_furniture : 
-	"An entity used for non-NPCs that need to synchronise their animation with an NPC in a scripted_sequence. Usually a piece"+
-	"of furniture or door that an NPC needs to manipulate within a scripted_sequence."
-[
-	model(studio) : "Model"
-	input DisablePlayerCollision(void) : "Disable collisions against the player."
-	input EnablePlayerCollision(void) : "Enable collisions against the player."
-
-	has_animated_face(Choices) : "Has Animated Face" : 0 : "Does this entity have an animated face?" =
-	[
-		0 : "No"
-		1 : "Yes"
-	]
-	furniture_physics(boolean) : "Furniture Physics" : 0 : "Create (kinematic) physics for the furniture. (By default npc_furniture is nonsolid to avoid unintentional interactions with any co-actors.)"
-	lightingorigin(target_destination) : "Lighting Origin" : "" : "Select an entity to specify a location to sample lighting from, instead of using this entity's origin."
-]
-
-
 // This entity is not used in L4D, use env_outtro_stats instead.
 @PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = env_credits : 
 	"An entity to control the rolling credits."
@@ -7320,27 +6709,15 @@
 ]
 
 
-@PointClass base(Parentname, Targetname) size(-8 -8 -8, 8 8 8 ) = material_modify_control : 
-	"An entity that can be used to directly control material vars. To use it, you need to read the .vmat of the material you "+
-	"intend to change. Parent this entity to a brush model entity who's material you want to control."
-[
-	materialName(string) : "Material to modify."
-	materialVar(string) : "Material variable to modify."
-
-	// Inputs
-	input SetMaterialVar(string) : "Fire to modify a material variable. The argument is the value to set the variable to."
-	input SetMaterialVarToCurrentTime(void) : "This sets the material variable to the current time on the server."
-	input StartAnimSequence(string) : "Force an animated material with the MaterialModifyAnimated proxy to play a set of animation frames. Format is: <Frame Start> <Frame End> <Frame Rate> <Loop><br>Setting <Frame End> to -1 uses the last frame of the texture. <Loop> should be 1 or 0."
-	input StartFloatLerp(string) : "Force a material with the MaterialModifyAnimated proxy to lerp a material var between two floating point values. Format is: <Start Value> <End Value> <Transition Time> <Loop><br><Loop> should be 1 or 0."
-] 
-
 //-------------------------------------------------------------------------
 // Devshot camera
 //	- Used by the -makedevshots system, which automatically takes screenshots
 //	  at the position of every devshot camera in the level.
 //-------------------------------------------------------------------------
 
-@PointClass editormodel("models/editor/camera") = point_devshot_camera : 
+@PointClass
+	editormodel("models/editor/camera")
+	frustum(FOV) = point_devshot_camera : 
 	"An entity used by the -makedevshots system, which automatically takes screenshots at the position of every devshot camera in the level."
 [
 	cameraname(string) : "Camera Name" : "" : "Used as the name of the directory to store screenshots from this camera. Must be unique within the level."
@@ -7381,7 +6758,7 @@
 ]
 
 
-@PointClass base(Targetname, Parentname) editormodel("models/editor/spot.vmdl") frustum(lightfov, nearz, farz, lightcolor, -1) = env_projectedtexture :
+@PointClass base(Targetname, Parentname) editormodel("models/editor/spot.vmdl") frustum(lightfov, nearz, farz, lightcolor) = env_projectedtexture :
 	"Projected texture entity, used for things like flashlights."
 [
 	spawnflags(flags) =
@@ -7431,6 +6808,22 @@
 ]
 
 
+@PointClass base(Targetname, Parentname) overlay() editormodel("models/editor/axis_helper_thick.vmdl") = env_decal :
+	"Simple projected decal entity"
+[
+	material(material) : "Decal Material" : ""
+
+	width(float) : "Decal Width" : "256.0"
+	height(float) : "Decal Height" : "256.0"
+	depth(float) : "Decal Depth" : "256.0"
+
+	RenderOrder(integer)		: "Render Order" : "0"
+	projectonworld(boolean)		: "Project on World" : "1"
+	projectoncharacters(boolean)	: "Project on Characters" : "1"
+	projectonwater(boolean)		: "Project on Water" : "1"
+]
+
+
 @SolidClass base(func_brush) = func_reflective_glass :
 	"Used to produce perfectly reflective glass that renders world + entities. " +
 	"Typically, you want your glass brush to have nodraw on all non-reflective surfaces " +
@@ -7439,24 +6832,6 @@
 	"NOTE: currently, you cannot use reflective glass in scenes with water, and you can only " +
 	"have 1 reflective glass in your view frustum ( + pvs ) at a time."
 [
-]
-
-@PointClass base(Targetname) tags( Particles ) = env_particle_performance_monitor : 
-	"An entity for turning on and off measuring and display of particle throughput."
-[
-	// Inputs
-	input TurnOnDisplay(void) : "Turn on display of particle simulation benchmark"
-	input TurnOffDisplay(void) : "Turn off display of particle simulation benchmark"
-	input StartMeasuring(void) : "Start measuring particle simulation speed"
-	input StopMeasuring(void) : "Stop measuring particle simulation speed"
-]
-
-@PointClass base(BaseNPC, Targetname, Parentname,Studiomodel) model() = npc_puppet : "Puppet entity that mimics the animations of a target NPC."
-[
-	animationtarget(target_source) : "Animation target" : ""
-	attachmentname(string) : "Target attachment point name" : ""
-
-	input SetAnimationTarget(string) : "Set the animation target to use. An empty string will disable the puppet."
 ]
 
 @PointClass base(Targetname, EnableDisable) size(-2 -2 -2, 2 2 2) color(0 255 0) = point_gamestats_counter : "Generic game statistics counter."
@@ -7530,20 +6905,6 @@
 	replace09(instance_variable) : "Replace" : : "This is a replacement parameter.  It goes in the form of $variable value.  All entities inside of that instance that have $variable somewhere will be replaced with the value contents.  Example: $color 255 0 0"
 	replace10(instance_variable) : "Replace" : : "This is a replacement parameter.  It goes in the form of $variable value.  All entities inside of that instance that have $variable somewhere will be replaced with the value contents.  Example: $color 255 0 0"
 ]
-
-
-@PointClass base(Targetname) = point_event_proxy : "An entity that allows fires simple game events from map logic"
-[
-	EventName(string) : "Event Name" : : "Name of the event fired"
-	ActivatorAsUserID(Choices) : "Activator as 'userid' field" : 1 : "Use the input activator as the userid field in the event fired" =
-	[
-		0 : "No"
-		1 : "Yes"
-	]
-	
-	input GenerateEvent(void) : "Generate the game event."
-]
-
 
 @PointClass base(Targetname) iconsprite("editor/env_instructor_hint.vmat") = env_instructor_hint : "An entity that allows for creation and control of instructor lessons by map logic"
 [
@@ -7724,19 +7085,6 @@
 ]
 
 
-@PointClass base(Targetname, Parentname, Studiomodel) studioprop() = prop_hallucination : "A prop that players can't get a good look at, hopefully making them unsure if it's there at all"
-[
-	EnabledChance(float) : "Enabled Chance" : "100.0" : "Percentage chance the hallucination starts enabled. 0 is always off, 100 is always on"
-	VisibleTime(float) : "Visible Time" : "0.215" : "Number of seconds the hallucination stays visible from the first frame it can be seen"
-	RechargeTime(float) : "Recharge Time" : "0.0" : "Number of seconds the hallucination stays invisible before it can be seen again. 0 to disable recharging"
-	
-	input Enable(void) : "Enable the hallucination algorithm"
-	input Disable(void) : "Disable the hallucination algorithm"
-	input SetVisibleTime(float) : "Set Visible Time"
-	input SetRechargeTime(float) : "Set Recharge Time"	
-]
-
-
 @PointClass base(Targetname, Parentname, RenderFields) editormodel("models/editor/axis_helper_thick") externalHelper( ToolObjects/point_worldtext ) color(20 140 20) = point_worldtext : 
 	"3D text in the world" 
 [
@@ -7784,10 +7132,6 @@
 	FogName(target_destination) : "Fog Name" : : "The name of the fog entity associated with this volume."
 	PostProcessName(target_destination) : "Postprocess Name" : : "The name of the postprocess entity associated with this volume."
 	ColorCorrectionName(target_destination) : "ColorCorrection Name" : : "The name of the color_correction entity associated with this volume."
-]
-
-@SolidClass base( Targetname, Parentname, EnableDisable ) = func_occluder : "A func_occluder occludes objects behind it. It is used for rendering performance optimization. One use case is to put it into a doorway and toggle it based on whether the door is open or not. Note that geometry surrounding the doorway should have occluders as well, otherwise the benefit of the func_occluder is limited.<br>func_occluders should be as large as possible for best occlusion."
-[
 ]
 
 @SolidClass base( Targetname, Parentname, EnableDisable ) = func_distance_occluder : 
@@ -7925,15 +7269,6 @@
 	max_ride_speed(float) : "Max Ride Speed" : "50"
 ]
 
-@PointClass base(Targetname) tags( Logic ) iconsprite("editor/logic_timer.vmat") = env_clock
-[
-	hourhand(target_destination) : "Hour Hand" : : ""
-	minutehand(target_destination) : "Minute Hand" : : ""
-	secondhand(target_destination) : " Hand" : : ""
-	uselocaltime(boolean) : "Use Local Time" : 1 : ""
-	timezone(integer) : "Time Zone" : -8 : ""
-]
-
 @BaseClass base(Targetname) = base_clientui_ent 
 [ 
 	dialog_layout_name(string) : "Layout XML"
@@ -7995,6 +7330,8 @@
 	input AcceptUserInput(void) : "Accept user input."
 	input AddCSSClass(string) : "Add a CSS class to the panel."
 	input RemoveCSSClass(string) : "Remove a CSS class from the panel."
+	input LocalPlayerAddCSSClass(string) : "Add a CSS class to the panel only for local player."
+	input LocalPlayerRemoveCSSClass(string) : "Remove a CSS class from the panel only for local player. "
 ]
 
 @PointClass base(point_clientui_world_panel, Parentname) size(-1 -1 0, 1 1 2) externalHelper( ToolObjects/point_clientui_world_text_panel ) color(20 140 20) = point_clientui_world_text_panel
@@ -8038,11 +7375,19 @@
 [
 ]
 
-@PointClass base(Targetname, Parentname, EnableDisable) iconsprite("editor/env_sky.vmat") skybox() = env_sky : 
+@PointClass base(Targetname, Parentname, EnableDisable) iconsprite("editor/env_sky.vmat") skybox() 
+	metadata
+	{
+	entity_tool_name = "Skybox"
+	entity_tool_group = "Fog & Sky"
+	entity_tool_tip = "Adds a 2D skybox"
+	}
+= env_sky : 
 	"Controls the sky."
 [
-	skyname(resource:material) [report] : "Sky Material" : "materials/dev/default_sky.vmat"
+	skyname(resource:material) { report=true initial_filter_string="materials/skybox/" } : "Sky Material" : "materials/dev/default_sky.vmat"
 	tint_color(color255) : "Skybox Tint Color" : "255 255 255" : "Tint the skybox"
+	brightnessscale(float) : "Brightness Scale" : "1.0" : "Scale brightness by this amount"
 
 	fog_type(choices) : "Fog Type" : 1 =
 	[
@@ -8148,14 +7493,20 @@
 	]
 ]
 
-@PointClass tags( Info ) iconsprite( "materials/editor/visibility_hint.vmat" ) box_world_aligned( box_mins, box_maxs) = visibility_hint
+@PointClass tags( Info, VisPreview ) iconsprite( "materials/editor/visibility_hint.vmat" ) box_world_aligned( box_mins, box_maxs) = visibility_hint
 [
 	box_mins(vector) : "Box Mins" : "-64 -64 -64"
 	box_maxs(vector) : "Box Maxs" : "64 64 64"
 	hintType(choices) : "Hint Type" : 3 =
 	[
-		0: "Use High Resolution"
+		0: "Use High Resolution (8 unit grid)"
+		1: "Use Normal Resolution (16 unit grid)"
+		2: "Use Medium Resolution (32 unit grid)"
 		3: "Use Low Resolution (64 unit grid)"
+		8: "Use Lower Resolution (64 unit grid, fewer intial clusters)"
+		9: "Use Lowest Resolution (256 unit grid, fewest initial clusters)"
+		4: "X-axis split"
+		5: "Y-axis split"
 		6: "Z-axis split"
 	]
 ]
@@ -8185,10 +7536,46 @@
 	]
 ]
 
+
+@PathNodeClass
+	metadata
+	{
+		editor_only = true
+	}
+= path_node_generic
+[
+]
+
+
+@PathClass 
+	metadata
+	{
+		editor_only = true
+		path_node_class = "path_node_generic"
+	}
+= path_generic
+[
+]
+
+
+@PathNodeClass
+	metadata
+	{
+		editor_only = true
+	}
+= path_node_particle_rope
+[
+	radius_scale(float) : "Radius Scale" : "1.0" : "Radius multiplier value"
+	color_tint(color255) : "Color Tint" : "255 255 255"
+	pin_enabled(bool) : "Pin Enabled" : "1" : "If enabled, the rope simulation treats this node a locaiton to which the rope is attached."
+]
+
+
 @PathClass base(Targetname) tags( Particles ) particle_rope() 
 	metadata
 	{
 		default_interpolation = "linear"
+		path_node_class = "path_node_particle_rope"
 	}
 = path_particle_rope
 [
@@ -8212,16 +7599,46 @@
 	input DisablePin( string ) : "Disable the contraint which pins a particle to the specified path node."
 ]
 
-@CableClass = cable_static
+
+@PathNodeClass
+	metadata
+	{
+		editor_only = true
+	}
+= path_node_cable
+[
+	radius_scale(float) : "Radius Scale" : "1.0" : "Radius multiplier value"
+	color_tint(color255) : "Color Tint" : "255 255 255"
+]
+
+@CableClass
+	metadata
+	{
+		editor_only = true
+		path_node_class = "path_node_cable"
+	}
+= cable_static
 [
 
 ]
 
-@CableClass base( Targetname, Parentname, Global, RenderFields, Glow, EnableDisable) sphere(fademindist) sphere(fademaxdist) = cable_dynamic
+
+@CableClass base( Targetname, Parentname, Global, RenderFields, Glow, EnableDisable) sphere(fademindist) sphere(fademaxdist)
+	metadata
+	{
+		path_node_class = "path_node_cable"
+	}
+= cable_dynamic
 [
 	secondary_material(material) : "Secondary Material" : "" : "Optional secondary material, can be selected using Skin(1)"
-	lightingorigin(target_destination) : "Lighting Origin" : "" : "Select an entity to specify a location to sample lighting from, instead of using this entity's origin."
-	disableshadows(boolean) [ group="Misc" ] : "Disable Shadows" : 0 : "Used to disable dynamic shadows on this entity."
+	lightingorigin(target_destination) [ group="Render Properties" ] : "Lighting Origin" : "" : "Select an entity to specify a location to sample lighting from, instead of using this entity's origin."
+	disableshadows(choices) [ group="Render Properties" ] : "Cast Shadows" : 0 : "Used to disable shadow casting from this entity." = 
+	[
+		0: "Enabled"
+		1: "No Shadows"
+		2: "Only Realtime Shadows"
+		3: "Only Baked Shadows"
+	]
 
 	// Inputs
 	input TurnOn(void) : "Make the prop visible."
@@ -8234,6 +7651,7 @@
 	input EnableShadow(void) : "Turn shadow on."
 	input AlternativeSorting(bool) : "Used to attempt to fix sorting problems when rendering. True activates, false deactivates"
 	input SetRenderAttribute(string) : "Set the value of a render attribute used in material dynamic expressions. Examples: $myfloat=0.25 $myfloat4=1.0,0.0,1.0,1.0"
+	input ClearRenderAttribute(string) : "Remove a render attribute previously set by SetRenderAttribute, restoring it to its previous value."
 ]
 
 
@@ -8295,3 +7713,12 @@
 ]
 
 //==================================================================================================
+@SolidClass base(Trigger)
+ = trigger_buoyancy : "A volumetric trigger that affects the motion of vphysics objects that touch it by applying buoyancy to them."
+[
+	SetFluidDensity(float) : "Fluid density, kg/liter" : "1.0"
+	input SetFluidDensity(float) : "Fluid density, kg/liter"
+]
+
+
+

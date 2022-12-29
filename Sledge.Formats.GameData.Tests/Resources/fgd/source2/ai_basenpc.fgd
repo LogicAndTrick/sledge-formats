@@ -7,71 +7,400 @@
 
 //-------------------------------------------------------------------------
 //
+// NAV
+//
+//-------------------------------------------------------------------------
+
+@BaseClass tags( AI ) = Node 
+[
+	nodeid(node_id) [readonly] : "Node ID"
+]
+
+@BaseClass base(Node) tags( AI ) = HintNode 
+[
+	spawnflags(flags) = 
+	[
+		65536: "Allow jump up" : 0
+	]
+	
+	hinttype(choices) : "Hint" : 0 = 
+	[
+		  0 : "None"
+
+		  2: "World: Window"
+//		 12: "World: Act Busy Hint"
+		 13: "World: Visually Interesting"
+		 14: "World: Visually Interesting (Don't aim at)"
+		 15: "World: Inhibit Combine Mines within 15 feet"
+		 16: "World: Visually Interesting (Stealth mode)"
+
+		 17: "Generic"
+
+		100: "Tactical: Crouch Cover Medium"
+		101: "Tactical: Crouch Cover Low"
+		102: "Tactical: Hide"
+		103: "Tactical: Entrance / Exit Pinch"
+		104: "Tactical: Sentry"
+		105: "Tactical: Enemy Disadvantage Point"
+//		106: "Health Kit"
+		107: "Tactical: High Ground"
+		108: "Tactical: Wall Cover Left"
+		109: "Tactical: Wall Cover Right"
+		110: "Tactical: Wall Cover Both"
+
+		400: "Antlion: Burrow Point"
+		401: "Antlion: Thumper Flee Point"
+
+		450: "Headcrab: Burrow Point"
+		451: "Headcrab: Exit Pod Point"
+
+		500: "Roller: Patrol Point"
+		501: "Roller: Cleanup Spot"
+
+		700: "Crow: Fly to point"
+		701: "Crow: Perch point"
+
+		900: "Follower: Wait point"
+		901: "Override jump permission"
+		902: "Player squad transition point"
+		903: "NPC exit point"
+		904: "Strider node"
+
+		950: "Player Ally: Push away destination"
+		951: "PLayer Ally: Fear withdrawal destination"
+
+		1000: "HL1 World: Machinery"
+		1001: "HL1 World: Blinking Light"
+		1002: "HL1 World: Human Blood"
+		1003: "HL1 World: Alien Blood"
+	
+//		1100: "CS Hostage: Escape Point"
+
+		1200: "Ep3 Blob Shake Position"
+		1201: "Ep3 Blob Fire Cover Position"
+		1202: "Ep3 Blob Brain Cover Position"
+		1203: "Ep3 Blob Brain Regenerate Position"
+		1204: "Ep3 Blob Spit Position"
+		1205: "Ep3 Blob Spawn Regenerator Position"
+
+		1300: "Aperture: Nest"
+
+		1400: "Combine: Fallback"
+		1401: "Combine: Signal"
+
+		1500: "Agent: Work goal"
+
+		1600: "Instigator: Lurk Position"
+	]
+	
+	generictype(string) : "Generic Hint" : "" : "String identifying what the hint type is, if generic."
+
+	animgraph_entry_cmd(string) : "Animgraph Entry Command" : "" : "Animgraph command that NPCs using this hint should apply to their animgraph when they start using it."
+	animgraph_entry_tag(string) : "Animgraph Entry Finish Tag" : "" : "The name of the Animgraph tag that will be fired when the NPC has finished playing the animgraph entry."
+	animgraph_exit_cmd(string) : "Animgraph Exit Command" : "" : "Animgraph command that NPCs using this hint should apply to their animgraph when they want to stop using it."
+	animgraph_exit_tag(string) : "Animgraph Exit Finish Tag" : "" : "The name of the Animgraph tag that will be fired when the NPC has finished playing the animgraph exit."
+	animgraph_navlink_target(target_destination) : "Navlink Target" : "" : "The name of an info_target entity that specifies the location that the animgraph's 'v_navlink_target' parameter should be set to when an NPC uses this node."
+
+	nodeFOV(choices) : "Node FOV" : 180 : "Imagine this node requires that an NPC be in the node's field of view in order to use this hint." =
+	[
+		45 : "45 Degrees"
+		90 : "90 Degrees"
+		180 : "180 Degrees"
+		360 : "360 Degrees"
+	]
+
+	// Does not inherit from EnableDisable, as node itself will
+	// use that.  This is enabling/disabling of the hint only
+	StartHintDisabled(boolean) : "Start Hint Disabled" : 0
+
+	Group(string) : "Hint Group" : "" : "If specified, gives the hint a specific group name.  Useful for hint nodes that need to be logically grouped together. NPCs may also refuse to use hint nodes that don't match their hint group."
+
+	radius(integer) : "Radius" : 0 : "How close an NPC must be to consider this hint. 0 means infinite."
+	IgnoreFacing(choices) : "Ignore Facing" : 2 : "Don't pay attention to the facing of the node. May not apply to a given hint type." =
+	[
+		0 : "No"
+		1 : "Yes"
+		2 : "Default"
+	]
+
+	MinimumState(choices) : "Minimum State" : 1 : "Require an NPC have a minimum state to use the hint." =
+	[
+		1 : "Idle"
+		2 : "Alert"
+		3 : "Combat"
+	]
+
+	MaximumState(choices) : "Maximum State" : 3 : "Require an NPC have a maximum state to use the hint." =
+	[
+		1 : "Idle"
+		2 : "Alert"
+		3 : "Combat"
+	]
+
+	// Inputs
+	input EnableHint(void) : "Enable hint."
+	input DisableHint(void) : "Disable hint."
+]
+
+@PointClass base(Node,HullFlags) editormodel("models/editor/ground_node.vmdl", fixedbounds) color(232 219 8) = info_node :
+	"A navigation node for ground moving NPCs. Navigation nodes are baked into the nodegraph so that NPCs can move " +
+	"to them. Ground nodes fall to the ground when they spawn."
+[
+	ai_node_dont_drop(boolean) : "Keep editor position" : 0
+]
+
+@PointClass base(Targetname, HintNode) editormodel("models/editor/ground_node_hint.vmdl", fixedbounds) sphere(radius) color(232 219 8) = info_node_hint :
+	"A navigation node for ground moving NPCs that includes some context information for NPCs that are interested in it. The hint might " +
+	"indicate a window that could be looked out of, or an item of interest that could be commented on. Many hint nodes are NPC-specific, " +
+	"so it's helpful to use naming conventions like 'Crow: Fly to point' in the hint choices list. The angles of a hint node indicate what direction " +
+	"the NPC should face to perform the hint behavior.<br><br>" +
+	"It's important to understand the distinction between scripts, such as scripted_sequence and scripted_schedule, and info_hint entities. Scripts summon " +
+	"NPCs to specific cue points to play their parts, while hints provide context information to the AI that they use to perform their " +
+	"behaviors. Hints require code support in the NPC, while scripts are generic and may require only animations to play. Use a hint if the behavior is driven " +
+	"by the AI, use a script if the behavior is driven by the map."
+
+[
+	ai_node_dont_drop(boolean) : "Keep editor position" : 0
+
+	// Outputs
+	output OnNPCStartedUsing(string) : "Fired when an NPC has reached this node and started using it. Passes along the NPC."
+	output OnNPCStoppedUsing(string) : "Fired when an NPC has stopped using this node. Passes along the NPC."
+]
+
+@PointClass base(Node) tags( AI ) editormodel("models/editor/air_node.vmdl", fixedbounds) color(232 171 8) = info_node_air :
+	"A navigation node for flying NPCs. Air navigation nodes are baked into the nodegraph so that NPCs can move " +
+	"to them. Air nodes do not fall to the ground when they spawn."
+[
+	nodeheight(integer) : "NodeHeight"  : 0
+]
+
+@PointClass base(Targetname, HintNode) editormodel("models/editor/air_node_hint.vmdl", fixedbounds) sphere(radius) color(232 171 8) line(255 255 255, nodeid, TargetNode) = info_node_air_hint :
+	"A navigation node for flying NPCs that includes some context information for NPCs that are interested in it. The hint might " +
+	"indicate a window that could be looked into, or an item of interest that could be commented on. Many hint nodes are NPC-specific, " +
+	"so it's helpful to use naming conventions like 'Crow: Fly to point' in the hint choices list. The angles of a hint node indicate what direction " +
+	"the NPC should face to perform the hint behavior."
+
+[
+	nodeheight(integer) : "NodeHeight"  : 0
+]
+
+@PointClass base(Targetname, HintNode) editormodel("models/editor/node_hint.vmdl", fixedbounds) sphere(radius) color(255 255 255) = info_hint :
+	"A hint that is not used for navigation. They don't go into the nodegraph, nor do they fall to the ground. Use these to provide " +
+	"some spatial context for NPCs, such as 'look here if you can't find the player' or 'throw rocks at this spot'."
+[
+]
+
+@BaseClass tags( AI ) = BaseNodeLink
+[
+	initialstate(choices) : "Initial State" : 1 =
+	[
+		0 : "Off - navigation between the nodes is disabled"
+		1 : "On - navigation between the nodes is enabled"
+	]
+
+	AllowUse(string) : "Allow Pass When Off" : : "Entity or class to allow passage even when node is off."
+	InvertAllow(boolean) : "Invert exclusion rules" : 0 : "Allowed entity is the only entity NOT allowed when this is checked."
+
+	priority(choices) : "Priority" : 0 =
+	[
+		0 : "Normal"
+		1 : "Use As Last Resort"
+	]
+
+	input TurnOn(void) : "Turn the link on, enabling travel between the nodes."
+	input TurnOff(void) : "Turn the link off, disabling travel between the nodes."
+]
+
+@PointClass wirebox(mins, maxs) base(Targetname, BaseNodeLink) = info_node_link_controller :
+	"An entity that controls all connections between nodes that intersect the controller's volume. "+
+	"This allows for mass enabling/disabling of all node connections through a volume."
+[
+	mins(vector) : "Mins" : "-8 -32 -36"
+	maxs(vector) : "Maxs" : "8 32 36"
+
+	useairlinkradius(boolean) : "Use Larger Radius (for air links)" : 0 : "Check this if this controller is intended to control air links. "+
+		"Air links connect using a larger search radius so leaving this unchecked might miss some air links."
+	
+
+	// Inputs
+	input SetAllowed(string) : "Change the allowed pass when off"
+	input SetInvert(integer) : "Change the invert exclusion rule"
+	input TestHuman(void) : "Tests to see if the controlled links are navigable by a human hull and enables the ones that are."
+]
+
+
+@PointClass sphere(radius) base(Targetname, Parentname) = info_radial_link_controller :
+	"This entity automatically severs node connections that pass through its radius. If it moves, it will restore those connections."
+[
+	radius(float) : "Radius (Use Helper!)" : 120
+]
+
+@PointClass base(Targetname, HintNode) editormodel("models/editor/climb_node.vmdl", fixedbounds) sphere(radius) color(153 215 103) = info_node_climb : 
+	"A climb-node for AI navigation. Only usable by NPCs that can climb."
+[
+]
+
+//-------------------------------------------------------------------------
+//
 // NPCs
 //
 //-------------------------------------------------------------------------
-@BaseClass base(BaseNPC) = TalkNPC
+@BaseClass base(Targetname, RenderFields, DamageFilter, ResponseContext, Shadow, PosableSkeleton) 
+	color(0 200 200) 
+= BaseNPC
 [
-	UseSentence(string) : "Use Sentence"
-	UnUseSentence(string) : "Un-Use Sentence"
+	subclass_name( vdata_choice:scripts/npc_units.vdata ) : "Unit Name" : "" : "Name of the NPC Unit."
+	squadname(String) [ group="NPC Properties" ] : "Squad Name" : : "NPCs that are in the same squad (i.e. have matching squad names) will share information about enemies, and will take turns attacking and covering each other."
+	hintgroup(String) [ group="NPC Properties" ] : "Hint Group" : "" : "Hint groups are used by NPCs to restrict their hint-node searching to a subset of the map's hint nodes. Only hint nodes with matching hint group names will be considered by this NPC."
 
-	DontUseSpeechSemaphore(choices) : "Don't Use Speech Semaphore" : 0 : "Friendly NPCs are not allowed to speak if another friendly NPC is speaking. In some cases we don't want speaking NPCs to prevent other NPCs from speaking (for instance, if there is a friendly NPC speaking for a long time on a monitor). To make this NPC not prevent other NPCs from talking, make it not grab the semaphore when it speaks." =
+	spawnflags(Flags) = 
 	[
-		0 : "No (Use speech semaphore)"
-		1 : "Yes (Don't use speech semaphore)"
+		1 : "Wait Till Seen" : 0
+		2 : "Gag (No IDLE sounds until angry)" : 0
+		4 : "Fall to ground (unchecked means *teleport* to ground)" : 1
+		8 : "Drop Healthkit" : 0
+		16 : "Efficient - Don't acquire enemies or avoid obstacles" : 0
+		128: "Wait For Script" : 0
+		256: "Long Visibility/Shoot" : 0
+		512: "Fade Corpse" : 1
+		1024: "Think outside PVS" : 0
+		//2048: "Unused" : 0
+		4096: "Do Alternate collision for this NPC (player avoidance)" : 0
+		8192: "Don't drop weapons" : 0
+		16384 : "Ignore player push (dont give way to player)" : 0
 	]
 
-	input SpeakResponseConcept(string) : "Speak the specified response concept."
-	input CancelSpeech(void) : "Cancel any speech that the NPC is currently speaking."
-]
+	//initialidle(string) [ group="NPC Properties" ] : "Initial Idle Activity" :: "Activity the NPC should use to idle until becomes alert"
+	sleepstate(choices) [ group="NPC Properties" ] : "Sleep State" : 0 : "Holds the NPC in stasis until specified condition. See also 'Wake Radius' and 'Wake Squad'." =
+	[
+		0 : "None"
+		1 : "Waiting for threat"
+		2 : "Waiting for PVS"
+		3 : "Waiting for input, ignore PVS"
+		4 : "Auto PVS"
+		5 : "Auto PVS after PVS"
+	]
 
+	wakeradius(float) [ group="NPC Properties" ] : "Wake Radius" : 0 : "Auto-wake if player within this distance"
+	wakesquad(boolean) [ group="NPC Properties" ] : "Wake Squad" : 0 : "Wake all of the NPCs squadmates if the NPC is woken"
 
-@BaseClass base(BaseNPC) = PlayerCompanion
-[
-	input OutsideTransition(void) : "Use this input to teleport the NPC to a hintnode with the Player Squad Transition Point hint type."
-	input EnableAlwaysTransition(void) : "Enable the 'always transition' behavior"
-	input DisableAlwaysTransition(void) : "Disable the 'always transition' behavior"
-	
-	input EnableSpeakWhileScripting(void) : "Allow this NPC to speak responses while in a scripted sequence or while StartScripting is active."
-	input DisableSpeakWhileScripting(void) : "Cancels this NPC's ability to speak responses while in a scripted sequence or while StartScripting is active if it was previously enabled by EnableSpeakWhileScripting."
-	
-	AlwaysTransition(boolean) : "Always transition" : "No" : "If yes, this NPC will always teleport to a Player Squad Transition Point if they're not within the trigger_transition volume."
+	enemyfilter(target_destination) [ group="NPC Properties" ] : "Enemy Filter" : "" : "Filter by which to filter potential enemies"
 
-	DontPickupWeapons(boolean) : "Prevent picking up weapons?" : "No" : "If yes, this NPC will NOT be allowed to pick up weapons they find on the ground."
+	ignoreunseenenemies(boolean) [ group="NPC Properties" ] : "Ignore unseen enemies" : 0 : "Prefer visible enemies, regardless of distance or relationship priority"
 
-	GameEndAlly(boolean) : "Is this a vital ally?" : "No" : "If yes, this NPC will cause the game to end if killed."
+	physdamagescale(float) [ group="Physics Properties" ] : "Physics Impact Damage Scale" : "1.0" : "Scales damage energy when this character is hit by a physics object. With a value of 0 the NPC will take no damage from physics."
 
-	input MakeGameEndAlly(void) : "Make this NPC a game end ally."
-	input MakeRegularAlly(void) : "Make this NPC a regular ally."
+	NavRestrictionVolume(target_destination) [ group="NPC Properties" ] : "Nav Restriction Volume" : "" : "Markup volume entity to restrict unit navigation"
 
-	input EnableWeaponPickup(void) : "Enable Weapon Pickup"
-	input DisableWeaponPickup(void) : "Disable Weapon Pickup"
+	UseAltNpcAvoid(choices) [ group="NPC Properties" ] : "Use Alt NPC Avoidance" : 0 : "Specifies if the NPC should be using any algorithm variants when avoiding other NPCs." =
+	[
+		0 : "Disabled"
+		1 : "Alt 1"
+	]
 
-	input GiveWeapon(string) : "Gives the NPC a weapon of the specified entity name."
-	
-	input SetReadinessPanic(void) : "Set readiness to panic state (Special)"
-	input SetReadinessLow(void) : "Set readiness to calmest state (Bored)"
-	input SetReadinessMedium(void) : "Set readiness to moderate (Alert)"
-	input SetReadinessHigh(void) : "Set readiness to highest. (Combat imminent)"
-	input LockReadiness(float) : "Lock readiness at current setting for x seconds -1 = forever, 0 = unlock now"
-	
-	input ClearAllOutputs(void) : "Obliterate every output that this NPC has."
-
-	output OnWeaponPickup(void) : "Fires when this NPC picks a weapon off the ground or a gun rack."
-]
-
-
-@BaseClass base(BaseNPC ) = RappelNPC
-[
-	waitingtorappel(boolean) : "Waiting to Rappel?" : "No" : "If yes, this NPC spawns suspended in air and awaits a BeginRappel input. It will then spawn a zipline and slide down. When it hits the ground, NPC will cut away the line and try to move forward a few feet to make room for the next NPC. The NPC will not attempt to clear its landing space if it cannot do so by taking a few steps forward"
-
-	// Inputs
-	input BeginRappel(void) : "BeginRappel"
+	DefaultAnim(sequence) : "Preview Animation" : "" : "Name of an animation to preview in Hammer, does not do anything in game."
 
 	// Outputs
-	output OnRappelTouchdown(void) : "Fires when done rappeling"
+	output OnDamaged(void) : "Fired when this NPC takes damage."
+	output OnDeath(void) : "Fired when this NPC is killed." 
+	output OnHalfHealth(void) : "Fired when this NPC reaches half of its maximum health."
+	output OnFoundEnemy(string) : "Fired when this NPC establishes line of sight to its enemy (outputs entity)."
+	output OnLostEnemyLOS(void) : "Fired when this NPC loses line of sight to its enemy."
+	output OnLostEnemy(void) : "Fired when this NPC loses its enemy. Usually due to the enemy being killed/removed, or because this NPC has selected a newer, more dangerous enemy."
+	output OnLostPlayerLOS(void) : "Fired when this NPC loses line of sight to its enemy, and that enemy is a player."
+	output OnLostPlayer(void) : "Fired when this NPC loses its enemy, and that enemy was a player. Usually due to the enemy being killed/removed, or because this NPC has selected a newer, more dangerous enemy."
+	output OnDamagedByPlayer(void) : "Fired when this NPC is hurt by a player."
+	output OnDamagedByPlayerSquad(void) : "Fired when this NPC is hurt by a player OR by one of the player's squadmates."
+	output OnDenyCommanderUse(void) : "Fired when this NPC has refused to join the player's squad."
+	output OnSleep(void) : "Fired when this NPC enters a sleep state."
+	output OnWake(void) : "Fired when this NPC comes out of a sleep state."
+	output OnPlayerUse(void) : "Fired when a player +Uses this npc."
+	output OnUse(void) : "Fired when ANYTHING calls Use on this npc (such as other NPCs)."
+
+	// Inputs
+	input OverrideHealth(integer) : "Overrides this entity's health, ignoring max health constraints. This is for prototyping only and all uses of this input should be audited before shipping! Values <=0 are ignored."
+	input SetRelationship(string) : "Changes this entity's relationship with another entity or class. Format: <entityname/classname> <D_HT/D_FR/D_LI/D_NU> <priority>"
+	input SetEnemyFilter(string) : "Changes this NPC's enemy filter to the named filter."
+	input SetHealth(integer) : "Set this NPC's health."
+	input SetBodyGroup(string) : "Sets NPC bodygroup. Format is <BodygroupName,index> "
+	input physdamagescale(float) : "Sets the value that scales damage energy when this character is hit by a physics object. NOTE: 0 means this feature is disabled for backwards compatibility."
+	input Ignite(void) : "Ignite, burst into flames"
+	input IgniteLifetime(float) : "Ignite, with a parameter lifetime."
+	input IgniteNumHitboxFires(integer) : "Ignite, with a parameter number of hitbox fires."
+	input IgniteHitboxFireScale(float) : "Ignite, with a parameter hitbox fire scale."
+	input Break(void) : "Break, smash into pieces"
+	input SetSquad(string) : "Set the name of this NPC's squad. It will be removed from any existing squad automatically. Leaving the parameter blank will remove the NPC from any existing squad."
+	input Wake(void) : "Wakes up the NPC if it is sleeping."
+	input ForgetEntity(string) : "Clears out the NPC's knowledge of a named entity."
+	input GagEnable(void) : "Turn on the NPC Gag flag. NPC won't speak outside of choreographed scenes."
+	input GagDisable(void) : "Turn off the NPC Gag flag."
+	input UpdateEnemyMemory(string) : "Update (or Create) this NPC's memory of an enemy and its location"
+	input BecomeRagdoll(void) : "This NPC will instantly become a ragdoll with ZERO force (just go limp). OnDeath, OnHalfHealth, etc. Outputs will **NOT** BE FIRED."
+	input SetEasingParameter(string) : "Set an easing parameter Format: <name=value>"
 ]
 
+@BaseClass base(Targetname, Parentname) iconsprite("editor/npc_maker.vmat") color(0 0 255) = BaseNPCMaker
+[
+	StartDisabled(boolean) : "Start Disabled" : 1
+
+	spawnflags(Flags) = 
+	[
+		// Only in npc__maker, npc_template_maker uses flag from template NPC
+		16 : "Fade Corpse" : 0
+		32 : "Infinite Children" : 0
+		64 : "Do Not Drop" : 0
+		128 : "Don't Spawn While Visible" : 0
+	]
+
+	Radius(float) : "Radius" : 256 : "Radius around this maker within which NPCs are to be placed. Spawned NPCs will try and find empty space within this radius to spawn."
+
+	DestinationGroup(target_destination) : "Name of Destination Group" : : "If you'd like spawned NPCs to be created at an info_npc_spawn_destination entity, enter the name of that entity here. If you have more than one destination entity by that name, the Destination Criteria will be used to select one from the group."
+	CriterionVisibility(Choices) : "Dest. Criterion: Visible to player?" : 2 : "Should the NPC try to spawn at a destination that the player can see? Only applicable if a Destination Group is being used." =
+	[
+		0 : "Yes"
+		1 : "No"
+		2 : "Don't Care"
+	]
+	CriterionDistance(Choices) : "Dest. Criterion: Distance to player?" : 2 : "Should the NPC try to spawn nearest to or farthest from the player's current location? Only applicable if a Destination Group is being used." =
+	[
+		0 : "Nearest"
+		1 : "Farthest"
+		2 : "Don't Care"
+	]
+
+	MinSpawnDistance(integer) : "Minimum spawn distance from player" : 0 : "The spawn destination node distance to the player will have to be further or equal than this value."
+
+	MaxNPCCount(integer) : "Num. of NPCs" : 1 : "Number of NPCs that will spawn before this spawner is exhausted."
+	SpawnFrequency(integer) : "Frequency" : 5 : "How often (in seconds) a new NPC will be spawned. If set to -1, a new NPC will be made when the last NPC dies."
+	RetryFrequency(integer) : "Retry Frequency" : -1 : "How long (in seconds) to wait before trying again after failing to spawn an NPC when no valid spot could be found. If set to -1, Spawn Frequency is used."
+	MaxLiveChildren(integer) : "Max Live NPCs" : 5 : "Maximum number of live children allowed at any one time (new ones will not be made until one dies). If set to -1, no limit is applied."
+	HullCheckMode(Choices) : "Hull Check Mode" : 0 : "How NPC's hull should be checked at spawn destination?" =
+	[
+		0 : "Default"
+		1 : "No hull check"
+	]
+	
+	// Outputs
+	output OnSpawnNPC(string) : "Fired when an NPC is spawned. The activator is the NPC, and the string is the name of the NPC." 
+	output OnAllSpawned(void) : "Fired when the spawned is exhausted (all children have been spawned)."
+	output OnAllSpawnedDead(void) : "Fired when the spawner is exhausted (all children have been spawned) and all spawned children have died."
+	output OnAllLiveChildrenDead(void) : "Fired when all spawned children have died. This does not mean the spawned is exhausted, so a new child may be spawned any time after this (unless the maker is disabled)."
+
+	// Inputs
+	input Spawn(void) : "Spawns an NPC."
+	input Toggle(void) : "Toggles the spawner enabled/disabled state."
+	input Enable(void) : "Enables the spawner."
+	input Disable(void) : "Disables the spawner."
+	input AddMaxChildren(integer) : "Adds to the number of NPCs that can spawn before the spawner is exhausted. If an exhausted spawner is given some children to spawn, it still wont begin spawning until it is re-enabled with the Enable input."
+	input SetMaxChildren(integer) : "Sets the number of NPCs that can spawn before the spawner is exhausted. If an exhausted spawner is given some children to spawn, it still won't begin spawning until it is re-enabled with the Enable input."
+	input SetMaxLiveChildren(integer) : "Sets the maximum number of NPCs that can be alive at any one time from this spawner."
+	input SetSpawnFrequency(float) : "Sets how often (in seconds) a new NPC will be spawned."
+	input SpawnInRadius(void) : "Spawn an NPC somewhere within the maker's radius."
+	input SpawnInLine(void) : "Spawn an NPC somewhere within a line behind the maker."
+	input SpawnMultiple(integer) : "Spawn multiple NPCs (uses destination group, else radius)."
+	input ChangeDestinationGroup(string) : "Switch to a different set of Destination entities."
+	input SetMinimumSpawnDistance(integer) : "Set the minimum spawn distance from player to destination node."
+]
 
 @BaseClass base(BaseNPC) = VehicleDriverNPC
 [
@@ -100,58 +429,14 @@
 	input Stop(void) : "Tell the driver to stop driving."
 ]
 
-
-@NPCClass base(Parentname, BaseNPC) iconsprite("editor/bullseye.vmat") color(255 0 0) = npc_bullseye : "Bullseye"
+@PointClass base(Targetname, Parentname) tags( Info ) drawangles() iconsprite("editor/info_npc_spawn_destination.vmat") = info_npc_spawn_destination : 
+	"NPC Spawn Destination. (Consult npc_template_maker help for more info)"
 [
-	// Unlike other NPCs level designers are allowed to set the health on bullseyes
-	health(Integer) : "Health" : 35
+	ReuseDelay(float) : "Reuse Delay" : 1 : "After an NPC is spawned at this destination, the delay before this destination is eligible for selection again."
+	RenameNPC(target_destination) : "New NPC Name" : "" : "If an NPC spawns at this destination, change that NPC's targetname to this."
 
-	minangle(string) : "Minimum Angle" : "360" : "Angle from the bullseye required for bullseye to be a valid enemy"
-	mindist(string) : "Minimum Distance" : "0" : "Distance from the bullseye required for bullseye to be a valid enemy"
-
-	autoaimradius(float) : "Autoaim Radius" : "0" : "Radius of autoaim influence. Use ent_autoaim <picker> to visualize."
-
-	spawnflags(Flags) = 
-	[
-		65536   : "Not Solid" : 0
-		131072  : "Take No Damage" : 0
-		262144  : "Enemy Damage Only" : 0
-		524288  : "Bleed" : 0
-		1048576 : "Perfect Accuracy" : 0
-		2097152 : "Collide against physics objects (Creates VPhysics Shadow)" : 0
-	]
-	output OnTargeted(void) : "Fires when targeted"
-	output OnReleased(void) : "Fires when no longer targeted"
-]
-
-
-@NPCClass base(Parentname, BaseNPC) iconsprite("editor/enemyfinder.vmat") color(255 150 0) = npc_enemyfinder : "EnemyFinder"
-[
-	spawnflags(flags) =
-	[
-		65536 : "Check Visibility" : 1
-		131072 : "APC Visibility checks" : 0
-		262144 : "Short memory" : 0
-		524288  : "Can be an enemy" : 0
-	]
-	FieldOfView(string) : "FieldOfView" : "0.2" : "How far to look (1.0 = straight ahead, 0.0 = +/- 90 degrees, -1.0 = all directions)"
-	MinSearchDist(integer) : "Min Search Dist" : 0
-	MaxSearchDist(integer) : "Max Search Dist" : 2048
-
-	freepass_timetotrigger(float) : "Player pass issue time" : 0 : "Amount of time an enemy is hidden after which a 'free pass' on reaquire is granted"
-	freepass_duration(float) : "Player pass duration" : 0 : "After granted 'free pass', the amount of time a target is allowed before reaquire"
-	freepass_movetolerance(float) : "Player pass move tolerance" : 120 : "After granted 'free pass', the distance the target is allowed to move before reaquire"
-	freepass_refillrate(float) : "Player pass refill rate" : "0.5" : "After free pass begins expiring, how much the time the target gets back for every second they hide again"
-	freepass_peektime(float) : "Player pass peek time" : 0 : "How long targets in cover are allowed to peek without penalty"
-
-	StartOn(boolean) : "Start On" : 1
-
-	// Inputs
-	input TurnOn(void) : "Turn on: Look for enemies"
-	input TurnOff(void) : "Turn off: Stop looking for enemies"
-
-	output OnLostEnemies(void) : "Fires when the enemy finder has no enemies."
-	output OnAcquireEnemies(void) : "Fires when the enemy finder acquires enemies."
+	// Outputs
+	output OnSpawnNPC(void) : "Fired when an NPC spawns at this destination."
 ]
 
 
@@ -187,52 +472,6 @@
 	output OnFinished(void) : "The item is done"
 ]
 
-
-@PointClass base(BaseNPC, RenderFields, Shadow) studio() model_archetypes(generic_actor_model) = monster_generic : "Generic Script NPC"
-[
-	spawnflags(Flags) = 
-	[
-		65536 : "Not solid" : 0
-	]
-	model(studio) : "Model"
-	body(Integer) : "Body" : 0
-
-]
-
-
-@PointClass base(BaseNPC, Parentname, RenderFields, Shadow, Studiomodel) tags( Choreo ) studio() model_archetypes(generic_actor_model) = generic_actor : "Generic Actor NPC"
-[
-	hull_name(choices) : "Hull type" : "Human" =
-	[
-		"HUMAN_HULL" : "Human"
-		"WIDE_HUMAN_HULL" : "Wide"
-		"TINY_HULL" : "Tiny"
-		"MEDIUM_HULL" : "Medium"
-		"LARGE_HULL" : "Large"
-	]
-	footstep_script(string) : "Footstep script" : ""
-	act_as_flyer(choices) : "Act as a Flyer?" : 0 =
-	[
-		0 : "No, obey gravity"
-		1 : "Yes, don't apply gravity on spawn"
-	]
-
-	is_friendly_npc(boolean) : "Friendly NPC? (Prevent Player Attacking)" : 0 : "Set for the NPC to notify the game is it friendly and players should not be allowed to attack it"
-
-	input EnableIsFriendlyNPC(void)
-	input DisableIsFriendlyNPC(void)
-]
-
-
-@PointClass base(BaseNPC, RenderFields, Shadow) studio() = cycler_actor : "Actor Cycler"
-[
-	model(studio) : "Model"
-	Sentence(string) : "Sentence Group" : ""
-
-	input Alpha(integer) : "Set Alpha Value"
-]
-
-
 @PointClass base(BaseNPCMaker) iconsprite("editor/npc_maker.vmat") = npc_maker : "NPC Maker"
 [
 	spawnflags(Flags) = 
@@ -240,148 +479,12 @@
 		16 : "Fade Corpse" : 0
 	]
 
-	NPCType(npcclass) : "Class name of spawned NPC"
+	NPCType( vdata_choice:scripts/npc_units.vdata ) : "Subclass name of spawned NPC"
 	NPCTargetname(string) : "Childrens' Name"
 	NPCSquadname(string) : "Childrens' Squad Name"
 	NPCHintGroup(string) : "Childrens' Hint Group"
-	
-	additionalequipment(choices) : "Weapons" : "0" =
-	[
-		"weapon_pistol" : "Pistol"
-		"weapon_ar2" : "AR2"
-		"weapon_shotgun" : "Shotgun"
-		"weapon_smg1" : "SMG1"
-		"weapon_stunstick" : "Stun Stick"
-		"weapon_annabelle"	:"Grigori's Shotgun"
-		"0" : "Nothing"
-	]
 ]
 
-
-//-------------------------------------------------------------------------
-//
-// NPC Scripting Entities
-//
-//-------------------------------------------------------------------------
-@BaseClass base(Targetname, Parentname) color(255 0 255) sphere(m_flRadius) = BaseScripted
-[
-	m_iszEntity(target_destination) : "Target NPC" : : "The name or class name (such as 'npc_zombie') of an NPC to use for this script."
-	m_iszIdle(sequence) : "Pre Action Idle Animation" : "" : "The name of the sequence (such as 'idle01') or activity (such as 'ACT_IDLE') to play before the action animation if the NPC must wait for the script to be triggered. Use 'Start on Spawn' flag or MoveToPosition input to play this idle animation."
-	m_iszEntry(sequence) : "Entry Animation" : "" : "The name of the sequence (such as 'reload02') or activity (such as 'ACT_RELOAD') to play when the sequence starts, before transitioning to play the main action sequence."
-	m_iszPlay(sequence) : "Action Animation" : "" : "The name of the main sequence (such as 'reload02') or activity (such as 'ACT_RELOAD') to play."
-	m_iszPostIdle(sequence) : "Post Action Idle Animation" : "" : "The name of the sequence (such as 'idle01') or activity (such as 'ACT_IDLE') to play after the action animation."
-	m_iszCustomMove(sequence) : "Custom Move Animation" : "" : "Used in conjunction with the 'Custom movement' setting for the 'Move to Position' property, specifies the sequence (such as 'crouch_run01') or activity (such as 'ACT_RUN') to use while moving to the scripted position."
-	sync_group(string) : "Synchronization Group" : : "If set, identifier used to match other scripted sequences to synchronze with (alternative to name-based sync)"
-	m_bLoopActionSequence(boolean) : "Loop Action Animation?" : 0
-	m_bSynchPostIdles(boolean) : "Synch Post Idles?" : 0
-	m_bAllowCustomInterruptConditions(boolean) : "Allow custom interrupt conditions to be set." : 0
-	conflict_response(choices) : "Script Conflict Response" : 0 : "What to do if this scripted sequence begins and the actor is already executing a scripted sequence." = 
-	[
-		0 : "Enqueue"
-		1 : "Interrupt"
-	] 
-	m_nGroundIKPreference(choices) : "Ground IK Preference" : 0 : "If this NPC has ground IK; whether we disable it for the playthrough of the sequence or not." = 
-	[
-		0 : "No change"
-		1 : "Disable for this sequence"
-	] 
-
-	m_flRadius(integer) : "Search Radius (0=everywhere)" : 0 : "Radius to search within for an NPC to use. 0 searches everywhere."
-	m_flRepeat(integer) : "Repeat Rate ms" : 0
-	m_fMoveTo(Choices) : "Move to Position" : 1 =
-	[
-		0 : "No"
-		1 : "Walk"
-		2 : "Run"
-		3 : "Custom movement"
-		4 : "Instantaneous"
-		5 : "No - Turn to Face"
-	]
-	m_iszNextScript(target_destination) : "Next Script" : : "The name of the script to run immediately after this script completes. The NPC will not return to AI between the two scripts."
-	m_bIgnoreGravity(boolean) : "Ignore Gravity on NPC during script" : 0 : "If this is set to 'Yes', the NPC will not be subject to gravity while playing this script."
-
-	m_bDisableNPCCollisions(boolean) : "Disable NPC collisions during script" : 0 : "Useful for when NPCs playing scripts must interpenetrate while riding on trains, elevators, etc. This only disables collisions between the NPCs in the script and must be enabled on BOTH scripted_sequences."
-	m_bKeepAnimgraphLockedPost(boolean) : "Keep Animgraph Locked after script" : 0 : "If set, the animgraph will remain locked in the Direct Playback node after this sequence finishes. This is only useful if you have a 'Next Script' set, and you don't want the animgraph to return to Idle during the transition. Note that the 'Next Script' cannot require the NPC to animate/move to it, because the NPC will be unable to move while in the Direct Playback node. In that case, or if you have no 'Next Script' set, selecting this will simply cause the NPC to freeze after it finishes the sequence."
-
-	// Inputs
-	input BeginSequence(void) : "Summons an NPC to act out the scripted sequence."
-	input MoveToPosition(void) : "Summons an NPC to the script location. They will play their scripted idle (or ACT_IDLE if none is specified) until BeginSequence is triggered."
-	input CancelSequence(void) : "Stops the scripted sequence. If fired after a sequence starts, this input will not take effect until the NPC finishes playing the scripted action animation."
-	input SetActionSequence(string) : "Sets the name of the action sequence that will play when the action sequence plays. Can be used for branching sequences."
-
-	// Outputs
-	output OnBeginSequence(void) : "Fires when the scripted sequence begins playing."
-	output OnActionStartOrLoop(void) : "Fires when the action animation begins playing and each time it loops."
-	output OnEndSequence(void) : "Fires when the action animation completes."
-	output OnCancelSequence(void) : "Fires when the sequence is cancelled."
-	output OnCancelFailedSequence(void) : "Fires when the sequence is cancelled without ever playing (OnCancelSequence will also fire)."
-	output OnScriptEvent01(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent02(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent03(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent04(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent05(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent06(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent07(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-	output OnScriptEvent08(void) : "Fires when an AE_SCRIPT_EVENT_FIREEVENT anim event occurs while playing the script."
-]
-
-
-@PointClass sphere() iconsprite("editor/scripted_sentence.vmat") base(Targetname) tags( Choreo ) = scripted_sentence : "Scripted Sentence"
-[
-	spawnflags(Flags) = 
-	[
-		1 : "Fire Once"  : 1
-		2 : "Followers Only" : 0
-		4 : "Interrupt Speech" : 1
-		8 : "Concurrent" : 0
-		16 : "Speak to Activator" : 1
-	]
-
-	sentence(string) : "Sentence Name" : ""
-	entity(string) : "Speaker Type"
-	delay(string) : "Additional Sentence Time" : "0"
-	radius(integer) : "Search Radius" : 512
-	refire(string) : "Delay Before Refire" : "3"
-	listener(string) : "Listener Type"
-	volume(string) : "Volume 0-10" : "10"
-	attenuation(Choices) : "Sound Radius" : 0 =
-	[
-		0 : "Small Radius"
-		1 : "Medium Radius"
-		2 : "Large  Radius"
-		3 : "Play Everywhere"
-	]
-
-	// Inputs
-	input BeginSentence(void) : "Starts the scripted sentence."
-
-	// Outputs
-	output OnBeginSentence(void) : "Fires when the sentence begins"
-	output OnEndSentence(void) : "Fires when the sentence ends"
-]
-
-
-@PointClass base(Targetname, Parentname) tags( AI ) iconsprite("editor/info_target.vmat") tags( Choreo ) = scripted_target : "Scripted Target"
-[
-	StartDisabled(boolean) : "Start Disabled" : 1
-
-	m_iszEntity(npcclass) : "Target NPC"
-	m_flRadius(integer) : "Search Radius (0=everywhere)" : 0 : "Radius to search within for an NPC to use. 0 searches everywhere."
-
-	MoveSpeed(integer) : "Move Speed" : 5			// How quickly should target move between scripted targets
-	PauseDuration(integer) : "Pause Duration" : 0		// How long should target pause at scripted target
-	EffectDuration(integer) : "Effect Duration" : 2		// How long should any associated effect last
-
-	target(target_destination) : "Next Target"		// Next scripted target
-
-	// Inputs
-	input Enable(void) : "Enable this entity"
-	input Disable(void) : "Disable this entity"
-
-	// Outputs
-	output AtTarget(void) : "Fires when NPC reaches this target"
-	output LeaveTarget(void) : "Fires when NPC leaves this target"
-]
 
 @BaseClass base(Targetname) tags( AI ) iconsprite("editor/ai_relationship.vmat") sphere() = base_ai_relationship : 
 	"AI Relationship - Sets relationships between groups of NPCs in the AI."
@@ -926,14 +1029,6 @@
 ]
 
 
-@PointClass base(Targetname) tags( AI ) size(-8 -8 -8, 8 8 8) = ai_npc_eventresponsesystem : "An entity that allows you to generate events for nearby friendly NPCs to respond to."
-[
-	input TriggerResponseEvent(string) : "Fire an NPC Response Event. The parameter should match the response rules concept that any nearby friendly NPCs will try to speak."
-	input ForceTriggerResponseEvent(string) : "Fire an NPC Response Event, and force the first available NPC to speak the response (breaking them out of any scene they're in). The parameter should match the response rules concept that any nearby friendly NPCs will try to speak."
-	input ForceTriggerResponseEventNoCancel(string) : "Fire an NPC Response Event, and force the first available NPC to speak the response (but don't break them out of any scene they're in). The parameter should match the response rules concept that any nearby friendly NPCs will try to speak."
-]
-
-
 @PointClass base(Targetname) tags( AI ) sphere(Radius)  size(-8 -8 -8, 8 8 8) = ai_changehintgroup : "Change Hint Group"
 [
 	SearchType(choices) : "Search Type" : 0 : "How to search for the entities to change." = 
@@ -945,7 +1040,6 @@
 	SearchName(target_name_or_class) : "Name to search for"
 	NewHintGroup(string) : "New Hint Group"
 	Radius(string) : "Search Radius" : "0.0" : "Radius to search (0 for all of map)"
-	hintlimiting(boolean) : "Hint Limit Nav" : 0 : "Limits NPC to using specified hint group for navigation requests, does not limit local navigation."
 
 	input Kill( void ) : "Removes this entity from the world"
 	input Activate( void ) : "Change the Hint Group"
@@ -1074,113 +1168,19 @@
 ]
 
 
-@PointClass base(BaseScripted, DXLevelChoice) editormodel("models/editor/scripted_sequence.vmdl") tags( Choreo ) sphere(m_flRadius) sequenceList( entity, "m_iszEntity" ) = scripted_sequence :
-	"Grabs an NPC and makes them play a specified set of animations. The NPC can be told to move to the scripted sequence position or can "+
-	"be told to play the script wherever they currently are. "+
-	"Multiple scripted sequences of the same name (or sync group, if specified) will frame-synchronize in the action animation once all the actors have moved to position. "+
-	"This allows tight interaction between actors (one actor grabbing another, hitting them, etc.) The flow is as follows:<br><br>"+
-	"1) Move to position using the specified movement animation. If 'Move to Position' is set to NONE, skip to step 2.<br>"+
-	"2) If forced to wait for another actor to move to position, play the pre-action idle animation, otherwise skip to step 3. If there is no pre-action idle specified, ACT_IDLE is used.<br>"+
-	"3) Fire the OnBeginSequence output.<br>"+
-	"4) Play the action animation. If no action animation is specified, skip to step 5.<br>"+
-	"5) Play the post-action idle animation. If none is specified, skip to step 6. If the 'Loop in Post Idle' spawnflag is set, keep playing the post-action idle until the script is cancelled. If no post-action idle animation is specified, ACT_IDLE is used.<br>"+
-	"6) Fire the OnEndSequence output.<br>"+
-	"7) If a next script to play is specified, hand the NPC to the next script and repeat this process for that script.<br><br>"+
-	"The MoveToPosition input runs steps 1 and 2, then waits while playing the pre-action idle animation until the BeginSequence input is received.<br><br>"+
-	"If the sequence has motion extraction in it, set the 'Don't Teleport NPC On End' spawnflag."
+@PointClass base(Targetname,ResponseContext,EnableDisable) tags( AI ) = ai_speechfilter : 
+	"An entity that can be used to control the idle speech patterns of a set of NPCs."
 [
-	spawnflags(Flags) = 
+	subject(target_destination) : "Subject(s)" : "" : "This is the NPC(s) whose speech we're filtering. May be a targetname or a classname."	
+
+	IdleModifier(float) : "Idle modifier." : "1.0" : "Multiplier to the percentage chance that our NPC(s) will idle speak. Set to 0 to prevent all idle speech."
+	NeverSayHello(choices) : "Greet Player?" : 0 : "If set to Yes, our NPC(s) won't greet the player when they first meet him." =
 	[
-		4 : "Repeatable" : 0
-		8 : "Leave Corpse (if not, fade)" : 0
-		16 : "Start on Spawn" : 0
-		32: "No Interruptions" : 0
-		64: "Override AI" : 0
-		128: "Don't Teleport NPC On End" : 0
-		256: "Loop in Post Idle" : 0
-		512: "Priority Script" : 0
-		2048: "Hide Debug Complaints" : 0
-		4096: "Allow other NPC actors to continue after this NPC actor's death" : 0
+		0 : "Yes"
+		1 : "No"
 	]
 
-	onplayerdeath(choices) : "On player death" : 0 : "What this entity should do if the player dies." =
-	[
-		0 : "Do Nothing"
-		1 : "Cancel Script and return to AI"
-	]
-
-	onnpcdeath(choices) : "On NPC actor death" : 0 : "What the NPC performing this script should do if it dies." =
-	[
-		0 : "LEGACY - Use old settings"
-		1 : "Ragdoll immediately"
-		2 : "Perform a death animation"
-	]
-
-	prevent_update_yaw_on_finish(choices) : "Prevent Yaw Update on Finish" : 0 : "By default, when finishing the sequence, the NPC has its ideal yaw updated to maintain the current forward facing. This allows you to prevent that if you want to return to the facing prior to starting the sequence." =
-	[
-		0 : "No"
-		1 : "Yes"
-	]
-
-	ensure_on_navmesh_on_finish(choices) : "Ensure on Nav Mesh on Finish" : 1 : "When finishing the sequence, if the NPC uses the navmesh, ensure the NPC is on a valid location on the navmesh." =
-	[
-		0 : "No"
-		1 : "Yes"
-	]
-]
-
-
-@PointClass base(Targetname) tags( Choreo ) sphere(m_flRadius) color(255 0 255) iconsprite("editor/aiscripted_schedule") = aiscripted_schedule :
-	"Issues a command to an NPC without taking the NPC out of its AI. This does not seize control of the NPC as " +
-	"a scripted_sequence does" 
-[
-	m_iszEntity(target_destination) : "Target NPC" : : "The name or classname of an NPC to use."
-	m_flRadius(integer) : "Search Radius (0=everywhere)" : 0 : "Radius to search within for an NPC to use. 0 searches everywhere."
-
-	graball(boolean)  : "All in radius" : 0: "Whether to grab all matching NPCs in the specified radius, instead of just one"
-
-	spawnflags(Flags) = 
-	[
-		4 : "Repeatable" : 1
-		1024 : "Search Cyclically" : 0
-		2048 : "Don't Complain" : 0
-	]
-
-	forcestate(choices) : "AI state to set" : 0 =
-	[
-		0 : "<None>"
-		1 : "Set state to IDLE"
-		2 : "Set state to ALERT"
-		3 : "Set state to COMBAT"
-	]
-		
-	schedule(choices) : "Schedule to run" : 1 =
-	[
-		0 : "<None>"
-		1 : "Walk to Goal Entity"
-		2 : "Run to Goal Entity"
-		3 : "Set enemy to Goal Entity"
-		4 : "Walk Goal Path"
-		5 : "Run Goal Path"
-		6 : "Set enemy to Goal Entity AND Run to Goal Entity"
-		7 : "Set enemy to Goal Entity AND Walk to Goal Entity"
-	]
-	
-	interruptability(choices) : "Interruptability" : 0 =
-	[
-		0 : "General"
-		1 : "Damage or Death"
-		2 : "Death"
-		3 : "Combat"
-	]
-
-	resilient(boolean) : "Reacquire after break" : 0 : "If set on a walk/run schedule, once the NPC returns to idling, it'll resume the walk/run until reaching the target, even if it previously broke out of the schedule due to the Interruptability choices."
-
-	goalent(target_destination) : "Goal entity" : : "Provides the name of a schedule-specific goal entity (see 'Schedule to run')"
-
-	// Inputs
-	input StartSchedule(void) : "Starts the scripted schedule. This will first locate an NPC that matches the given target, then tell the NPC to run the specified schedule."
-	input StopSchedule(void) : "Stops the scripted schedule. Will attempt to stop any NPC that appears to be running this scripted schedule."
+	input SetIdleModifier(float) : "Allows designers to change the idle modifier at runtime"
 ]
 
 
@@ -1188,13 +1188,29 @@
 //
 // Logic Entities
 //
-//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------c
+@PointClass color(0 0 255) base(Targetname) tags( Choreo )  iconsprite("editor/choreo_scene.vmat") = logic_scripted_scenario :
+	"Manages the flow of scenes with branches and stuff like that"
+
+[
+	subclass_name( subclass_choice:scripts/misc.vdata ) : "Scenario Class" : "" : ""
+
+	input BeginScenario(void) : "Starts playback of the scenario"
+	input SetBlackboardValue(string) : "Set the value of a blackboard variable"
+	input TriggerEvent(string) : "Trigger an event by name. Events are handled by event listener nodes"
+	input SwitchToNode(string) : "Switch to a node by name. Current active node will be canceled"
+]
+
+
 @PointClass color(0 0 255) base(Targetname) tags( Choreo )  iconsprite("editor/choreo_scene.vmat") = logic_choreographed_scene :
 	"Manages a choreographed scene of one or more actors."
 
 [
+	// vcd_def( scene ) { asset_specific_keys_destination="vcd_keys" }
+	// vcd_keys(kv3) <-- populated based on whatever 'vcd_def' needs
+
 	// Keys
-	SceneFile(scene) : "Scene file"
+	SceneFile(scene) { asset_specific_keys_destination="vcd_keys" } : "Scene file"
 
 	// Links
 	target1(target_destination) : "Target 1"
@@ -1336,50 +1352,25 @@
 ]
 
 
-@PointClass base(Targetname) 
-	selected_line( 255 255 255, targetname, target )
-	iconsprite("editor/ai_attached_item_manager.vmat") 
-	sphere() = ai_attached_item_manager	: 
-	"AI Attached Item Manager - manages the items attached to one or more NPCs / ragdolls."
+@PointClass base( BaseNPCMaker) tags( Logic ) iconsprite("editor/npc_maker.vmat") = npc_template_maker : 
+	"An entity that creates NPCs. The NPCs it creates are clones of a template NPC. NPCs are spawned around this maker's origin, or at specified destination points."
 [
-	target(target_name_or_class) : "Target(s)" : "" : "This is the NPC(s) who's items this manager should be managing. May be a targetname or a classname."
-	num_attached_items(integer) : "Number of Attached Items" : 0 : "The number of items attached to our target NPC(s). The NPC(s) will also need a matching number of attachment points on their model."
-	item_1(string) : "Item 1" : "" : "Classname of item to attach in slot 1. If left empty, the NPC's default item code will decide what it should be, if anything."
-	item_2(string) : "Item 2" : "" : "Classname of item to attach in slot 2. If left empty, the NPC's default item code will decide what it should be, if anything."
-	item_3(string) : "Item 3" : "" : "Classname of item to attach in slot 3. If left empty, the NPC's default item code will decide what it should be, if anything."
-	item_4(string) : "Item 4" : "" : "Classname of item to attach in slot 4. If left empty, the NPC's default item code will decide what it should be, if anything."
-	listen_entityspawns(boolean) : "Listen to Entity Spawns" : 0 : "If you want this manager to affect valid targets that are spawned after the manager, you need to set this. Most likely only needed if you want to target NPCs via a classname to catch all future spawns on that NPC type. It has a perf cost, so don't turn it on if you don't need it."
-	mark_as_removable(choices) : "Item Removal Allowed for Ammo Balancing" : "0" =
+	spawnflags(Flags) = 
 	[
-		"0" : "No"
-		"1" : "Yes"
+		512 : "Don't preload template models" : 0
 	]
+
+	TemplateName(target_destination) : "Name of template NPC" : "" : "Template NPC that this maker should be creating clones of."
 ]
 
-//-------------------------------------------------------------------------
-//
-// AI Addons
-//
-//-------------------------------------------------------------------------
-@BaseClass base(Targetname) tags( AI ) = ai_addon
+@PointClass base( BaseNPC, Targetname, Parentname, Studiomodel) model() = npc_puppet : "Puppet entity that mimics the animations of a target NPC."
 [
-	target(target_destination) : "Host NPC"
-	input	Install(target_destination) : "Install this AddOn to the specified NPC"
-	input	Remove(target_destination): "Remove this AddOn from the NPC it is attached to"
+	animationtarget(target_source) : "Animation target" : ""
+	attachmentname(string) : "Target attachment point name" : ""
+
+	input SetAnimationTarget(string) : "Set the animation target to use. An empty string will disable the puppet."
 ]
 
-
-@PointClass base(Targetname, EnableDisable) tags( AI ) = ai_addon_builder
+@PointClass base(Targetname, EnableDisable) = ai_point_of_interest
 [
-	NPCName(string) : "NPC name" : "" : "Name to give built NPCs"
-	AddOnName(string) : "Add on name" : "" : "Name to give built addons"
-	NpcPoints(integer) : "NPC Points" : 10 : "Points available to spend for NPCs"
-	AddonPoints(integer) : "Addon Points" : 10 : "Points available to spend for addons"
-	input Execute(void) : ""
-	output OnCreateNpc(void) : "Fires when an NPC is created."
-	output OnFailedToCreateNpc(void) : "Fires when an NPC fails to be created."
-	output OnCreateAddon(void) : "Fires when an Addon is created."
-	output OnFailedToCreateAddon(void) : "Fires when an Addon fails to be created."
 ]
-
-

@@ -45,7 +45,23 @@
 @PointClass base(ChoreoEvent, PitchYaw) = lookat : "Look At Target" 
 [
 	ActorName( string ) : "Look at Actor"
+	LookType( string ) : "Type" : "How much of the body looks at the target, fullbody faces"
+	LookSpeed( string ) : "Speed" : "How fast does the head/chest look at the target"
+	HoldEvent( bool ) : "Hold Event" : 0 : "When event is over, hold the look at target until the next look at event"
 ]
+
+@PointClass base(ChoreoEvent) = iklockleftarm : "Lock IK Left Arm" 
+[
+	ActorName( string ) : "Lock To Actor"
+	LockBodyFacing( boolean ) : "Lock Rotation" : 1 : "Lock Rotation"
+]
+
+@PointClass base(ChoreoEvent) = iklockrightarm : "Lock IK Right Arm" 
+[
+	ActorName( string ) : "Lock To Actor"
+	LockBodyFacing( boolean ) : "Lock Rotation" : 1 : "Lock Rotation"
+]
+
 
 @PointClass base(ChoreoEvent) = moveto : "Move To Target" 
 [
@@ -94,6 +110,13 @@
 	LockBodyFacing( boolean ) : "Lock Body Facing" : 0 : "Lock Facing (twist but don't turn)"
 ]
 
+@PointClass base(ChoreoEvent) = facetransition : "Face Transition" 
+[
+	ActorName( string ) : "Transition To Actor"
+	LockBodyFacing( boolean ) : "Lock Body Facing" : 0 : "Lock Facing (twist but don't turn)"
+]
+
+
 @PointClass base(ChoreoEvent) = firetrigger : "Fire Trigger" 
 [
 	SceneTrigger( string ) : "Scene Trigger"
@@ -101,7 +124,20 @@
 
 @PointClass base(ChoreoEvent) = animgraphcontroller : "AnimGraph Controller" 
 [
-	Parameters( string ) : "Graph Parameter Name and Value (ex: parameter=value )"
+	AnimGraphParameters( string ) : "Graph Parameter Name"
+	AnimGraphValue( string ) :	"Value"
+]
+
+@PointClass base(ChoreoEvent) = mood : "Mood Event" 
+[
+	MoodName( string ) : "Mood"
+	HoldEvent( bool ) : "Hold Event" : 0 : "When event is over, don't reset animgraph to default"
+]
+
+@PointClass base(ChoreoEvent) = moodbody : "Mood Body Event" 
+[
+	MoodBodyName( string ) : "Mood"
+	HoldEvent( bool ) : "Hold Event" : 0 : "When event is over, don't reset animgraph to default"
 ]
 
 
@@ -143,6 +179,32 @@
 	ActorName( string ) : "Actor Name"
 	Parameters2( string ) : "Function Name"
 	Parameters3( string ) : "Function Parameters"
+]
+
+@PointClass base(ChoreoEvent) = noblink : "Disable Blinking" 
+[
+]
+
+@PointClass base(ChoreoEvent) = ignoreai : "Ignore AI" 
+[
+]
+
+@PointClass base(ChoreoEvent) = holsterweapon : "Holster Weapon" 
+[
+]
+
+@PointClass base(ChoreoEvent) = unholsterweapon : "Unholster Weapon" 
+[
+]
+
+@PointClass base(ChoreoEvent) = aimat : "Aim At Target" 
+[
+	ActorName( string ) : "Aim At Target"
+]
+
+@PointClass base(ChoreoEvent) = ignorecollision : "Ignore Collision" 
+[
+	ActorName( string ) : "Ignore Actor"
 ]
 
 // Global events (different base class)

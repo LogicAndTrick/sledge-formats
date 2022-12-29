@@ -1,4 +1,7 @@
-﻿namespace Sledge.Formats.GameData.Objects
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Sledge.Formats.GameData.Objects
 {
     public class GameDataDictionaryValue
     {
@@ -28,5 +31,16 @@
             Type = GameDataDictionaryValueType.Dictionary;
             Value = value;
         }
+
+        public GameDataDictionaryValue(IEnumerable<GameDataDictionaryValue> values)
+        {
+            Type = GameDataDictionaryValueType.Array;
+            Value = values.ToList();
+        }
+
+        public static implicit operator GameDataDictionaryValue(string val) => new GameDataDictionaryValue(val);
+        public static implicit operator GameDataDictionaryValue(decimal val) => new GameDataDictionaryValue(val);
+        public static implicit operator GameDataDictionaryValue(bool val) => new GameDataDictionaryValue(val);
+        public static implicit operator GameDataDictionaryValue(GameDataDictionary val) => new GameDataDictionaryValue(val);
     }
 }
