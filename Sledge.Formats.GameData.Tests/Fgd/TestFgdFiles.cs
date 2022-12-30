@@ -107,10 +107,6 @@ namespace Sledge.Formats.GameData.Tests.Fgd
             {
                 try
                 {
-
-
-
-
                     var def = format.Read(new StreamReader(stream));
                     Console.WriteLine($"Successfully parsed {name}.");
                 }

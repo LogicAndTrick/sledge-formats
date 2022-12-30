@@ -1,30 +1,50 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Map.Formats;
 
-namespace Sledge.Formats.Map.Tests.Formats
+namespace Sledge.Formats.Map.Tests.Formats;
+
+[TestClass]
+public class TestQuakeFormat
 {
-    [TestClass]
-    public class TestQuakeFormat
+    [TestMethod]
+    public void TestMapFormatLoading()
     {
-        [TestMethod]
-        public void TestMapFormatLoading()
+        var format = new QuakeMapFormat();
+        foreach (var file in Directory.GetFiles(@"D:\Downloads\formats\map"))
         {
-            var format = new QuakeMapFormat();
-            foreach (var file in Directory.GetFiles(@"D:\Downloads\formats\map"))
+            using var r = File.OpenRead(file);
+            try
             {
-                using (var r = File.OpenRead(file))
-                {
-                    try
-                    {
-                        format.Read(r);
-                    }
-                    catch (Exception ex)
-                    {
-                        Assert.Fail($"Unable to read file: {Path.GetFileName(file)}. {ex.Message}");
-                    }
-                }
+                format.Read(r);
+                Console.WriteLine($"Successfully parsed {Path.GetFileName(file)}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to read file: {Path.GetFileName(file)}. {ex.Message}");
+                throw;
+            }
+        }
+    }
+    [TestMethod]
+    public void TestMapFormat2Loading()
+    {
+        var format = new QuakeMapFormat2();
+        foreach (var file in Directory.GetFiles(@"D:\Downloads\formats\map").OrderBy(x => Path.GetFileName(x).ToLower()).Take(10))
+        {
+            using var r = File.OpenRead(file);
+            try
+            {
+                format.Read(r);
+                Console.WriteLine($"Successfully parsed {Path.GetFileName(file)}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to read file: {Path.GetFileName(file)}. {ex.Message}");
+                throw;
             }
         }
     }

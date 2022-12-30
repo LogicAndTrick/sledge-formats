@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -169,6 +170,14 @@ namespace Sledge.Formats.Tokens
                     tok = tokens.Current;
                     if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
                 }
+            }
+
+            // If we have 'e' followed by an integer, assume we have an exponent
+            if (tok.Type == TokenType.Name && tok.Value.StartsWith("e") && int.TryParse(tok.Value.Substring(1), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var exponent))
+            {
+                value *= (decimal) Math.Pow(10, exponent);
+                tokens.MoveNext();
+                tok = tokens.Current;
             }
 
             if (!valid) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unable to parse number value");

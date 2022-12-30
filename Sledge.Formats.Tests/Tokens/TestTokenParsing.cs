@@ -59,6 +59,10 @@ namespace Sledge.Formats.Tests.Tokens
             AssertNumber("+.1");
             AssertNumber("-0.");
             AssertNumber("+0.");
+            AssertNumber("1.2345e012");
+            AssertNumber("-1.2345e012");
+            AssertNumber("1.2345e-012");
+            AssertNumber("-1.2345e-012");
             
             AssertFailure("");
             AssertFailure("A");
@@ -70,7 +74,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                var expected = decimal.Parse(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign);
+                var expected = decimal.Parse(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign | NumberStyles.AllowExponent);
                 var actual = TokenParsing.ParseDecimal(it);
                 Assert.AreEqual(expected, actual);
             }
