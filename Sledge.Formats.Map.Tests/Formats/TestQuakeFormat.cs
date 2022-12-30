@@ -14,26 +14,7 @@ public class TestQuakeFormat
     public void TestMapFormatLoading()
     {
         var format = new QuakeMapFormat();
-        foreach (var file in Directory.GetFiles(@"D:\Downloads\formats\map"))
-        {
-            using var r = File.OpenRead(file);
-            try
-            {
-                format.Read(r);
-                Console.WriteLine($"Successfully parsed {Path.GetFileName(file)}.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Unable to read file: {Path.GetFileName(file)}. {ex.Message}");
-                throw;
-            }
-        }
-    }
-    [TestMethod]
-    public void TestMapFormat2Loading()
-    {
-        var format = new QuakeMapFormat2();
-        foreach (var file in Directory.GetFiles(@"D:\Downloads\formats\map").OrderBy(x => Path.GetFileName(x).ToLower()).Take(10))
+        foreach (var file in Directory.GetFiles(@"D:\Downloads\formats\map").OrderBy(x => Path.GetFileName(x).ToLower()))
         {
             using var r = File.OpenRead(file);
             try

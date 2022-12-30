@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using Sledge.Formats.Map.Objects;
+using Sledge.Formats.Tokens;
+using Sledge.Formats.Tokens.Readers;
+using static Sledge.Formats.Tokens.TokenParsing;
 
 namespace Sledge.Formats.Map.Formats
 {
@@ -75,139 +79,127 @@ namespace Sledge.Formats.Map.Formats
         public string[] AdditionalExtensions => new[] { "max" };
         public string[] SupportedStyleHints => new[] { "idTech2", "idTech3", "idTech4", "Worldcraft" };
 
+        private static readonly char[] ValidSymbols = {
+            Symbols.OpenBracket,    // [
+            Symbols.CloseBracket,   // ]
+            Symbols.OpenParen,      // (
+            Symbols.CloseParen,     // )
+            Symbols.OpenBrace,      // {
+            Symbols.CloseBrace,     // }
+        };
+
+        private static readonly Tokeniser Tokeniser = new Tokeniser(
+            new SingleLineCommentTokenReader(),
+            new StringTokenReader(),
+            new SymbolTokenReader(ValidSymbols),
+            // Parse all numbers and texture names as names, parse them properly later
+            new NameTokenReader(c => !char.IsWhiteSpace(c), c => !char.IsWhiteSpace(c))
+        ) { EmitWhitespace = true };
+
         public MapFile Read(Stream stream)
         {
             var map = new MapFile();
-            using (var rdr = new StreamReader(stream, Encoding.ASCII, true, 1024, true))
+            using (var reader = new StreamReader(stream))
             {
-                ReadEntities(rdr, map);
+                var tokens = Tokeniser.Tokenise(reader);
+                using (var it = tokens.GetEnumerator())
+                {
+                    it.MoveNext();
+                    SkipTrivia(it);
+                    while (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                    {
+                        var entity = ReadEntity(it);
+
+                        if (entity.ClassName == "worldspawn")
+                        {
+                            map.Worldspawn.SpawnFlags = entity.SpawnFlags;
+                            foreach (var p in entity.Properties) map.Worldspawn.Properties[p.Key] = p.Value;
+                            map.Worldspawn.Children.AddRange(entity.Children);
+                        }
+                        else
+                        {
+                            map.Worldspawn.Children.Add(entity);
+                        }
+                        SkipTrivia(it);
+                    }
+                }
             }
+
             return map;
         }
 
         #region Read
 
-        private static string CleanLine(string line)
+        private Entity ReadEntity(IEnumerator<Token> it)
         {
-            if (line == null) return null;
-            var ret = line;
-            if (ret.Contains("//")) ret = ret.Substring(0, ret.IndexOf("//", StringComparison.Ordinal)); // Comments
-            return ret.Trim();
-        }
+            var ent = new Entity();
 
-        private static void ReadEntities(StreamReader rdr, MapFile map)
-        {
-            string line;
-            while ((line = CleanLine(rdr.ReadLine())) != null)
+            Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+            Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+            while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                if (line == "{") ReadEntity(rdr, map);
-            }
-        }
+                SkipTrivia(it);
+                if (it.Current?.Is(TokenType.String) == true)
+                {
+                    var key = Expect(it, TokenType.String).Value;
+                    Expect(it, TokenType.Whitespace);
+                    var val = Expect(it, TokenType.String).Value;
+                    Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
 
-        private static void ReadEntity(StreamReader rdr, MapFile map)
-        {
-            var e = new Entity();
-
-            string line;
-            while ((line = CleanLine(rdr.ReadLine())) != null)
-            {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                if (line[0] == '"')
-                {
-                    ReadProperty(e, line);
+                    if (key == "classname") ent.ClassName = val;
+                    else if (key == "spawnflags") ent.SpawnFlags = int.Parse(val);
+                    else ent.Properties[key] = val;
                 }
-                else if (line[0] == '{')
+                else if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
                 {
-                    var s = ReadSolid(rdr);
-                    if (s != null) e.Children.Add(s);
+                    var solid = ReadSolid(it);
+                    if (solid != null) ent.Children.Add(solid);
                 }
-                else if (line[0] == '}')
+                else
                 {
-                    break;
+                    Debug.Assert(it.Current != null);
+                    throw new NotSupportedException($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Unknown syntax of type {it.Current.Type}: {it.Current.Value}");
                 }
             }
 
-            if (e.ClassName == "worldspawn")
-            {
-                map.Worldspawn.SpawnFlags = e.SpawnFlags;
-                foreach (var p in e.Properties) map.Worldspawn.Properties[p.Key] = p.Value;
-                map.Worldspawn.Children.AddRange(e.Children);
-            }
-            else
-            {
-                map.Worldspawn.Children.Add(e);
-            }
+            //
+
+            Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+            return ent;
         }
 
-        private static void ReadProperty(Entity ent, string line)
-        {
-            // Quake id1 map sources use tabs between keys and values
-            var split = line.Split(' ', '\t');
-            var key = split[0].Trim('"');
-
-            var val = string.Join(" ", split.Skip(1)).Trim('"');
-
-            if (key == "classname")
-            {
-                ent.ClassName = val;
-            }
-            else if (key == "spawnflags")
-            {
-                ent.SpawnFlags = int.Parse(val);
-            }
-            else
-            {
-                ent.Properties[key] = val;
-            }
-        }
-
-        private static Solid ReadSolid(StreamReader rdr)
+        private Solid ReadSolid(IEnumerator<Token> it)
         {
             var s = new Solid();
 
-            string line;
-            while ((line = CleanLine(rdr.ReadLine())) != null)
+            Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+            Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+            while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                switch (line)
-                {
-                    case "}":
-                        s.ComputeVertices();
-                        return s;
-                    case "patchDef2":
-                    case "brushDef":
-                        Util.Assert(false, "idTech3 format maps are currently not supported.");
-                        break;
-                    case "patchDef3":
-                    case "brushDef3":
-                        Util.Assert(false, "idTech4 format maps are currently not supported.");
-                        break;
-                    default:
-                        s.Faces.Add(ReadFace(line));
-                        break;
-                }
+                s.Faces.Add(ReadFace(it));
+                Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
             }
-            return null;
+            Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+            Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+
+            s.ComputeVertices();
+            return s;
         }
 
-        private static Face ReadFace(string line)
+        private static decimal ParseDecimal(IEnumerator<Token> it)
         {
-            const NumberStyles ns = NumberStyles.Float;
+            var stringValue = Expect(it, TokenType.Name).Value;
+            return decimal.Parse(stringValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent);
+        }
 
-            var parts = line.Split(' ').ToList();
-
-            Util.Assert(parts[0] == "(");
-            Util.Assert(parts[4] == ")");
-            Util.Assert(parts[5] == "(");
-            Util.Assert(parts[9] == ")");
-            Util.Assert(parts[10] == "(");
-            Util.Assert(parts[14] == ")");
-
-            var a = NumericsExtensions.Parse(parts[1], parts[2], parts[3], ns, CultureInfo.InvariantCulture);
-            var b = NumericsExtensions.Parse(parts[6], parts[7], parts[8], ns, CultureInfo.InvariantCulture);
-            var c = NumericsExtensions.Parse(parts[11], parts[12], parts[13], ns, CultureInfo.InvariantCulture);
+        private Face ReadFace(IEnumerator<Token> it)
+        {
+            SkipTrivia(it);
+            var a = ReadFacePoint(it);
+            Expect(it, TokenType.Whitespace);
+            var b = ReadFacePoint(it);
+            Expect(it, TokenType.Whitespace);
+            var c = ReadFacePoint(it);
 
             var ab = b - a;
             var ac = c - a;
@@ -215,63 +207,110 @@ namespace Sledge.Formats.Map.Formats
             var normal = ac.Cross(ab).Normalise();
             var d = normal.Dot(a);
 
-            var face = new Face()
+            var face = new Face
             {
                 Plane = new Plane(normal, d),
-                TextureName = parts[15]
+                TextureName = ""
             };
 
+            var wht = Expect(it, TokenType.Whitespace);
+            if (wht.Value == " ")
+            {
+                while (it.Current?.Is(TokenType.Whitespace) == false)
+                {
+                    face.TextureName = it.Current.Value;
+                    it.MoveNext();
+                }
+                Expect(it, TokenType.Whitespace, " ");
+            }
+            else if (wht.Value != "  ")
+            {
+                throw new InvalidOperationException($"Parsing error (line {wht.Line}, column {wht.Column}): Expected texture name or blank string, instead got {wht}");
+            }
+
+            // Worldcraft
+            if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBracket) == true)
+            {
+                (face.UAxis, face.XShift) = ReadTextureAxis(it);
+                Expect(it, TokenType.Whitespace);
+                (face.VAxis, face.YShift) = ReadTextureAxis(it);
+                Expect(it, TokenType.Whitespace);
+                face.Rotation = (float) ParseDecimal(it);
+                Expect(it, TokenType.Whitespace);
+                face.XScale = (float) ParseDecimal(it);
+                Expect(it, TokenType.Whitespace);
+                face.YScale = (float) ParseDecimal(it);
+            }
             // idTech2, idTech3
-            if (parts.Count == 21 || parts.Count == 24)
+            else
             {
                 var direction = ClosestAxisToNormal(face.Plane);
                 face.UAxis = direction == Vector3.UnitX ? Vector3.UnitY : Vector3.UnitX;
                 face.VAxis = direction == Vector3.UnitZ ? -Vector3.UnitY : -Vector3.UnitZ;
 
-                var xshift = float.Parse(parts[16], ns, CultureInfo.InvariantCulture);
-                var yshift = float.Parse(parts[17], ns, CultureInfo.InvariantCulture);
-                var rotate = float.Parse(parts[18], ns, CultureInfo.InvariantCulture);
-                var xscale = float.Parse(parts[19], ns, CultureInfo.InvariantCulture);
-                var yscale = float.Parse(parts[20], ns, CultureInfo.InvariantCulture);
-
-                face.Rotation = rotate;
-                face.XScale = xscale;
-                face.YScale = yscale;
-                face.XShift = xshift;
-                face.YShift = yshift;
-
-                // idTech3
-                if (parts.Count == 24)
+                var numbers = new List<decimal>();
+                while (it.Current?.Is(TokenType.Name) == true)
                 {
-                    face.ContentFlags = int.Parse(parts[18], CultureInfo.InvariantCulture);
-                    face.SurfaceFlags = int.Parse(parts[19], CultureInfo.InvariantCulture);
-                    face.Value = float.Parse(parts[20], ns, CultureInfo.InvariantCulture);
+                    numbers.Add(ParseDecimal(it));
+                    if (it.Current?.Is(TokenType.Whitespace) == true && !it.Current.Value.Contains("\n")) Expect(it, TokenType.Whitespace);
                 }
-            }
-            // Worldcraft
-            else if (parts.Count == 31)
-            {
-                Util.Assert(parts[16] == "[");
-                Util.Assert(parts[21] == "]");
-                Util.Assert(parts[22] == "[");
-                Util.Assert(parts[27] == "]");
 
-                face.UAxis = NumericsExtensions.Parse(parts[17], parts[18], parts[19], ns, CultureInfo.InvariantCulture);
-                face.XShift = float.Parse(parts[20], ns, CultureInfo.InvariantCulture);
-                face.VAxis = NumericsExtensions.Parse(parts[23], parts[24], parts[25], ns, CultureInfo.InvariantCulture);
-                face.YShift = float.Parse(parts[26], ns, CultureInfo.InvariantCulture);
-                face.Rotation = float.Parse(parts[28], ns, CultureInfo.InvariantCulture);
-                face.XScale = float.Parse(parts[29], ns, CultureInfo.InvariantCulture);
-                face.YScale = float.Parse(parts[30], ns, CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                Util.Assert(false, $"Unknown number of tokens ({parts.Count}) in face definition.");
+                if (numbers.Count != 5 && numbers.Count != 8)
+                {
+                    Debug.Assert(it.Current != null);
+                    throw new NotSupportedException($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Incorrect number of numeric values, expected 5 or 8, got {numbers.Count}.");
+                }
+
+                face.XShift = (float) numbers[0];
+                face.YShift = (float) numbers[1];
+                face.Rotation = (float) numbers[2];
+                face.XScale = (float) numbers[3];
+                face.YScale = (float) numbers[4];
+
+                if (numbers.Count == 8)
+                {
+                    // idTech3
+                    face.ContentFlags = (int) numbers[5];
+                    face.SurfaceFlags = (int) numbers[6];
+                    face.Value = (float) numbers[7];
+                }
             }
 
             return face;
         }
 
+        private Vector3 ReadFacePoint(IEnumerator<Token> it)
+        {
+            Expect(it, TokenType.Symbol, Symbols.OpenParen);
+            Expect(it, TokenType.Whitespace, " ");
+            var x = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            var y = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            var z = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            Expect(it, TokenType.Symbol, Symbols.CloseParen);
+
+            return new Vector3(x, y, z);
+        }
+
+        private (Vector3, float) ReadTextureAxis(IEnumerator<Token> it)
+        {
+            Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+            Expect(it, TokenType.Whitespace, " ");
+            var x = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            var y = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            var z = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            var sh = (float) ParseDecimal(it);
+            Expect(it, TokenType.Whitespace, " ");
+            Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+
+            return (new Vector3(x, y, z), sh);
+        }
+        
         private static Vector3 ClosestAxisToNormal(Plane plane)
         {
             var norm = plane.Normal.Absolute();
@@ -334,7 +373,7 @@ namespace Sledge.Formats.Map.Formats
         {
             // ( -128 64 64 ) ( -64 64 64 ) ( -64 0 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
             var strings = face.Vertices.Take(3).Select(x => "( " + FormatVector3(x) + " )").ToList();
-            strings.Add(String.IsNullOrWhiteSpace(face.TextureName) ? "NULL" : face.TextureName);
+            strings.Add(string.IsNullOrWhiteSpace(face.TextureName) ? "NULL" : face.TextureName);
             switch (styleHint)
             {
                 case "idTech2":
@@ -367,7 +406,7 @@ namespace Sledge.Formats.Map.Formats
                     break;
             }
 
-            sw.WriteLine(String.Join(" ", strings));
+            sw.WriteLine(string.Join(" ", strings));
         }
 
         private static void WriteSolid(StreamWriter sw, Solid solid, string styleHint)

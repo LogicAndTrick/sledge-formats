@@ -16,10 +16,10 @@ public class TestQuakeMapFormat
 ""classname"" ""worldspawn""
 // brush 0
 {
-( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) AAATRIGGER 0 0 0 1 1
-( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) AAATRIGGER 0 0 0 1 1
-( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) AAATRIGGER 0 0 0 1 1
-( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) AAATRIGGER 0 0 0 1 1
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 )  0 0 0 1 1 // blank texture name (apparently valid...)
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) {BLUE 0 0 0 1 1 // texture name starting with a token
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) +012TEST 0 0 0 1 1 // texture name starting with +
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) 12345 0 0 0 1 1 // texture name is a number
 ( 64 64 128 ) ( 65 64 128 ) ( 64 64 129 ) AAATRIGGER 0 0 0 1 1
 ( 64 64 128 ) ( 64 64 129 ) ( 64 65 128 ) AAATRIGGER 0 0 0 1 1
 }
@@ -67,9 +67,9 @@ public class TestQuakeMapFormat
 ""_tb_def"" ""builtin:halflife.fgd""
 // brush 0
 {
-( -64 256 64 ) ( -64 128 64 ) ( -64 128 -64 ) AAATRIGGER [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
-( 64 128 -64 ) ( -64 128 -64 ) ( -64 128 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
-( -64 128 -64 ) ( 64 128 -64 ) ( 64 256 -64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( -64 256 64 ) ( -64 128 64 ) ( -64 128 -64 )  [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 128 -64 ) ( -64 128 -64 ) ( -64 128 64 ) {BLUE [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 128 -64 ) ( 64 128 -64 ) ( 64 256 -64 ) +012TEST [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
 ( -64 256 64 ) ( 64 256 64 ) ( 64 128 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
 ( 64 256 64 ) ( -64 256 64 ) ( -64 256 -64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( 64 256 -64 ) ( 64 128 -64 ) ( 64 128 64 ) AAATRIGGER [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
@@ -113,28 +113,66 @@ public class TestQuakeMapFormat
 }
 }
 ";
+    private const string LotsOfWhitespace = @"
+// quark format
+// Entity 9
+// Entities:g[1] -> trigger_once:b[9]
+{
+ ""classname"" ""trigger_once""
+ ""target"" ""mm1""
+// Brush 0
+// Entities:g[1] -> trigger_once:b[9] -> poly:p[1]
+ {
+  ( 896 -16 32 ) ( 1024 -16 32 ) ( 896 112 32 ) AAATRIGGER [ 1.00000 0.00000 0.00000 -896.00000 ]  [ 0.00000 -1.00000 0.00000 -16.00000 ]  0  1.00000 1.00000
+  ( 896 -16 160 ) ( 896 112 160 ) ( 1024 -16 160 ) AAATRIGGER [ 1.00000 0.00000 0.00000 -896.00000 ]  [ 0.00000 -1.00000 0.00000 -16.00000 ]  0  1.00000 1.00000
+  ( 896 -16 32 ) ( 896 -16 160 ) ( 1024 -16 32 ) AAATRIGGER [ 1.00000 0.00000 0.00000 -896.00000 ]  [ 0.00000 0.00000 -1.00000 32.00000 ]  0  1.00000 1.00000
+  ( 896 112 32 ) ( 1024 112 32 ) ( 896 112 160 ) AAATRIGGER [ 1.00000 0.00000 0.00000 -896.00000 ]  [ 0.00000 0.00000 -1.00000 32.00000 ]  0  1.00000 1.00000
+  ( 896 -16 32 ) ( 896 112 32 ) ( 896 -16 160 ) AAATRIGGER [ 0.00000 1.00000 0.00000 16.00000 ]  [ 0.00000 0.00000 -1.00000 32.00000 ]  0  1.00000 1.00000
+  ( 1024 -16 32 ) ( 1024 -16 160 ) ( 1024 112 32 ) AAATRIGGER [ 0.00000 1.00000 0.00000 16.00000 ]  [ 0.00000 0.00000 -1.00000 32.00000 ]  0  1.00000 1.00000
+ }
+}
+// more whitespace, quake format
+// Entity 9
+// Entities:g[1] -> trigger_once:b[9]
+ { 
+  ""classname""  ""trigger_once""
+ { 
+  ( 896 -16 32 ) ( 1024 -16 32 ) ( 896 112 32 ) AAATRIGGER 0  0 0  1.00000 1.00000 
+  ( 896 -16 160 ) ( 896 112 160 ) ( 1024 -16 160 ) AAATRIGGER 0  0  0  1.00000 1.00000  
+  ( 896 -16 32 ) ( 896 -16 160 ) ( 1024 -16 32 ) AAATRIGGER 0 0  0  1.00000  1.00000
+  ( 896 112 32 ) ( 1024 112 32 ) ( 896 112 160 ) AAATRIGGER 0 0 0    1.00000 1.00000
+  ( 896 -16 32 ) ( 896 112 32 ) ( 896 -16 160 ) AAATRIGGER 0 0 0    1.00000 1.00000
+  ( 1024 -16 32 ) ( 1024 -16 160 ) ( 1024 112 32 ) AAATRIGGER 0 0 0  1.00000 1.00000
+ } 
+ } ";
 
-    [DataTestMethod]
-    [DataRow(typeof(QuakeMapFormat))]
-    [DataRow(typeof(QuakeMapFormat2))]
-    public void TestBasic(Type type)
+    [TestMethod]
+    public void TestBasic()
     {
-        var format = (IMapFormat) Activator.CreateInstance(type)!;
+        var format = new QuakeMapFormat();
         var stream = new MemoryStream(Encoding.ASCII.GetBytes(QuakeFormatFile));
         var map = format.Read(stream);
 
         Assert.AreEqual(3, map.Worldspawn.Children.Count);
     }
 
-    [DataTestMethod]
-    [DataRow(typeof(QuakeMapFormat))]
-    [DataRow(typeof(QuakeMapFormat2))]
-    public void TestValve(Type type)
+    [TestMethod]
+    public void TestValve()
     {
-        var format = (IMapFormat) Activator.CreateInstance(type)!;
+        var format = new QuakeMapFormat();
         var stream = new MemoryStream(Encoding.ASCII.GetBytes(ValveFormatFile));
         var map = format.Read(stream);
 
         Assert.AreEqual(4, map.Worldspawn.Children.Count);
+    }
+
+    [TestMethod]
+    public void TestWhitespace()
+    {
+        var format = new QuakeMapFormat();
+        var stream = new MemoryStream(Encoding.ASCII.GetBytes(LotsOfWhitespace));
+        var map = format.Read(stream);
+
+        Assert.AreEqual(2, map.Worldspawn.Children.Count);
     }
 }

@@ -18,10 +18,12 @@ namespace Sledge.Formats.Tokens.Readers
 
             // It's a comment, read everything until we hit a newline
             var text = new StringBuilder();
-            while ((b = reader.Read()) >= 0)
+            while ((b = reader.Peek()) >= 0)
             {
+                if (b == '\n') break; // don't consume the newline
+
+                b = reader.Read();
                 if (b == '\r') continue;
-                if (b == '\n') break;
                 text.Append((char) b);
             }
             return new Token(TokenType.Comment, text.ToString());

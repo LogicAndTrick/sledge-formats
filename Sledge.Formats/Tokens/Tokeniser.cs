@@ -19,6 +19,7 @@ namespace Sledge.Formats.Tokens
         }
 
         public bool EmitComments { get; set; } = false;
+        public bool EmitWhitespace { get; set; } = false;
 
         private static List<ITokenReader> GetDefaultReaders(IEnumerable<char> symbols) => new List<ITokenReader>
         {
@@ -32,6 +33,11 @@ namespace Sledge.Formats.Tokens
         public Tokeniser(IEnumerable<char> symbols)
         {
             Readers = GetDefaultReaders(symbols);
+        }
+
+        public Tokeniser(params ITokenReader[] readers)
+        {
+            Readers = readers.ToList();
         }
 
         public IEnumerable<Token> Tokenise(string text)
@@ -48,6 +54,7 @@ namespace Sledge.Formats.Tokens
             int b;
             var leaders = new List<Token>();
             var currentWhitespace = "";
+            var whitespaceStart = (-1, -1);
             while ((b = reader.Read()) >= 0)
             {
                 if (b == '\r' || b == 0) continue;
@@ -55,14 +62,19 @@ namespace Sledge.Formats.Tokens
                 // Whitespace
                 if (b == ' ' || b == '\t' || b == '\n')
                 {
+                    if (whitespaceStart.Item1 < 0) whitespaceStart = (reader.Line, reader.Column);
                     currentWhitespace += (char)b;
                     continue;
                 }
 
                 if (currentWhitespace.Length > 0)
                 {
-                    leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
+                    var ws = new Token(TokenType.Whitespace, currentWhitespace);
+                    (ws.Line, ws.Column) = whitespaceStart;
+                    if (EmitWhitespace) yield return ws;
+                    else leaders.Add(ws);
                     currentWhitespace = "";
+                    whitespaceStart = (-1, -1);
                 }
 
                 var token = ReadToken(b, reader, out var t) ? t : new Token(TokenType.Invalid, $"Unexpected token: {(char) b}");
@@ -87,7 +99,14 @@ namespace Sledge.Formats.Tokens
             }
 
             // Put any trailing stuff in the end token
-            if (currentWhitespace.Length > 0) leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
+            if (currentWhitespace.Length > 0)
+            {
+                var ws = new Token(TokenType.Whitespace, currentWhitespace);
+                (ws.Line, ws.Column) = whitespaceStart;
+                if (EmitWhitespace) yield return ws;
+                else leaders.Add(ws);
+            }
+
             var end = new Token(TokenType.End);
             end.Leaders.AddRange(leaders);
             yield return end;

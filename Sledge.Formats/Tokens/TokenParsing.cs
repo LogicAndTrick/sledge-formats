@@ -185,5 +185,17 @@ namespace Sledge.Formats.Tokens
             if (neg) value *= -1;
             return value;
         }
+
+        public static void SkipTrivia(IEnumerator<Token> tokens, bool whitespace = true, bool comments = true)
+        {
+            while (true)
+            {
+                var cur = tokens.Current;
+                if (cur == null) break;
+                else if (whitespace && cur.Type == TokenType.Whitespace) tokens.MoveNext();
+                else if (comments && cur.Type == TokenType.Comment) tokens.MoveNext();
+                else break;
+            }
+        }
     }
 }
