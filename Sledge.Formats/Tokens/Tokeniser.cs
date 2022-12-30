@@ -1,22 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Sledge.Formats.Tokens.Readers;
 
 namespace Sledge.Formats.Tokens
 {
     public class Tokeniser
     {
-        private readonly HashSet<int> _symbolSet;
-        public List<ITokenReader> CustomReaders { get; }
-        public bool AllowNewlinesInStrings { get; set; } = false;
+        public List<ITokenReader> Readers { get; }
+        public bool AllowNewlinesInStrings
+        {
+            get => Readers.OfType<StringTokenReader>().FirstOrDefault()?.AllowNewlines == true;
+            set => Readers.ForEach(x =>
+            {
+                if (x is StringTokenReader str) str.AllowNewlines = value;
+            });
+        }
+
+        public bool EmitComments { get; set; } = false;
+
+        private static List<ITokenReader> GetDefaultReaders(IEnumerable<char> symbols) => new List<ITokenReader>
+        {
+            new SingleLineCommentTokenReader(),
+            new StringTokenReader(),
+            new UnsignedIntegerTokenReader(),
+            new SymbolTokenReader(symbols),
+            new NameTokenReader(),
+        };
 
         public Tokeniser(IEnumerable<char> symbols)
         {
-            _symbolSet = new HashSet<int>(symbols.Select(x => (int) x));
-            CustomReaders = new List<ITokenReader>();
+            Readers = GetDefaultReaders(symbols);
         }
 
         public IEnumerable<Token> Tokenise(string text)
@@ -30,7 +45,6 @@ namespace Sledge.Formats.Tokens
         public IEnumerable<Token> Tokenise(TextReader input)
         {
             var reader = new CountingTextReader(input);
-            var custom = CustomReaders.Any();
             int b;
             var leaders = new List<Token>();
             var currentWhitespace = "";
@@ -45,61 +59,43 @@ namespace Sledge.Formats.Tokens
                     continue;
                 }
 
-                // Comment
-                if (b == '/' && reader.Peek() == '/')
-                {
-                    if (currentWhitespace.Length > 0)
-                    {
-                        leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
-                        currentWhitespace = "";
-                    }
-
-                    var comment = TokenComment(reader);
-                    if (comment.Type == TokenType.Invalid)
-                    {
-                        comment.Line = reader.Line;
-                        comment.Column = reader.Column;
-                        yield return comment;
-                        yield break;
-                    }
-
-                    leaders.Add(comment);
-                    continue;
-                }
-
                 if (currentWhitespace.Length > 0)
                 {
                     leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
                     currentWhitespace = "";
                 }
 
-                Token t;
-                if (custom && ReadCustom(b, reader, out var ct)) t = ct;
-                else if (b == '"') t = TokenString(reader);
-                else if (b >= '0' & b <= '9') t = TokenNumber(b, reader);
-                else if (_symbolSet.Contains(b)) t = new Token(TokenType.Symbol, ((char) b).ToString());
-                else if (b >= 'a' && b <= 'z' || (b >= 'A' && b <= 'Z') || b == '_') t = TokenName(b, reader);
-                else t = new Token(TokenType.Invalid, $"Unexpected token: {(char) b}");
+                var token = ReadToken(b, reader, out var t) ? t : new Token(TokenType.Invalid, $"Unexpected token: {(char) b}");
+                token.Line = reader.Line;
+                token.Column = reader.Column;
 
-                t.Line = reader.Line;
-                t.Column = reader.Column;
-                t.Leaders.AddRange(leaders);
+                if (token.Type == TokenType.Comment && !EmitComments)
+                {
+                    leaders.Add(token);
+                    continue;
+                }
+
+                token.Leaders.AddRange(leaders);
                 leaders.Clear();
 
-                yield return t;
+                yield return token;
 
-                if (t.Type == TokenType.Invalid)
+                if (token.Type == TokenType.Invalid)
                 {
                     yield break;
                 }
             }
 
-            yield return new Token(TokenType.End);
+            // Put any trailing stuff in the end token
+            if (currentWhitespace.Length > 0) leaders.Add(new Token(TokenType.Whitespace, currentWhitespace));
+            var end = new Token(TokenType.End);
+            end.Leaders.AddRange(leaders);
+            yield return end;
         }
 
-        private bool ReadCustom(int start, TextReader input, out Token token)
+        private bool ReadToken(int start, TextReader input, out Token token)
         {
-            foreach (var reader in CustomReaders)
+            foreach (var reader in Readers)
             {
                 token = reader.Read((char) start, input);
                 if (token != null) return true;
@@ -107,116 +103,6 @@ namespace Sledge.Formats.Tokens
 
             token = null;
             return false;
-        }
-
-        private Token TokenComment(TextReader input)
-        {
-            // Need to check the next character
-            var b = input.Read();
-            if (b == '/')
-            {
-                // It's a comment, read everything until we hit a newline
-                var text = "";
-                while ((b = input.Read()) >= 0)
-                {
-                    if (b == '\r') continue;
-                    if (b == '\n') break;
-                    text += (char)b;
-                }
-                return new Token(TokenType.Comment, text);
-            }
-
-            // It's not a comment, so it's invalid
-            return new Token(TokenType.Invalid, $"Unexpected token: {(char)b}");
-        }
-
-        private Token TokenString(TextReader input)
-        {
-            var sb = new StringBuilder();
-            int b;
-            while ((b = input.Read()) >= 0)
-            {
-                switch (b)
-                {
-                    // ignore carriage returns
-                    case '\r':
-                        continue;
-                    // Newline in string (when they're not allowed)
-                    case '\n' when !AllowNewlinesInStrings:
-                        // Syntax error, unterminated string
-                        return new Token(TokenType.String, sb.ToString())
-                        {
-                            Warnings =
-                            {
-                                "String cannot contain a newline"
-                            }
-                        };
-                    // End of string
-                    case '"':
-                        return new Token(TokenType.String, sb.ToString());
-                    // Escaped character
-                    case '\\':
-                    {
-                        // Read the next character
-                        b = input.Read();
-                        // EOF reached
-                        if (b < 0) return new Token(TokenType.Invalid, "Unexpected end of file while reading string value");
-                        // Some common escaped characters
-                        else if (b == 'n') sb.Append('\n'); // newline
-                        else if (b == 'r') sb.Append('\r'); // return
-                        else if (b == 't') sb.Append('\t'); // tab
-                        // Otherwise, just use whatever it is
-                        sb.Append((char) b);
-                        break;
-                    }
-                    // Any other character
-                    default:
-                        sb.Append((char) b);
-                        break;
-                }
-            }
-
-            return new Token(TokenType.Invalid, "Unexpected end of file while reading string value");
-        }
-
-        private static Token TokenNumber(int first, TextReader input)
-        {
-            var value = ((char) first).ToString();
-            int b;
-            while ((b = input.Peek()) >= 0)
-            {
-                if (b >= '0' && b <= '9')
-                {
-                    value += (char) b;
-                    input.Read(); // advance the stream
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return new Token(TokenType.Number, value);
-        }
-
-        private static Token TokenName(int first, TextReader input)
-        {
-            var name = ((char) first).ToString();
-            int b;
-            while ((b = input.Peek()) >= 0)
-            {
-                if ((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9') || b == '_' || b == '-' || b == '.')
-                {
-                    name += (char) b;
-                    input.Read(); // advance the stream
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return new Token(TokenType.Name, name);
         }
 
         private class CountingTextReader : TextReader
