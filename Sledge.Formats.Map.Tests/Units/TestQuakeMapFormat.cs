@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Map.Formats;
 
@@ -67,7 +69,7 @@ public class TestQuakeMapFormat
 ""_tb_def"" ""builtin:halflife.fgd""
 // brush 0
 {
-( -64 256 64 ) ( -64 128 64 ) ( -64 128 -64 )  [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 256 64 ) ( -64 128 64 ) ( -64 128 -64.000 )  [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( 64 128 -64 ) ( -64 128 -64 ) ( -64 128 64 ) {BLUE [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( -64 128 -64 ) ( 64 128 -64 ) ( 64 256 -64 ) +012TEST [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
 ( -64 256 64 ) ( 64 256 64 ) ( 64 128 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
@@ -83,7 +85,7 @@ public class TestQuakeMapFormat
 ""_tb_id"" ""4""
 // brush 0
 {
-( -64 64 64 ) ( -64 -64 64 ) ( -64 -64 -64 ) AAATRIGGER [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 64 64 ) ( -64 -64 64 ) ( -64 -64 -64.0e0 ) AAATRIGGER [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( 64 -64 -64 ) ( -64 -64 -64 ) ( -64 -64 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( -64 -64 -64 ) ( 64 -64 -64 ) ( 64 64 -64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
 ( -64 64 64 ) ( 64 64 64 ) ( 64 -64 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
@@ -174,5 +176,20 @@ public class TestQuakeMapFormat
         var map = format.Read(stream);
 
         Assert.AreEqual(2, map.Worldspawn.Children.Count);
+    }
+
+    [DataTestMethod]
+    [DataRow("en")]
+    [DataRow("es")]
+    [DataRow("hi")]
+    public void TestLocales(string culture)
+    {
+        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(culture);
+
+        var format = new QuakeMapFormat();
+        var stream = new MemoryStream(Encoding.ASCII.GetBytes(ValveFormatFile));
+        var map = format.Read(stream);
+
+        Assert.AreEqual(4, map.Worldspawn.Children.Count);
     }
 }

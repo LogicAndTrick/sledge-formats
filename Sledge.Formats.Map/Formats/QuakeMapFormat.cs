@@ -189,7 +189,7 @@ namespace Sledge.Formats.Map.Formats
         private static decimal ParseDecimal(IEnumerator<Token> it)
         {
             var stringValue = Expect(it, TokenType.Name).Value;
-            return decimal.Parse(stringValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent);
+            return decimal.Parse(stringValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
         }
 
         private Face ReadFace(IEnumerator<Token> it)

@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Update MAP format to use the tokeniser</PackageReleaseNotes>
-    <Version>1.0.4</Version>
+    <PackageReleaseNotes>Fix locale-related issue in MAP parser</PackageReleaseNotes>
+    <Version>1.0.5</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
