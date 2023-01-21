@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -54,6 +55,39 @@ public class TestQuakeMapFormat
 ( 64 224 16 ) ( 64 225 16 ) ( 65 224 16 ) AAATRIGGER 0 0 0 1 1
 ( 64 144 16 ) ( 65 144 16 ) ( 64 144 17 ) AAATRIGGER 0 0 0 1 1
 ( 64 224 16 ) ( 64 224 17 ) ( 64 225 16 ) AAATRIGGER 0 0 0 1 1
+}
+}
+";
+    private const string Quake2StandardFormatFile = @"// Game: Quake 2
+// Format: Quake2
+// entity 0
+{
+""classname"" ""worldspawn""
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty 0 0 0 1 1 16 0 9 // note the extra 3 numbers at the end 
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty 0 0 0 1 1 16 0 9
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty 0 0 0 1 1 16 0 9
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty 0 0 0 1 1 16 0 9
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1 16 0 9
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty 0 0 0 1 1 16 0 9
+}
+}
+";
+    private const string Quake2ValveFormatFile = @"// Game: Quake 2
+// Format: Quake2 (Valve)
+// entity 0
+{
+""mapversion"" ""220""
+""classname"" ""worldspawn""
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 3145728 3 3 // note the extra 3 numbers at the end 
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 3145728 3 3
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 3145728 3 3
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 3145728 3 3
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 3145728 3 3
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 3145728 3 3
 }
 }
 ";
@@ -169,6 +203,26 @@ public class TestQuakeMapFormat
     }
 
     [TestMethod]
+    public void TestQuake2Standard()
+    {
+        var format = new QuakeMapFormat();
+        var stream = new MemoryStream(Encoding.ASCII.GetBytes(Quake2StandardFormatFile));
+        var map = format.Read(stream);
+
+        Assert.AreEqual(1, map.Worldspawn.Children.Count);
+    }
+
+    [TestMethod]
+    public void TestQuake2Valve()
+    {
+        var format = new QuakeMapFormat();
+        var stream = new MemoryStream(Encoding.ASCII.GetBytes(Quake2ValveFormatFile));
+        var map = format.Read(stream);
+
+        Assert.AreEqual(1, map.Worldspawn.Children.Count);
+    }
+
+    [TestMethod]
     public void TestWhitespace()
     {
         var format = new QuakeMapFormat();
@@ -176,6 +230,20 @@ public class TestQuakeMapFormat
         var map = format.Read(stream);
 
         Assert.AreEqual(2, map.Worldspawn.Children.Count);
+    }
+
+    [DataRow(QuakeFormatFile, DisplayName = nameof(QuakeFormatFile))]
+    [DataRow(ValveFormatFile, DisplayName = nameof(ValveFormatFile))]
+    [DataRow(Quake2StandardFormatFile, DisplayName = nameof(Quake2StandardFormatFile))]
+    [DataRow(Quake2ValveFormatFile, DisplayName = nameof(Quake2ValveFormatFile))]
+    [DataRow(LotsOfWhitespace, DisplayName = nameof(LotsOfWhitespace))]
+    [DataTestMethod]
+    public void TestAddCommentToEveryRow(string file)
+    {
+        var commented = String.Join('\n', file.Split('\n').Select(x => x + " // this is a comment "));
+        var format = new QuakeMapFormat();
+        var stream = new MemoryStream(Encoding.ASCII.GetBytes(commented));
+        var map = format.Read(stream);
     }
 
     [DataTestMethod]

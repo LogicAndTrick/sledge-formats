@@ -135,6 +135,7 @@ namespace Sledge.Formats.Map.Formats
             var ent = new Entity();
 
             Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+            SkipNonNewlineWhitespace(it);
             Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
@@ -144,6 +145,7 @@ namespace Sledge.Formats.Map.Formats
                     var key = Expect(it, TokenType.String).Value;
                     Expect(it, TokenType.Whitespace);
                     var val = Expect(it, TokenType.String).Value;
+                    SkipNonNewlineWhitespace(it);
                     Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
 
                     if (key == "classname") ent.ClassName = val;
@@ -173,13 +175,16 @@ namespace Sledge.Formats.Map.Formats
             var s = new Solid();
 
             Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+            SkipNonNewlineWhitespace(it);
             Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
                 s.Faces.Add(ReadFace(it));
+                SkipNonNewlineWhitespace(it);
                 Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
             }
             Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+            SkipNonNewlineWhitespace(it);
             Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
 
             s.ComputeVertices();
@@ -240,6 +245,18 @@ namespace Sledge.Formats.Map.Formats
                 face.XScale = (float) ParseDecimal(it);
                 Expect(it, TokenType.Whitespace);
                 face.YScale = (float) ParseDecimal(it);
+
+                SkipNonNewlineWhitespace(it);
+                if (it.Current.Type != TokenType.Whitespace)
+                {
+                    // we have more stuff to parse - must be surface flags
+                    face.ContentFlags = (int) ParseDecimal(it);
+                    Expect(it, TokenType.Whitespace);
+                    face.SurfaceFlags = (int) ParseDecimal(it);
+                    Expect(it, TokenType.Whitespace);
+                    face.Value = (float) ParseDecimal(it);
+                    SkipNonNewlineWhitespace(it);
+                }
             }
             // idTech2, idTech3
             else
@@ -277,6 +294,11 @@ namespace Sledge.Formats.Map.Formats
             }
 
             return face;
+        }
+
+        private static void SkipNonNewlineWhitespace(IEnumerator<Token> it)
+        {
+            SkipWhile(it, x => x.Type == TokenType.Whitespace && !x.Value.Contains("\n"));
         }
 
         private Vector3 ReadFacePoint(IEnumerator<Token> it)

@@ -188,12 +188,16 @@ namespace Sledge.Formats.Tokens
 
         public static void SkipTrivia(IEnumerator<Token> tokens, bool whitespace = true, bool comments = true)
         {
+            SkipWhile(tokens, tok => (whitespace && tok.Type == TokenType.Whitespace) || (comments && tok.Type == TokenType.Comment));
+        }
+
+        public static void SkipWhile(IEnumerator<Token> tokens, Predicate<Token> test)
+        {
             while (true)
             {
                 var cur = tokens.Current;
                 if (cur == null) break;
-                else if (whitespace && cur.Type == TokenType.Whitespace) tokens.MoveNext();
-                else if (comments && cur.Type == TokenType.Comment) tokens.MoveNext();
+                if (test(cur)) tokens.MoveNext();
                 else break;
             }
         }
