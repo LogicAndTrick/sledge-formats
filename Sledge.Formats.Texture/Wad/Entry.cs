@@ -39,7 +39,7 @@ namespace Sledge.Formats.Texture.Wad
             bw.Write((int) UncompressedSize);
             bw.Write((byte) Type);
             bw.Write((byte) (Compression ? 1 : 0));
-            bw.Write((short) 2);
+            bw.Write((short) 0);
             bw.WriteFixedLengthString(Encoding.ASCII, NameLength, Name);
             return (int)(bw.BaseStream.Position - pos);
         }
