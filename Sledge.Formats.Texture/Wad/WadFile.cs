@@ -75,6 +75,20 @@ namespace Sledge.Formats.Texture.Wad
                 {
                     var pos = bw.BaseStream.Position - startPos;
                     var size = kv.Value.Write(bw);
+
+                    // Align the lump to a 4 byte boundary. This matches QLumpy's behavior and
+                    // avoids a bug in Wally that causes it to load palettes incorrectly.
+                    var paddingCount = (int)(bw.BaseStream.Position & 3);
+
+                    if (paddingCount != 0)
+                    {
+                        size += paddingCount;
+                        for (var padding = paddingCount; padding > 0; --padding)
+                        {
+                            bw.Write((byte)0);
+                        }
+                    }
+
                     var e = kv.Key;
                     e.Offset = (int) pos;
                     e.UncompressedSize = e.CompressedSize = size;
