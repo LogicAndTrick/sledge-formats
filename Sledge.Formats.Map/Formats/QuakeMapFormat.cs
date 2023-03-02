@@ -223,7 +223,7 @@ namespace Sledge.Formats.Map.Formats
             {
                 while (it.Current?.Is(TokenType.Whitespace) == false)
                 {
-                    face.TextureName = it.Current.Value;
+                    face.TextureName += it.Current.Value;
                     it.MoveNext();
                 }
                 Expect(it, TokenType.Whitespace, " ");
