@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Map.Formats;
+using Sledge.Formats.Map.Objects;
 
 namespace Sledge.Formats.Map.Tests.Units;
 
@@ -190,6 +191,8 @@ public class TestQuakeMapFormat
         var map = format.Read(stream);
 
         Assert.AreEqual(3, map.Worldspawn.Children.Count);
+
+        Assert.IsTrue(map.Worldspawn.FindAll().OfType<Solid>().Any(x => x.Faces.Any(f => f.TextureName == "{BLUE")));
     }
 
     [TestMethod]
