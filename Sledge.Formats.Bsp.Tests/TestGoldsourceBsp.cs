@@ -1,8 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Win32;
 using Sledge.Formats.Bsp.Lumps;
 
 namespace Sledge.Formats.Bsp.Tests
@@ -10,6 +11,40 @@ namespace Sledge.Formats.Bsp.Tests
     [TestClass]
     public class TestGoldsourceBsp
     {
+        private static string GetHalfLifeInsallPath()
+        {
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    // Steam mod install path
+                    var path = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam")?.GetValue("ModInstallPath")?.ToString();
+                    if (path != null && Directory.Exists(path)) return path;
+
+                    // Steam install path + path to HL
+                    path = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam")?.GetValue("SteamPath")?.ToString();
+                    if (path != null)
+                    {
+                        path = Path.Combine(path, @"steamapps\common\Half-Life");
+                        if (Directory.Exists(path)) return path;
+                    }
+
+                    // WON install path (won't work for standalone blue shift/etc)
+                    path = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Half-Life")?.GetValue("InstallPath")?.ToString();
+                    if (path != null && Directory.Exists(path)) return path;
+                }
+            }
+            catch
+            {
+                // 
+            }
+
+            // uncomment and edit this if you can't use the detection method above for whatever reason
+            // return @"C:\Program Files\Steam\SteamApps\common\Half-Life";
+
+            throw new FileNotFoundException("Unable to determine Half-Life/Steam install location.");
+        }
+
         private static MemoryStream GetFile(string name)
         {
             // Walk up the folder tree until we hit Sledge.Formats.Bsp.Tests
@@ -130,7 +165,7 @@ namespace Sledge.Formats.Bsp.Tests
         public void TestAllBlueShiftMapsAreDetectedAsBlueShift()
         {
             var random = new Random();
-            const string blueShiftMapsFolder = @"F:\Steam\steamapps\common\Half-Life\bshift\maps";
+            var blueShiftMapsFolder = Path.Combine(GetHalfLifeInsallPath(), @"bshift\maps");
             foreach (var file in Directory.GetFiles(blueShiftMapsFolder, "*.bsp").OrderBy(x => random.Next()).Take(20))
             {
                 using var stream = File.OpenRead(file);
@@ -143,7 +178,7 @@ namespace Sledge.Formats.Bsp.Tests
         public void TestAllValveMapsAreDetectedAsNotBlueShift()
         {
             var random = new Random();
-            const string halfLifeMapsFolder = @"F:\Steam\steamapps\common\Half-Life\valve\maps";
+            var halfLifeMapsFolder = Path.Combine(GetHalfLifeInsallPath(), @"valve\maps");
             foreach (var file in Directory.GetFiles(halfLifeMapsFolder, "*.bsp").OrderBy(x => random.Next()).Take(20))
             {
                 using var stream = File.OpenRead(file);
