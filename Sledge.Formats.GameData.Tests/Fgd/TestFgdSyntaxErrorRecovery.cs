@@ -46,7 +46,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         }
 
         [TestMethod]
-        public void TestDefaultValueMissingSemicolon()
+        public void TestDefaultValueMissingColon()
         {
             const string fgd = @"
 @PointClass = test

@@ -32,6 +32,20 @@ namespace Sledge.Formats.Tokens
             return tok;
         }
 
+        /// <summary>
+        /// Expect the current token to match one of a list of particular types, and then move to the next token
+        /// </summary>
+        public static Token ExpectAny(IEnumerator<Token> it, params TokenType[] types)
+        {
+            var tok = it.Current;
+
+            if (tok == null) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Expected one of [{String.Join("|", types)}], got no token");
+            if (!types.Contains(tok.Type)) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Expected one of [{String.Join("|", types)}], got {tok.Type}({tok.Value})");
+
+            it.MoveNext();
+            return tok;
+        }
+
         public static List<Token> BalanceBrackets(IEnumerator<Token> it, char open, char close)
         {
             var tokens = new List<Token>();

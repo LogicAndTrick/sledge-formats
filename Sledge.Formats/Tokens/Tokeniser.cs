@@ -94,7 +94,7 @@ namespace Sledge.Formats.Tokens
 
                 if (token.Type == TokenType.Invalid)
                 {
-                    yield break;
+                    break;
                 }
             }
 

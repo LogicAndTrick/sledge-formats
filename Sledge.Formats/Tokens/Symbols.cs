@@ -59,7 +59,7 @@ namespace Sledge.Formats.Tokens
         public const char Underscore = '_';
 
         ///<summary>/</summary>
-        public const char Backslash = '/';
+        public const char Backslash = '\\';
 
         ///<summary>|</summary>
         public const char Pipe = '|';

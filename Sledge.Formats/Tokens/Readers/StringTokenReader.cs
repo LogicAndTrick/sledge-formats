@@ -9,7 +9,7 @@ namespace Sledge.Formats.Tokens.Readers
     /// </summary>
     public class StringTokenReader : ITokenReader
     {
-        public char QuoteCharacter { get; set; } = '"';
+        public HashSet<char> QuoteCharacters { get; set; } = new HashSet<char>{ '"' };
         public bool AllowNewlines { get; set; } = false;
         public bool AllowEscaping { get; set; } = true;
         public Dictionary<char, char> EscapedCharacters { get; set; } = new Dictionary<char, char>
@@ -19,15 +19,21 @@ namespace Sledge.Formats.Tokens.Readers
             {'t', '\t'},
         };
 
+        public StringTokenReader(params char[] quoteCharacters)
+        {
+            if (quoteCharacters.Length == 0) quoteCharacters = new[] { '"' };
+            QuoteCharacters = new HashSet<char>(quoteCharacters);
+        }
+
         public Token Read(char start, TextReader reader)
         {
-            if (start != QuoteCharacter) return null;
+            if (!QuoteCharacters.Contains(start)) return null;
             var sb = new StringBuilder();
             int b;
             while ((b = reader.Read()) >= 0)
             {
                 // Can't use `QuoteCharacter` in a switch case as it's not constant
-                if (b == QuoteCharacter)
+                if (b == start)
                 {
                     // End of string
                     return new Token(TokenType.String, sb.ToString());

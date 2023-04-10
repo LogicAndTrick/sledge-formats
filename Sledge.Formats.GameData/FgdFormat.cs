@@ -145,7 +145,7 @@ namespace Sledge.Formats.GameData
                         default:
                             // Skip until we get an @
                             t?.Warnings.Add($"Unknown token type: expected Symbol(@), got {t.Type}({t.Value})");
-                            while (it.Current != null && !it.Current.Is(TokenType.Symbol, Symbols.At)) it.MoveNext();
+                            while (it.Current != null && !it.Current.Is(TokenType.Symbol, Symbols.At) && !it.Current.Is(TokenType.End)) it.MoveNext();
                             break;
                     }
 
