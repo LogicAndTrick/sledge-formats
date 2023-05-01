@@ -28,7 +28,7 @@ namespace Sledge.Formats
             var detect = list[0].Split(' ');
             var lin = detect.Length == 7;
             var pts = detect.Length == 3;
-            if (!lin && !pts) throw new Exception("Invalid pointfile format.");
+            if (!lin && !pts) throw new FormatException("Invalid pointfile format.");
 
             Vector3? previous = null;
             foreach (var line in list)

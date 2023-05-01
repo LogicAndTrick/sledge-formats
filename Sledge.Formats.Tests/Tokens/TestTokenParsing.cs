@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Tokens;
 
@@ -39,7 +36,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                Assert.ThrowsException<Exception>(() => TokenParsing.ParseDecimal(it));
+                Assert.ThrowsException<TokenParsingException>(() => TokenParsing.ParseDecimal(it));
             }
         }
 
@@ -83,7 +80,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                Assert.ThrowsException<Exception>(() => TokenParsing.ParseDecimal(it));
+                Assert.ThrowsException<TokenParsingException>(() => TokenParsing.ParseDecimal(it));
             }
         }
 
@@ -116,7 +113,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                Assert.ThrowsException<Exception>(() => TokenParsing.BalanceBrackets(it, '(', ')'));
+                Assert.ThrowsException<TokenParsingException>(() => TokenParsing.BalanceBrackets(it, '(', ')'));
             }
         }
 

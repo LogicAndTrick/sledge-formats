@@ -128,15 +128,15 @@ namespace Sledge.Formats.Valve
                     switch (t?.Type)
                     {
                         case TokenType.Invalid:
-                            throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): {t.Value}");
+                            throw new TokenParsingException(t, $"Invalid token:` {t.Value}");
                         case TokenType.Symbol:
                             if (t.Symbol == Tokens.Symbols.OpenBrace)
                             {
-                                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Structure must have a name");
+                                throw new TokenParsingException(t, "Structure must have a name");
                             }
                             else if (t.Symbol == Tokens.Symbols.CloseBrace)
                             {
-                                if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to close");
+                                if (current == null) throw new TokenParsingException(t, "No structure to close");
                                 if (stack.Count == 0)
                                 {
                                     yield return current;
@@ -158,7 +158,7 @@ namespace Sledge.Formats.Valve
                         case TokenType.Name:
                             if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.Symbol || it.Current.Symbol != Tokens.Symbols.OpenBrace)
                             {
-                                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected structure open brace");
+                                throw new TokenParsingException(t, "Expected structure open brace");
                             }
                             var next = new SerialisedObject(t.Value);
                             if (current == null)
@@ -172,14 +172,14 @@ namespace Sledge.Formats.Valve
                             }
                             break;
                         case TokenType.String:
-                            if (current == null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): No structure to add key/values to");
+                            if (current == null) throw new TokenParsingException(t, "No structure to add key/values to");
                             var key = t.Value;
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.String) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected string value to follow key");
+                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.String) throw new TokenParsingException(t, "Expected string value to follow key");
                             var value = it.Current.Value;
                             current.Properties.Add(new KeyValuePair<string, string>(key, value));
                             break;
                         case TokenType.End:
-                            if (current != null) throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unterminated structure at end of file");
+                            if (current != null) throw new TokenParsingException(t, "Unterminated structure at end of file");
                             yield break;
                         default:
                             throw new ArgumentOutOfRangeException();

@@ -160,7 +160,7 @@ namespace Sledge.Formats.Map.Formats
                 else
                 {
                     Debug.Assert(it.Current != null);
-                    throw new NotSupportedException($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Unknown syntax of type {it.Current.Type}: {it.Current.Value}");
+                    throw new TokenParsingException(it.Current, $"Unknown syntax of type {it.Current.Type}: {it.Current.Value}");
                 }
             }
 
@@ -230,7 +230,7 @@ namespace Sledge.Formats.Map.Formats
             }
             else if (wht.Value != "  ")
             {
-                throw new InvalidOperationException($"Parsing error (line {wht.Line}, column {wht.Column}): Expected texture name or blank string, instead got {wht}");
+                throw new TokenParsingException(wht, $"Expected texture name or blank string, instead got {wht}");
             }
 
             // Worldcraft
@@ -275,7 +275,7 @@ namespace Sledge.Formats.Map.Formats
                 if (numbers.Count != 5 && numbers.Count != 8)
                 {
                     Debug.Assert(it.Current != null);
-                    throw new NotSupportedException($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Incorrect number of numeric values, expected 5 or 8, got {numbers.Count}.");
+                    throw new TokenParsingException(it.Current, $"Incorrect number of numeric values, expected 5 or 8, got {numbers.Count}.");
                 }
 
                 face.XShift = (float) numbers[0];

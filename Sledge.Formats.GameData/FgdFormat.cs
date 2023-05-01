@@ -93,7 +93,7 @@ namespace Sledge.Formats.GameData
                         case TokenType.Symbol when t.Symbol == Symbols.At:
                             if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.Name || it.Current.Value == null)
                             {
-                                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Expected name after @ symbol");
+                                throw new TokenParsingException(t, $"Expected name after @ symbol");
                             }
 
                             switch (it.Current.Value.ToLower())
@@ -134,7 +134,7 @@ namespace Sledge.Formats.GameData
                                 default:
                                     if (!Enum.TryParse(it.Current.Value, true, out ClassType _))
                                     {
-                                        throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Not a known command: @{it.Current.Value}");
+                                        throw new TokenParsingException(t, $"Not a known command: @{it.Current.Value}");
                                     }
                                     ParseClass(def, it, t.Leaders);
                                     break;
@@ -196,7 +196,7 @@ namespace Sledge.Formats.GameData
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Error while parsing included file {fileName}", ex);
+                    throw new TokenParsingException(t, $"Error while parsing included file {fileName}", ex);
                 }
             }
         }
@@ -386,7 +386,7 @@ namespace Sledge.Formats.GameData
                     Expect(it, TokenType.Symbol, Symbols.Equal);
                     var value = Expect(it, TokenType.Name).Value;
                     if (key == "start_expanded") group.StartExpanded = value == "true";
-                    else throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unknown entity group metadata key: {key}");
+                    else throw new TokenParsingException(t, $"Unknown entity group metadata key: {key}");
                 }
                 Expect(it, TokenType.Symbol, Symbols.CloseBrace);
             }
@@ -445,7 +445,7 @@ namespace Sledge.Formats.GameData
             var typeName = Expect(it, TokenType.Name).Value;
             if (!Enum.TryParse(typeName, true, out ClassType classType))
             {
-                throw new Exception($"Parsing error (line {t.Line}, column {t.Column}): Unknown class type {t.Value}");
+                throw new TokenParsingException(t, $"Unknown class type {t.Value}");
             }
 
             //var classType = ClassTypes[typeName.Value];
@@ -585,7 +585,7 @@ namespace Sledge.Formats.GameData
                 it.MoveNext();
                 if (cur.Value == "true") return new GameDataDictionaryValue(true);
                 else if (cur.Value == "false") return new GameDataDictionaryValue(false);
-                else throw new Exception($"Parsing error (line {cur.Line}, column {cur.Column}): Unknown dictionary value {cur.Value}");
+                else throw new TokenParsingException(cur, $"Unknown dictionary value {cur.Value}");
             }
             else if (it.Current?.Is(TokenType.Number) == true)
             {
@@ -636,7 +636,7 @@ namespace Sledge.Formats.GameData
         private void ParseClassMember(GameDataClass cls, IEnumerator<Token> it)
         {
             var first = Expect(it, TokenType.Name);
-            if (it.Current == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
+            if (it.Current == null) throw new TokenParsingException(first, $"Unexpected end of token stream");
 
             var second = it.Current;
             var isModelData = cls.ClassType == ClassType.ModelAnimEvent || cls.ClassType == ClassType.ModelGameData || cls.ClassType == ClassType.ModelBreakCommand;
@@ -672,7 +672,7 @@ namespace Sledge.Formats.GameData
                 cls.Properties.Add(prop);
 
                 var next = it.Current;
-                if (next == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
+                if (next == null) throw new TokenParsingException(next, $"Unexpected end of token stream");
                 var nv = next.Value.ToLower();
 
                 /* Source 1 metadata for properties
@@ -689,7 +689,7 @@ namespace Sledge.Formats.GameData
                     prop.Metadata.Add(next.Value, "");
                     it.MoveNext();
                     next = it.Current;
-                    if (next == null) throw new Exception($"Parsing error (line {first.Line}, column {first.Column}): Unexpected end of token stream");
+                    if (next == null) throw new TokenParsingException(first, $"Unexpected end of token stream");
                     nv = next.Value.ToLower();
                 }
 
@@ -763,7 +763,7 @@ namespace Sledge.Formats.GameData
                             }
                             else
                             {
-                                throw new Exception($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Expected string or value, got {it.Current.Type}({it.Current.Value})");
+                                throw new TokenParsingException(it.Current, $"Expected string or value, got {it.Current.Type}({it.Current.Value})");
                             }
                         }
                     }
@@ -790,7 +790,7 @@ namespace Sledge.Formats.GameData
             }
             else
             {
-                throw new Exception($"Parsing error (line {second.Line}, column {second.Column}): Expected input, output, or property declaration");
+                throw new TokenParsingException(second, $"Expected input, output, or property declaration");
             }
         }
 
@@ -814,7 +814,7 @@ namespace Sledge.Formats.GameData
             }
             else
             {
-                throw new Exception($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Expected choice value, instead got {it.Current.Type}({it.Current.Value})");
+                throw new TokenParsingException(it.Current, $"Expected choice value, instead got {it.Current.Type}({it.Current.Value})");
             }
 
             Expect(it, TokenType.Symbol, Symbols.Colon);
@@ -831,7 +831,7 @@ namespace Sledge.Formats.GameData
             }
             else
             {
-                throw new Exception($"Parsing error (line {it.Current.Line}, column {it.Current.Column}): Expected choice description, instead got {it.Current.Type}({it.Current.Value})");
+                throw new TokenParsingException(it.Current, $"Expected choice description, instead got {it.Current.Type}({it.Current.Value})");
             }
             
             prop.Options.Add(opt);
@@ -883,7 +883,7 @@ namespace Sledge.Formats.GameData
                 return (vt, subType);
             }
 
-            throw new Exception($"Parsing error (line {token.Line}, column {token.Column}): Unknown variable type {type}");
+            throw new TokenParsingException(token, $"Unknown variable type {type}");
         }
     }
 }

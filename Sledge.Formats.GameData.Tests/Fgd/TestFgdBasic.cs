@@ -1,7 +1,7 @@
-using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.GameData.Objects;
+using Sledge.Formats.Tokens;
 
 namespace Sledge.Formats.GameData.Tests.Fgd
 {
@@ -301,7 +301,7 @@ Line""
             Assert.AreEqual(1, def.Classes.Count);
             Assert.AreEqual("New\nLine", def.Classes[0].Properties[0].Description);
 
-            Assert.ThrowsException<Exception>(() =>
+            Assert.ThrowsException<TokenParsingException>(() =>
             {
                 var format2 = new FgdFormatter { AllowNewlinesInStrings = false };
                 var def2 = format2.Read(fgd);

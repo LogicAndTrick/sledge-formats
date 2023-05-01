@@ -24,9 +24,9 @@ namespace Sledge.Formats.Tokens
         {
             var tok = it.Current;
 
-            if (tok == null) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Expected {type}, got no token");
-            if (tok.Type != type) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Expected {type}, got {tok.Type}({tok.Value})");
-            if (valueChecker != null && !valueChecker(tok.Value)) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Unexpected token value {tok.Type}({tok.Value})");
+            if (tok == null) throw new TokenParsingException(null, $"Expected {type}, got no token");
+            if (tok.Type != type) throw new TokenParsingException(tok, $"Expected {type}, got {tok.Type}({tok.Value})");
+            if (valueChecker != null && !valueChecker(tok.Value)) throw new TokenParsingException(tok, $"Unexpected token value {tok.Type}({tok.Value})");
 
             it.MoveNext();
             return tok;
@@ -39,8 +39,8 @@ namespace Sledge.Formats.Tokens
         {
             var tok = it.Current;
 
-            if (tok == null) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Expected one of [{String.Join("|", types)}], got no token");
-            if (!types.Contains(tok.Type)) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Expected one of [{String.Join("|", types)}], got {tok.Type}({tok.Value})");
+            if (tok == null) throw new TokenParsingException(null, $"Expected one of [{String.Join("|", types)}], got no token");
+            if (!types.Contains(tok.Type)) throw new TokenParsingException(tok, $"Expected one of [{String.Join("|", types)}], got {tok.Type}({tok.Value})");
 
             it.MoveNext();
             return tok;
@@ -58,11 +58,11 @@ namespace Sledge.Formats.Tokens
 
             do
             {
-                tok = it.Current ?? throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Unexpected end of token stream");
+                tok = it.Current ?? throw new TokenParsingException(tok, $"Unexpected end of token stream");
                 if (tok.Is(TokenType.Symbol, open)) stack.Push(tok);
                 else if (tok.Is(TokenType.Symbol, close)) stack.Pop();
                 tokens.Add(tok);
-                if (!it.MoveNext()) throw new Exception($"Parsing error (line {tok.Line}, column {tok.Column}): Unexpected end of file - start token at {startToken.Type}({startToken.Value}) (line {startToken.Line}, column {startToken.Column})");
+                if (!it.MoveNext()) throw new TokenParsingException(tok, $"Unexpected end of file - start token at {startToken.Type}({startToken.Value}) (line {startToken.Line}, column {startToken.Column})");
             } while (stack.Count > 0);
 
             return tokens;
@@ -109,7 +109,7 @@ namespace Sledge.Formats.Tokens
             }
 
             tok = tokens.Current;
-            if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
+            if (tok == null) throw new TokenParsingException(src, "Unexpected end of stream");
 
             // If we have a number, it's the left side of the decimal
             if (tok.Type == TokenType.Number)
@@ -119,10 +119,10 @@ namespace Sledge.Formats.Tokens
                 
                 tokens.MoveNext();
                 tok = tokens.Current;
-                if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
+                if (tok == null) throw new TokenParsingException(src, "Unexpected end of stream");
             }
 
-            if (!valid) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unable to parse number value");
+            if (!valid) throw new TokenParsingException(src, "Unable to parse number value");
 
             if (neg) value *= -1;
             return value;
@@ -153,7 +153,7 @@ namespace Sledge.Formats.Tokens
             }
 
             tok = tokens.Current;
-            if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
+            if (tok == null) throw new TokenParsingException(src, "Unexpected end of stream");
 
             // If we have a number, it's the left side of the decimal
             if (tok.Type == TokenType.Number)
@@ -163,7 +163,7 @@ namespace Sledge.Formats.Tokens
                 
                 tokens.MoveNext();
                 tok = tokens.Current;
-                if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
+                if (tok == null) throw new TokenParsingException(src, "Unexpected end of stream");
             }
 
             // If we have a decimal, we want to read the next number (if it exists) too
@@ -171,7 +171,7 @@ namespace Sledge.Formats.Tokens
             {
                 tokens.MoveNext();
                 tok = tokens.Current;
-                if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
+                if (tok == null) throw new TokenParsingException(src, "Unexpected end of stream");
 
                 if (tok.Type == TokenType.Number)
                 {
@@ -182,7 +182,7 @@ namespace Sledge.Formats.Tokens
 
                     tokens.MoveNext();
                     tok = tokens.Current;
-                    if (tok == null) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unexpected end of stream");
+                    if (tok == null) throw new TokenParsingException(src, "Unexpected end of stream");
                 }
             }
 
@@ -194,7 +194,7 @@ namespace Sledge.Formats.Tokens
                 tok = tokens.Current;
             }
 
-            if (!valid) throw new Exception($"Parsing error (line {src.Line}, column {src.Column}): Unable to parse number value");
+            if (!valid) throw new TokenParsingException(src, "Unable to parse number value");
 
             if (neg) value *= -1;
             return value;

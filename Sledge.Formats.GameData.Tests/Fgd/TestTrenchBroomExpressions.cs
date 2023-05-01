@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.GameData.Addons.TrenchBroom;
+using Sledge.Formats.Tokens;
 
 /*
  * License for these tests: GPL-3.0, per the TrenchBroom repository.
@@ -986,8 +987,8 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         [TestMethod]
         public void TestInterpolateStringWithUnterminatedEl()
         {
-            Assert.ThrowsException<Exception>(() => Interpolate(" an ${TEST"));
-            Assert.ThrowsException<Exception>(() => Interpolate(" an ${TEST expression"));
+            Assert.ThrowsException<TokenParsingException>(() => Interpolate(" an ${TEST"));
+            Assert.ThrowsException<TokenParsingException>(() => Interpolate(" an ${TEST expression"));
         }
 
         private static Value EvaluateInterpolate(string expression, Dictionary<string, Value> values = null)
