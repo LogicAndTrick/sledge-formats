@@ -7,11 +7,10 @@ using System.Linq;
 using Sledge.Formats.FileSystem;
 using Sledge.Formats.GameData.Objects;
 using Sledge.Formats.Tokens;
-using static Sledge.Formats.Tokens.TokenParsing;
 
 namespace Sledge.Formats.GameData
 {
-    public class FgdFormatter
+    public class FgdFormat
     {
         public IFileResolver FileResolver { get; set; }
         
@@ -48,12 +47,12 @@ namespace Sledge.Formats.GameData
             set => Tokeniser.AllowNewlinesInStrings = value;
         }
 
-        public FgdFormatter()
+        public FgdFormat()
         {
             // No file resolver, includes will be ignored
         }
 
-        public FgdFormatter(IFileResolver resolver)
+        public FgdFormat(IFileResolver resolver)
         {
             FileResolver = resolver;
         }
@@ -61,7 +60,7 @@ namespace Sledge.Formats.GameData
         public static GameDefinition ReadFile(string path)
         {
             var folder = Path.GetDirectoryName(path);
-            var formatter = new FgdFormatter(new DiskFileResolver(folder));
+            var formatter = new FgdFormat(new DiskFileResolver(folder));
             using (var stream = File.OpenRead(path))
             {
                 return formatter.Read(new StreamReader(stream));
@@ -126,10 +125,10 @@ namespace Sledge.Formats.GameData
                                     // helpinfo command only found in Dota2 Test repo, doesn't appear to be used in newer FGD files - ignore it for now
                                     // it looks like: `@helpinfo( "entity_name", "path/to/some/file.txt" )`
                                     it.Current.Warnings.Add("The `@helpinfo` command doesn't appear to be used, ignoring it for now.");
-                                    Expect(it, TokenType.Name, x => x.ToLower() == "helpinfo");
-                                    Expect(it, TokenType.Symbol, Symbols.OpenParen);
+                                    TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "helpinfo");
+                                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenParen);
                                     while (it.Current?.Is(TokenType.Symbol, Symbols.CloseParen) == false) it.MoveNext();
-                                    Expect(it, TokenType.Symbol, Symbols.CloseParen);
+                                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
                                     break;
                                 default:
                                     if (!Enum.TryParse(it.Current.Value, true, out ClassType _))
@@ -165,8 +164,8 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "include");
-            var fileName = Expect(it, TokenType.String).Value;
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "include");
+            var fileName = TokenParsing.Expect(it, TokenType.String).Value;
             if (def.Includes.Contains(fileName))
             {
                 // Duplicate include, ignore it
@@ -209,12 +208,12 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
             
-            Expect(it, TokenType.Name, x => x.ToLower() == "mapsize");
-            Expect(it, TokenType.Symbol, Symbols.OpenParen);
-            var low = ParseInteger(it);
-            Expect(it, TokenType.Symbol, Symbols.Comma);
-            var high = ParseInteger(it);
-            Expect(it, TokenType.Symbol, Symbols.CloseParen);
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "mapsize");
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenParen);
+            var low = TokenParsing.ParseInteger(it);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.Comma);
+            var high = TokenParsing.ParseInteger(it);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
             def.MapSizeLow = low;
             def.MapSizeHigh = high;
@@ -234,15 +233,15 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "materialexclusion");
-            Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "materialexclusion");
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
             while (it.Current?.Type == TokenType.String)
             {
                 var ex = it.Current.Value;
                 if (!def.MaterialExclusions.Contains(ex)) def.MaterialExclusions.Add(ex);
                 it.MoveNext();
             }
-            Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
         }
 
         private void ParseAutoVisgroup(GameDefinition def, IEnumerator<Token> it)
@@ -270,10 +269,10 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "autovisgroup");
-            Expect(it, TokenType.Symbol, Symbols.Equal);
-            var sectionName = Expect(it, TokenType.String);
-            Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "autovisgroup");
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.Equal);
+            var sectionName = TokenParsing.Expect(it, TokenType.String);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
             
             var section = new AutoVisgroupSection
             {
@@ -288,18 +287,18 @@ namespace Sledge.Formats.GameData
                 };
                 it.MoveNext();
 
-                Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
                 while (it.Current?.Type == TokenType.String)
                 {
                     var ent = it.Current.Value;
                     if (!vg.EntityNames.Contains(ent)) vg.EntityNames.Add(ent);
                     it.MoveNext();
                 }
-                Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
                 section.Groups.Add(vg);
             }
 
-            Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
 
             def.AutoVisgroups.Add(section);
         }
@@ -317,7 +316,7 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "visgroupfilter");
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "visgroupfilter");
 
             var dict = new GameDataDictionary(string.Empty);
             ParseGameDataDictionary(it, dict);
@@ -337,14 +336,14 @@ namespace Sledge.Formats.GameData
 
             def.GridNavValues = new List<int>();
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "gridnav");
-            Expect(it, TokenType.Symbol, Symbols.OpenParen);
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "gridnav");
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenParen);
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseParen) == false)
             {
-                def.GridNavValues.Add(ParseInteger(it));
+                def.GridNavValues.Add(TokenParsing.ParseInteger(it));
                 if (it.Current?.Is(TokenType.Symbol, Symbols.Comma) == true) it.MoveNext();
             }
-            Expect(it, TokenType.Symbol, Symbols.CloseParen);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
         }
         
         private void ParseExclude(GameDefinition def, IEnumerator<Token> it)
@@ -355,8 +354,8 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "exclude");
-            var excluded = Expect(it, TokenType.Name).Value;
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "exclude");
+            var excluded = TokenParsing.Expect(it, TokenType.Name).Value;
 
             var cls = def.GetClass(excluded);
             if (cls != null) def.Classes.Remove(cls);
@@ -371,24 +370,24 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            Expect(it, TokenType.Name, x => x.ToLower() == "entitygroup");
+            TokenParsing.Expect(it, TokenType.Name, x => x.ToLower() == "entitygroup");
 
-            var name = ParseAppendedString(it);
+            var name = TokenParsing.ParseAppendedString(it);
             var group = new EntityGroup(name);
             def.EntityGroups.Add(group);
 
             if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
             {
-                Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBrace);
                 while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
                 {
-                    var key = Expect(it, TokenType.Name).Value;
-                    Expect(it, TokenType.Symbol, Symbols.Equal);
-                    var value = Expect(it, TokenType.Name).Value;
+                    var key = TokenParsing.Expect(it, TokenType.Name).Value;
+                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.Equal);
+                    var value = TokenParsing.Expect(it, TokenType.Name).Value;
                     if (key == "start_expanded") group.StartExpanded = value == "true";
                     else throw new TokenParsingException(t, $"Unknown entity group metadata key: {key}");
                 }
-                Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBrace);
             }
         }
 
@@ -442,7 +441,7 @@ namespace Sledge.Formats.GameData
             var t = it.Current;
             Debug.Assert(t != null, nameof(t) + " != null");
 
-            var typeName = Expect(it, TokenType.Name).Value;
+            var typeName = TokenParsing.Expect(it, TokenType.Name).Value;
             if (!Enum.TryParse(typeName, true, out ClassType classType))
             {
                 throw new TokenParsingException(t, $"Unknown class type {t.Value}");
@@ -456,12 +455,12 @@ namespace Sledge.Formats.GameData
             // Read behaviours
             while (it.Current?.Is(TokenType.Name) == true)
             {
-                var bname = Expect(it, TokenType.Name).Value;
+                var bname = TokenParsing.Expect(it, TokenType.Name).Value;
                 var bvalues = new List<string>();
 
                 if (it.Current?.Is(TokenType.Symbol, Symbols.OpenParen) == true)
                 {
-                    var bparams = BalanceBrackets(it, Symbols.OpenParen, Symbols.CloseParen);
+                    var bparams = TokenParsing.BalanceBrackets(it, Symbols.OpenParen, Symbols.CloseParen);
                     if (bparams.Count > 0)
                     {
                         // remove the brackets at the start/end
@@ -483,19 +482,19 @@ namespace Sledge.Formats.GameData
                                 }
                                 else if (pc.Is(TokenType.Symbol, Symbols.OpenParen))
                                 {
-                                    bvalues.Add(String.Join("", BalanceBrackets(paramIt, Symbols.OpenParen, Symbols.CloseParen).Select(x => x.Value)));
+                                    bvalues.Add(String.Join("", TokenParsing.BalanceBrackets(paramIt, Symbols.OpenParen, Symbols.CloseParen).Select(x => x.Value)));
                                 }
                                 else if (pc.Is(TokenType.Symbol, Symbols.OpenBrace))
                                 {
-                                    bvalues.Add(String.Join("", BalanceBrackets(paramIt, Symbols.OpenBrace, Symbols.CloseBrace).Select(x => x.Value)));
+                                    bvalues.Add(String.Join("", TokenParsing.BalanceBrackets(paramIt, Symbols.OpenBrace, Symbols.CloseBrace).Select(x => x.Value)));
                                 }
                                 else if (pc.Is(TokenType.Symbol, Symbols.OpenBracket))
                                 {
-                                    bvalues.Add(String.Join("", BalanceBrackets(paramIt, Symbols.OpenBracket, Symbols.CloseBracket).Select(x => x.Value)));
+                                    bvalues.Add(String.Join("", TokenParsing.BalanceBrackets(paramIt, Symbols.OpenBracket, Symbols.CloseBracket).Select(x => x.Value)));
                                 }
                                 else if (pc.Is(TokenType.Symbol, Symbols.Minus) || pc.Is(TokenType.Symbol, Symbols.Plus) || pc.Is(TokenType.Number))
                                 {
-                                    bvalues.Add(ParseDecimal(paramIt).ToString(CultureInfo.InvariantCulture));
+                                    bvalues.Add(TokenParsing.ParseDecimal(paramIt).ToString(CultureInfo.InvariantCulture));
                                     continue;
                                 }
                                 else
@@ -527,20 +526,20 @@ namespace Sledge.Formats.GameData
             }
 
             // Read class name
-            Expect(it, TokenType.Symbol, Symbols.Equal);
-            cls.Name = Expect(it, TokenType.Name).Value;
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.Equal);
+            cls.Name = TokenParsing.Expect(it, TokenType.Name).Value;
 
             // Read description / details
             if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
             {
                 it.MoveNext();
-                cls.Description = ParseAppendedString(it);
+                cls.Description = TokenParsing.ParseAppendedString(it);
             }
 
             if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
             {
                 it.MoveNext();
-                cls.AdditionalInformation = ParseAppendedString(it);
+                cls.AdditionalInformation = TokenParsing.ParseAppendedString(it);
             }
 
             // If the next token isn't an open bracket, we assume that the class definition is finished
@@ -552,14 +551,14 @@ namespace Sledge.Formats.GameData
 
             // Otherwise parse the class properties and so on
 
-            Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
 
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBracket) == false)
             {
                 ParseClassMember(cls, it);
             }
 
-            Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
 
             def.MergeClass(cls);
         }
@@ -569,14 +568,14 @@ namespace Sledge.Formats.GameData
             if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBracket) == true)
             {
                 var vals = new List<GameDataDictionaryValue>();
-                Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
                 while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBracket) == false)
                 {
                     vals.Add(ParseGameDataDictionaryValue(it));
                     if (it.Current?.Is(TokenType.Symbol, Symbols.Comma) == true) it.MoveNext();
                     else break;
                 }
-                Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
                 return new GameDataDictionaryValue(vals);
             }
             else if (it.Current?.Is(TokenType.Name) == true)
@@ -589,12 +588,12 @@ namespace Sledge.Formats.GameData
             }
             else if (it.Current?.Is(TokenType.Number) == true)
             {
-                var metaValue = ParseDecimal(it);
+                var metaValue = TokenParsing.ParseDecimal(it);
                 return new GameDataDictionaryValue(metaValue);
             }
             else
             {
-                var metaValue = ParseAppendedString(it);
+                var metaValue = TokenParsing.ParseAppendedString(it);
                 return new GameDataDictionaryValue(metaValue);
             }
         }
@@ -613,11 +612,11 @@ namespace Sledge.Formats.GameData
                 }
 	        }
             */
-            Expect(it, TokenType.Symbol, Symbols.OpenBrace);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBrace);
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
-                var metaKey = Expect(it, TokenType.Name).Value;
-                Expect(it, TokenType.Symbol, Symbols.Equal);
+                var metaKey = TokenParsing.Expect(it, TokenType.Name).Value;
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.Equal);
                 if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
                 {
                     var metaValue = new GameDataDictionary(metaKey);
@@ -630,12 +629,12 @@ namespace Sledge.Formats.GameData
                 }
             }
 
-            Expect(it, TokenType.Symbol, Symbols.CloseBrace);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBrace);
         }
 
         private void ParseClassMember(GameDataClass cls, IEnumerator<Token> it)
         {
-            var first = Expect(it, TokenType.Name);
+            var first = TokenParsing.Expect(it, TokenType.Name);
             if (it.Current == null) throw new TokenParsingException(first, $"Unexpected end of token stream");
 
             var second = it.Current;
@@ -646,10 +645,10 @@ namespace Sledge.Formats.GameData
                 // input name(type) [ : "description" ]
                 // output name(type) [ : "description" ]
                 var iotype = first.Value == "input" ? IOType.Input : IOType.Output;
-                var name = Expect(it, TokenType.Name).Value;
-                Expect(it, TokenType.Symbol, Symbols.OpenParen);
+                var name = TokenParsing.Expect(it, TokenType.Name).Value;
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenParen);
                 var type = ParseVariableType(it);
-                Expect(it, TokenType.Symbol, Symbols.CloseParen);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
                 var io = new IO(iotype, type.type, type.subType, name);
                 cls.InOuts.Add(io);
@@ -657,16 +656,16 @@ namespace Sledge.Formats.GameData
                 {
                     // description
                     it.MoveNext();
-                    io.Description = ParseAppendedString(it);
+                    io.Description = TokenParsing.ParseAppendedString(it);
                 }
             }
             else if (second.Is(TokenType.Symbol, Symbols.OpenParen))
             {
                 // name(type) [ : "description" [ : [ default_value ] [ : "details" ] ] ] [ = options_decl ]
                 var name = first.Value;
-                Expect(it, TokenType.Symbol, Symbols.OpenParen);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenParen);
                 var type = ParseVariableType(it);
-                Expect(it, TokenType.Symbol, Symbols.CloseParen);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
                 var prop = new Property(name, type.type, type.subType);
                 cls.Properties.Add(prop);
@@ -700,16 +699,16 @@ namespace Sledge.Formats.GameData
                  */
                 if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBracket) == true)
                 {
-                    Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
 
                     while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBracket) == false)
                     {
-                        var metaName = Expect(it, TokenType.Name).Value;
+                        var metaName = TokenParsing.Expect(it, TokenType.Name).Value;
                         var metaValue = "";
                         if (it.Current?.Is(TokenType.Symbol, Symbols.Equal) == true)
                         {
                             it.MoveNext();
-                            metaValue = ParseAppendedString(it);
+                            metaValue = TokenParsing.ParseAppendedString(it);
                         }
                         prop.Metadata[metaName] = metaValue;
 
@@ -717,7 +716,7 @@ namespace Sledge.Formats.GameData
                         if (it.Current?.Is(TokenType.Symbol, Symbols.Comma) == true) it.MoveNext();
                     }
 
-                    Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
                 }
 
                 /* Source 2 dictionary-based metadata:
@@ -739,7 +738,7 @@ namespace Sledge.Formats.GameData
                     // Check if the next token is `:`, which means there is no description
                     if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == false)
                     {
-                        prop.Description = ParseAppendedString(it);
+                        prop.Description = TokenParsing.ParseAppendedString(it);
                     }
 
                     // default value
@@ -751,15 +750,15 @@ namespace Sledge.Formats.GameData
                         {
                             if (it.Current.Type == TokenType.Name)
                             {
-                                prop.DefaultValue = Expect(it, TokenType.Name).Value;
+                                prop.DefaultValue = TokenParsing.Expect(it, TokenType.Name).Value;
                             }
                             else if (it.Current.Type == TokenType.String)
                             {
-                                prop.DefaultValue = ParseAppendedString(it);
+                                prop.DefaultValue = TokenParsing.ParseAppendedString(it);
                             }
                             else if (it.Current.Is(TokenType.Symbol, Symbols.Minus) || it.Current.Is(TokenType.Symbol, Symbols.Plus) || it.Current.Type == TokenType.Number)
                             {
-                                prop.DefaultValue = ParseDecimal(it).ToString(CultureInfo.InvariantCulture);
+                                prop.DefaultValue = TokenParsing.ParseDecimal(it).ToString(CultureInfo.InvariantCulture);
                             }
                             else
                             {
@@ -772,20 +771,20 @@ namespace Sledge.Formats.GameData
                     if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
                     {
                         it.MoveNext();
-                        prop.Details = ParseAppendedString(it);
+                        prop.Details = TokenParsing.ParseAppendedString(it);
                     }
                 }
 
                 // Read options
                 if (it.Current?.Is(TokenType.Symbol, Symbols.Equal) == true)
                 {
-                    Expect(it, TokenType.Symbol, Symbols.Equal);
-                    Expect(it, TokenType.Symbol, Symbols.OpenBracket);
+                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.Equal);
+                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBracket);
                     while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBracket) == false)
                     {
                         ParsePropertyOption(prop, it);
                     }
-                    Expect(it, TokenType.Symbol, Symbols.CloseBracket);
+                    TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
                 }
             }
             else
@@ -805,7 +804,7 @@ namespace Sledge.Formats.GameData
             Debug.Assert(it.Current != null);
             if (it.Current.Is(TokenType.Symbol, Symbols.Minus) || it.Current.Is(TokenType.Symbol, Symbols.Plus) || it.Current.Type == TokenType.Number)
             {
-                opt.Key = ParseDecimal(it).ToString(CultureInfo.InvariantCulture);
+                opt.Key = TokenParsing.ParseDecimal(it).ToString(CultureInfo.InvariantCulture);
             }
             else if (it.Current.Type == TokenType.Name || it.Current.Type == TokenType.String)
             {
@@ -817,7 +816,7 @@ namespace Sledge.Formats.GameData
                 throw new TokenParsingException(it.Current, $"Expected choice value, instead got {it.Current.Type}({it.Current.Value})");
             }
 
-            Expect(it, TokenType.Symbol, Symbols.Colon);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.Colon);
 
             Debug.Assert(it.Current != null);
             if (it.Current.Type == TokenType.Name)
@@ -827,7 +826,7 @@ namespace Sledge.Formats.GameData
             }
             else if (it.Current.Type == TokenType.String)
             {
-                opt.Description = ParseAppendedString(it);
+                opt.Description = TokenParsing.ParseAppendedString(it);
             }
             else
             {
@@ -838,7 +837,7 @@ namespace Sledge.Formats.GameData
 
             if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) != true) return;
             
-            Expect(it, TokenType.Symbol, Symbols.Colon);
+            TokenParsing.Expect(it, TokenType.Symbol, Symbols.Colon);
 
             if (it.Current?.Is(TokenType.Number) == true)
             {
@@ -852,7 +851,7 @@ namespace Sledge.Formats.GameData
                 it.MoveNext();
             }
 
-            opt.Details = ParseAppendedString(it);
+            opt.Details = TokenParsing.ParseAppendedString(it);
         }
 
         private (VariableType type, string subType) ParseVariableType(IEnumerator<Token> it)
@@ -860,7 +859,7 @@ namespace Sledge.Formats.GameData
             var token = it.Current;
             Debug.Assert(token != null, nameof(token) + " != null");
 
-            var type = Expect(it, TokenType.Name).Value;
+            var type = TokenParsing.Expect(it, TokenType.Name).Value;
 
             var subType = "";
             // support the source2 `resource:model` syntax... (also `array:struct:map_extension`)
@@ -869,7 +868,7 @@ namespace Sledge.Formats.GameData
             // in these cases we just add them all into the subtype, the editor can work out what to do with it.
             if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
             {
-                Expect(it, TokenType.Symbol, Symbols.Colon);
+                TokenParsing.Expect(it, TokenType.Symbol, Symbols.Colon);
                 while (it.Current?.Is(TokenType.Symbol, Symbols.CloseParen) == false)
                 {
                     subType += it.Current.Value;
