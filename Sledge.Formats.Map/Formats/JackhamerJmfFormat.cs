@@ -67,7 +67,7 @@ namespace Sledge.Formats.Map.Formats
             var worldspawnEntity = entities.FirstOrDefault(x => x.Entity.ClassName == "worldspawn");
             if (worldspawnEntity != null)
             {
-                map.Worldspawn.Properties = worldspawnEntity.Entity.Properties;
+                map.Worldspawn.SortedProperties = worldspawnEntity.Entity.SortedProperties;
                 map.Worldspawn.Color = worldspawnEntity.Entity.Color;
                 map.Worldspawn.SpawnFlags = worldspawnEntity.Entity.SpawnFlags;
                 map.Worldspawn.Visgroups = worldspawnEntity.Entity.Visgroups;
@@ -275,7 +275,7 @@ namespace Sledge.Formats.Map.Formats
                 {
                     var key = ReadString(br);
                     var value = ReadString(br);
-                    if (key != null && value != null) ent.Entity.Properties[key] = value;
+                    if (key != null && value != null) ent.Entity.SortedProperties.Add(new KeyValuePair<string, string>(key, value));
                 }
 
                 ent.Entity.Visgroups = new List<int>();

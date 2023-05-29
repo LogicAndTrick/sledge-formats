@@ -123,7 +123,7 @@ namespace Sledge.Formats.Bsp.Lumps
 
             void SetKeyValue(Entity e, string k, string v)
             {
-                e.KeyValues[k] = v;
+                e.Set(k, v);
             }
         }
 
@@ -145,7 +145,7 @@ namespace Sledge.Formats.Bsp.Lumps
             {
                 sb.Append("{\n");
 
-                foreach (var kv in entity.KeyValues.Where(x => x.Key?.Length > 0 && x.Value?.Length > 0))
+                foreach (var kv in entity.SortedKeyValues.Where(x => x.Key?.Length > 0 && x.Value?.Length > 0))
                 {
                     sb.Append($"\"{kv.Key}\" \"{kv.Value}\"\n");
                 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -81,7 +82,7 @@ namespace Sledge.Formats.Map.Formats
             var e = (Worldspawn) ReadObject(map, version, br);
 
             map.Worldspawn.SpawnFlags = e.SpawnFlags;
-            foreach (var p in e.Properties) map.Worldspawn.Properties[p.Key] = p.Value;
+            foreach (var p in e.SortedProperties) map.Worldspawn.SortedProperties.Add(new KeyValuePair<string, string>(p.Key, p.Value));
             map.Worldspawn.Children.AddRange(e.Children);
         }
 
@@ -208,7 +209,7 @@ namespace Sledge.Formats.Map.Formats
                 var key = br.ReadCString();
                 var value = br.ReadCString();
                 if (key == null) continue;
-                e.Properties[key] = value;
+                e.Properties.Add(new KeyValuePair<string, string>(key, value));
             }
 
             br.ReadBytes(12); // More unused bytes
@@ -460,7 +461,7 @@ namespace Sledge.Formats.Map.Formats
             bw.Write(new byte[4]); // Unused
             bw.Write(data.SpawnFlags);
 
-            var props = data.Properties.Where(x => !String.IsNullOrWhiteSpace(x.Key)).ToList();
+            var props = data.SortedProperties.Where(x => !String.IsNullOrWhiteSpace(x.Key)).ToList();
             bw.Write(props.Count);
             foreach (var p in props)
             {

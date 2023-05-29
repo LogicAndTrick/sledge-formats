@@ -113,7 +113,7 @@ namespace Sledge.Formats.Map.Formats
                         if (entity.ClassName == "worldspawn")
                         {
                             map.Worldspawn.SpawnFlags = entity.SpawnFlags;
-                            foreach (var p in entity.Properties) map.Worldspawn.Properties[p.Key] = p.Value;
+                            foreach (var p in entity.SortedProperties) map.Worldspawn.SortedProperties.Add(new KeyValuePair<string, string>(p.Key, p.Value));
                             map.Worldspawn.Children.AddRange(entity.Children);
                         }
                         else
@@ -150,7 +150,7 @@ namespace Sledge.Formats.Map.Formats
 
                     if (key == "classname") ent.ClassName = val;
                     else if (key == "spawnflags") ent.SpawnFlags = int.Parse(val);
-                    else ent.Properties[key] = val;
+                    else ent.SortedProperties.Add(new KeyValuePair<string, string>(key, val));
                 }
                 else if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
                 {
@@ -464,7 +464,7 @@ namespace Sledge.Formats.Map.Formats
                 WriteProperty(sw, "spawnflags", e.SpawnFlags.ToString(CultureInfo.InvariantCulture));
             }
 
-            foreach (var prop in e.Properties)
+            foreach (var prop in e.SortedProperties)
             {
                 WriteProperty(sw, prop.Key, prop.Value);
             }

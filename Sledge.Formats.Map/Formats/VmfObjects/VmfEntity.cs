@@ -52,7 +52,7 @@ namespace Sledge.Formats.Map.Formats.VmfObjects
             {
                 ClassName = ClassName,
                 SpawnFlags = SpawnFlags,
-                Properties = new Dictionary<string, string>(Properties)
+                SortedProperties = new List<KeyValuePair<string, string>>(Properties)
             };
 
             Editor.Apply(ent);

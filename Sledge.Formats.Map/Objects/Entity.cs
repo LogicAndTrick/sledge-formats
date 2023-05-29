@@ -6,11 +6,13 @@ namespace Sledge.Formats.Map.Objects
     {
         public string ClassName { get; set; }
         public int SpawnFlags { get; set; }
-        public Dictionary<string, string> Properties { get; set; }
+        public List<KeyValuePair<string, string>> SortedProperties { get; set; }
+        public IDictionary<string, string> Properties { get; }
 
         public Entity()
         {
-            Properties = new Dictionary<string, string>();
+            SortedProperties = new List<KeyValuePair<string, string>>();
+            Properties = new SortedKeyValueDictionaryWrapper(SortedProperties);
         }
     }
 }

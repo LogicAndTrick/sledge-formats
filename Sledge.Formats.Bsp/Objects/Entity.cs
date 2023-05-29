@@ -13,27 +13,40 @@ namespace Sledge.Formats.Bsp.Objects
                 var val = Get("model", "");
                 return val.Length > 0 && int.TryParse(val.Substring(1), out var m) ? m : 0;
             }
-            set => KeyValues["model"] = value == 0 ? "" : $"*{value}";
+            set => Set("model", value == 0 ? "" : $"*{value}");
         }
 
         public string ClassName
         {
             get => Get("classname", "");
-            set => KeyValues["classname"] = value;
+            set => Set("classname", value);
         }
 
-        public Dictionary<string, string> KeyValues { get; }
+        public List<KeyValuePair<string, string>> SortedKeyValues { get; }
+        public IDictionary<string, string> KeyValues { get; }
 
         public Entity()
         {
-            KeyValues = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            SortedKeyValues = new List<KeyValuePair<string, string>>();
+            KeyValues = new SortedKeyValueDictionaryWrapper(SortedKeyValues);
+        }
+
+        private KeyValuePair<string, string>? GetKeyValue(string key)
+        {
+            foreach (var kv in SortedKeyValues)
+            {
+                if (kv.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)) return kv;
+            }
+
+            return null;
         }
 
         public Vector3 GetVector3(string name, Vector3 defaultValue)
         {
-            if (!KeyValues.ContainsKey(name)) return defaultValue;
+            var kv = GetKeyValue(name);
+            if (!kv.HasValue) return defaultValue;
 
-            var val = KeyValues[name];
+            var val = kv.Value.Value;
             var spl = val.Split(' ');
             if (spl.Length != 3) return defaultValue;
 
@@ -46,8 +59,9 @@ namespace Sledge.Formats.Bsp.Objects
 
         public T Get<T>(string name, T defaultValue)
         {
-            if (!KeyValues.ContainsKey(name)) return defaultValue;
-            var val = KeyValues[name];
+            var kv = GetKeyValue(name);
+            if (!kv.HasValue) return defaultValue;
+            var val = kv.Value.Value;
             try
             {
                 return (T) Convert.ChangeType(val, typeof(T));
@@ -56,6 +70,17 @@ namespace Sledge.Formats.Bsp.Objects
             {
                 return defaultValue;
             }
+        }
+
+        public void Set<T>(string name, T value)
+        {
+            Unset(name);
+            SortedKeyValues.Add(new KeyValuePair<string, string>(name, Convert.ToString(value)));
+        }
+
+        public void Unset(string name)
+        {
+            SortedKeyValues.RemoveAll(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }
