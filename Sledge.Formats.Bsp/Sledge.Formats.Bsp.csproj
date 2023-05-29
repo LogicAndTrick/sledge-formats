@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Add field for null content type</PackageReleaseNotes>
-    <Version>1.0.8</Version>
+    <PackageReleaseNotes>Load sorted keyvalues, providing a dictionary shim for higher compatibility (breaking change)</PackageReleaseNotes>
+    <Version>1.0.9</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
