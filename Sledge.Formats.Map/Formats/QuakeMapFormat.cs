@@ -135,8 +135,9 @@ namespace Sledge.Formats.Map.Formats
             var ent = new Entity();
 
             Expect(it, TokenType.Symbol, Symbols.OpenBrace);
-            SkipNonNewlineWhitespace(it);
-            Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+            SkipWhitespace(it);
+            Expect(it, TokenType.NewLine);
+            SkipTrivia(it);
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
                 SkipTrivia(it);
@@ -145,8 +146,9 @@ namespace Sledge.Formats.Map.Formats
                     var key = Expect(it, TokenType.String).Value;
                     Expect(it, TokenType.Whitespace);
                     var val = Expect(it, TokenType.String).Value;
-                    SkipNonNewlineWhitespace(it);
-                    Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+                    SkipWhitespace(it);
+                    Expect(it, TokenType.NewLine);
+                    SkipTrivia(it);
 
                     if (key == "classname") ent.ClassName = val;
                     else if (key == "spawnflags") ent.SpawnFlags = int.Parse(val);
@@ -175,17 +177,20 @@ namespace Sledge.Formats.Map.Formats
             var s = new Solid();
 
             Expect(it, TokenType.Symbol, Symbols.OpenBrace);
-            SkipNonNewlineWhitespace(it);
-            Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+            SkipWhitespace(it);
+            Expect(it, TokenType.NewLine);
+            SkipTrivia(it);
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
                 s.Faces.Add(ReadFace(it));
-                SkipNonNewlineWhitespace(it);
-                Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+                SkipWhitespace(it);
+                Expect(it, TokenType.NewLine);
+                SkipTrivia(it);
             }
             Expect(it, TokenType.Symbol, Symbols.CloseBrace);
-            SkipNonNewlineWhitespace(it);
-            Expect(it, TokenType.Whitespace, x => x.Contains("\n"));
+            SkipWhitespace(it);
+            Expect(it, TokenType.NewLine);
+            SkipTrivia(it);
 
             s.ComputeVertices();
             return s;
@@ -246,8 +251,8 @@ namespace Sledge.Formats.Map.Formats
                 Expect(it, TokenType.Whitespace);
                 face.YScale = (float) ParseDecimal(it);
 
-                SkipNonNewlineWhitespace(it);
-                if (it.Current.Type != TokenType.Whitespace)
+                SkipWhitespace(it);
+                if (it.Current.Type != TokenType.NewLine)
                 {
                     // we have more stuff to parse - must be surface flags
                     face.ContentFlags = (int) ParseDecimal(it);
@@ -255,7 +260,7 @@ namespace Sledge.Formats.Map.Formats
                     face.SurfaceFlags = (int) ParseDecimal(it);
                     Expect(it, TokenType.Whitespace);
                     face.Value = (float) ParseDecimal(it);
-                    SkipNonNewlineWhitespace(it);
+                    SkipWhitespace(it);
                 }
             }
             // idTech2, idTech3
@@ -269,7 +274,7 @@ namespace Sledge.Formats.Map.Formats
                 while (it.Current?.Is(TokenType.Name) == true)
                 {
                     numbers.Add(ParseDecimal(it));
-                    if (it.Current?.Is(TokenType.Whitespace) == true && !it.Current.Value.Contains("\n")) Expect(it, TokenType.Whitespace);
+                    if (it.Current?.Is(TokenType.Whitespace) == true) Expect(it, TokenType.Whitespace);
                 }
 
                 if (numbers.Count != 5 && numbers.Count != 8)
@@ -294,11 +299,6 @@ namespace Sledge.Formats.Map.Formats
             }
 
             return face;
-        }
-
-        private static void SkipNonNewlineWhitespace(IEnumerator<Token> it)
-        {
-            SkipWhile(it, x => x.Type == TokenType.Whitespace && !x.Value.Contains("\n"));
         }
 
         private Vector3 ReadFacePoint(IEnumerator<Token> it)

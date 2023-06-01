@@ -8,6 +8,7 @@
         String,
         Number,
         Whitespace,
+        NewLine,
         Comment,
         Custom,
         End

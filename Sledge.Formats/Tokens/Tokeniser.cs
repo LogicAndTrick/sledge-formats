@@ -60,7 +60,7 @@ namespace Sledge.Formats.Tokens
                 if (b == '\r' || b == 0) continue;
 
                 // Whitespace
-                if (b == ' ' || b == '\t' || b == '\n')
+                if (b == ' ' || b == '\t')
                 {
                     if (whitespaceStart.Item1 < 0) whitespaceStart = (reader.Line, reader.Column);
                     currentWhitespace += (char)b;
@@ -75,6 +75,15 @@ namespace Sledge.Formats.Tokens
                     else leaders.Add(ws);
                     currentWhitespace = "";
                     whitespaceStart = (-1, -1);
+                }
+
+                if (b == '\n')
+                {
+                    var nl = new Token(TokenType.NewLine, "\n");
+                    (nl.Line, nl.Column) = (reader.Line, reader.Column);
+                    if (EmitWhitespace) yield return nl;
+                    else leaders.Add(nl);
+                    continue;
                 }
 
                 var token = ReadToken(b, reader, out var t) ? t : new Token(TokenType.Invalid, $"Unexpected token: {(char) b}");

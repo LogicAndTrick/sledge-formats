@@ -320,13 +320,15 @@ Line""
 [
 	test(integer) : ""Test""
 ]";
+            const string expectedPreamble = @"
+@MESS REWRITE:
+""classname"": ""macro_insert""
+""template_map"": ""{dir()}\monster_warp.rmf""
+@MESS;
+";
             var format = new FgdFormatter();
             var def = format.Read(fgd);
-            Assert.AreEqual(4, def.Classes[0].Preamble.Count);
-            Assert.AreEqual(" @MESS REWRITE:", def.Classes[0].Preamble[0].Value);
-            Assert.AreEqual(" \"classname\": \"macro_insert\"", def.Classes[0].Preamble[1].Value);
-            Assert.AreEqual(" \"template_map\": \"{dir()}\\monster_warp.rmf\"", def.Classes[0].Preamble[2].Value);
-            Assert.AreEqual(" @MESS;", def.Classes[0].Preamble[3].Value);
+            Assert.AreEqual(expectedPreamble.Trim().Replace("\r", ""), string.Join("", def.Classes[0].Preamble.Select(x => x.Value.Trim(' '))).Trim());
         }
 
         [TestMethod]

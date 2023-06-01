@@ -483,7 +483,7 @@ namespace Sledge.Formats.GameData.Addons.TrenchBroom
                         if (it.Current?.Is(TokenType.Symbol, "{") == true)
                         {
                             // We have a string interpolation
-                            it.Condition = x => x.Type != TokenType.Whitespace;
+                            it.Condition = x => x.Type != TokenType.Whitespace && x.Type != TokenType.NewLine;
                             Expect(it, TokenType.Symbol, "{");
                             var exp = ParseExpression(it, options);
                             it.Condition = _ => true;

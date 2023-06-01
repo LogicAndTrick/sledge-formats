@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Authors>LogicAndTrick</Authors>
     <Description>An FGD parser. Currently supports Worldcraft, JACK, and TrenchBroom FGD formats.</Description>
     <Copyright>2021 LogicAndTrick</Copyright>
@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>half-life worldcraft hammer valve fgd trenchbroom</PackageTags>
-    <PackageReleaseNotes>Add parser and evaluator for TrenchBroom expression language</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for Sledge.Formats 1.1</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

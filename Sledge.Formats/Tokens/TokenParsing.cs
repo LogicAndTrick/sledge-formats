@@ -200,10 +200,14 @@ namespace Sledge.Formats.Tokens
             return value;
         }
 
-        public static void SkipTrivia(IEnumerator<Token> tokens, bool whitespace = true, bool comments = true)
+        public static void SkipTrivia(IEnumerator<Token> tokens, bool whitespace = true, bool newlines = true, bool comments = true)
         {
-            SkipWhile(tokens, tok => (whitespace && tok.Type == TokenType.Whitespace) || (comments && tok.Type == TokenType.Comment));
+            SkipWhile(tokens, tok => (whitespace && tok.Type == TokenType.Whitespace) || (newlines && tok.Type == TokenType.NewLine) || (comments && tok.Type == TokenType.Comment));
         }
+
+        public static void SkipWhitespace(IEnumerator<Token> tokens) => SkipTrivia(tokens, whitespace: true, newlines: false, comments: false);
+        public static void SkipNewlines(IEnumerator<Token> tokens) => SkipTrivia(tokens, whitespace: false, newlines: true, comments: false);
+        public static void SkipWhitespaceAndNewlines(IEnumerator<Token> tokens) => SkipTrivia(tokens, whitespace: true, newlines: true, comments: false);
 
         public static void SkipWhile(IEnumerator<Token> tokens, Predicate<Token> test)
         {

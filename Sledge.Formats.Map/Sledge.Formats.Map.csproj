@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Load sorted keyvalues, providing a dictionary shim for higher compatibility (breaking change)</PackageReleaseNotes>
-    <Version>1.0.9</Version>
+    <PackageReleaseNotes>Support for Sledge.Formats 1.1</PackageReleaseNotes>
+    <Version>1.0.10</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
