@@ -83,5 +83,7 @@
         Vector2d, // Source 2
         PanoramaImage, // Source 2
         Struct, // Source 2
+        AnimGraph, // Source 2 (cs2)
+        AnimGraphEnum, // Source 2 (cs2)
     }
 }

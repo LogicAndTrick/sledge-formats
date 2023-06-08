@@ -30,7 +30,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         [TestMethod]
         public void TestGoldsource()
         {
-            var format = new FgdFormatter();
+            var format = new FgdFormat();
             foreach (var (name, stream) in GetFiles("fgd/goldsource"))
             {
                 try
@@ -48,7 +48,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         [TestMethod]
         public void TestJack()
         {
-            var format = new FgdFormatter();
+            var format = new FgdFormat();
             foreach (var (name, stream) in GetFiles("fgd/jack"))
             {
                 try
@@ -66,7 +66,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         [TestMethod]
         public void TestTrenchbroom()
         {
-            var format = new FgdFormatter() { AllowNewlinesInStrings = true };
+            var format = new FgdFormat() { AllowNewlinesInStrings = true };
             foreach (var (name, stream) in GetFiles("fgd/trenchbroom"))
             {
                 try
@@ -84,7 +84,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         [TestMethod]
         public void TestSource()
         {
-            var format = new FgdFormatter();
+            var format = new FgdFormat();
             foreach (var (name, stream) in GetFiles("fgd/source"))
             {
                 try
@@ -102,7 +102,7 @@ namespace Sledge.Formats.GameData.Tests.Fgd
         [TestMethod]
         public void TestSource2()
         {
-            var format = new FgdFormatter();
+            var format = new FgdFormat();
             foreach (var (name, stream) in GetFiles("fgd/source2"))
             {
                 try

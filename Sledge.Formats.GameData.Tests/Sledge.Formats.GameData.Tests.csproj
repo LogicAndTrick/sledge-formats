@@ -39,6 +39,7 @@
     <None Remove="Resources\fgd\source2\ai_basenpc.fgd" />
     <None Remove="Resources\fgd\source2\ai_defaultnpc.fgd" />
     <None Remove="Resources\fgd\source2\base.fgd" />
+    <None Remove="Resources\fgd\source2\csgo-cs2-preview.fgd" />
     <None Remove="Resources\fgd\source2\dota.fgd" />
     <None Remove="Resources\fgd\source2\faceposer.fgd" />
     <None Remove="Resources\fgd\source2\halflife2.fgd" />
@@ -117,6 +118,7 @@
     <EmbeddedResource Include="Resources\fgd\source2\ai_basenpc.fgd" />
     <EmbeddedResource Include="Resources\fgd\source2\ai_defaultnpc.fgd" />
     <EmbeddedResource Include="Resources\fgd\source2\base.fgd" />
+    <EmbeddedResource Include="Resources\fgd\source2\csgo-cs2-preview.fgd" />
     <EmbeddedResource Include="Resources\fgd\source2\dota.fgd" />
     <EmbeddedResource Include="Resources\fgd\source2\faceposer.fgd" />
     <EmbeddedResource Include="Resources\fgd\source2\halflife2.fgd" />

@@ -18,7 +18,7 @@ public class TestFgdSource
 	output output_thing(void) : ""Output thing""
 ]
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -44,7 +44,7 @@ public class TestFgdSource
         const string fgd = @"
 @gridnav(64, 32, 32, 16384)
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         CollectionAssert.AreEqual(new[] { 64, 32, 32, 16384 }, def.GridNavValues);
     }
@@ -56,7 +56,7 @@ public class TestFgdSource
 @PointClass = test
 @exclude test
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(0, def.Classes.Count);
     }
@@ -68,7 +68,7 @@ public class TestFgdSource
 @EntityGroup ""NPCs"" { start_expanded = true }
 @EntityGroup ""Items""
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(2, def.EntityGroups.Count);
         Assert.AreEqual("NPCs", def.EntityGroups[0].Name);
@@ -95,7 +95,7 @@ public class TestFgdSource
 	""performed and only the OutValue output will be fired.""
 [
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -116,7 +116,7 @@ public class TestFgdSource
     test2(float) [ min=""0.0"", max=""180.0"" ] : ""Test2"" : ""0"" : ""Test#2""
     test3(boolean) [ group=""Test Group"" ] : ""Test3"" : 0 : ""Test#3""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
 
@@ -139,7 +139,7 @@ public class TestFgdSource
 [
 	input(string) : ""Input""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         Assert.AreEqual(ClassType.ModelAnimEvent, def.Classes[0].ClassType);
@@ -166,7 +166,7 @@ public class TestFgdSource
     resourceTexture(resource:texture) : ""Resource:Texture""
     arrayStructMapExtension(array:struct:map_extension) : ""Array:Struct:MapExtension""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -203,7 +203,7 @@ public class TestFgdSource
 	}
 = break_create_joint_revolute : ""Creates a revolute (hinge) joint between two spawned breakpieces""
 []";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
 
         var locatorAxis = def.Classes[0].Dictionaries[0];
@@ -233,7 +233,7 @@ public class TestFgdSource
 	color(color255) { enabled={ variable=""colormode"" value=""0"" } } : ""Color"" : ""255 255 255""
 	luminaire_size(float) { group=""Luminaire"" min=""0.0"" max=""90.0"" } : ""Area Light Size"" : ""4"" : ""Area light size, in degrees subtended by a point 100 units away from the near plane.""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
 
         Assert.AreEqual(1, def.Classes.Count);
@@ -264,7 +264,7 @@ public class TestFgdSource
 	fade_size_start(float) { group=""Render"" min=""0.0"" max=""1.0"" enabled={ variable=""directlight"" values=[""2"", ""3""] } } : ""Fade Out Start Size"" : "".05"" : ""Screen size where the light will begin fading out"" 
 	fade_size_end(float) { group=""Render"" min=""0.0"" max=""1.0"" enabled={ variable=""directlight"" values=[""2"", ""3""] } } : ""Fade Out End Size"" : "".025"" : ""Screen size where the light will be fully faded out"" 
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
 
         Assert.AreEqual(1, def.Classes.Count);
@@ -302,7 +302,7 @@ public class TestFgdSource
 	light_style_output_event0(vdata_choice:scripts/light_style_event_types.vdata) { group=""Style"" } : ""Style Output Event 0"" : """" : ""Name of the event that triggers the OnStyleEvent0 output.""
 	item_1( vdata_choice:scripts/grenades.vdata&scripts/misc.vdata&scripts/npc_abilities.vdata ) : ""Item Or Ability Subclass 1"" : """" : ""Subclass of item or ability to attach in slot 1.""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
 
         Assert.AreEqual(1, def.Classes.Count);
@@ -332,7 +332,7 @@ public class TestFgdSource
 [
 	editorGroupID(string) : ""Editor Group""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
 
         Assert.AreEqual(2, def.Classes.Count);
@@ -347,7 +347,7 @@ public class TestFgdSource
         const string fgd = @"
 @helpinfo( ""ai_basenpc"", ""tools/help/fgd/ai_basenpc.txt"" )
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
     }
 
@@ -359,7 +359,7 @@ public class TestFgdSource
 
 @VisGroupFilter { filter_type = ""entityTag""		tag = ""Lighting""		group = ""Lighting""			parent_group = ""Entities"" }
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
 
         Assert.AreEqual(2, def.VisgroupFilters.Count);
@@ -373,5 +373,48 @@ public class TestFgdSource
         Assert.AreEqual("Lighting", def.VisgroupFilters[1].Tag);
         Assert.AreEqual("Lighting", def.VisgroupFilters[1].Group);
         Assert.AreEqual("Entities", def.VisgroupFilters[1].ParentGroup);
+    }
+
+    [TestMethod]
+    public void TestDictionaryInMetadataArray()
+    {
+        const string fgd = @"
+@OverrideClass
+	metadata
+	{
+		class_game_keys =
+		[
+			{ key = ""clientSideEntity"" value = 1 }
+		]
+	} = light_environment [ ]
+";
+        var format = new FgdFormat();
+        var def = format.Read(fgd);
+
+        Assert.AreEqual(1, def.Classes.Count);
+        var cls = def.Classes[0];
+
+        Assert.AreEqual(1, cls.Dictionaries.Count);
+        var meta = cls.Dictionaries[0];
+
+        Assert.AreEqual("metadata", meta.Name);
+        Assert.AreEqual(1, meta.Count);
+        Assert.AreEqual("class_game_keys", meta.Keys.First());
+        var cgk = meta.Values.First();
+
+        Assert.AreEqual(GameDataDictionaryValueType.Array, cgk.Type);
+        Assert.IsInstanceOfType(cgk.Value, typeof(List<GameDataDictionaryValue>));
+        var arr = (List<GameDataDictionaryValue>)cgk.Value;
+
+        Assert.AreEqual(1, arr.Count);
+        var dict = arr[0];
+
+        Assert.AreEqual(GameDataDictionaryValueType.Dictionary, dict.Type);
+        Assert.IsInstanceOfType(dict.Value, typeof(GameDataDictionary));
+        var dv = (GameDataDictionary)dict.Value;
+        
+        Assert.AreEqual(2, dv.Count);
+        Assert.AreEqual("clientSideEntity", dv["key"].Value);
+        Assert.AreEqual(1m, dv["value"].Value);
     }
 }

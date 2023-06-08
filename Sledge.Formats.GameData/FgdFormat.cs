@@ -578,6 +578,12 @@ namespace Sledge.Formats.GameData
                 TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseBracket);
                 return new GameDataDictionaryValue(vals);
             }
+            else if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+            {
+                var dict = new GameDataDictionary("");
+                ParseGameDataDictionary(it, dict);
+                return new GameDataDictionaryValue(dict);
+            }
             else if (it.Current?.Is(TokenType.Name) == true)
             {
                 var cur = it.Current;
