@@ -7,113 +7,112 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Sledge.Formats.GameData.Tests.Fgd
+namespace Sledge.Formats.GameData.Tests.Fgd;
+
+[TestClass]
+public class TestFgdFiles
 {
-    [TestClass]
-    public class TestFgdFiles
+    private static List<(string name, Stream stream)> GetFiles(string path)
     {
-        private static List<(string name, Stream stream)> GetFiles(string path)
+        var assem = Assembly.GetExecutingAssembly();
+        var files = new List<(string name, Stream stream)>();
+
+        path = assem.GetName().Name + ".Resources." + path.Replace('/', '.') + '.';
+
+        foreach (var name in assem.GetManifestResourceNames().Where(x => x.StartsWith(path)))
         {
-            var assem = Assembly.GetExecutingAssembly();
-            var files = new List<(string name, Stream stream)>();
-
-            path = assem.GetName().Name + ".Resources." + path.Replace('/', '.') + '.';
-
-            foreach (var name in assem.GetManifestResourceNames().Where(x => x.StartsWith(path)))
-            {
-                files.Add((name.Substring(path.Length), assem.GetManifestResourceStream(name)));
-            }
-
-            return files;
+            files.Add((name.Substring(path.Length), assem.GetManifestResourceStream(name)));
         }
 
-        [TestMethod]
-        public void TestGoldsource()
+        return files;
+    }
+
+    [TestMethod]
+    public void TestGoldsource()
+    {
+        var format = new FgdFormat();
+        foreach (var (name, stream) in GetFiles("fgd/goldsource"))
         {
-            var format = new FgdFormat();
-            foreach (var (name, stream) in GetFiles("fgd/goldsource"))
+            try
             {
-                try
-                {
-                    var def = format.Read(new StreamReader(stream));
-                    Console.WriteLine($"Successfully parsed {name}.");
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error parsing {name}", ex);
-                }
+                var def = format.Read(new StreamReader(stream));
+                Console.WriteLine($"Successfully parsed {name}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error parsing {name}", ex);
             }
         }
+    }
 
-        [TestMethod]
-        public void TestJack()
+    [TestMethod]
+    public void TestJack()
+    {
+        var format = new FgdFormat();
+        foreach (var (name, stream) in GetFiles("fgd/jack"))
         {
-            var format = new FgdFormat();
-            foreach (var (name, stream) in GetFiles("fgd/jack"))
+            try
             {
-                try
-                {
-                    var def = format.Read(new StreamReader(stream));
-                    Console.WriteLine($"Successfully parsed {name}.");
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error parsing {name}", ex);
-                }
+                var def = format.Read(new StreamReader(stream));
+                Console.WriteLine($"Successfully parsed {name}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error parsing {name}", ex);
             }
         }
+    }
 
-        [TestMethod]
-        public void TestTrenchbroom()
+    [TestMethod]
+    public void TestTrenchbroom()
+    {
+        var format = new FgdFormat() { AllowNewlinesInStrings = true };
+        foreach (var (name, stream) in GetFiles("fgd/trenchbroom"))
         {
-            var format = new FgdFormat() { AllowNewlinesInStrings = true };
-            foreach (var (name, stream) in GetFiles("fgd/trenchbroom"))
+            try
             {
-                try
-                {
-                    var def = format.Read(new StreamReader(stream));
-                    Console.WriteLine($"Successfully parsed {name}.");
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error parsing {name}", ex);
-                }
+                var def = format.Read(new StreamReader(stream));
+                Console.WriteLine($"Successfully parsed {name}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error parsing {name}", ex);
             }
         }
+    }
 
-        [TestMethod]
-        public void TestSource()
+    [TestMethod]
+    public void TestSource()
+    {
+        var format = new FgdFormat();
+        foreach (var (name, stream) in GetFiles("fgd/source"))
         {
-            var format = new FgdFormat();
-            foreach (var (name, stream) in GetFiles("fgd/source"))
+            try
             {
-                try
-                {
-                    var def = format.Read(new StreamReader(stream));
-                    Console.WriteLine($"Successfully parsed {name}.");
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error parsing {name}", ex);
-                }
+                var def = format.Read(new StreamReader(stream));
+                Console.WriteLine($"Successfully parsed {name}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error parsing {name}", ex);
             }
         }
+    }
 
-        [TestMethod]
-        public void TestSource2()
+    [TestMethod]
+    public void TestSource2()
+    {
+        var format = new FgdFormat();
+        foreach (var (name, stream) in GetFiles("fgd/source2"))
         {
-            var format = new FgdFormat();
-            foreach (var (name, stream) in GetFiles("fgd/source2"))
+            try
             {
-                try
-                {
-                    var def = format.Read(new StreamReader(stream));
-                    Console.WriteLine($"Successfully parsed {name}.");
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error parsing {name}", ex);
-                }
+                var def = format.Read(new StreamReader(stream));
+                Console.WriteLine($"Successfully parsed {name}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error parsing {name}", ex);
             }
         }
     }

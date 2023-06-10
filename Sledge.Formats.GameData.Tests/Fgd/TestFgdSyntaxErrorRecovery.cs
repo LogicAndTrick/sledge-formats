@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Sledge.Formats.GameData.Tests.Fgd
+namespace Sledge.Formats.GameData.Tests.Fgd;
+
+[TestClass]
+public class TestFgdSyntaxErrorRecovery
 {
-    [TestClass]
-    public class TestFgdSyntaxErrorRecovery
+    [TestMethod]
+    public void TestIncorrectlyCommentedClass()
     {
-        [TestMethod]
-        public void TestIncorrectlyCommentedClass()
-        {
-            const string fgd = @"
+        const string fgd = @"
 @SolidClass = valid1 []
 //@SolidClass = invalid1 [
 //    test(choices) =
@@ -26,29 +26,29 @@ namespace Sledge.Formats.GameData.Tests.Fgd
 	test(string) : ""Test""
 ]
 @SolidClass = valid2 []";
-            var format = new FgdFormatter();
-            var def = format.Read(fgd);
-            Assert.AreEqual(2, def.Classes.Count);
-        }
+        var format = new FgdFormatter();
+        var def = format.Read(fgd);
+        Assert.AreEqual(2, def.Classes.Count);
+    }
 
-        [TestMethod]
-        public void TestUnquotedDefaultValue()
-        {
-            const string fgd = @"
+    [TestMethod]
+    public void TestUnquotedDefaultValue()
+    {
+        const string fgd = @"
 @PointClass = test
 [
 	model(studio) : ""Model"" : models/test-model.mdl : ""Select a model file.""
 ]";
-            var format = new FgdFormatter();
-            var def = format.Read(fgd);
-            Assert.AreEqual(1, def.Classes.Count);
-            Assert.AreEqual("models/test-model.mdl", def.Classes[0].Properties[0].DefaultValue);
-        }
+        var format = new FgdFormatter();
+        var def = format.Read(fgd);
+        Assert.AreEqual(1, def.Classes.Count);
+        Assert.AreEqual("models/test-model.mdl", def.Classes[0].Properties[0].DefaultValue);
+    }
 
-        [TestMethod]
-        public void TestDefaultValueMissingColon()
-        {
-            const string fgd = @"
+    [TestMethod]
+    public void TestDefaultValueMissingColon()
+    {
+        const string fgd = @"
 @PointClass = test
 [
 	test(choices) : ""Test"" 0 =
@@ -57,16 +57,16 @@ namespace Sledge.Formats.GameData.Tests.Fgd
 		1: ""one""
 	]
 ]";
-            var format = new FgdFormatter();
-            var def = format.Read(fgd);
-            Assert.AreEqual(1, def.Classes.Count);
-            Assert.AreEqual("0", def.Classes[0].Properties[0].DefaultValue);
-        }
+        var format = new FgdFormatter();
+        var def = format.Read(fgd);
+        Assert.AreEqual(1, def.Classes.Count);
+        Assert.AreEqual("0", def.Classes[0].Properties[0].DefaultValue);
+    }
 
-        [TestMethod]
-        public void TestUnterminatedString()
-        {
-            const string fgd = @"
+    [TestMethod]
+    public void TestUnterminatedString()
+    {
+        const string fgd = @"
 // from spirit.fgd
 @PointClass = test
 [
@@ -82,23 +82,22 @@ namespace Sledge.Formats.GameData.Tests.Fgd
 		3 : ""Fail
 	]
 ]";
-            var format = new FgdFormatter();
-            var def = format.Read(fgd);
-            Assert.AreEqual(1, def.Classes.Count);
-            Assert.AreEqual("Fail", def.Classes[0].Properties[0].Options.Last().Description);
-        }
+        var format = new FgdFormatter();
+        var def = format.Read(fgd);
+        Assert.AreEqual(1, def.Classes.Count);
+        Assert.AreEqual("Fail", def.Classes[0].Properties[0].Options.Last().Description);
+    }
 
-        //[TestMethod]
-        public void TestDecimalDefault5()
-        {
-            const string fgd = @"
+    //[TestMethod]
+    public void TestDecimalDefault5()
+    {
+        const string fgd = @"
 @PointClass = test
 [
 	test(integer) : ""Description"" : 1.5
 ]";
-            var format = new FgdFormatter();
-            var def = format.Read(fgd);
-            Assert.AreEqual(1, def.Classes.Count);
-        }
+        var format = new FgdFormatter();
+        var def = format.Read(fgd);
+        Assert.AreEqual(1, def.Classes.Count);
     }
 }
