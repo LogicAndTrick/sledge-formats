@@ -148,7 +148,7 @@ namespace Sledge.Formats.Precision
             var c3 = p1.Normal.Cross(p2.Normal);
 
             var denom = p1.Normal.Dot(c1);
-            if (denom < 0.00001d) return null; // No intersection, planes must be parallel
+            if (Math.Abs(denom) < 0.00001d) return null; // No intersection, planes must be parallel
 
             var numer = (-p1.D * c1) + (-p2.D * c2) + (-p3.D * c3);
             return numer / denom;
