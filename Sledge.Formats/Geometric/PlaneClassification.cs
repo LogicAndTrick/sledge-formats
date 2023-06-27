@@ -2,9 +2,9 @@ namespace Sledge.Formats.Geometric
 {
     public enum PlaneClassification
     {
-        Front,
-        Back,
-        OnPlane,
-        Spanning
+        Back = -1,
+        OnPlane = 0,
+        Front = 1,
+        Spanning = 2
     }
 }

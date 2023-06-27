@@ -1,20 +1,28 @@
 ﻿using System;
+using Sledge.Formats.Geometric;
 
 namespace Sledge.Formats.Precision
 {
     /// <summary>
     /// Defines a plane in the form Ax + By + Cz + D = 0.
     /// </summary>
-    public struct Plane
+    public readonly struct Plane
     {
         public Vector3 Normal { get; }
         public double D { get; }
-        public Vector3 PointOnPlane => Normal * -D;
 
         public Plane(Vector3 norm, double distanceFromOrigin)
         {
             Normal = norm.Normalise();
             D = distanceFromOrigin;
+        }
+
+        /// <summary>
+        /// Gets an arbitrary point on this plane.
+        /// </summary>
+        public Vector3 GetPointOnPlane()
+        {
+            return Normal * -D;
         }
 
         /// <summary>
@@ -31,24 +39,24 @@ namespace Sledge.Formats.Precision
             return new Plane(normal, d);
         }
 
-        ///  <summary>Finds if the given point is above, below, or on the plane.</summary>
-        ///  <param name="co">The Vector3 to test</param>
+        /// <summary>Finds if the given point is above, below, or on the plane.</summary>
+        /// <param name="co">The Vector3 to test</param>
         /// <param name="epsilon">Tolerance value</param>
         /// <returns>
-        ///  value == -1 if Vector3 is below the plane<br />
-        ///  value == 1 if Vector3 is above the plane<br />
-        ///  value == 0 if Vector3 is on the plane.
+        /// PlaneClassification.Back if Vector3 is below the plane<br />
+        /// PlaneClassification.Front if Vector3 is above the plane<br />
+        /// PlaneClassification.OnPlane if Vector3 is on the plane.
         /// </returns>
-        public int OnPlane(Vector3 co, double epsilon = 0.0001d)
+        public PlaneClassification OnPlane(Vector3 co, double epsilon = 0.0001d)
         {
             //eval (s = Ax + By + Cz + D) at point (x,y,z)
             //if s > 0 then point is "above" the plane (same side as normal)
             //if s < 0 then it lies on the opposite side
             //if s = 0 then the point (x,y,z) lies on the plane
             var res = DotCoordinate(co);
-            if (Math.Abs(res) < epsilon) return 0;
-            if (res < 0) return -1;
-            return 1;
+            if (Math.Abs(res) < epsilon) return PlaneClassification.OnPlane;
+            if (res < 0) return PlaneClassification.Back;
+            return PlaneClassification.Front;
         }
 
         /// <summary>
@@ -68,7 +76,7 @@ namespace Sledge.Formats.Precision
 
             var dir = end - start;
             var denominator = Normal.Dot(dir);
-            var numerator = Normal.Dot(PointOnPlane - start);
+            var numerator = Normal.Dot(GetPointOnPlane() - start);
             if (Math.Abs(denominator) < 0.00001d || (!ignoreDirection && denominator < 0)) return null;
             var u = numerator / denominator;
             if (!ignoreSegment && (u < 0 || u > 1)) return null;
@@ -85,7 +93,7 @@ namespace Sledge.Formats.Precision
         {
             // http://www.gamedev.net/topic/262196-projecting-vector-onto-a-plane/
             // Projected = Point - ((Point - PointOnPlane) . Normal) * Normal
-            return point - ((point - PointOnPlane).Dot(Normal)) * Normal;
+            return point - ((point - GetPointOnPlane()).Dot(Normal)) * Normal;
         }
 
         /// <summary>Evaluates the value of the plane formula at the given coordinate.</summary>

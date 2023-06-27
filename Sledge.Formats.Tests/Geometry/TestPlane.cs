@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Sledge.Formats.Geometric;
 using Sledge.Formats.Precision;
 
 namespace Sledge.Formats.Tests.Geometry;
@@ -31,9 +32,9 @@ public class TestPlane
         var v3 = new Vector3(1, 5, 5);
         var plane = Plane.CreateFromVertices(v1, v2, v3);
 
-        Assert.AreEqual(-1, plane.OnPlane(new Vector3(10, 11, 12)));
-        Assert.AreEqual(1, plane.OnPlane(new Vector3(-10, -11, -12)));
-        Assert.AreEqual(0, plane.OnPlane(v1));
+        Assert.AreEqual(PlaneClassification.Back, plane.OnPlane(new Vector3(10, 11, 12)));
+        Assert.AreEqual(PlaneClassification.Front, plane.OnPlane(new Vector3(-10, -11, -12)));
+        Assert.AreEqual(PlaneClassification.OnPlane, plane.OnPlane(v1));
     }
 
     [TestMethod]

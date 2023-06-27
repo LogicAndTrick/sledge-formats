@@ -40,7 +40,7 @@ namespace Sledge.Formats.Precision
             var up = tempV.Cross(plane.Normal).Normalise();
             var right = plane.Normal.Cross(up).Normalise();
 
-            var pointOnPlane = plane.PointOnPlane;
+            var pointOnPlane = plane.GetPointOnPlane();
             var verts = new List<Vector3>
             {
                 pointOnPlane + right - up, // Bottom right
@@ -66,9 +66,9 @@ namespace Sledge.Formats.Precision
                 var test = p.OnPlane(t);
 
                 // Vertices on the plane are both in front and behind the plane in this context
-                if (test <= 0) back++;
-                if (test >= 0) front++;
-                if (test == 0) onplane++;
+                if (test == PlaneClassification.Back) back++;
+                if (test == PlaneClassification.Front) front++;
+                if (test == PlaneClassification.OnPlane) onplane++;
             }
 
             if (onplane == count) return PlaneClassification.OnPlane;
