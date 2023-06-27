@@ -341,7 +341,7 @@ namespace Sledge.Formats.Map.Formats
             ReadSurfaceProperties(face, br);
 
             var norm = br.ReadVector3();
-            var distance = br.ReadSingle();
+            var distance = -br.ReadSingle();
             face.Plane = new Plane(norm, distance);
             
             br.ReadInt32(); // something 2
@@ -351,8 +351,6 @@ namespace Sledge.Formats.Map.Formats
                 face.Vertices.Add(br.ReadVector3());
                 br.ReadVector3(); // texture U/V coordinate
             }
-
-            face.Vertices.Reverse(); // They're backwards...
 
             return face;
         }

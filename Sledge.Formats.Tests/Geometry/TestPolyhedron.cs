@@ -25,14 +25,14 @@ public class TestPolyhedron
             new[] { new Vector3(64, 48, 16), new Vector3(48, 48, 16), new Vector3(48, 32, 16) },
         };
 
-        var planes = verts.Select(x => new Plane(x[0], x[1], x[2]));
+        var planes = verts.Select(x => Plane.CreateFromVertices(x[2], x[1], x[0]));
         var poly = new Polyhedron(planes);
         Assert.AreEqual(6, poly.Polygons.Count);
 
         var f1 = poly.Polygons[0];
 
         Assert.AreEqual(4, f1.Vertices.Count);
-        Assert.IsTrue(new Vector3(56, 32, 24).EquivalentTo(f1.Origin));
+        Assert.IsTrue(new Vector3(56, 32, 24).EquivalentTo(f1.Origin), $"new Vector3(56, 32, 24).EquivalentTo({f1.Origin})");
         Assert.AreEqual(-Vector3.UnitY, f1.Plane.Normal);
         Assert.AreEqual(32, f1.Plane.D);
     }

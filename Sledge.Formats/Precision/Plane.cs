@@ -3,55 +3,32 @@
 namespace Sledge.Formats.Precision
 {
     /// <summary>
-    /// Defines a plane in the form Ax + By + Cz + D = 0. Uses high-precision value types.
+    /// Defines a plane in the form Ax + By + Cz + D = 0.
     /// </summary>
     public struct Plane
     {
         public Vector3 Normal { get; }
-        public double DistanceFromOrigin { get; }
-        public double A { get; }
-        public double B { get; }
-        public double C { get; }
         public double D { get; }
-        public Vector3 PointOnPlane { get; }
-        
-        public Plane(Vector3 p1, Vector3 p2, Vector3 p3)
-        {
-            var ab = p2 - p1;
-            var ac = p3 - p1;
+        public Vector3 PointOnPlane => Normal * -D;
 
-            Normal = ac.Cross(ab).Normalise();
-            DistanceFromOrigin = Normal.Dot(p1);
-            PointOnPlane = p1;
-
-            A = Normal.X;
-            B = Normal.Y;
-            C = Normal.Z;
-            D = -DistanceFromOrigin;
-        }
-
-        public Plane(Vector3 norm, Vector3 pointOnPlane)
-        {
-            Normal = norm.Normalise();
-            DistanceFromOrigin = Normal.Dot(pointOnPlane);
-            PointOnPlane = pointOnPlane;
-
-            A = Normal.X;
-            B = Normal.Y;
-            C = Normal.Z;
-            D = -DistanceFromOrigin;
-        }
-        
         public Plane(Vector3 norm, double distanceFromOrigin)
         {
             Normal = norm.Normalise();
-            DistanceFromOrigin = distanceFromOrigin;
-            PointOnPlane = Normal * DistanceFromOrigin;
+            D = distanceFromOrigin;
+        }
 
-            A = Normal.X;
-            B = Normal.Y;
-            C = Normal.Z;
-            D = -DistanceFromOrigin;
+        /// <summary>
+        /// Create a plane from 3 vertices. Assumes that the vertices are ordered counter-clockwise.
+        /// </summary>
+        public static Plane CreateFromVertices(Vector3 p1, Vector3 p2, Vector3 p3)
+        {
+            var a = p2 - p1;
+            var b = p3 - p1;
+
+            var normal = a.Cross(b).Normalise();
+            var d = -normal.Dot(p1);
+
+            return new Plane(normal, d);
         }
 
         ///  <summary>Finds if the given point is above, below, or on the plane.</summary>
@@ -90,8 +67,8 @@ namespace Sledge.Formats.Precision
             // http://paulbourke.net/geometry/planeline/
 
             var dir = end - start;
-            var denominator = -Normal.Dot(dir);
-            var numerator = Normal.Dot(start - Normal * DistanceFromOrigin);
+            var denominator = Normal.Dot(dir);
+            var numerator = Normal.Dot(PointOnPlane - start);
             if (Math.Abs(denominator) < 0.00001d || (!ignoreDirection && denominator < 0)) return null;
             var u = numerator / denominator;
             if (!ignoreSegment && (u < 0 || u > 1)) return null;
@@ -113,7 +90,7 @@ namespace Sledge.Formats.Precision
 
         public double EvalAtPoint(Vector3 co)
         {
-            return A * co.X + B * co.Y + C * co.Z + D;
+            return Normal.Dot(co) + D;
         }
 
         /// <summary>
@@ -129,10 +106,10 @@ namespace Sledge.Formats.Precision
             if (norm.Y >= norm.Z) return Vector3.UnitY;
             return Vector3.UnitZ;
         }
-        
+
         public Plane Clone()
         {
-            return new Plane(Normal, DistanceFromOrigin);
+            return new Plane(Normal, D);
         }
 
         /// <summary>
@@ -148,7 +125,7 @@ namespace Sledge.Formats.Precision
             var c3 = p1.Normal.Cross(p2.Normal);
 
             var denom = p1.Normal.Dot(c1);
-            if (Math.Abs(denom) < 0.00001d) return null; // No intersection, planes must be parallel
+            if (denom < 0.00001d) return null; // No intersection, planes must be parallel
 
             var numer = (-p1.D * c1) + (-p2.D * c2) + (-p3.D * c3);
             return numer / denom;
@@ -157,7 +134,7 @@ namespace Sledge.Formats.Precision
         public bool EquivalentTo(Plane other, double delta = 0.0001d)
         {
             return Normal.EquivalentTo(other.Normal, delta)
-                   && Math.Abs(DistanceFromOrigin - other.DistanceFromOrigin) < delta;
+                   && Math.Abs(D - other.D) < delta;
         }
     }
 }

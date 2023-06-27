@@ -8,9 +8,12 @@ namespace Sledge.Formats.Precision
     /// </summary>
     public class Polygon
     {
+        /// <summary>
+        /// The vertices for the polygon, in counter-clockwise order when looking at the visible face of the polygon.
+        /// </summary>
         public IReadOnlyList<Vector3> Vertices { get; }
 
-        public Plane Plane => new Plane(Vertices[0], Vertices[1], Vertices[2]);
+        public Plane Plane => Plane.CreateFromVertices(Vertices[0], Vertices[1], Vertices[2]);
         public Vector3 Origin => Vertices.Aggregate(Vector3.Zero, (x, y) => x + y) / Vertices.Count;
 
         /// <summary>
@@ -36,12 +39,14 @@ namespace Sledge.Formats.Precision
             var up = tempV.Cross(plane.Normal).Normalise();
             var right = plane.Normal.Cross(up).Normalise();
 
+            var pointOnPlane = plane.PointOnPlane;
             var verts = new List<Vector3>
             {
-                plane.PointOnPlane + right + up, // Top right
-                plane.PointOnPlane - right + up, // Top left
-                plane.PointOnPlane - right - up, // Bottom left
-                plane.PointOnPlane + right - up, // Bottom right
+                pointOnPlane + right - up, // Bottom right
+                pointOnPlane - right - up, // Bottom left
+                pointOnPlane - right + up, // Top left
+                pointOnPlane + right + up, // Top right
+
             };
             
             var origin = verts.Aggregate(Vector3.Zero, (x, y) => x + y) / verts.Count;

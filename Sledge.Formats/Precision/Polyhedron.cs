@@ -74,7 +74,7 @@ namespace Sledge.Formats.Precision
             }
 
             var backPlanes = new List<Plane> { plane };
-            var frontPlanes = new List<Plane> { new Plane(-plane.Normal, -plane.DistanceFromOrigin) };
+            var frontPlanes = new List<Plane> { new Plane(-plane.Normal, -plane.D) };
 
             foreach (var face in Polygons)
             {

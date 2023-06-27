@@ -262,27 +262,5 @@ namespace Sledge.Formats
             bw.Write(c.Y);
             bw.Write(c.Z);
         }
-
-        public static Plane ReadPlane(this BinaryReader br)
-        {
-            var a = ReadVector3(br);
-            var b = ReadVector3(br);
-            var c = ReadVector3(br);
-
-            var ab = b - a;
-            var ac = c - a;
-
-            var normal = ac.Cross(ab).Normalise();
-            var d = normal.Dot(a);
-
-            return new Plane(normal, d);
-        }
-
-        public static void WritePlane(this BinaryWriter bw, Vector3[] coords)
-        {
-            WriteVector3(bw, coords[0]);
-            WriteVector3(bw, coords[1]);
-            WriteVector3(bw, coords[2]);
-        }
     }
 }

@@ -18,9 +18,9 @@ public class TestPlane
         var v2 = new Vector3(1, 1, 5);
         var v3 = new Vector3(1, 5, 5);
 
-        var actual = new Plane(v1, v2, v3);
-        Assert.AreEqual(new Vector3(1, 0, 0), actual.Normal);
-        Assert.AreEqual(-1, actual.D);
+        var actual = Plane.CreateFromVertices(v1, v2, v3);
+        Assert.AreEqual(new Vector3(-1, 0, 0), actual.Normal);
+        Assert.AreEqual(1, actual.D);
     }
 
     [TestMethod]
@@ -29,10 +29,10 @@ public class TestPlane
         var v1 = new Vector3(1, 1, 1);
         var v2 = new Vector3(1, 1, 5);
         var v3 = new Vector3(1, 5, 5);
-        var plane = new Plane(v1, v2, v3);
+        var plane = Plane.CreateFromVertices(v1, v2, v3);
 
-        Assert.AreEqual(1, plane.OnPlane(new Vector3(10, 11, 12)));
-        Assert.AreEqual(-1, plane.OnPlane(new Vector3(-10, -11, -12)));
+        Assert.AreEqual(-1, plane.OnPlane(new Vector3(10, 11, 12)));
+        Assert.AreEqual(1, plane.OnPlane(new Vector3(-10, -11, -12)));
         Assert.AreEqual(0, plane.OnPlane(v1));
     }
 
@@ -42,12 +42,13 @@ public class TestPlane
         var v1 = new Vector3(1, 1, 1);
         var v2 = new Vector3(1, 1, 5);
         var v3 = new Vector3(1, 5, 5);
-        var plane = new Plane(v1, v2, v3);
+        var plane = Plane.CreateFromVertices(v1, v2, v3);
 
-        var l1 = new Vector3(-10, 0, -10);
-        var l2 = new Vector3(20, 5, 15);
+        var l1 = new Vector3(-10, 3, 3);
+        var l2 = new Vector3(10, 3, 3);
 
-        Assert.IsTrue(new Vector3(1, 1.8333333, -0.8333333).EquivalentTo(plane.GetIntersectionPoint(l1, l2, true, true)!.Value));
+        Assert.AreEqual(new Vector3(1, 3, 3), plane.GetIntersectionPoint(l1, l2, true, true)!.Value);
+        Assert.IsTrue(new Vector3(1, 3, 3).EquivalentTo(plane.GetIntersectionPoint(l1, l2, true, true)!.Value));
         Assert.IsNull(plane.GetIntersectionPoint(l1, l2, false, true));
         Assert.IsNotNull(plane.GetIntersectionPoint(l2, l1, false, true));
     }
@@ -58,7 +59,7 @@ public class TestPlane
         var v1 = new Vector3(1, 1, 1);
         var v2 = new Vector3(1, 1, 5);
         var v3 = new Vector3(1, 5, 5);
-        var plane = new Plane(v1, v2, v3);
+        var plane = Plane.CreateFromVertices(v1, v2, v3);
 
         Assert.AreEqual(new Vector3(1, 10, 5), plane.Project(new Vector3(20, 10, 5)));
     }
@@ -69,7 +70,7 @@ public class TestPlane
         var v1 = new Vector3(1, 1, 1);
         var v2 = new Vector3(1, 1, 5);
         var v3 = new Vector3(1, 5, 5);
-        var plane = new Plane(v1, v2, v3);
+        var plane = Plane.CreateFromVertices(v1, v2, v3);
 
         Assert.AreEqual(Vector3.UnitX, plane.GetClosestAxisToNormal());
     }
@@ -77,9 +78,9 @@ public class TestPlane
     [TestMethod]
     public void TestIntersect()
     {
-        var p1 = new Plane(new Vector3(1, 1, 1), new Vector3(2, 1, 1), new Vector3(2, 1, 2));
-        var p2 = new Plane(new Vector3(1, 1, 1), new Vector3(1, 2, 1), new Vector3(1, 2, 2));
-        var p3 = new Plane(new Vector3(1, 1, 1), new Vector3(2, 1, 1), new Vector3(2, 2, 1));
+        var p1 = Plane.CreateFromVertices(new Vector3(1, 1, 1), new Vector3(2, 1, 1), new Vector3(2, 1, 2));
+        var p2 = Plane.CreateFromVertices(new Vector3(1, 1, 1), new Vector3(1, 2, 1), new Vector3(1, 2, 2));
+        var p3 = Plane.CreateFromVertices(new Vector3(1, 1, 1), new Vector3(2, 1, 1), new Vector3(2, 2, 1));
         var actual = Plane.Intersect(p1, p2, p3);
 
         Assert.IsNotNull(actual);
@@ -93,7 +94,7 @@ public class TestPlane
         var v2 = new Vector3(1, 1, 5);
         var v3 = new Vector3(1, 5, 5);
 
-        var actual = new Plane(v1, v2, v3);
+        var actual = Plane.CreateFromVertices(v1, v2, v3);
         var expected = System.Numerics.Plane.CreateFromVertices(v1.ToStandardVector3(), v2.ToStandardVector3(), v3.ToStandardVector3());
 
         Assert.AreEqual(expected.Normal, actual.Normal.ToStandardVector3());

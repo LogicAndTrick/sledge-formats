@@ -91,24 +91,6 @@ namespace Sledge.Formats
         // Matrix
         public static Vector3 Transform(this Matrix4x4 self, Vector3 vector) => Vector3.Transform(vector, self);
 
-        // Plane
-        public static Plane PlaneFromVertices(IEnumerable<Vector3> vertices)
-        {
-            var verts = vertices.Take(3).ToList();
-            return PlaneFromVertices(verts[0], verts[1], verts[2]);
-        }
-
-        public static Plane PlaneFromVertices(Vector3 a, Vector3 b, Vector3 c)
-        {
-            var ab = b - a;
-            var ac = c - a;
-
-            var normal = ac.Cross(ab).Normalise();
-            var d = normal.Dot(a);
-
-            return new Plane(normal, d);
-        }
-
         // https://github.com/ericwa/ericw-tools/blob/master/qbsp/map.cc @TextureAxisFromPlane
         public static (Vector3 uAxis, Vector3 vAxis, Vector3 snappedNormal) GetQuakeTextureAxes(this Plane plane)
         {
