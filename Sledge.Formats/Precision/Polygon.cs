@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
 
 namespace Sledge.Formats.Precision
 {
@@ -103,7 +104,7 @@ namespace Sledge.Formats.Precision
         {
             const double epsilon = NumericsExtensions.Epsilon;
             
-            var distances = Vertices.Select(clip.EvalAtPoint).ToList();
+            var distances = Vertices.Select(clip.DotCoordinate).ToList();
             
             int cb = 0, cf = 0;
             for (var i = 0; i < distances.Count; i++)

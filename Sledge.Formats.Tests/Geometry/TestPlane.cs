@@ -100,4 +100,22 @@ public class TestPlane
         Assert.AreEqual(expected.Normal, actual.Normal.ToStandardVector3());
         Assert.AreEqual(expected.D, (float) actual.D);
     }
+
+    [TestMethod]
+    public void TestDotCoordinate()
+    {
+        var v1 = new Vector3(1, 1, 1);
+        var v2 = new Vector3(1, 1, 5);
+        var v3 = new Vector3(1, 5, 5);
+
+        var actual = Plane.CreateFromVertices(v1, v2, v3);
+        var expected = System.Numerics.Plane.CreateFromVertices(v1.ToStandardVector3(), v2.ToStandardVector3(), v3.ToStandardVector3());
+        var eval1 = new Vector3(-20, -1, -7);
+        var eval2 = new Vector3(400, 1221, -7);
+        var eval3 = v1;
+
+        Assert.AreEqual(System.Numerics.Plane.DotCoordinate(expected, eval1.ToStandardVector3()), actual.DotCoordinate(eval1));
+        Assert.AreEqual(System.Numerics.Plane.DotCoordinate(expected, eval2.ToStandardVector3()), actual.DotCoordinate(eval2));
+        Assert.AreEqual(System.Numerics.Plane.DotCoordinate(expected, eval3.ToStandardVector3()), actual.DotCoordinate(eval3));
+    }
 }

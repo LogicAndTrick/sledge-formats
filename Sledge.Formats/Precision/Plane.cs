@@ -45,7 +45,7 @@ namespace Sledge.Formats.Precision
             //if s > 0 then point is "above" the plane (same side as normal)
             //if s < 0 then it lies on the opposite side
             //if s = 0 then the point (x,y,z) lies on the plane
-            var res = EvalAtPoint(co);
+            var res = DotCoordinate(co);
             if (Math.Abs(res) < epsilon) return 0;
             if (res < 0) return -1;
             return 1;
@@ -88,7 +88,9 @@ namespace Sledge.Formats.Precision
             return point - ((point - PointOnPlane).Dot(Normal)) * Normal;
         }
 
-        public double EvalAtPoint(Vector3 co)
+        /// <summary>Evaluates the value of the plane formula at the given coordinate.</summary>
+        /// <remarks>Returns the dot product of a specified three-dimensional vector and the normal vector of this plane plus the distance (<see cref="System.Numerics.Plane.D" />) value of the plane.</remarks>
+        public double DotCoordinate(Vector3 co)
         {
             return Normal.Dot(co) + D;
         }

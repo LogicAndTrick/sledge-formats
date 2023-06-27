@@ -1,4 +1,4 @@
-namespace Sledge.Formats.Precision
+namespace Sledge.Formats.Geometric
 {
     public enum PlaneClassification
     {

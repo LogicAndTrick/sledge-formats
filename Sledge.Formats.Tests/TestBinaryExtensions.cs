@@ -375,52 +375,5 @@ namespace Sledge.Formats.Tests
                 CollectionAssert.AreEqual(exp, ms.ToArray());
             }
         }
-
-        [TestMethod]
-        public void TestReadPlane()
-        {
-            var ms = new MemoryStream();
-            using (var bw = new BinaryWriter(ms, Encoding.ASCII, true))
-            {
-                bw.Write(1f);
-                bw.Write(2f);
-                bw.Write(0f);
-                bw.Write(3f);
-                bw.Write(4f);
-                bw.Write(0f);
-                bw.Write(3f);
-                bw.Write(-2f);
-                bw.Write(0f);
-            }
-            ms.Position = 0;
-
-            using (var br = new BinaryReader(ms))
-            {
-                var a = br.ReadPlane();
-                Assert.AreEqual(new Vector3(0, 0, 1), a.Normal);
-                Assert.AreEqual(0f, a.D);
-                Assert.AreEqual(36, ms.Position);
-            }
-        }
-
-        [TestMethod]
-        public void TestWritePlane()
-        {
-            var ms = new MemoryStream();
-            using (var bw = new BinaryWriter(ms))
-            {
-                var vecs = new[] {new Vector3(1, 2, 0), new Vector3(3, 4, 0), new Vector3(3, -2, 0)};
-                bw.WritePlane(vecs);
-                Assert.AreEqual(36, ms.Position);
-                var exp = new List<byte>();
-                foreach (var v in vecs)
-                {
-                    exp.AddRange(BitConverter.GetBytes(v.X));
-                    exp.AddRange(BitConverter.GetBytes(v.Y));
-                    exp.AddRange(BitConverter.GetBytes(v.Z));
-                }
-                CollectionAssert.AreEqual(exp, ms.ToArray());
-            }
-        }
     }
 }
