@@ -1,7 +1,7 @@
 ﻿using System;
 using Sledge.Formats.Geometric;
 
-namespace Sledge.Formats.Precision
+namespace Sledge.Formats.Geometric.Precision
 {
     /// <summary>
     /// Defines a plane in the form Ax + By + Cz + D = 0. Uses double precision floating points.
@@ -77,7 +77,7 @@ namespace Sledge.Formats.Precision
             var dir = end - start;
             var denominator = Normal.Dot(dir);
             var numerator = Normal.Dot(GetPointOnPlane() - start);
-            if (Math.Abs(denominator) < 0.00001d || (!ignoreDirection && denominator < 0)) return null;
+            if (Math.Abs(denominator) < 0.00001d || !ignoreDirection && denominator < 0) return null;
             var u = numerator / denominator;
             if (!ignoreSegment && (u < 0 || u > 1)) return null;
             return start + u * dir;
@@ -93,7 +93,7 @@ namespace Sledge.Formats.Precision
         {
             // http://www.gamedev.net/topic/262196-projecting-vector-onto-a-plane/
             // Projected = Point - ((Point - PointOnPlane) . Normal) * Normal
-            return point - ((point - GetPointOnPlane()).Dot(Normal)) * Normal;
+            return point - (point - GetPointOnPlane()).Dot(Normal) * Normal;
         }
 
         /// <summary>Evaluates the value of the plane formula at the given coordinate.</summary>
@@ -137,7 +137,7 @@ namespace Sledge.Formats.Precision
             var denom = p1.Normal.Dot(c1);
             if (denom < 0.00001d) return null; // No intersection, planes must be parallel
 
-            var numer = (-p1.D * c1) + (-p2.D * c2) + (-p3.D * c3);
+            var numer = -p1.D * c1 + -p2.D * c2 + -p3.D * c3;
             return numer / denom;
         }
 

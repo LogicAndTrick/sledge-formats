@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Geometric;
-using Sledge.Formats.Precision;
+using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Tests.Geometry;
 

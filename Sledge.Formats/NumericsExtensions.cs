@@ -1,5 +1,5 @@
 ﻿using Sledge.Formats.Geometric;
-using Sledge.Formats.Precision;
+using Sledge.Formats.Geometric.Precision;
 using System;
 using System.Drawing;
 using System.Globalization;

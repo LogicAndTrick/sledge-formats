@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Sledge.Formats;
 using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
 
-namespace Sledge.Formats.Precision
+namespace Sledge.Formats.Geometric.Precision
 {
     /// <summary>
     /// Represents a coplanar, directed polygon with at least 3 vertices. Uses double precision floating points.
@@ -49,7 +50,7 @@ namespace Sledge.Formats.Precision
                 pointOnPlane + right + up, // Top right
 
             };
-            
+
             var origin = verts.Aggregate(Vector3d.Zero, (x, y) => x + y) / verts.Count;
             Vertices = verts.Select(x => (x - origin).Normalise() * radius + origin).ToList();
         }
@@ -103,9 +104,9 @@ namespace Sledge.Formats.Precision
         public bool Split(Planed clip, out Polygond back, out Polygond front, out Polygond coplanarBack, out Polygond coplanarFront)
         {
             const double epsilon = NumericsExtensions.Epsilon;
-            
+
             var distances = Vertices.Select(clip.DotCoordinate).ToList();
-            
+
             int cb = 0, cf = 0;
             for (var i = 0; i < distances.Count; i++)
             {
@@ -152,7 +153,7 @@ namespace Sledge.Formats.Precision
                 if (sd <= 0) backVerts.Add(s);
                 if (sd >= 0) frontVerts.Add(s);
 
-                if ((sd < 0 && ed > 0) || (ed < 0 && sd > 0))
+                if (sd < 0 && ed > 0 || ed < 0 && sd > 0)
                 {
                     var t = sd / (sd - ed);
                     var intersect = s * (1 - t) + e * t;
@@ -161,7 +162,7 @@ namespace Sledge.Formats.Precision
                     frontVerts.Add(intersect);
                 }
             }
-            
+
             back = new Polygond(backVerts.Select(x => new Vector3d(x.X, x.Y, x.Z)));
             front = new Polygond(frontVerts.Select(x => new Vector3d(x.X, x.Y, x.Z)));
             coplanarBack = coplanarFront = null;

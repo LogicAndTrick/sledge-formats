@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Numerics;
 
-namespace Sledge.Formats.Precision
+namespace Sledge.Formats.Geometric.Precision
 {
     /// <summary>
     /// A 3-dimensional immutable vector that uses double precision floating points.
@@ -21,7 +21,7 @@ namespace Sledge.Formats.Precision
         public double X { get; }
         public double Y { get; }
         public double Z { get; }
-        
+
         public Vector3d(double x, double y, double z)
         {
             X = x;
@@ -34,7 +34,7 @@ namespace Sledge.Formats.Precision
             var xd = Math.Abs(X - test.X);
             var yd = Math.Abs(Y - test.Y);
             var zd = Math.Abs(Z - test.Z);
-            return (xd < delta) && (yd < delta) && (zd < delta);
+            return xd < delta && yd < delta && zd < delta;
         }
 
         public double Dot(Vector3d c)
@@ -141,8 +141,8 @@ namespace Sledge.Formats.Precision
             unchecked
             {
                 var hashCode = X.GetHashCode();
-                hashCode = (hashCode * 397) ^ Y.GetHashCode();
-                hashCode = (hashCode * 397) ^ Z.GetHashCode();
+                hashCode = hashCode * 397 ^ Y.GetHashCode();
+                hashCode = hashCode * 397 ^ Z.GetHashCode();
                 return hashCode;
             }
         }
@@ -176,7 +176,7 @@ namespace Sledge.Formats.Precision
         public Vector3 ToVector3()
         {
             const int rounding = 2;
-            return new Vector3((float) Math.Round(X, rounding), (float) Math.Round(Y, rounding), (float) Math.Round(Z, rounding));
+            return new Vector3((float)Math.Round(X, rounding), (float)Math.Round(Y, rounding), (float)Math.Round(Z, rounding));
         }
     }
 }

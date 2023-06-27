@@ -1,22 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
+using System.Numerics;
 
-namespace Sledge.Formats.Precision
+namespace Sledge.Formats.Geometric
 {
     /// <summary>
-    /// Represents a convex polyhedron with at least 4 sides. Uses double precision floating points.
+    /// Represents a convex polyhedron with at least 4 sides.
     /// </summary>
-    public class Polyhedrond
+    public class Polyhedron
     {
-        public IReadOnlyList<Polygond> Polygons { get; }
+        public IReadOnlyList<Polygon> Polygons { get; }
 
-        public Vector3d Origin => Polygons.Aggregate(Vector3d.Zero, (x, y) => x + y.Origin) / Polygons.Count;
+        public Vector3 Origin => Polygons.Aggregate(Vector3.Zero, (x, y) => x + y.Origin) / Polygons.Count;
 
         /// <summary>
         /// Creates a polyhedron from a list of polygons which are assumed to be valid.
         /// </summary>
-        public Polyhedrond(IEnumerable<Polygond> polygons)
+        public Polyhedron(IEnumerable<Polygon> polygons)
         {
             Polygons = polygons.ToList();
         }
@@ -24,15 +24,15 @@ namespace Sledge.Formats.Precision
         /// <summary>
         /// Creates a polyhedron by intersecting a set of at least 4 planes.
         /// </summary>
-        public Polyhedrond(IEnumerable<Planed> planes)
+        public Polyhedron(IEnumerable<Plane> planes)
         {
-            var polygons = new List<Polygond>();
-            
+            var polygons = new List<Polygon>();
+
             var list = planes.ToList();
             for (var i = 0; i < list.Count; i++)
             {
                 // Split the polygon by all the other planes
-                var poly = new Polygond(list[i]);
+                var poly = new Polygon(list[i]);
                 for (var j = 0; j < list.Count; j++)
                 {
                     if (i != j && poly.Split(list[j], out var back, out _))
@@ -44,11 +44,11 @@ namespace Sledge.Formats.Precision
             }
 
             // Ensure all the faces point outwards
-            var origin = polygons.Aggregate(Vector3d.Zero, (x, y) => x + y.Origin) / polygons.Count;
+            var origin = polygons.Aggregate(Vector3.Zero, (x, y) => x + y.Origin) / polygons.Count;
             for (var i = 0; i < polygons.Count; i++)
             {
                 var face = polygons[i];
-                if (face.Plane.OnPlane(origin) >= 0) polygons[i] = new Polygond(face.Vertices.Reverse());
+                if (face.Plane.OnPlane(origin) >= 0) polygons[i] = new Polygon(face.Vertices.Reverse());
             }
 
             Polygons = polygons;
@@ -61,8 +61,9 @@ namespace Sledge.Formats.Precision
         /// <param name="back">The back side of the polyhedron</param>
         /// <param name="front">The front side of the polyhedron</param>
         /// <returns>True if the plane splits the polyhedron, false if the plane doesn't intersect</returns>
-        public bool Split(Planed plane, out Polyhedrond back, out Polyhedrond front)
+        public bool Split(Plane plane, out Polyhedron back, out Polyhedron front)
         {
+
             back = front = null;
 
             // Check that this solid actually spans the plane
@@ -74,8 +75,8 @@ namespace Sledge.Formats.Precision
                 return false;
             }
 
-            var backPlanes = new List<Planed> { plane };
-            var frontPlanes = new List<Planed> { new Planed(-plane.Normal, -plane.D) };
+            var backPlanes = new List<Plane> { plane };
+            var frontPlanes = new List<Plane> { new Plane(-plane.Normal, -plane.D) };
 
             foreach (var face in Polygons)
             {
@@ -84,9 +85,9 @@ namespace Sledge.Formats.Precision
                 if (classification != PlaneClassification.Front) backPlanes.Add(face.Plane);
             }
 
-            back = new Polyhedrond(backPlanes);
-            front = new Polyhedrond(frontPlanes);
-            
+            back = new Polyhedron(backPlanes);
+            front = new Polyhedron(frontPlanes);
+
             return true;
         }
     }
