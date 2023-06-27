@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
-namespace Sledge.Formats.Precision
+namespace Sledge.Formats.Geometric
 {
     /// <summary>
-    /// Represents a convex polyhedron with at least 4 sides. Uses high-precision value types.
+    /// Represents a convex polyhedron with at least 4 sides.
     /// </summary>
     public class Polyhedron
     {
@@ -26,7 +27,7 @@ namespace Sledge.Formats.Precision
         public Polyhedron(IEnumerable<Plane> planes)
         {
             var polygons = new List<Polygon>();
-            
+
             var list = planes.ToList();
             for (var i = 0; i < list.Count; i++)
             {
@@ -62,6 +63,7 @@ namespace Sledge.Formats.Precision
         /// <returns>True if the plane splits the polyhedron, false if the plane doesn't intersect</returns>
         public bool Split(Plane plane, out Polyhedron back, out Polyhedron front)
         {
+
             back = front = null;
 
             // Check that this solid actually spans the plane
@@ -74,7 +76,7 @@ namespace Sledge.Formats.Precision
             }
 
             var backPlanes = new List<Plane> { plane };
-            var frontPlanes = new List<Plane> { new Plane(-plane.Normal, -plane.DistanceFromOrigin) };
+            var frontPlanes = new List<Plane> { new Plane(-plane.Normal, -plane.D) };
 
             foreach (var face in Polygons)
             {
@@ -85,7 +87,7 @@ namespace Sledge.Formats.Precision
 
             back = new Polyhedron(backPlanes);
             front = new Polyhedron(frontPlanes);
-            
+
             return true;
         }
     }

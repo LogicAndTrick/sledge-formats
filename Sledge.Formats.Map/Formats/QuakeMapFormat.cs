@@ -211,15 +211,12 @@ namespace Sledge.Formats.Map.Formats
             Expect(it, TokenType.Whitespace);
             var c = ReadFacePoint(it);
 
-            var ab = b - a;
-            var ac = c - a;
-
-            var normal = ac.Cross(ab).Normalise();
-            var d = normal.Dot(a);
+            // map planes are clockwise, flip them around when computing the plane to get a counter-clockwise plane
+            var plane = Plane.CreateFromVertices(c, b, a);
 
             var face = new Face
             {
-                Plane = new Plane(normal, d),
+                Plane = plane,
                 TextureName = ""
             };
 
@@ -394,7 +391,7 @@ namespace Sledge.Formats.Map.Formats
         private static void WriteFace(StreamWriter sw, Face face, string styleHint)
         {
             // ( -128 64 64 ) ( -64 64 64 ) ( -64 0 64 ) AAATRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
-            var strings = face.Vertices.Take(3).Select(x => "( " + FormatVector3(x) + " )").ToList();
+            var strings = face.Vertices.AsEnumerable().Reverse().Take(3).Select(x => "( " + FormatVector3(x) + " )").ToList();
             strings.Add(string.IsNullOrWhiteSpace(face.TextureName) ? "NULL" : face.TextureName);
             switch (styleHint)
             {

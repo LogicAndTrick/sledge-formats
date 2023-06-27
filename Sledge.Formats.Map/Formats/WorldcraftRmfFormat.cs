@@ -270,8 +270,10 @@ namespace Sledge.Formats.Map.Formats
             {
                 face.Vertices.Add(br.ReadVector3());
             }
+            // RMF stores the vertices in clockwise direction, we use counter-clockwise internally
+            face.Vertices.Reverse();
 
-            face.Plane = br.ReadPlane();
+            face.Plane = ReadPlane(br);
 
             if (version <= RmfVersion.Version18)
             {
@@ -297,6 +299,14 @@ namespace Sledge.Formats.Map.Formats
                     IsActive = activeCamera == i
                 });
             }
+        }
+
+        private static Plane ReadPlane(BinaryReader br)
+        {
+            var a = br.ReadVector3();
+            var b = br.ReadVector3();
+            var c = br.ReadVector3();
+            return Plane.CreateFromVertices(c, b, a); // reversed order for counter-clockwise
         }
 
         #endregion
@@ -484,11 +494,11 @@ namespace Sledge.Formats.Map.Formats
             bw.Write(face.YScale);
             bw.Write(new byte[16]);
             bw.Write(face.Vertices.Count);
-            foreach (var vertex in face.Vertices)
+            foreach (var vertex in face.Vertices.AsEnumerable().Reverse()) // reverse the vertex order back to clockwise
             {
                 bw.WriteVector3(vertex);
             }
-            bw.WritePlane(face.Vertices.ToArray());
+            WritePlane(bw, face.Vertices.ToArray());
         }
 
         private static void WriteCameras(MapFile map, BinaryWriter bw)
@@ -505,6 +515,14 @@ namespace Sledge.Formats.Map.Formats
                 bw.WriteVector3(cam.EyePosition);
                 bw.WriteVector3(cam.LookPosition);
             }
+        }
+
+        private static void WritePlane(BinaryWriter bw, Vector3[] coords)
+        {
+            // write the plane in reverse
+            bw.WriteVector3(coords[2]);
+            bw.WriteVector3(coords[1]);
+            bw.WriteVector3(coords[0]);
         }
 
         #endregion

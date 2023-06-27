@@ -22,10 +22,11 @@ namespace Sledge.Formats.Map.Formats.VmfObjects
             };
             if (Util.ParseFloatArray(obj.Get("plane", ""), new[] { ' ', '(', ')' }, 9, out var pl))
             {
-                Face.Plane = NumericsExtensions.PlaneFromVertices(
-                    new Vector3(pl[0], pl[1], pl[2]).Round(),
+                // Converting VMF clockwise ordering into counter-clockwise
+                Face.Plane = Plane.CreateFromVertices(
+                    new Vector3(pl[6], pl[7], pl[8]).Round(),
                     new Vector3(pl[3], pl[4], pl[5]).Round(),
-                    new Vector3(pl[6], pl[7], pl[8]).Round()
+                    new Vector3(pl[0], pl[1], pl[2]).Round()
                 );
             }
             else
@@ -62,7 +63,8 @@ namespace Sledge.Formats.Map.Formats.VmfObjects
             var so = new SerialisedObject("side");
 
             so.Set("id", ID);
-            so.Set("plane", $"({FormatVector3(Face.Vertices[0])}) ({FormatVector3(Face.Vertices[1])}) ({FormatVector3(Face.Vertices[2])})");
+            // reverse the vertex order for vmf
+            so.Set("plane", $"({FormatVector3(Face.Vertices[2])}) ({FormatVector3(Face.Vertices[1])}) ({FormatVector3(Face.Vertices[0])})");
             so.Set("material", Face.TextureName);
             so.Set("uaxis", $"[{FormatVector3(Face.UAxis)} {FormatDecimal(Face.XShift)}] {FormatDecimal(Face.XScale)}");
             so.Set("vaxis", $"[{FormatVector3(Face.VAxis)} {FormatDecimal(Face.YShift)}] {FormatDecimal(Face.YScale)}");
