@@ -17,6 +17,10 @@
         CurrentUp = -13,
         CurrentDown = -14,
         Translucent = -15,
-        Null = -17
+        Hint = -16,
+        Null = -17,
+        Detail = -18,
+        BoundingBox = -19,
+        ToEmpty = -32,
     }
 }
