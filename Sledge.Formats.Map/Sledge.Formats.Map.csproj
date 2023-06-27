@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Support for Sledge.Formats 1.1</PackageReleaseNotes>
-    <Version>1.0.10</Version>
+    <PackageReleaseNotes>Breaking change: vertex order reversed! Support for Sledge.Formats 1.2</PackageReleaseNotes>
+    <Version>1.1.0</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
