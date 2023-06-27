@@ -4,7 +4,7 @@ using Sledge.Formats.Geometric;
 namespace Sledge.Formats.Precision
 {
     /// <summary>
-    /// Defines a plane in the form Ax + By + Cz + D = 0.
+    /// Defines a plane in the form Ax + By + Cz + D = 0. Uses double precision floating points.
     /// </summary>
     public readonly struct Planed
     {

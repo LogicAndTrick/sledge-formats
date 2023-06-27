@@ -20,17 +20,17 @@ public class TestCounterClockwiseOrdering
         using var stream = new MemoryStream(Convert.FromBase64String(CubeMap));
         var map = rmf.Read(stream);
         var cube = (Solid) map.Worldspawn.Children[0];
-        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
+        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToVector3d(), x.Plane.D)));
 
         Assert.AreEqual(cube.Faces.Count, poly.Polygons.Count);
         foreach (var origFace in cube.Faces)
         {
-            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToPrecisionVector3(), origFace.Plane.D)));
-            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToPrecisionVector3()));
+            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToVector3d(), origFace.Plane.D)));
+            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToVector3d()));
             for (var origIndex = 0; origIndex < origFace.Vertices.Count; origIndex++)
             {
                 var newIndex = (firstVertexIndex + origIndex) % origFace.Vertices.Count;
-                var ov = origFace.Vertices[origIndex].ToPrecisionVector3();
+                var ov = origFace.Vertices[origIndex].ToVector3d();
                 var nv = newFace.Vertices[newIndex];
                 Assert.IsTrue(ov.EquivalentTo(nv), $"{ov}.EquivalentTo({nv})");
             }
@@ -46,17 +46,17 @@ public class TestCounterClockwiseOrdering
         using var stream = new MemoryStream(Convert.FromBase64String(CubeRmf));
         var map = rmf.Read(stream);
         var cube = (Solid) map.Worldspawn.Children[0];
-        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
+        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToVector3d(), x.Plane.D)));
 
         Assert.AreEqual(cube.Faces.Count, poly.Polygons.Count);
         foreach (var origFace in cube.Faces)
         {
-            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToPrecisionVector3(), origFace.Plane.D)));
-            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToPrecisionVector3()));
+            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToVector3d(), origFace.Plane.D)));
+            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToVector3d()));
             for (var origIndex = 0; origIndex < origFace.Vertices.Count; origIndex++)
             {
                 var newIndex = (firstVertexIndex + origIndex) % origFace.Vertices.Count;
-                var ov = origFace.Vertices[origIndex].ToPrecisionVector3();
+                var ov = origFace.Vertices[origIndex].ToVector3d();
                 var nv = newFace.Vertices[newIndex];
                 Assert.IsTrue(ov.EquivalentTo(nv), $"{ov}.EquivalentTo({nv})");
             }
@@ -72,17 +72,17 @@ public class TestCounterClockwiseOrdering
         using var stream = new MemoryStream(Convert.FromBase64String(CubeVmf));
         var map = rmf.Read(stream);
         var cube = (Solid) map.Worldspawn.Children[0];
-        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
+        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToVector3d(), x.Plane.D)));
 
         Assert.AreEqual(cube.Faces.Count, poly.Polygons.Count);
         foreach (var origFace in cube.Faces)
         {
-            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToPrecisionVector3(), origFace.Plane.D)));
-            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToPrecisionVector3()));
+            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToVector3d(), origFace.Plane.D)));
+            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToVector3d()));
             for (var origIndex = 0; origIndex < origFace.Vertices.Count; origIndex++)
             {
                 var newIndex = (firstVertexIndex + origIndex) % origFace.Vertices.Count;
-                var ov = origFace.Vertices[origIndex].ToPrecisionVector3();
+                var ov = origFace.Vertices[origIndex].ToVector3d();
                 var nv = newFace.Vertices[newIndex];
                 Assert.IsTrue(ov.EquivalentTo(nv), $"{ov}.EquivalentTo({nv})");
             }
@@ -98,17 +98,17 @@ public class TestCounterClockwiseOrdering
         using var stream = new MemoryStream(Convert.FromBase64String(CubeJmf));
         var map = rmf.Read(stream);
         var cube = (Solid) map.Worldspawn.Children[0];
-        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
+        var poly = new Polyhedrond(cube.Faces.Select(x => new Planed(x.Plane.Normal.ToVector3d(), x.Plane.D)));
 
         Assert.AreEqual(cube.Faces.Count, poly.Polygons.Count);
         foreach (var origFace in cube.Faces)
         {
-            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToPrecisionVector3(), origFace.Plane.D)));
-            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToPrecisionVector3()));
+            var newFace = poly.Polygons.Single(x => x.Plane.EquivalentTo(new Planed(origFace.Plane.Normal.ToVector3d(), origFace.Plane.D)));
+            var firstVertexIndex = newFace.Vertices.ToList().FindIndex(x => x.EquivalentTo(origFace.Vertices[0].ToVector3d()));
             for (var origIndex = 0; origIndex < origFace.Vertices.Count; origIndex++)
             {
                 var newIndex = (firstVertexIndex + origIndex) % origFace.Vertices.Count;
-                var ov = origFace.Vertices[origIndex].ToPrecisionVector3();
+                var ov = origFace.Vertices[origIndex].ToVector3d();
                 var nv = newFace.Vertices[newIndex];
                 Assert.IsTrue(ov.EquivalentTo(nv), $"{ov}.EquivalentTo({nv})");
             }

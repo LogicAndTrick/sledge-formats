@@ -5,7 +5,7 @@ using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
 namespace Sledge.Formats.Precision
 {
     /// <summary>
-    /// Represents a coplanar, directed polygon with at least 3 vertices. Uses high-precision value types.
+    /// Represents a coplanar, directed polygon with at least 3 vertices. Uses double precision floating points.
     /// </summary>
     public class Polygond
     {

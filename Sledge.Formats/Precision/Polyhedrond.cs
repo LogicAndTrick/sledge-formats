@@ -5,7 +5,7 @@ using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
 namespace Sledge.Formats.Precision
 {
     /// <summary>
-    /// Represents a convex polyhedron with at least 4 sides. Uses high-precision value types.
+    /// Represents a convex polyhedron with at least 4 sides. Uses double precision floating points.
     /// </summary>
     public class Polyhedrond
     {

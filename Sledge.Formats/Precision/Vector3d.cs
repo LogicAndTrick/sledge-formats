@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.Numerics;
 
 namespace Sledge.Formats.Precision
 {
     /// <summary>
-    /// A 3-dimensional immutable vector that uses high-precision value types.
+    /// A 3-dimensional immutable vector that uses double precision floating points.
     /// </summary>
     [Serializable]
     public struct Vector3d
@@ -65,7 +66,7 @@ namespace Sledge.Formats.Precision
 
         public double Length()
         {
-            return (double) Math.Sqrt((double) LengthSquared());
+            return Math.Sqrt(LengthSquared());
         }
 
         public double LengthSquared()
@@ -172,10 +173,10 @@ namespace Sledge.Formats.Precision
             return new Vector3d(double.Parse(x, ns, CultureInfo.InvariantCulture), double.Parse(y, ns, CultureInfo.InvariantCulture), double.Parse(z, ns, CultureInfo.InvariantCulture));
         }
 
-        public System.Numerics.Vector3 ToStandardVector3()
+        public Vector3 ToVector3()
         {
             const int rounding = 2;
-            return new System.Numerics.Vector3((float) Math.Round(X, rounding), (float) Math.Round(Y, rounding), (float) Math.Round(Z, rounding));
+            return new Vector3((float) Math.Round(X, rounding), (float) Math.Round(Y, rounding), (float) Math.Round(Z, rounding));
         }
     }
 }

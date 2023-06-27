@@ -1,4 +1,5 @@
 ﻿using Sledge.Formats.Geometric;
+using Sledge.Formats.Precision;
 using System;
 using System.Drawing;
 using System.Globalization;
@@ -71,9 +72,9 @@ namespace Sledge.Formats
             return Vector3.UnitZ;
         }
 
-        public static Precision.Vector3d ToPrecisionVector3(this Vector3 self)
+        public static Vector3d ToVector3d(this Vector3 self)
         {
-            return new Precision.Vector3d(self.X, self.Y, self.Z);
+            return new Vector3d(self.X, self.Y, self.Z);
         }
 
         public static Vector2 ToVector2(this Vector3 self)

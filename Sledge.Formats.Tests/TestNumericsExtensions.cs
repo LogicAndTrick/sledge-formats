@@ -89,11 +89,11 @@ namespace Sledge.Formats.Tests
         }
 
         [TestMethod]
-        public void TestToPrecisionVector3()
+        public void TestToVector3d()
         {
             Assert.AreEqual(
                 new Precision.Vector3d(1, 2, 3),
-                new Vector3(1, 2, 3).ToPrecisionVector3()
+                new Vector3(1, 2, 3).ToVector3d()
             );
         }
 

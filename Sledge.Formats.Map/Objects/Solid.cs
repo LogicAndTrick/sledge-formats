@@ -19,14 +19,14 @@ namespace Sledge.Formats.Map.Objects
         {
             if (Faces.Count < 4) return;
 
-            var poly = new Polyhedrond(Faces.Select(x => new Planed(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
+            var poly = new Polyhedrond(Faces.Select(x => new Planed(x.Plane.Normal.ToVector3d(), x.Plane.D)));
 
             foreach (var face in Faces)
             {
-                var pg = poly.Polygons.FirstOrDefault(x => x.Plane.Normal.EquivalentTo(face.Plane.Normal.ToPrecisionVector3(), 0.0075f)); // Magic number that seems to match VHE
+                var pg = poly.Polygons.FirstOrDefault(x => x.Plane.Normal.EquivalentTo(face.Plane.Normal.ToVector3d(), 0.0075f)); // Magic number that seems to match VHE
                 if (pg != null)
                 {
-                    face.Vertices.AddRange(pg.Vertices.Select(x => x.ToStandardVector3()));
+                    face.Vertices.AddRange(pg.Vertices.Select(x => x.ToVector3()));
                 }
             }
         }
