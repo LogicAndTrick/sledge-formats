@@ -208,6 +208,11 @@ namespace Sledge.Formats
                    && Math.Abs(plane.D - other.D) < delta;
         }
 
+        public static Plane Flip(this Plane plane)
+        {
+            return new Plane(-plane.Normal, -plane.D);
+        }
+
         // Matrix
         public static Vector3 Transform(this Matrix4x4 self, Vector3 vector) => Vector3.Transform(vector, self);
 

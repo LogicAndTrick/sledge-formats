@@ -1,5 +1,4 @@
 ﻿using System;
-using Sledge.Formats.Geometric;
 
 namespace Sledge.Formats.Geometric.Precision
 {
@@ -145,6 +144,11 @@ namespace Sledge.Formats.Geometric.Precision
         {
             return Normal.EquivalentTo(other.Normal, delta)
                    && Math.Abs(D - other.D) < delta;
+        }
+
+        public Planed Flip()
+        {
+            return new Planed(-Normal, -D);
         }
     }
 }
