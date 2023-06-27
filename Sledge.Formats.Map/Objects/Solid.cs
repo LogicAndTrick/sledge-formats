@@ -19,7 +19,7 @@ namespace Sledge.Formats.Map.Objects
         {
             if (Faces.Count < 4) return;
 
-            var poly = new Polyhedron(Faces.Select(x => new Plane(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
+            var poly = new Polyhedrond(Faces.Select(x => new Planed(x.Plane.Normal.ToPrecisionVector3(), x.Plane.D)));
 
             foreach (var face in Faces)
             {

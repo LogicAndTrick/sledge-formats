@@ -71,9 +71,9 @@ namespace Sledge.Formats
             return Vector3.UnitZ;
         }
 
-        public static Precision.Vector3 ToPrecisionVector3(this Vector3 self)
+        public static Precision.Vector3d ToPrecisionVector3(this Vector3 self)
         {
-            return new Precision.Vector3(self.X, self.Y, self.Z);
+            return new Precision.Vector3d(self.X, self.Y, self.Z);
         }
 
         public static Vector2 ToVector2(this Vector3 self)
