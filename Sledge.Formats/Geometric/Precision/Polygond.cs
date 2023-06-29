@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Sledge.Formats;
 using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
 
@@ -18,6 +19,12 @@ namespace Sledge.Formats.Geometric.Precision
         public Planed Plane => Planed.CreateFromVertices(Vertices[0], Vertices[1], Vertices[2]);
         public Vector3d Origin => Vertices.Aggregate(Vector3d.Zero, (x, y) => x + y) / Vertices.Count;
 
+
+        public Polygond(IEnumerable<Vector3> vertices) : this(vertices.Select(x => x.ToVector3d()))
+        {
+            //
+        }
+
         /// <summary>
         /// Creates a polygon from a list of points
         /// </summary>
@@ -25,6 +32,11 @@ namespace Sledge.Formats.Geometric.Precision
         public Polygond(IEnumerable<Vector3d> vertices)
         {
             Vertices = vertices.ToList();
+        }
+
+        public Polygond(Plane plane, float radius = 1000000f) : this(plane.ToPlaned(), radius)
+        {
+            //
         }
 
         /// <summary>
@@ -168,6 +180,11 @@ namespace Sledge.Formats.Geometric.Precision
             coplanarBack = coplanarFront = null;
 
             return true;
+        }
+
+        public Polygon ToPolygon()
+        {
+            return new Polygon(Vertices.Select(x => x.ToVector3()));
         }
     }
 }

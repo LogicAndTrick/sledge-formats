@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Sledge.Formats.Geometric.Precision
 {
@@ -10,10 +11,15 @@ namespace Sledge.Formats.Geometric.Precision
         public Vector3d Normal { get; }
         public double D { get; }
 
-        public Planed(Vector3d norm, double distanceFromOrigin)
+        public Planed(Vector3 normal, float d) : this(normal.ToVector3d(), d)
         {
-            Normal = norm.Normalise();
-            D = distanceFromOrigin;
+            //
+        }
+
+        public Planed(Vector3d normal, double d)
+        {
+            Normal = normal.Normalise();
+            D = d;
         }
 
         /// <summary>
@@ -22,6 +28,11 @@ namespace Sledge.Formats.Geometric.Precision
         public Vector3d GetPointOnPlane()
         {
             return Normal * -D;
+        }
+
+        public static Planed CreateFromVertices(Vector3 p1, Vector3 p2, Vector3 p3)
+        {
+            return Planed.CreateFromVertices(p1.ToVector3d(), p2.ToVector3d(), p3.ToVector3d());
         }
 
         /// <summary>
@@ -144,6 +155,11 @@ namespace Sledge.Formats.Geometric.Precision
         {
             return Normal.EquivalentTo(other.Normal, delta)
                    && Math.Abs(D - other.D) < delta;
+        }
+
+        public Plane ToPlane()
+        {
+            return new Plane(Normal.ToVector3(), (float) D);
         }
 
         public Planed Flip()

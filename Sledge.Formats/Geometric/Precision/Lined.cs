@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Runtime.Serialization;
+using System.Numerics;
 
 namespace Sledge.Formats.Geometric.Precision
 {
@@ -12,22 +12,15 @@ namespace Sledge.Formats.Geometric.Precision
         public static readonly Lined AxisY = new Lined(Vector3d.Zero, Vector3d.UnitY);
         public static readonly Lined AxisZ = new Lined(Vector3d.Zero, Vector3d.UnitZ);
 
+        public Lined(Vector3 start, Vector3 end) : this(start.ToVector3d(), end.ToVector3d())
+        {
+            //
+        }
+
         public Lined(Vector3d start, Vector3d end)
         {
             Start = start;
             End = end;
-        }
-
-        protected Lined(SerializationInfo info, StreamingContext context)
-        {
-            Start = (Vector3d)info.GetValue("Start", typeof(Vector3d));
-            End = (Vector3d)info.GetValue("End", typeof(Vector3d));
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Start", Start);
-            info.AddValue("End", End);
         }
 
         public Lined Reverse()
@@ -56,6 +49,11 @@ namespace Sledge.Formats.Geometric.Precision
         {
             return Start.EquivalentTo(other.Start, delta) && End.EquivalentTo(other.End, delta)
                 || End.EquivalentTo(other.Start, delta) && Start.EquivalentTo(other.End, delta);
+        }
+
+        public Line ToLine()
+        {
+            return new Line(Start.ToVector3(), End.ToVector3());
         }
 
         private bool Equals(Lined other)

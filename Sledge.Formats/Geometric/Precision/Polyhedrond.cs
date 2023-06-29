@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
+using System.Numerics;
 
 namespace Sledge.Formats.Geometric.Precision
 {
@@ -13,12 +13,22 @@ namespace Sledge.Formats.Geometric.Precision
 
         public Vector3d Origin => Polygons.Aggregate(Vector3d.Zero, (x, y) => x + y.Origin) / Polygons.Count;
 
+        public Polyhedrond(IEnumerable<Polygon> polygons) : this(polygons.Select(x => x.ToPolygond()))
+        {
+            //
+        }
+
         /// <summary>
         /// Creates a polyhedron from a list of polygons which are assumed to be valid.
         /// </summary>
         public Polyhedrond(IEnumerable<Polygond> polygons)
         {
             Polygons = polygons.ToList();
+        }
+
+        public Polyhedrond(IEnumerable<Plane> planes) : this(planes.Select(x => x.ToPlaned()))
+        {
+            //
         }
 
         /// <summary>
@@ -88,6 +98,11 @@ namespace Sledge.Formats.Geometric.Precision
             front = new Polyhedrond(frontPlanes);
 
             return true;
+        }
+
+        public Polyhedron ToPolyhedron()
+        {
+            return new Polyhedron(Polygons.Select(x => x.ToPolygon()));
         }
     }
 }

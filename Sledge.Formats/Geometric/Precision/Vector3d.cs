@@ -7,8 +7,7 @@ namespace Sledge.Formats.Geometric.Precision
     /// <summary>
     /// A 3-dimensional immutable vector that uses double precision floating points.
     /// </summary>
-    [Serializable]
-    public struct Vector3d
+    public readonly struct Vector3d
     {
         public static readonly Vector3d MaxValue = new Vector3d(double.MaxValue, double.MaxValue, double.MaxValue);
         public static readonly Vector3d MinValue = new Vector3d(double.MinValue, double.MinValue, double.MinValue);
@@ -30,6 +29,14 @@ namespace Sledge.Formats.Geometric.Precision
         }
 
         public bool EquivalentTo(Vector3d test, double delta = 0.0001d)
+        {
+            var xd = Math.Abs(X - test.X);
+            var yd = Math.Abs(Y - test.Y);
+            var zd = Math.Abs(Z - test.Z);
+            return xd < delta && yd < delta && zd < delta;
+        }
+
+        public bool EquivalentTo(Vector3 test, double delta = 0.0001d)
         {
             var xd = Math.Abs(X - test.X);
             var yd = Math.Abs(Y - test.Y);
@@ -175,8 +182,7 @@ namespace Sledge.Formats.Geometric.Precision
 
         public Vector3 ToVector3()
         {
-            const int rounding = 2;
-            return new Vector3((float)Math.Round(X, rounding), (float)Math.Round(Y, rounding), (float)Math.Round(Z, rounding));
+            return new Vector3((float)X, (float)Y, (float)Z);
         }
     }
 }

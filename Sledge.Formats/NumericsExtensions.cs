@@ -26,6 +26,14 @@ namespace Sledge.Formats
             return xd < delta && yd < delta && zd < delta;
         }
 
+        public static bool EquivalentTo(this Vector3 self, Vector3d test, float delta = Epsilon)
+        {
+            var xd = Math.Abs(self.X - test.X);
+            var yd = Math.Abs(self.Y - test.Y);
+            var zd = Math.Abs(self.Z - test.Z);
+            return xd < delta && yd < delta && zd < delta;
+        }
+
         public static Vector3 Parse(string x, string y, string z, NumberStyles ns, IFormatProvider provider)
         {
             return new Vector3(float.Parse(x, ns, provider), float.Parse(y, ns, provider), float.Parse(z, ns, provider));
@@ -206,6 +214,11 @@ namespace Sledge.Formats
         {
             return plane.Normal.EquivalentTo(other.Normal, delta)
                    && Math.Abs(plane.D - other.D) < delta;
+        }
+
+        public static Planed ToPlaned(this Plane plane)
+        {
+            return new Planed(plane.Normal.ToVector3d(), plane.D);
         }
 
         public static Plane Flip(this Plane plane)

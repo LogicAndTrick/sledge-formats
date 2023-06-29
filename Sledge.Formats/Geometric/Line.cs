@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.Serialization;
+using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Geometric
 {
@@ -17,18 +17,6 @@ namespace Sledge.Formats.Geometric
         {
             Start = start;
             End = end;
-        }
-
-        protected Line(SerializationInfo info, StreamingContext context)
-        {
-            Start = (Vector3)info.GetValue("Start", typeof(Vector3));
-            End = (Vector3)info.GetValue("End", typeof(Vector3));
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Start", Start);
-            info.AddValue("End", End);
         }
 
         public Line Reverse()
@@ -57,6 +45,11 @@ namespace Sledge.Formats.Geometric
         {
             return Start.EquivalentTo(other.Start, delta) && End.EquivalentTo(other.End, delta)
                 || End.EquivalentTo(other.Start, delta) && Start.EquivalentTo(other.End, delta);
+        }
+
+        public Lined ToLined()
+        {
+            return new Lined(Start.ToVector3d(), End.ToVector3d());
         }
 
         private bool Equals(Line other)

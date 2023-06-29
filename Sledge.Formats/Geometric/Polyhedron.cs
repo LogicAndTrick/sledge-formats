@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Geometric
 {
@@ -89,6 +90,11 @@ namespace Sledge.Formats.Geometric
             front = new Polyhedron(frontPlanes);
 
             return true;
+        }
+
+        public Polyhedrond ToPolyhedrond()
+        {
+            return new Polyhedrond(Polygons.Select(x => x.ToPolygond()));
         }
     }
 }

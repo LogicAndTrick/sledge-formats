@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Sledge.Formats.Map.Objects
+﻿namespace Sledge.Formats.Map.Objects
 {
     public class Worldspawn : Entity
     {

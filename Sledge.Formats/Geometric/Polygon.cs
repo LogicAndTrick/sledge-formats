@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Geometric
 {
@@ -32,7 +34,7 @@ namespace Sledge.Formats.Geometric
         /// </summary>
         /// <param name="plane">The polygon plane</param>
         /// <param name="radius">The polygon radius</param>
-        public Polygon(Plane plane, float radius = 100000f)
+        public Polygon(Plane plane, float radius = 4096f)
         {
             // Get aligned up and right axes to the plane
             var direction = plane.GetClosestAxisToNormal();
@@ -104,7 +106,8 @@ namespace Sledge.Formats.Geometric
         {
             const float epsilon = NumericsExtensions.Epsilon;
 
-            var distances = Vertices.Select(x => Plane.DotCoordinate(clip, x)).ToList();
+            var clipd = new Planed(clip.Normal.ToVector3d(), clip.D);
+            var distances = Vertices.Select(x => clipd.DotCoordinate(x.ToVector3d())).ToList();
 
             int cb = 0, cf = 0;
             for (var i = 0; i < distances.Count; i++)
@@ -169,6 +172,11 @@ namespace Sledge.Formats.Geometric
             coplanarBack = coplanarFront = null;
 
             return true;
+        }
+
+        public Polygond ToPolygond()
+        {
+            return new Polygond(Vertices.Select(x => x.ToVector3d()));
         }
     }
 }
