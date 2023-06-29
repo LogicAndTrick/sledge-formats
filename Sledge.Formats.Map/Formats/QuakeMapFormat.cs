@@ -90,7 +90,7 @@ namespace Sledge.Formats.Map.Formats
 
         private static readonly Tokeniser Tokeniser = new Tokeniser(
             new SingleLineCommentTokenReader(),
-            new StringTokenReader(),
+            new StringTokenReader() { AllowEscaping = false },
             new SymbolTokenReader(ValidSymbols),
             // Parse all numbers and texture names as names, parse them properly later
             new NameTokenReader(c => !char.IsWhiteSpace(c), c => !char.IsWhiteSpace(c))
