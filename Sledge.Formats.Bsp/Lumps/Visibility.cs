@@ -9,7 +9,7 @@ namespace Sledge.Formats.Bsp.Lumps
 
         public Visibility()
         {
-
+            VisData = Array.Empty<byte>();
         }
 
         public void Read(BinaryReader br, Blob blob, Version version)

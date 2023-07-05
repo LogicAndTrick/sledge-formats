@@ -16,6 +16,7 @@ namespace Sledge.Formats.Bsp.Lumps
         public Lightmaps()
         {
             _lightmaps = new List<Lightmap>();
+            _lightmapData = Array.Empty<byte>();
         }
 
         public void Read(BinaryReader br, Blob blob, Version version)

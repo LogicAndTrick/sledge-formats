@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sledge.Formats.Id
+﻿namespace Sledge.Formats.Id
 {
     public static class QuakePalette
     {

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Sledge.Formats;
-using PlaneClassification = Sledge.Formats.Geometric.PlaneClassification;
 
 namespace Sledge.Formats.Geometric.Precision
 {

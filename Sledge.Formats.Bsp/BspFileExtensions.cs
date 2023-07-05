@@ -1,8 +1,6 @@
 ﻿using Sledge.Formats.Bsp.Objects;
 using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace Sledge.Formats.Bsp
 {

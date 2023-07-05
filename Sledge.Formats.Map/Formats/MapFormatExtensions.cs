@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using Sledge.Formats.Map.Objects;
 
 namespace Sledge.Formats.Map.Formats

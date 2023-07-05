@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sledge.Formats.Bsp
+﻿namespace Sledge.Formats.Bsp
 {
     public class BspFileOptions
     {
