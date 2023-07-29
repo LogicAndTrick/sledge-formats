@@ -37,22 +37,23 @@ namespace Sledge.Formats.Geometric
         {
             // Get aligned up and right axes to the plane
             var direction = plane.GetClosestAxisToNormal();
-            var tempV = direction == Vector3.UnitZ ? -Vector3.UnitY : -Vector3.UnitZ;
-            var up = tempV.Cross(plane.Normal).Normalise();
-            var right = plane.Normal.Cross(up).Normalise();
+            var up = direction == Vector3.UnitZ ? Vector3.UnitX : -Vector3.UnitZ;
+            var v = up.Dot(plane.Normal);
+            up = (up + -v * plane.Normal).Normalise();
+            var right = up.Cross(plane.Normal);
 
-            var pointOnPlane = plane.GetPointOnPlane();
+            up *= radius;
+            right *= radius;
+
+            var origin = plane.GetPointOnPlane();
             var verts = new List<Vector3>
             {
-                pointOnPlane + right - up, // Bottom right
-                pointOnPlane - right - up, // Bottom left
-                pointOnPlane - right + up, // Top left
-                pointOnPlane + right + up, // Top right
-
+                origin - right - up, // Bottom left
+                origin + right - up, // Bottom right
+                origin + right + up, // Top right
+                origin - right + up, // Top left
             };
-
-            var origin = verts.Aggregate(Vector3.Zero, (x, y) => x + y) / verts.Count;
-            Vertices = verts.Select(x => (x - origin).Normalise() * radius + origin).ToList();
+            Vertices = verts.ToList();
         }
 
         public PlaneClassification ClassifyAgainstPlane(Plane p)
@@ -161,6 +162,15 @@ namespace Sledge.Formats.Geometric
                     var intersectd = s.ToVector3d() * (1 - t) + e.ToVector3d() * t;
                     var intersect = intersectd.ToVector3();
 
+                    // avoid round off error when possible
+                    // (if we know the clipping plane is a unit vector, then the intersection point on that axis will always be the plane's distance from the origin)
+                    if (clip.Normal == Vector3.UnitX) intersect = new Vector3(-clip.D, intersect.Y, intersect.Z);
+                    else if (clip.Normal == -Vector3.UnitX) intersect = new Vector3(clip.D, intersect.Y, intersect.Z);
+                    else if (clip.Normal == Vector3.UnitY) intersect = new Vector3(intersect.X, -clip.D, intersect.Z);
+                    else if (clip.Normal == -Vector3.UnitY) intersect = new Vector3(intersect.X, clip.D, intersect.Z);
+                    else if (clip.Normal == Vector3.UnitZ) intersect = new Vector3(intersect.X, intersect.Y, -clip.D);
+                    else if (clip.Normal == -Vector3.UnitZ) intersect = new Vector3(intersect.X, intersect.Y, clip.D);
+
                     backVerts.Add(intersect);
                     frontVerts.Add(intersect);
                 }
@@ -176,6 +186,11 @@ namespace Sledge.Formats.Geometric
         public Polygond ToPolygond()
         {
             return new Polygond(Vertices.Select(x => x.ToVector3d()));
+        }
+
+        public Polygon Rounded(int num)
+        {
+            return new Polygon(Vertices.Select(x => x.Round(num)));
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Sledge.Formats.Bsp.Objects
         /// </summary>
         public int MipTexture { get; set; }
 
-        public int Flags { get; set; }
+        public TextureFlags Flags { get; set; }
 
         /// <summary>
         /// Value of texture. Only relevant for Quake 2 format bsps.
@@ -49,7 +49,7 @@ namespace Sledge.Formats.Bsp.Objects
                 var hashCode = S.GetHashCode();
                 hashCode = (hashCode * 397) ^ T.GetHashCode();
                 hashCode = (hashCode * 397) ^ MipTexture;
-                hashCode = (hashCode * 397) ^ Flags;
+                hashCode = (hashCode * 397) ^ (int) Flags;
                 hashCode = (hashCode * 397) ^ Value;
                 hashCode = (hashCode * 397) ^ (TextureName != null ? TextureName.GetHashCode() : 0);
                 return hashCode;

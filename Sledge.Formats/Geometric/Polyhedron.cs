@@ -96,5 +96,10 @@ namespace Sledge.Formats.Geometric
         {
             return new Polyhedrond(Polygons.Select(x => x.ToPolygond()));
         }
+
+        public Polyhedron Rounded(int num)
+        {
+            return new Polyhedron(Polygons.Select(x => x.Rounded(num)));
+        }
     }
 }

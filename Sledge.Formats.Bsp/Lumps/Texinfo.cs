@@ -32,7 +32,7 @@ namespace Sledge.Formats.Bsp.Lumps
                         info.MipTexture = br.ReadInt32();
                         break;
                 }
-                info.Flags = br.ReadInt32();
+                info.Flags = (TextureFlags) br.ReadInt32();
                 switch (version)
                 {
                     case Version.Quake2:

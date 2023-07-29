@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Sledge.Formats.Bsp.Objects;
 using Sledge.Formats.Id;
 
 namespace Sledge.Formats.Bsp.Lumps
