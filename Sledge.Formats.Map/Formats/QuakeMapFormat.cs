@@ -352,7 +352,7 @@ namespace Sledge.Formats.Map.Formats
 
         private static string FormatVector3(Vector3 c)
         {
-            return $"{c.X.ToString("0.000", CultureInfo.InvariantCulture)} {c.Y.ToString("0.000", CultureInfo.InvariantCulture)} {c.Z.ToString("0.000", CultureInfo.InvariantCulture)}";
+            return $"{c.X.ToString("0.######", CultureInfo.InvariantCulture)} {c.Y.ToString("0.######", CultureInfo.InvariantCulture)} {c.Z.ToString("0.######", CultureInfo.InvariantCulture)}";
         }
 
         private static void CollectNonEntitySolids(List<Solid> solids, MapObject parent)
@@ -396,11 +396,11 @@ namespace Sledge.Formats.Map.Formats
             {
                 case "idTech2":
                     strings.Add("[");
-                    strings.Add(face.XShift.ToString("0.000", CultureInfo.InvariantCulture));
-                    strings.Add(face.YShift.ToString("0.000", CultureInfo.InvariantCulture));
-                    strings.Add(face.Rotation.ToString("0.000", CultureInfo.InvariantCulture));
-                    strings.Add(face.XScale.ToString("0.000", CultureInfo.InvariantCulture));
-                    strings.Add(face.YScale.ToString("0.000", CultureInfo.InvariantCulture));
+                    strings.Add(face.XShift.ToString("0.######", CultureInfo.InvariantCulture));
+                    strings.Add(face.YShift.ToString("0.######", CultureInfo.InvariantCulture));
+                    strings.Add(face.Rotation.ToString("0.######", CultureInfo.InvariantCulture));
+                    strings.Add(face.XScale.ToString("0.######", CultureInfo.InvariantCulture));
+                    strings.Add(face.YScale.ToString("0.######", CultureInfo.InvariantCulture));
                     break;
                 case "idTech3":
                     Util.Assert(false, "idTech3 format maps are currently not supported.");
@@ -412,15 +412,15 @@ namespace Sledge.Formats.Map.Formats
                 default:
                     strings.Add("[");
                     strings.Add(FormatVector3(face.UAxis));
-                    strings.Add(face.XShift.ToString("0.000", CultureInfo.InvariantCulture));
+                    strings.Add(face.XShift.ToString("0.######", CultureInfo.InvariantCulture));
                     strings.Add("]");
                     strings.Add("[");
                     strings.Add(FormatVector3(face.VAxis));
-                    strings.Add(face.YShift.ToString("0.000", CultureInfo.InvariantCulture));
+                    strings.Add(face.YShift.ToString("0.######", CultureInfo.InvariantCulture));
                     strings.Add("]");
-                    strings.Add(face.Rotation.ToString("0.000", CultureInfo.InvariantCulture));
-                    strings.Add(face.XScale.ToString("0.000", CultureInfo.InvariantCulture));
-                    strings.Add(face.YScale.ToString("0.000", CultureInfo.InvariantCulture));
+                    strings.Add(face.Rotation.ToString("0.######", CultureInfo.InvariantCulture));
+                    strings.Add(face.XScale.ToString("0.######", CultureInfo.InvariantCulture));
+                    strings.Add(face.YScale.ToString("0.######", CultureInfo.InvariantCulture));
                     break;
             }
 
