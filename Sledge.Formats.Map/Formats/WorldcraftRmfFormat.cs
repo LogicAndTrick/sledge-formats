@@ -191,8 +191,11 @@ namespace Sledge.Formats.Map.Formats
             ReadMapBase(map, version, ent, br);
             ReadEntityData(version, ent, br);
             br.ReadBytes(2); // Unused
+
+            // Don't add the origin key for brush entities, we use origin brushes for that
             var origin = br.ReadVector3();
-            ent.Properties["origin"] = $"{origin.X.ToString("0.000", CultureInfo.InvariantCulture)} {origin.Y.ToString("0.000", CultureInfo.InvariantCulture)} {origin.Z.ToString("0.000", CultureInfo.InvariantCulture)}";
+            if (!ent.Children.Any()) ent.Properties["origin"] = $"{origin.X.ToString("0.000", CultureInfo.InvariantCulture)} {origin.Y.ToString("0.000", CultureInfo.InvariantCulture)} {origin.Z.ToString("0.000", CultureInfo.InvariantCulture)}";
+
             br.ReadBytes(4); // Unused
             return ent;
         }
@@ -471,7 +474,7 @@ namespace Sledge.Formats.Map.Formats
             bw.Write(new byte[4]); // Unused
             bw.Write(data.SpawnFlags);
 
-            var props = data.SortedProperties.Where(x => !String.IsNullOrWhiteSpace(x.Key)).ToList();
+            var props = data.SortedProperties.Where(x => !String.IsNullOrWhiteSpace(x.Key) && x.Key != "origin").ToList();
             bw.Write(props.Count);
             foreach (var p in props)
             {

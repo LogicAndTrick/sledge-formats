@@ -243,7 +243,6 @@ namespace Sledge.Formats.Map.Formats
                 };
 
                 var origin = br.ReadVector3();
-                ent.Entity.Properties["origin"] = $"{origin.X} {origin.Y} {origin.Z}";
 
                 ent.Flags = br.ReadInt32();
                 ent.GroupID = br.ReadInt32();
@@ -291,6 +290,9 @@ namespace Sledge.Formats.Map.Formats
                 {
                     ent.Solids.Add(ReadSolid(map, br));
                 }
+
+                // Don't add the origin key for brush entities, we use origin brushes for that
+                if (!ent.Solids.Any()) ent.Entity.Properties["origin"] = $"{origin.X} {origin.Y} {origin.Z}";
 
                 entities.Add(ent);
             }

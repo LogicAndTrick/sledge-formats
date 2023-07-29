@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Don't allow backslash escapes in map file strings</PackageReleaseNotes>
-    <Version>1.1.2</Version>
+    <PackageReleaseNotes>Don't automatically load the 'origin' keyvalue for non-point entities</PackageReleaseNotes>
+    <Version>1.1.3</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>

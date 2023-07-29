@@ -455,6 +455,14 @@ namespace Sledge.Formats.Map.Formats
 
             WriteProperty(sw, "classname", e.ClassName);
 
+            if (e.ClassName == "worldspawn")
+            {
+                if (styleHint != "idTech2" && styleHint != "idTech3" && styleHint != "idTech4")
+                {
+                    WriteProperty(sw, "mapversion", "220");
+                }
+            }
+
             if (e.SpawnFlags != 0)
             {
                 WriteProperty(sw, "spawnflags", e.SpawnFlags.ToString(CultureInfo.InvariantCulture));
