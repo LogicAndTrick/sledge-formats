@@ -9,7 +9,7 @@ namespace Sledge.Formats.Map.Objects
     {
         public string ClassName { get; set; }
         public int SpawnFlags { get; set; }
-        public List<KeyValuePair<string, string>> SortedProperties { get; set; }
+        public List<KeyValuePair<string, string>> SortedProperties { get; }
         public IDictionary<string, string> Properties { get; }
 
         public Entity()

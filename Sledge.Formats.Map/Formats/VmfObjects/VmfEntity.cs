@@ -51,9 +51,9 @@ namespace Sledge.Formats.Map.Formats.VmfObjects
             var ent = new Entity
             {
                 ClassName = ClassName,
-                SpawnFlags = SpawnFlags,
-                SortedProperties = new List<KeyValuePair<string, string>>(Properties)
+                SpawnFlags = SpawnFlags
             };
+            ent.SortedProperties.AddRange(Properties);
 
             Editor.Apply(ent);
 
