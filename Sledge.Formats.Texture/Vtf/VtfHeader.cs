@@ -8,5 +8,6 @@ namespace Sledge.Formats.Texture.Vtf
         public VtfImageFlag Flags { get; set; }
         public Vector3 Reflectivity { get; set; }
         public float BumpmapScale { get; set; }
+        public byte MipmapCount { get; set; }
     }
 }

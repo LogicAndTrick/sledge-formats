@@ -48,7 +48,7 @@ namespace Sledge.Formats.Texture.Vtf
                 Header.BumpmapScale = br.ReadSingle();
 
                 var highResImageFormat = (VtfImageFormat) br.ReadUInt32();
-                var mipmapCount = br.ReadByte();
+                Header.MipmapCount = br.ReadByte();
                 var lowResImageFormat = (VtfImageFormat) br.ReadUInt32();
                 var lowResWidth = br.ReadByte();
                 var lowResHeight = br.ReadByte();
@@ -128,7 +128,7 @@ namespace Sledge.Formats.Texture.Vtf
                 }
 
                 br.BaseStream.Position = dataPos;
-                for (var mip = mipmapCount - 1; mip >= 0; mip--)
+                for (var mip = Header.MipmapCount - 1; mip >= 0; mip--)
                 {
                     for (var frame = 0; frame < numFrames; frame++)
                     {
