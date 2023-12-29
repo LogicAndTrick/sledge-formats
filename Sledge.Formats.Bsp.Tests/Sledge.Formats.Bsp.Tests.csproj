@@ -22,4 +22,28 @@
     <ProjectReference Include="..\Sledge.Formats\Sledge.Formats.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Resources\goldsource\aaa.bsp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\goldsource\ba_hazard6.bsp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\goldsource\c1a0b.bsp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\goldsource\grunts2.bsp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\goldsource\put_these_files_here.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\quake\e1m3.bsp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\quake\e1m3.vis.gz">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
