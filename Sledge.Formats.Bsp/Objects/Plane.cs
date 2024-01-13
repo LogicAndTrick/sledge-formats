@@ -8,6 +8,18 @@ namespace Sledge.Formats.Bsp.Objects
         public float Distance { get; set; }
         public PlaneType Type { get; set; }
 
+        public float Evaluate(Vector3 point)
+        {
+            if (Type <= PlaneType.Z)
+            {
+                return BspFileExtensions.GetDimensionForSimplePlaneType(point, Type) - Distance;
+            }
+            else
+            {
+                return Vector3.Dot(Normal, point) - Distance;
+            }
+        }
+
         private bool Equals(Plane other)
         {
             return Normal.Equals(other.Normal) && Distance.Equals(other.Distance) && Type == other.Type;

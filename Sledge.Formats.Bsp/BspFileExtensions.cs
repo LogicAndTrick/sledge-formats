@@ -21,5 +21,16 @@ namespace Sledge.Formats.Bsp
             if (ay >= ax && ay >= az) return PlaneType.AnyY;
             return PlaneType.AnyZ;
         }
+
+        public static float GetDimensionForSimplePlaneType(Vector3 vec, PlaneType type)
+        {
+            switch (type)
+            {
+                case PlaneType.X: return vec.X;
+                case PlaneType.Y: return vec.Y;
+                case PlaneType.Z: return vec.Z;
+                default: throw new ArgumentException(nameof(type));
+            }
+        }
     }
 }
