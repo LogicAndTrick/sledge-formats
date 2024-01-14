@@ -36,7 +36,7 @@ namespace Sledge.Formats.Bsp.Algorithms
             {
                 var len1 = (tl.EndPoint - tl.StartPoint).Length();
                 var len2 = (end - start).Length();
-                tl.EndFraction = len2 / len1;
+                tl.EndFraction = len1 == 0 ? 0 : len2 / len1;
             }
             return tl;
         }

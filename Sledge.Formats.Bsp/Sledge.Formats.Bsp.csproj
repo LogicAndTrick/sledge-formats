@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Implement hull clipping algorithm</PackageReleaseNotes>
-    <Version>1.0.12</Version>
+    <PackageReleaseNotes>Add bbox hull and fix trace fraction when it should be 0</PackageReleaseNotes>
+    <Version>1.0.13</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
