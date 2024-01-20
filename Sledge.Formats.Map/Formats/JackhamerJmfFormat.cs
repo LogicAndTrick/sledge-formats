@@ -30,7 +30,7 @@ namespace Sledge.Formats.Map.Formats
 
                 // Only JHMF version 121 is supported for the moment.
                 var version = br.ReadInt32();
-                Util.Assert(version == 121, $"Unsupported JMF version number. Expected 121, got {version}.");
+                Util.Assert(version == 121 || version == 122, $"Unsupported JMF version number. Expected 121 or 122, got {version}.");
 
                 // Appears to be an array of locations to export to .map
                 var numExportStrings = br.ReadInt32();
@@ -41,6 +41,7 @@ namespace Sledge.Formats.Map.Formats
 
                 var map = new MapFile();
 
+                if (version >= 122) ReadBackgroundImages(map, br);
                 var groups = ReadGroups(map, br);
                 ReadVisgroups(map, br);
                 map.CordonBounds = (br.ReadVector3(), br.ReadVector3());
@@ -411,6 +412,39 @@ namespace Sledge.Formats.Map.Formats
 
             surface.SurfaceFlags = br.ReadInt32(); // or content flags?
             surface.TextureName = br.ReadFixedLengthString(Encoding.ASCII, 64);
+        }
+
+        private static void ReadBackgroundImages(MapFile map, BinaryReader br)
+        {
+            var viewports = new[]
+            {
+                ViewportType.OrthographicFront,
+                ViewportType.OrthographicSide,
+                ViewportType.OrthographicTop
+            };
+            foreach (var vp in viewports)
+            {
+                var bgi = new BackgroundImage
+                {
+                    Viewport = vp,
+                    Path = ReadString(br),
+                    Scale = br.ReadDouble(),
+                    Luminance = (byte) br.ReadInt32(),
+                    Filter = ConvertFilterMode(br.ReadInt32()),
+                    InvertColours = br.ReadInt32() != 0,
+                    Offset = new Vector2(br.ReadInt32(), br.ReadInt32())
+                };
+                br.ReadBytes(4); // padding
+                map.BackgroundImages.Add(bgi);
+            }
+
+            return;
+
+            FilterMode ConvertFilterMode(int num)
+            {
+                if (num == 0) return FilterMode.Nearest;
+                return FilterMode.Linear;
+            }
         }
 
         #endregion
