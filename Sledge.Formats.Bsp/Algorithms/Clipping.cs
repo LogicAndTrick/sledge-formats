@@ -29,9 +29,10 @@ namespace Sledge.Formats.Bsp.Algorithms
                 StartContents = 0,
                 EndPoint = end,
                 EndContents = Contents.Solid,
-                TargetPoint = end
+                TargetPoint = end,
+                PassedThroughNonSolid = false
             };
-            tl.Success = TraceLineRecursive(hull, -1, -1, hull.GetRoot(), start, end, tl);
+            tl.Success = !TraceLineRecursive(hull, hull.GetRoot(), 0, 1, start, end, tl);
             if (tl.Success)
             {
                 var len1 = (tl.EndPoint - tl.StartPoint).Length();
@@ -43,10 +44,9 @@ namespace Sledge.Formats.Bsp.Algorithms
 
         private static bool TraceLineRecursive(
             Hull hull,
-            // we only pass the parent and side so we can set the intersection plane in the trace
-            int parentNodeNum,
-            int currentSide,
             int currentNodeNum,
+            float startFrac,
+            float endFrac,
             Vector3 start,
             Vector3 end,
             TraceLine trace)
@@ -68,28 +68,10 @@ namespace Sledge.Formats.Bsp.Algorithms
                     trace.EndContents = contents;
                 }
 
-                // treat solid as empty if we haven't left a solid node yet
-                if (contents == Contents.Solid && trace.StartContents == Contents.Solid && trace.EndContents == Contents.Solid)
-                {
-                    contents = Contents.Empty;
-                }
+                // see if we've passed through a non-solid leaf
+                if (contents != Contents.Solid) trace.PassedThroughNonSolid = true;
 
-                // if we are in a solid node then we have an intersection
-                if (contents == Contents.Solid)
-                {
-                    var pln = hull.GetPlane(parentNodeNum);
-
-                    // flip the intersection plane for the far side
-                    var intersectionPlane = new System.Numerics.Plane(pln.Normal, pln.Distance);
-                    if (currentSide == 1) intersectionPlane = intersectionPlane.Flip();
-
-                    trace.EndPoint = start;
-                    trace.EndPlane = intersectionPlane;
-                    return true;
-                }
-
-                // empty node, no intersection
-                return false;
+                return true;
             }
 
             // see which side of the plane each end is on
@@ -98,8 +80,8 @@ namespace Sledge.Formats.Bsp.Algorithms
             var t2 = plane.Evaluate(end);
 
             // if each end is on the same side, just traverse directly into that node
-            if (t1 >= 0 && t2 >= 0) return TraceLineRecursive(hull, currentNodeNum, 0, hull.GetChild(currentNodeNum, 0), start, end, trace);
-            if (t1 < 0 && t2 < 0) return TraceLineRecursive(hull, currentNodeNum, 0, hull.GetChild(currentNodeNum, 1), start, end, trace);
+            if (t1 >= 0 && t2 >= 0) return TraceLineRecursive(hull, hull.GetChild(currentNodeNum, 0), startFrac, endFrac, start, end, trace);
+            if (t1 < 0 && t2 < 0) return TraceLineRecursive(hull, hull.GetChild(currentNodeNum, 1), startFrac, endFrac, start, end, trace);
 
             // otherwise, each end is on a different side of the plane, so we need to traverse both children
             // we add the magic constant `distEpsilon` to make sure we maintain consistency with Quake logic
@@ -112,16 +94,34 @@ namespace Sledge.Formats.Bsp.Algorithms
             if (fraction < 0) fraction = 0;
             if (fraction > 1) fraction = 1;
 
-            var isect = start + fraction * (end - start);
+            var midFrac = startFrac + (endFrac - startFrac) * fraction;
+            var mid = start + fraction * (end - start);
 
             var side = t1 < 0 ? 1 : 0;
-            var otherSide = side ^ 1;
+            var otherSide = 1 - side;
 
-            // check the nodes in order of closest to start point
-            if (TraceLineRecursive(hull, currentNodeNum, side, hull.GetChild(currentNodeNum, side), start, isect, trace)) return true;
-            if (TraceLineRecursive(hull, currentNodeNum, otherSide, hull.GetChild(currentNodeNum, otherSide), isect, end, trace)) return true;
+            if (!TraceLineRecursive(hull, hull.GetChild(currentNodeNum, side), startFrac, midFrac, start, mid, trace)) return false;
 
-            // no intersection
+            if (hull.GetContents(hull.GetChild(currentNodeNum, otherSide), mid) != Contents.Solid)
+            {
+                return TraceLineRecursive(hull, hull.GetChild(currentNodeNum, otherSide), midFrac, endFrac, mid, end, trace);
+            }
+
+            if (!trace.PassedThroughNonSolid) return false;
+
+            if (side == 0) trace.EndPlane = new System.Numerics.Plane(plane.Normal, -plane.Distance);
+            else trace.EndPlane = new System.Numerics.Plane(-plane.Normal, plane.Distance);
+
+            // this will only run 10x maximum since fraction is between 0 and 1
+            while (fraction >= 0.1f && hull.GetContents(hull.GetRoot(), mid) == Contents.Solid)
+            {
+                fraction -= 0.1f;
+                midFrac = startFrac + (endFrac - startFrac) * fraction;
+                mid = start + fraction * (end - start);
+            }
+
+            trace.EndFraction = midFrac;
+            trace.EndPoint = mid;
             return false;
         }
     }

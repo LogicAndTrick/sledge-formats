@@ -10,6 +10,7 @@ namespace Sledge.Formats.Bsp
 
         public Contents StartContents { get; set; }
         public Contents EndContents { get; set; }
+        public bool PassedThroughNonSolid { get; set; }
 
         public Vector3 StartPoint { get; set; }
         public Vector3 EndPoint { get; set; }
