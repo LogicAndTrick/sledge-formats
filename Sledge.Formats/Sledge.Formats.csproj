@@ -13,10 +13,10 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve liblist vdf</PackageTags>
-    <PackageReleaseNotes>Nothing really interesting</PackageReleaseNotes>
+    <PackageReleaseNotes>Add standard Stream constructor to SerialisedObject and MipTexture</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.2.2</Version>
+    <Version>1.2.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

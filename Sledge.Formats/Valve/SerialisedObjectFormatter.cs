@@ -13,6 +13,11 @@ namespace Sledge.Formats.Valve
     public class SerialisedObjectFormatter
     {
         /// <summary>
+        /// Singleton instance of a <see cref="SerialisedObjectFormatter"/>.
+        /// </summary>
+        public static readonly SerialisedObjectFormatter Instance = new SerialisedObjectFormatter();
+
+        /// <summary>
         /// Serialise an array of objects
         /// </summary>
         /// <param name="serializationStream">The stream to serialise into</param>
@@ -70,7 +75,7 @@ namespace Sledge.Formats.Valve
         /// <param name="obj">The object to print</param>
         /// <param name="tw">The output stream to write to</param>
         /// <param name="tabs">The number of tabs to indent this value to</param>
-        private static void Print(SerialisedObject obj, TextWriter tw, int tabs = 0)
+        public static void Print(SerialisedObject obj, TextWriter tw, int tabs = 0)
         {
             var preTabStr = new string(' ', tabs * 4);
             var postTabStr = new string(' ', (tabs + 1) * 4);
