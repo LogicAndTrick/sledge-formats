@@ -15,10 +15,22 @@ namespace Sledge.Formats.Packages
 
         public IEnumerable<PackageEntry> Entries => _entries;
 
-        public PakPackage(string file)
+        /// <summary>
+        /// Create a <see cref="PakPackage"/> for the given file path.
+        /// </summary>
+        public PakPackage(string file) : this(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.RandomAccess))
+        {
+            //
+        }
+
+        /// <summary>
+        /// Create a <see cref="PakPackage"/> from the given stream.
+        /// The stream will be disposed when this package is disposed.
+        /// </summary>
+        public PakPackage(Stream stream)
         {
             _entries = new List<PackageEntry>();
-            _stream = Stream.Synchronized(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.RandomAccess));
+            _stream = Stream.Synchronized(stream);
 
             // Read the data from the pak
             using (var br = new BinaryReader(_stream, Encoding.ASCII, true))

@@ -11,8 +11,8 @@
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>Included XML documentation</PackageReleaseNotes>
-    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Add standard Stream constructor to PakPackage and VpkPackage</PackageReleaseNotes>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
