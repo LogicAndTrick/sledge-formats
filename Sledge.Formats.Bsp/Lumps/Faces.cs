@@ -16,10 +16,12 @@ namespace Sledge.Formats.Bsp.Lumps
 
         public void Read(BinaryReader br, Blob blob, Version version)
         {
+            var i = 0u;
             while (br.BaseStream.Position < blob.Offset + blob.Length)
             {
                 var face = new Face
                 {
+                    ID = i++,
                     Plane = br.ReadUInt16(),
                     Side = br.ReadUInt16(),
                     FirstEdge = br.ReadInt32(),

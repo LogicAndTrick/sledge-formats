@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Improve traceline implementation</PackageReleaseNotes>
-    <Version>1.0.14</Version>
+    <PackageReleaseNotes>Add ID to faces, add RawLightmapData to Lighmaps lump</PackageReleaseNotes>
+    <Version>1.0.15</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
