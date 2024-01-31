@@ -68,7 +68,66 @@ namespace Sledge.Formats.Map.Formats
 
         public void Save(Stream stream)
         {
-            throw new NotImplementedException("Writing prefab libraries is not currently supported.");
+            using (var bw = new BinaryWriter(stream))
+            {
+                var prefabLibraryHeader = "Worldcraft Prefab Library\r\n" + (char)0x1A;
+                var version = 0.1f;
+                var rmf = new WorldcraftRmfFormat();
+
+                var objectOffset = 544;
+                List<PrefabMeta> meta = new List<PrefabMeta>();
+
+                bw.WriteFixedLengthString(Encoding.ASCII, 28, prefabLibraryHeader);
+                bw.Write(version);
+
+                foreach (var prefab in Prefabs)
+                {
+                    stream.Position = objectOffset;
+                    using (var mapStream = new MemoryStream())
+                    {
+                        rmf.Write(mapStream, prefab.Map, "2.2");
+                        var prefabMeta = new PrefabMeta()
+                        {
+                            StartOffset = (uint)objectOffset,
+                            DataLenght =(uint) mapStream.Length,
+                            Name = prefab.Name,
+                            Description = prefab.Description,
+                        };
+                        meta.Add(prefabMeta);
+                         
+                        mapStream.Position = objectOffset;
+                        mapStream.WriteTo(stream);
+
+
+                        objectOffset+= (int)mapStream.Length;
+                    }
+                }
+
+                bw.Seek(32, SeekOrigin.Begin);
+                bw.Write(objectOffset);
+                bw.Write(Prefabs.Count);
+                bw.WriteFixedLengthString(Encoding.ASCII, 500, ""); //PrefabLibraryDescription
+                bw.Seek(objectOffset, SeekOrigin.Begin);
+
+
+
+                foreach (var prefabMeta in meta)
+                {
+                    bw.Write(prefabMeta.StartOffset);
+                    bw.Write(prefabMeta.DataLenght);
+                    bw.WriteFixedLengthString(Encoding.ASCII, 31, prefabMeta.Name);
+                    bw.WriteFixedLengthString(Encoding.ASCII, 205, prefabMeta.Description);
+                    bw.WriteFixedLengthString(Encoding.ASCII, 300, "");
+                }
+
+            }
+		}
+        private struct PrefabMeta
+        {
+            public uint StartOffset;
+            public uint DataLenght;
+            public string Name;
+            public string Description;
         }
-    }
+	}
 }
