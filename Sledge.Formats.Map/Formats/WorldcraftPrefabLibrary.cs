@@ -8,6 +8,7 @@ namespace Sledge.Formats.Map.Formats
 {
     public class WorldcraftPrefabLibrary
     {
+        public string LibraryDescription { get; set; }
         public List<Prefab> Prefabs { get; set; }
 
         public static WorldcraftPrefabLibrary FromFile(string file)
@@ -34,6 +35,7 @@ namespace Sledge.Formats.Map.Formats
 
                 var offset = br.ReadUInt32();
                 var num = br.ReadUInt32();
+                LibraryDescription = br.ReadFixedLengthString(Encoding.ASCII, 500);
 
                 br.BaseStream.Seek(offset, SeekOrigin.Begin);
                 for (var i = 0; i < num; i++)
@@ -106,7 +108,7 @@ namespace Sledge.Formats.Map.Formats
                 bw.Seek(32, SeekOrigin.Begin);
                 bw.Write(objectOffset);
                 bw.Write(Prefabs.Count);
-                bw.WriteFixedLengthString(Encoding.ASCII, 500, ""); //PrefabLibraryDescription
+                bw.WriteFixedLengthString(Encoding.ASCII, 500, LibraryDescription); //PrefabLibraryDescription
                 bw.Seek(objectOffset, SeekOrigin.Begin);
 
 
