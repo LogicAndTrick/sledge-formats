@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Sledge.Formats.Map.Formats
         public string ApplicationName => "Worldcraft";
         public string Extension => "rmf";
         public string[] AdditionalExtensions => new[] { "rmx" };
-        public string[] SupportedStyleHints => new[] {"0.9", "1.6", "1.8", "2.2" };
+        public string[] SupportedStyleHints => new[] { "0.8", "0.9", "1.4", "1.6", "1.8", "2.2" };
 
         const int MaxVariableStringLength = 127;
 
@@ -32,8 +33,10 @@ namespace Sledge.Formats.Map.Formats
                     Math.Abs(versionDouble - 2.2) < 0.01 ||
                     Math.Abs(versionDouble - 1.8) < 0.01 ||
                     Math.Abs(versionDouble - 1.6) < 0.01 ||
-                    Math.Abs(versionDouble - 0.9) < 0.01,
-                    $"Unsupported RMF version number. Expected 1.8 or 2.2, got {versionDouble}.");
+                    Math.Abs(versionDouble - 1.4) < 0.01 ||
+                    Math.Abs(versionDouble - 0.9) < 0.01 ||
+                    Math.Abs(versionDouble - 0.8) < 0.01,
+                    $"Unsupported RMF version number. Expected one of {string.Join(", ", SupportedStyleHints)}, got {versionDouble}.");
                 var version = (RmfVersion)(int)Math.Round(versionDouble * 10);
 
                 // RMF header test
@@ -63,7 +66,11 @@ namespace Sledge.Formats.Map.Formats
 
         private static void ReadVisgroups(MapFile map, RmfVersion version, BinaryReader br)
         {
-            if (version <= RmfVersion.Version09) return;
+            if (version <= RmfVersion.Version09)
+            {
+                // visgroups stored in world for version <= 0.9
+                return;
+            }
             var numVisgroups = br.ReadInt32();
             for (var i = 0; i < numVisgroups; i++)
             {
@@ -110,12 +117,20 @@ namespace Sledge.Formats.Map.Formats
         {
             if (version <= RmfVersion.Version09)
             {
-                _ = br.ReadInt64(); //used two INT, no information//useless
+                var numVisgroupIds = br.ReadInt32(); // seems to always be 8, extras are lost on save
+                var visgroupIds = br.ReadBytes(numVisgroupIds);
+                foreach (var visgroupId in visgroupIds)
+                {
+                    if (visgroupId > 0) obj.Visgroups.Add(visgroupId);
+                }
             }
-            var visgroupId = br.ReadInt32();
-            if (visgroupId > 0)
+            else
             {
-                obj.Visgroups.Add(visgroupId);
+                var visgroupId = br.ReadInt32();
+                if (visgroupId > 0)
+                {
+                    obj.Visgroups.Add(visgroupId);
+                }
             }
 
             obj.Color = br.ReadRGBColour();
@@ -133,11 +148,31 @@ namespace Sledge.Formats.Map.Formats
             var wld = new Worldspawn();
             ReadMapBase(map, version, wld, br);
             ReadEntityData(version, wld, br);
-            var numPaths = br.ReadInt32();
-            for (var i = 0; i < numPaths; i++)
+            if (version <= RmfVersion.Version09)
             {
-                map.Paths.Add(ReadPath(version, br));
+                var numGroups = br.ReadInt32();
+                for (var i = 0; i < numGroups; i++)
+                {
+                    var vis = new Visgroup
+                    {
+                        Name = br.ReadFixedLengthString(Encoding.ASCII, 128),
+                        Color = Color.FromArgb(255, Color.FromArgb(br.ReadInt32())),
+                        ID = br.ReadByte(),
+                        Visible = br.ReadByte() != 0
+                    };
+                    br.ReadBytes(2); // padding
+                    map.Visgroups.Add(vis);
+                }
             }
+            if (version >= RmfVersion.Version14)
+            {
+                var numPaths = br.ReadInt32();
+                for (var i = 0; i < numPaths; i++)
+                {
+                    map.Paths.Add(ReadPath(version, br));
+                }
+            }
+
             return wld;
         }
 
@@ -220,21 +255,30 @@ namespace Sledge.Formats.Map.Formats
                 if (key == null) continue;
                 e.Properties.Add(new KeyValuePair<string, string>(key, value));
             }
-            if (version > RmfVersion.Version09)
+
+            if (version >= RmfVersion.Version16)
+            {
                 br.ReadBytes(12); // More unused bytes
+            }
         }
 
         private static Face ReadFace(RmfVersion version, BinaryReader br)
         {
             /*
              * RMF version differences for faces:
-             * 1.6: quake style - texname(40) , rotation, xshift, yshift, xscale, yscale, unused(4)
+             * 0.8: quake style - texname(16), rotation, xshift, yshift, xscale, yscale
+             * 0.9: quake style - texname(40), rotation, xshift, yshift, xscale, yscale
+             * 1.4, 1.6: quake style - texname(40), rotation, xshift, yshift, xscale, yscale, unused(4)
              * 1.8: quake style - texname(256), rotation, xshift, yshift, xscale, yscale, unused(16)
              * 2.2: valve style - texname(256), uaxis, xshift, vaxis, yshift, rotation, xscale, yscale, unused(16)
              */
 
             var face = new Face();
-            if (version <= RmfVersion.Version16)
+            if (version <= RmfVersion.Version08)
+            {
+                face.TextureName = br.ReadFixedLengthString(Encoding.ASCII, 16);
+            }
+            else if (version <= RmfVersion.Version16)
             {
                 face.TextureName = br.ReadFixedLengthString(Encoding.ASCII, 40);
             }
@@ -265,15 +309,18 @@ namespace Sledge.Formats.Map.Formats
             face.XScale = br.ReadSingle();
             face.YScale = br.ReadSingle();
 
-            if (version > RmfVersion.Version09)
-                if (version <= RmfVersion.Version16)
-                {
-                    br.ReadBytes(4); // Unused
-                }
-                else //if (version >= RmfVersion.Version18)
-                {
-                    br.ReadBytes(16); // Unused
-                }
+            if (version <= RmfVersion.Version09)
+            {
+                // no unused bytes
+            }
+            else if (version <= RmfVersion.Version16)
+            {
+                br.ReadBytes(4); // Unused
+            }
+            else //if (version >= RmfVersion.Version18)
+            {
+                br.ReadBytes(16); // Unused
+            }
 
             var numVerts = br.ReadInt32();
             for (var i = 0; i < numVerts; i++)
@@ -543,7 +590,7 @@ namespace Sledge.Formats.Map.Formats
             /// <summary>
             /// RMF Version 0.8, used by Worldcraft 1.0a - 1.1
             /// </summary>
-            //Version08 = 8,
+            Version08 = 8,
 
             /// <summary>
             /// RMF Version 0.9, used by Worldcraft 1.1a
@@ -553,7 +600,7 @@ namespace Sledge.Formats.Map.Formats
             /// <summary>
             /// RMF Version 1.4, used by Worldcraft 1.3
             /// </summary>
-            //Version14 = 14,
+            Version14 = 14,
 
             /// <summary>
             /// RMF Version 1.6, used by Worldcraft 1.5b
