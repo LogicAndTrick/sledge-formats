@@ -8,7 +8,10 @@ namespace Sledge.Formats.Map.Formats
 {
     public class WorldcraftPrefabLibrary
     {
-        public string LibraryDescription { get; set; }
+        private static readonly string PrefabLibraryHeader = "Worldcraft Prefab Library\r\n" + (char)0x1A;
+        private const float Version = 0.1f;
+
+        public string Description { get; set; }
         public List<Prefab> Prefabs { get; set; }
 
         public static WorldcraftPrefabLibrary FromFile(string file)
@@ -19,23 +22,28 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
+        public WorldcraftPrefabLibrary()
+        {
+            Description = "";
+            Prefabs = new List<Prefab>();
+        }
+
         public WorldcraftPrefabLibrary(Stream stream)
         {
             Prefabs = new List<Prefab>();
             using (var br = new BinaryReader(stream))
             {
-                var header = br.ReadFixedLengthString(Encoding.ASCII, 28);
-                var prefabLibraryHeader = "Worldcraft Prefab Library\r\n" + (char)0x1A;
-                Util.Assert(header == prefabLibraryHeader, $"Incorrect prefab library header. Expected '{prefabLibraryHeader}', got '{header}'.");
+                var header = br.ReadFixedLengthString(Encoding.ASCII, PrefabLibraryHeader.Length);
+                Util.Assert(header == PrefabLibraryHeader, $"Incorrect prefab library header. Expected '{PrefabLibraryHeader}', got '{header}'.");
 
                 var version = br.ReadSingle();
-                Util.Assert(Math.Abs(version - 0.1f) < 0.01, $"Unsupported prefab library version number. Expected 0.1, got {version}.");
+                Util.Assert(Math.Abs(version - Version) < 0.01, $"Unsupported prefab library version number. Expected {Version}, got {version}.");
 
                 var rmf = new WorldcraftRmfFormat();
 
                 var offset = br.ReadUInt32();
                 var num = br.ReadUInt32();
-                LibraryDescription = br.ReadFixedLengthString(Encoding.ASCII, 500);
+                Description = br.ReadFixedLengthString(Encoding.ASCII, 500);
 
                 br.BaseStream.Seek(offset, SeekOrigin.Begin);
                 for (var i = 0; i < num; i++)
@@ -43,93 +51,71 @@ namespace Sledge.Formats.Map.Formats
                     var objOffset = br.ReadUInt32();
                     var objLength = br.ReadUInt32();
                     var name = br.ReadFixedLengthString(Encoding.ASCII, 31);
-                    var desc = br.ReadFixedLengthString(Encoding.ASCII, 205);
-                    var _ = br.ReadBytes(300);
+                    var desc = br.ReadFixedLengthString(Encoding.ASCII, 500);
+                    br.ReadBytes(5); // unknown/padding
 
                     using (var substream = new SubStream(br.BaseStream, objOffset, objLength))
                     {
-
-                        Prefabs.Add(new Prefab
-                        {
-                            Name = name,
-                            Description = desc,
-                            Map = rmf.Read(substream)
-                        });
+                        Prefabs.Add(new Prefab(name, desc, rmf.Read(substream)));
                     }
                 }
             }
         }
 
-        public void Save(string file)
+        public void WriteToFile(string file)
         {
             using (var stream = File.OpenWrite(file))
             {
-                Save(stream);
+                Write(stream);
             }
         }
 
-        public void Save(Stream stream)
+        public void Write(Stream stream)
         {
-            using (var bw = new BinaryWriter(stream))
+            if (!stream.CanSeek) throw new ArgumentException("stream must be seekable.", nameof(stream));
+            using (var bw = new BinaryWriter(stream, Encoding.ASCII, true))
             {
-                var prefabLibraryHeader = "Worldcraft Prefab Library\r\n" + (char)0x1A;
-                var version = 0.1f;
                 var rmf = new WorldcraftRmfFormat();
 
-                var objectOffset = 544;
-                List<PrefabMeta> meta = new List<PrefabMeta>();
+                var offsets = new List<(uint offs, uint len)>();
 
-                bw.WriteFixedLengthString(Encoding.ASCII, 28, prefabLibraryHeader);
-                bw.Write(version);
+                bw.WriteFixedLengthString(Encoding.ASCII, PrefabLibraryHeader.Length, PrefabLibraryHeader);
+                bw.Write(Version);
+                var infoOffsetPosition = stream.Position;
+                bw.Write(0); // offset, write this at the end
+                bw.Write(Prefabs.Count);
+                bw.WriteFixedLengthString(Encoding.ASCII, 500, Description);
+                bw.Write(0); // unknown, worldcraft always has 4 extra bytes after the description
 
+                // write all the map data
                 foreach (var prefab in Prefabs)
                 {
-                    stream.Position = objectOffset;
-                    using (var mapStream = new MemoryStream())
-                    {
-                        rmf.Write(mapStream, prefab.Map, "2.2");
-                        var prefabMeta = new PrefabMeta()
-                        {
-                            StartOffset = (uint)objectOffset,
-                            DataLenght =(uint) mapStream.Length,
-                            Name = prefab.Name,
-                            Description = prefab.Description,
-                        };
-                        meta.Add(prefabMeta);
-                         
-                        mapStream.Position = objectOffset;
-                        mapStream.WriteTo(stream);
-
-
-                        objectOffset+= (int)mapStream.Length;
-                    }
+                    var pos = (uint) stream.Position;
+                    rmf.Write(stream, prefab.Map, null);
+                    var len = (uint) stream.Position - pos;
+                    offsets.Add((pos, len));
                 }
 
-                bw.Seek(32, SeekOrigin.Begin);
-                bw.Write(objectOffset);
-                bw.Write(Prefabs.Count);
-                bw.WriteFixedLengthString(Encoding.ASCII, 500, LibraryDescription); //PrefabLibraryDescription
-                bw.Seek(objectOffset, SeekOrigin.Begin);
+                // now go back and write the index offset to the header
+                var startOffset = (uint) stream.Position;
+                stream.Seek(infoOffsetPosition, SeekOrigin.Begin);
+                bw.Write(startOffset);
+                stream.Seek(startOffset, SeekOrigin.Begin);
 
-
-
-                foreach (var prefabMeta in meta)
+                // now write the index
+                for (var i = 0; i < Prefabs.Count; i++)
                 {
-                    bw.Write(prefabMeta.StartOffset);
-                    bw.Write(prefabMeta.DataLenght);
-                    bw.WriteFixedLengthString(Encoding.ASCII, 31, prefabMeta.Name);
-                    bw.WriteFixedLengthString(Encoding.ASCII, 205, prefabMeta.Description);
-                    bw.WriteFixedLengthString(Encoding.ASCII, 300, "");
+                    var prefab = Prefabs[i];
+                    var (offs, len) = offsets[i];
+
+                    bw.Write(offs);
+                    bw.Write(len);
+                    bw.WriteFixedLengthString(Encoding.ASCII, 31, prefab.Name);
+                    bw.WriteFixedLengthString(Encoding.ASCII, 500, prefab.Description);
+                    bw.Write(new byte[5]); // unknown/padding
                 }
 
             }
 		}
-        private struct PrefabMeta
-        {
-            public uint StartOffset;
-            public uint DataLenght;
-            public string Name;
-            public string Description;
-        }
 	}
 }

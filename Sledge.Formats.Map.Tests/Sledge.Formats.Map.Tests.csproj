@@ -10,11 +10,17 @@
   <ItemGroup>
     <None Remove="Resources\jmf\default-room-121.jmf" />
     <None Remove="Resources\jmf\default-room-122.jmf" />
+    <None Remove="Resources\prefab\boxes.ol" />
+    <None Remove="Resources\prefab\multi_version.ol" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\jmf\default-room-121.jmf" />
     <EmbeddedResource Include="Resources\jmf\default-room-122.jmf" />
+    <EmbeddedResource Include="Resources\prefab\boxes.ol" />
+    <EmbeddedResource Include="Resources\prefab\multi_version.ol">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
