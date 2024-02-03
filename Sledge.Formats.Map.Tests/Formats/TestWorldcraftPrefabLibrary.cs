@@ -12,7 +12,7 @@ public class TestWorldcraftPrefabLibrary
     [TestMethod]
     public void TestSimplePrefab()
     {
-        using var file = typeof(TestJackhammerFormat).Assembly.GetManifestResourceStream("Sledge.Formats.Map.Tests.Resources.prefab.boxes.ol");
+        using var file = typeof(TestWorldcraftPrefabLibrary).Assembly.GetManifestResourceStream("Sledge.Formats.Map.Tests.Resources.prefab.boxes.ol");
         var library = new WorldcraftPrefabLibrary(file);
 
         Assert.AreEqual(2, library.Prefabs.Count);
@@ -28,7 +28,7 @@ public class TestWorldcraftPrefabLibrary
     [TestMethod]
     public void TestMultiVersionPrefab()
     {
-        using var file = typeof(TestJackhammerFormat).Assembly.GetManifestResourceStream("Sledge.Formats.Map.Tests.Resources.prefab.multi_version.ol");
+        using var file = typeof(TestWorldcraftPrefabLibrary).Assembly.GetManifestResourceStream("Sledge.Formats.Map.Tests.Resources.prefab.multi_version.ol");
         var library = new WorldcraftPrefabLibrary(file);
 
         Assert.AreEqual(3, library.Prefabs.Count);
@@ -40,7 +40,7 @@ public class TestWorldcraftPrefabLibrary
     [TestMethod]
     public void TestWritingPrefab()
     {
-        using var file = typeof(TestJackhammerFormat).Assembly.GetManifestResourceStream("Sledge.Formats.Map.Tests.Resources.prefab.boxes.ol");
+        using var file = typeof(TestWorldcraftPrefabLibrary).Assembly.GetManifestResourceStream("Sledge.Formats.Map.Tests.Resources.prefab.boxes.ol");
         var library = new WorldcraftPrefabLibrary(file);
 
         var newLib = new WorldcraftPrefabLibrary

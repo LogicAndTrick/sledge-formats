@@ -12,15 +12,27 @@
     <None Remove="Resources\jmf\default-room-122.jmf" />
     <None Remove="Resources\prefab\boxes.ol" />
     <None Remove="Resources\prefab\multi_version.ol" />
+    <None Remove="Resources\rmf\08.rmf" />
+    <None Remove="Resources\rmf\08_visgroups.rmf" />
+    <None Remove="Resources\rmf\09.rmf" />
+    <None Remove="Resources\rmf\14.rmf" />
+    <None Remove="Resources\rmf\16.rmf" />
+    <None Remove="Resources\rmf\18.rmf" />
+    <None Remove="Resources\rmf\22.rmf" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\jmf\default-room-121.jmf" />
     <EmbeddedResource Include="Resources\jmf\default-room-122.jmf" />
     <EmbeddedResource Include="Resources\prefab\boxes.ol" />
-    <EmbeddedResource Include="Resources\prefab\multi_version.ol">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\prefab\multi_version.ol" />
+    <EmbeddedResource Include="Resources\rmf\08.rmf" />
+    <EmbeddedResource Include="Resources\rmf\08_visgroups.rmf" />
+    <EmbeddedResource Include="Resources\rmf\09.rmf" />
+    <EmbeddedResource Include="Resources\rmf\14.rmf" />
+    <EmbeddedResource Include="Resources\rmf\16.rmf" />
+    <EmbeddedResource Include="Resources\rmf\18.rmf" />
+    <EmbeddedResource Include="Resources\rmf\22.rmf" />
   </ItemGroup>
 
   <ItemGroup>
