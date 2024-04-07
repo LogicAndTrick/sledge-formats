@@ -160,6 +160,7 @@ namespace Sledge.Formats.Valve
                             {
                                 throw new ArgumentOutOfRangeException();
                             }
+                        case TokenType.String when current == null:
                         case TokenType.Name:
                             if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.Symbol || it.Current.Symbol != Tokens.Symbols.OpenBrace)
                             {
