@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Numerics;
 
@@ -56,6 +57,12 @@ namespace Sledge.Formats.Map.Objects
             if (!float.TryParse(spl[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var w)) return defaultValue;
 
             return new Vector4(x, y, z, w);
+        }
+
+        public Color GetColorProperty(string key, Color defaultValue)
+        {
+            var vv = GetVector4Property(key, new Vector4(defaultValue.R, defaultValue.G, defaultValue.B, defaultValue.A));
+            return Color.FromArgb((int)vv.W, (int)vv.X, (int)vv.Y, (int)vv.Z);
         }
 
         public T GetProperty<T>(string key, T defaultValue)

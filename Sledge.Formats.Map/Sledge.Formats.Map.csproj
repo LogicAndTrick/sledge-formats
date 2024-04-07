@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Support RMF version 0.8, 0.9, 1.4, and support writing prefab libraries</PackageReleaseNotes>
-    <Version>1.1.6</Version>
+    <PackageReleaseNotes>Support for writing JMF files</PackageReleaseNotes>
+    <Version>1.2.0</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>

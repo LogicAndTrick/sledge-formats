@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -18,7 +19,7 @@ namespace Sledge.Formats.Map.Formats
         public string ApplicationName => "JACK";
         public string Extension => "jmf";
         public string[] AdditionalExtensions => new[] { "jmx" };
-        public string[] SupportedStyleHints => new[] { "" };
+        public string[] SupportedStyleHints => new[] { "121", "122" };
 
         public MapFile Read(Stream stream)
         {
@@ -451,17 +452,24 @@ namespace Sledge.Formats.Map.Formats
 
         public void Write(Stream stream, MapFile map, string styleHint)
         {
+            if (!String.IsNullOrWhiteSpace(styleHint) && styleHint != "121" && styleHint != "122")
+            {
+                throw new NotImplementedException("Only saving v121 and v122 JMFs is supported.");
+            }
+
+            var version = String.IsNullOrWhiteSpace(styleHint) || !int.TryParse(styleHint, out var v) ? 121 : v;
+
             using (var bw = new BinaryWriter(stream, Encoding.ASCII, true))
             {
                 bw.WriteFixedLengthString(Encoding.ASCII, 4, "JHMF"); // Header
-
-                bw.Write(121); // Version
+                bw.Write(version); // Version
                 
                 bw.Write(0); // Num export strings (we don't have this information)
                 // No export strings here
 
                 var groups = CreateGroups(map);
 
+                if (version >= 122) WriteBackgroundImages(map, bw);
                 WriteGroups(groups.Values, bw);
                 WriteVisgroups(map, bw);
                 bw.WriteVector3(map.CordonBounds.min);
@@ -470,7 +478,6 @@ namespace Sledge.Formats.Map.Formats
                 WritePaths(map, bw);
                 WriteEntities(map, groups, bw);
             }
-            throw new NotImplementedException();
         }
 
         private Dictionary<Group, JmfGroup> CreateGroups(MapFile map)
@@ -555,24 +562,269 @@ namespace Sledge.Formats.Map.Formats
 
         private void WritePath(Path path, BinaryWriter bw)
         {
-            throw new NotImplementedException();
+            WriteString(path.Type, bw);
+            WriteString(path.Name, bw);
+            bw.Write((int) path.Direction);
+            bw.Write(path.Flags);
+            bw.WriteRGBAColour(path.Color);
+
+            bw.Write(path.Nodes.Count);
+            foreach (var node in path.Nodes)
+            {
+                WriteString(node.Name, bw);
+
+                var fire = node.Properties.TryGetValue("message", out var f) ? f ?? "" : "";
+                WriteString(fire, bw);
+
+                bw.WriteVector3(node.Position);
+
+                var angleVector = Vector3.Zero;
+                var angles = node.Properties.TryGetValue("angles", out var a) ? a ?? "" : "";
+                var angleSplit = angles.Split(' ');
+                if (angleSplit.Length == 3)
+                {
+                    angleVector = NumericsExtensions.TryParse(angleSplit[0], angleSplit[1], angleSplit[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var av)
+                        ? av
+                        : Vector3.Zero;
+                }
+                bw.WriteVector3(angleVector);
+
+                var spawnflags = node.Properties.TryGetValue("spawnflags", out f) ? f ?? "" : "";
+                var spawnflagsInt = int.TryParse(spawnflags, out var sf) ? sf : 0;
+                bw.Write(spawnflagsInt);
+
+                bw.WriteRGBAColour(node.Color);
+
+                bw.Write(node.Properties.Count);
+                foreach (var p in node.Properties)
+                {
+                    WriteString(p.Key, bw);
+                    WriteString(p.Value ?? "", bw);
+                }
+            }
+        }
+
+        private class EntityGroupRef
+        {
+            public Group RootGroup { get; set; }
+            public Group Group { get; set; }
+            public MapObject MapObject { get; set; }
+
+            public EntityGroupRef(Group rootGroup, Group group, MapObject mapObject)
+            {
+                RootGroup = rootGroup;
+                Group = group;
+                MapObject = mapObject;
+            }
         }
 
         private void WriteEntities(MapFile map, Dictionary<Group, JmfGroup> groups, BinaryWriter bw)
         {
-            throw new NotImplementedException();
+            var list = new Queue<EntityGroupRef>();
+            list.Enqueue(new EntityGroupRef(null, null, map.Worldspawn));
+            while (list.Count > 0)
+            {
+                var egr = list.Dequeue();
+                var rtt = egr.RootGroup;
+                var grp = egr.Group;
+                var obj = egr.MapObject;
+                if (obj is Entity ent)
+                {
+                    var groupId = GetGroupID(groups, grp);
+                    var rootGroupId = GetGroupID(groups, rtt);
+
+                    WriteString(ent.ClassName, bw);
+                    bw.WriteVector3(ent.GetVectorProperty("origin", Vector3.Zero));
+                    bw.Write(0); // flags
+                    bw.Write(groupId);
+                    bw.Write(rootGroupId);
+                    bw.WriteRGBAColour(ent.Color);
+
+                    // useless (?) list of 13 strings
+                    for (var i = 0; i < 13; i++) WriteString("", bw);
+
+                    bw.Write(ent.SpawnFlags);
+
+                    // special properties
+                    bw.WriteVector3(ent.GetVectorProperty("angles", Vector3.Zero));
+                    bw.Write((int) JmfRendering.Normal); // ?
+                    bw.WriteRGBAColour(ent.GetColorProperty("rendercolor", Color.White));
+                    bw.Write(ent.GetIntProperty("rendermode", 0));
+                    bw.Write(ent.GetIntProperty("renderfx", 0));
+                    bw.Write((short) ent.GetIntProperty("body", 0));
+                    bw.Write((short) ent.GetIntProperty("skin", 0));
+                    bw.Write(ent.GetIntProperty("sequence", 0));
+                    bw.Write(ent.GetFloatProperty("framerate", 0));
+                    bw.Write(ent.GetFloatProperty("scale", 1));
+                    bw.Write(ent.GetFloatProperty("radius", 0));
+
+                    bw.Write(new byte[28]); // unknown
+
+                    bw.Write(ent.SortedProperties.Count);
+                    foreach (var p in ent.SortedProperties)
+                    {
+                        WriteString(p.Key, bw);
+                        WriteString(p.Value, bw);
+                    }
+                    
+                    bw.Write(ent.Visgroups.Count);
+                    foreach (var visgroupId in ent.Visgroups)
+                    {
+                        bw.Write(visgroupId);
+                    }
+
+                    var solids = ent.FindAll().OfType<Solid>().ToList();
+                    bw.Write(solids.Count);
+                    foreach (var solid in solids)
+                    {
+                        WriteSolid(solid, groupId, rootGroupId, bw);
+                    }
+                }
+
+                var newGrp = grp;
+                var newRtt = rtt;
+                if (obj is Group g && groups.ContainsKey(g))
+                {
+                    // if this is a group and it's in the collection (i.e. valid for this format), update the group
+                    newGrp = g;
+                    newRtt = newRtt ?? g; // only update the root group if the current root group is null
+                }
+                foreach (var ch in obj.Children)
+                {
+                    list.Enqueue(new EntityGroupRef(newRtt, newGrp, ch));
+                }
+            }
         }
 
-        private void WriteSolid(Solid solid, Dictionary<Group, JmfGroup> groups, BinaryWriter bw)
+        private int GetGroupID(Dictionary<Group, JmfGroup> groups, Group grp)
         {
+            if (grp == null) return 0;
+            if (!groups.ContainsKey(grp)) return 0;
+            return groups[grp].ID;
+        }
 
+        private void WriteSolid(Solid solid, int groupId, int rootGroupId, BinaryWriter bw)
+        {
+            bw.Write(solid.Meshes.Count);
+            bw.Write(0); // flags
+            bw.Write(groupId);
+            bw.Write(rootGroupId);
+            bw.WriteRGBAColour(solid.Color);
+
+            bw.Write(solid.Visgroups.Count);
+            foreach (var visgroupId in solid.Visgroups)
+            {
+                bw.Write(visgroupId);
+            }
+
+            bw.Write(solid.Faces.Count);
+            foreach (var face in solid.Faces)
+            {
+                WriteFace(face, bw);
+            }
+
+            foreach (var mesh in solid.Meshes)
+            {
+                WritePatch(mesh, bw);
+            }
         }
 
         private void WriteFace(Face face, BinaryWriter bw)
         {
+            bw.Write(0); // render flags
 
+            bw.Write(face.Vertices.Count);
+            WriteSurfaceProperties(face, bw);
+
+            bw.WriteVector3(face.Plane.Normal);
+            bw.Write(-face.Plane.D);
+
+            bw.Write(0); // something 2
+
+            foreach (var v in face.Vertices)
+            {
+                bw.WriteVector3(v);
+                bw.WriteVector3(Vector3.Zero); // texture coords
+            }
         }
 
+        private void WritePatch(Mesh mesh, BinaryWriter bw)
+        {
+            bw.Write(mesh.Width);
+            bw.Write(mesh.Height);
+            WriteSurfaceProperties(mesh, bw);
+            bw.Write(0); // something
+
+            for (var i = 0; i < 32; i++)
+            {
+                for (var j = 0; j < 32; j++)
+                {
+                    var point = mesh.Points.FirstOrDefault(p => p.X == i && p.Y == j)
+                        ?? new MeshPoint();
+                    bw.WriteVector3(point.Position);
+                    bw.WriteVector3(point.Normal);
+                    bw.WriteVector3(point.Texture);
+                }
+            }
+        }
+
+        private void WriteSurfaceProperties(Surface surface, BinaryWriter bw)
+        {
+            bw.WriteVector3(surface.UAxis);
+            bw.Write(surface.XShift);
+            bw.WriteVector3(surface.VAxis);
+            bw.Write(surface.YShift);
+            bw.Write(surface.XScale);
+            bw.Write(surface.YScale);
+            bw.Write(surface.Rotation);
+
+            bw.Write(0); // something 1
+            bw.Write(0); // something 2
+            bw.Write(0); // something 3
+            bw.Write(0); // something 4
+
+            bw.Write(surface.SurfaceFlags);
+            bw.WriteFixedLengthString(Encoding.ASCII, 64, surface.TextureName);
+        }
+
+        private static void WriteBackgroundImages(MapFile map, BinaryWriter bw)
+        {
+            var viewports = new[]
+            {
+                ViewportType.OrthographicFront,
+                ViewportType.OrthographicSide,
+                ViewportType.OrthographicTop
+            };
+            foreach (var vp in viewports)
+            {
+                var bgi = map.BackgroundImages.FirstOrDefault(x => x.Viewport == vp) ?? new BackgroundImage
+                {
+                    Viewport = vp,
+                    Path = "",
+                    Scale = 1,
+                    Luminance = byte.MaxValue,
+                    Filter = FilterMode.Linear,
+                    Offset = Vector2.Zero,
+                    InvertColours = false
+                };
+                WriteString(bgi.Path, bw);
+                bw.Write(bgi.Scale);
+                bw.Write((int) bgi.Luminance);
+                bw.Write(ConvertFilterMode(bgi.Filter));
+                bw.Write(bgi.InvertColours ? 1 : 0);
+                bw.Write((int) bgi.Offset.X);
+                bw.Write((int) bgi.Offset.Y);
+                bw.Write(new byte[4]); // padding
+            }
+
+            return;
+
+            int ConvertFilterMode(FilterMode mode)
+            {
+                if (mode == FilterMode.Nearest) return 0;
+                return 1;
+            }
+        }
 
         private static string ReadString(BinaryReader br)
         {
