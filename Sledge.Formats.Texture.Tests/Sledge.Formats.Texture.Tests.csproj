@@ -10,9 +10,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sledge.Formats.Texture.ImageSharp\Sledge.Formats.Texture.ImageSharp.csproj" />
     <ProjectReference Include="..\Sledge.Formats.Texture\Sledge.Formats.Texture.csproj" />
     <ProjectReference Include="..\Sledge.Formats\Sledge.Formats.csproj" />
   </ItemGroup>

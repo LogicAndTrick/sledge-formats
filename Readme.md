@@ -9,6 +9,7 @@ These C# libraries parse the formats you'll find in your Half-Life install direc
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Map?color=277ACE&label=Sledge.Formats.Map&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Map/)
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Packages?color=9C23D3&label=Sledge.Formats.Packages&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Packages/)
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Texture?color=06CCBB&label=Sledge.Formats.Texture&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Texture/)
+[![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.Texture.ImageSharp?color=037F73&label=Sledge.Formats.Texture.ImageSharp&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.Texture.ImageSharp/)
 [![Nuget](https://img.shields.io/nuget/v/Sledge.Formats.GameData?color=FF42D9&label=Sledge.Formats.GameData&logo=nuget)](https://www.nuget.org/packages/Sledge.Formats.GameData/)
 
 
@@ -51,7 +52,9 @@ These C# libraries parse the formats you'll find in your Half-Life install direc
             - Quake 1's gfx.wad contains a lump called "CONCHARS", which has an invalid type. There's special logic to handle this lump.
     - Vtf
         - **VtfFile** - The VTF format used by the Source engine.
-            - Currently supports all formats that VtfLib supports (read only, not write)
+            - Currently supports all formats that VtfLib supports
+- Sledge.Formats.Texture.ImageSharp - ImageSharp extensions to allow creation of textures
+    - Currently only supports VTF formats
 - Sledge.Formats.GameData - Game data formats used by level editors
     - Fgd - The FGD format used by Worldcraft, Valve Hammer Editor, JACK, TrenchBroom, Sledge, and other editors
         - Source 1 & 2 FGDs will load as long as they are valid, but their use is not fully tested.
