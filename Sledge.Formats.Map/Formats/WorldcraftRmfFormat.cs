@@ -330,7 +330,14 @@ namespace Sledge.Formats.Map.Formats
             // RMF stores the vertices in clockwise direction, we use counter-clockwise internally
             face.Vertices.Reverse();
 
-            face.Plane = ReadPlane(br);
+            var a = br.ReadVector3();
+            var b = br.ReadVector3();
+            var c = br.ReadVector3();
+            face.Plane = Plane.CreateFromVertices(c, b, a); // reversed order for counter-clockwise
+            face.OriginalPlaneVertices = new[]
+            {
+                c.ToVector3d(), b.ToVector3d(), a.ToVector3d()
+            };
 
             if (version <= RmfVersion.Version18)
             {
@@ -356,14 +363,6 @@ namespace Sledge.Formats.Map.Formats
                     IsActive = activeCamera == i
                 });
             }
-        }
-
-        private static Plane ReadPlane(BinaryReader br)
-        {
-            var a = br.ReadVector3();
-            var b = br.ReadVector3();
-            var c = br.ReadVector3();
-            return Plane.CreateFromVertices(c, b, a); // reversed order for counter-clockwise
         }
 
         #endregion

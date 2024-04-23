@@ -2,6 +2,7 @@
 using Sledge.Formats.Map.Objects;
 using Sledge.Formats.Valve;
 using System.Numerics;
+using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Map.Formats.VmfObjects
 {
@@ -20,13 +21,19 @@ namespace Sledge.Formats.Map.Formats.VmfObjects
                 LightmapScale = obj.Get("lightmapscale", 0),
                 SmoothingGroups = obj.Get("smoothing_groups", "")
             };
-            if (Util.ParseFloatArray(obj.Get("plane", ""), new[] { ' ', '(', ')' }, 9, out var pl))
+            if (Util.ParseDoubleArray(obj.Get("plane", ""), new[] { ' ', '(', ')' }, 9, out var pl))
             {
                 // Converting VMF clockwise ordering into counter-clockwise
+                Face.OriginalPlaneVertices = new[]
+                {
+                    new Vector3d(pl[6], pl[7], pl[8]),
+                    new Vector3d(pl[3], pl[4], pl[5]),
+                    new Vector3d(pl[0], pl[1], pl[2])
+                };
                 Face.Plane = Plane.CreateFromVertices(
-                    new Vector3(pl[6], pl[7], pl[8]).Round(),
-                    new Vector3(pl[3], pl[4], pl[5]).Round(),
-                    new Vector3(pl[0], pl[1], pl[2]).Round()
+                    Face.OriginalPlaneVertices[0].Round().ToVector3(),
+                    Face.OriginalPlaneVertices[1].Round().ToVector3(),
+                    Face.OriginalPlaneVertices[2].Round().ToVector3()
                 );
             }
             else

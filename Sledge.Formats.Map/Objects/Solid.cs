@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Map.Objects
@@ -19,7 +20,8 @@ namespace Sledge.Formats.Map.Objects
         /// Computes the vertices for the solid based on the planes of the faces.
         /// Will erase all the current face vertices.
         /// </summary>
-        public void ComputeVertices()
+        /// <param name="keepFirstVertex">Set to true to attempt to retain the vertex order. This has a small performance impact and should not be needed for most cases.</param>
+        public void ComputeVertices(bool keepFirstVertex = false)
         {
             const float planeMatchEpsilon = 0.0075f; // Magic number that seems to match VHE
 
@@ -29,11 +31,22 @@ namespace Sledge.Formats.Map.Objects
 
             foreach (var face in Faces)
             {
+                var firstVert = keepFirstVertex && face.Vertices.Count > 0 ? face.Vertices[0] : (Vector3?)null;
                 face.Vertices.Clear();
+
                 var pg = poly.Polygons.FirstOrDefault(x => x.Plane.Normal.EquivalentTo(face.Plane.Normal, planeMatchEpsilon));
-                if (pg != null)
+                if (pg == null) continue;
+
+                face.Vertices.AddRange(pg.Vertices.Select(x => x.ToVector3()));
+                if (!firstVert.HasValue) continue;
+
+                var idx = face.Vertices.FindIndex(x => x.EquivalentTo(firstVert.Value, planeMatchEpsilon));
+                while (idx > 0)
                 {
-                    face.Vertices.AddRange(pg.Vertices.Select(x => x.ToVector3()));
+                    var tmp = face.Vertices[0];
+                    face.Vertices.RemoveAt(0);
+                    face.Vertices.Add(tmp);
+                    idx--;
                 }
             }
         }
