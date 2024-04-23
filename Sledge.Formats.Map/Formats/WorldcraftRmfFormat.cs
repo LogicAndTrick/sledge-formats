@@ -27,7 +27,7 @@ namespace Sledge.Formats.Map.Formats
         {
             using (var br = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                // Only RMF versions 1.8 and 2.2 are supported for the moment.
+                // Only these RMF versions are known to be saved by Worldcraft/VHE
                 var versionDouble = Math.Round(br.ReadSingle(), 1);
                 Util.Assert(
                     Math.Abs(versionDouble - 2.2) < 0.01 ||
