@@ -673,7 +673,7 @@ namespace Sledge.Formats.Map.Formats
                         bw.Write(visgroupId);
                     }
 
-                    var solids = ent.FindAll().OfType<Solid>().ToList();
+                    var solids = ent.Children.OfType<Solid>().ToList();
                     bw.Write(solids.Count);
                     foreach (var solid in solids)
                     {
