@@ -480,7 +480,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private Dictionary<Group, JmfGroup> CreateGroups(MapFile map)
+        private static Dictionary<Group, JmfGroup> CreateGroups(MapFile map)
         {
             // In the JMF format, entities cannot have groups within them, only solids - so we only need to traverse nested groups
             var id = 1;
@@ -510,7 +510,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WriteGroups(IEnumerable<JmfGroup> groups, BinaryWriter bw)
+        private static void WriteGroups(IEnumerable<JmfGroup> groups, BinaryWriter bw)
         {
             var list = groups.ToList();
             bw.Write(list.Count);
@@ -525,7 +525,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WriteVisgroups(MapFile map, BinaryWriter bw)
+        private static void WriteVisgroups(MapFile map, BinaryWriter bw)
         {
             bw.Write(map.Visgroups.Count);
             foreach (var vg in map.Visgroups)
@@ -537,7 +537,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WriteCameras(MapFile map, BinaryWriter bw)
+        private static void WriteCameras(MapFile map, BinaryWriter bw)
         {
             bw.Write(map.Cameras.Count);
             foreach (var cam in map.Cameras)
@@ -551,7 +551,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WritePaths(MapFile map, BinaryWriter bw)
+        private static void WritePaths(MapFile map, BinaryWriter bw)
         {
             bw.Write(map.Paths.Count);
             foreach (var path in map.Paths)
@@ -560,7 +560,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WritePath(Path path, BinaryWriter bw)
+        private static void WritePath(Path path, BinaryWriter bw)
         {
             WriteString(path.Type, bw);
             WriteString(path.Name, bw);
@@ -604,106 +604,120 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private class EntityGroupRef
+        private class ObjectHierarchy
         {
-            public Group RootGroup { get; set; }
-            public Group Group { get; set; }
             public MapObject MapObject { get; set; }
 
-            public EntityGroupRef(Group rootGroup, Group group, MapObject mapObject)
+            public Entity OwnerEntity { get; }
+            public Group Group { get; }
+            public Group RootGroup { get; }
+
+            /// <param name="hierarchy">The path to the root node, with the root node being the LAST element in the list.</param>
+            /// <param name="mapObject">The object itself</param>
+            public ObjectHierarchy(IEnumerable<MapObject> hierarchy, MapObject mapObject)
             {
-                RootGroup = rootGroup;
-                Group = group;
                 MapObject = mapObject;
+
+                // collect groups
+                Group = RootGroup = null;
+                foreach (var obj in hierarchy)
+                {
+                    if (obj is Entity e)
+                    {
+                        OwnerEntity = e;
+                        break; // terminate when we hit any entity, don't search any upper groups
+                    }
+                    if (obj is Group g)
+                    {
+                        if (Group == null) Group = g; // first group we find
+                        RootGroup = g; // last group we find
+                    }
+                }
             }
         }
 
-        private void WriteEntities(MapFile map, Dictionary<Group, JmfGroup> groups, BinaryWriter bw)
+        private static List<ObjectHierarchy> CollectAllObjects(MapFile map)
         {
-            var list = new Queue<EntityGroupRef>();
-            list.Enqueue(new EntityGroupRef(null, null, map.Worldspawn));
-            while (list.Count > 0)
+            var list = new List<ObjectHierarchy>();
+            var hierarchy = new List<MapObject>();
+            Collect(map.Worldspawn);
+            return list;
+
+            void Collect(MapObject obj)
             {
-                var egr = list.Dequeue();
-                var rtt = egr.RootGroup;
-                var grp = egr.Group;
-                var obj = egr.MapObject;
-                if (obj is Entity ent)
+                list.Add(new ObjectHierarchy(hierarchy, obj));
+                hierarchy.Insert(0, obj);
+                foreach (var child in obj.Children) Collect(child);
+                hierarchy.RemoveAt(0);
+            }
+        }
+
+        private static void WriteEntities(MapFile map, Dictionary<Group, JmfGroup> groups, BinaryWriter bw)
+        {
+            // Collect all objects and information about their groups
+            var allObjects = CollectAllObjects(map);
+
+            foreach (var egr in allObjects.Where(x => x.MapObject is Entity))
+            {
+                var ent = (Entity)egr.MapObject;
+
+                WriteString(ent.ClassName, bw);
+                bw.WriteVector3(ent.GetVectorProperty("origin", Vector3.Zero));
+                bw.Write(0); // flags
+                bw.Write(GetGroupID(groups, egr.Group));
+                bw.Write(GetGroupID(groups, egr.RootGroup));
+                bw.WriteRGBAColour(ent.Color);
+
+                // useless (?) list of 13 strings
+                for (var i = 0; i < 13; i++) WriteString("", bw);
+
+                bw.Write(ent.SpawnFlags);
+
+                // special properties
+                bw.WriteVector3(ent.GetVectorProperty("angles", Vector3.Zero));
+                bw.Write((int)JmfRendering.Normal); // ?
+                bw.WriteRGBAColour(ent.GetColorProperty("rendercolor", Color.White));
+                bw.Write(ent.GetIntProperty("rendermode", 0));
+                bw.Write(ent.GetIntProperty("renderfx", 0));
+                bw.Write((short)ent.GetIntProperty("body", 0));
+                bw.Write((short)ent.GetIntProperty("skin", 0));
+                bw.Write(ent.GetIntProperty("sequence", 0));
+                bw.Write(ent.GetFloatProperty("framerate", 0));
+                bw.Write(ent.GetFloatProperty("scale", 1));
+                bw.Write(ent.GetFloatProperty("radius", 0));
+
+                bw.Write(new byte[28]); // unknown
+
+                bw.Write(ent.SortedProperties.Count);
+                foreach (var p in ent.SortedProperties)
                 {
-                    var groupId = GetGroupID(groups, grp);
-                    var rootGroupId = GetGroupID(groups, rtt);
-
-                    WriteString(ent.ClassName, bw);
-                    bw.WriteVector3(ent.GetVectorProperty("origin", Vector3.Zero));
-                    bw.Write(0); // flags
-                    bw.Write(groupId);
-                    bw.Write(rootGroupId);
-                    bw.WriteRGBAColour(ent.Color);
-
-                    // useless (?) list of 13 strings
-                    for (var i = 0; i < 13; i++) WriteString("", bw);
-
-                    bw.Write(ent.SpawnFlags);
-
-                    // special properties
-                    bw.WriteVector3(ent.GetVectorProperty("angles", Vector3.Zero));
-                    bw.Write((int) JmfRendering.Normal); // ?
-                    bw.WriteRGBAColour(ent.GetColorProperty("rendercolor", Color.White));
-                    bw.Write(ent.GetIntProperty("rendermode", 0));
-                    bw.Write(ent.GetIntProperty("renderfx", 0));
-                    bw.Write((short) ent.GetIntProperty("body", 0));
-                    bw.Write((short) ent.GetIntProperty("skin", 0));
-                    bw.Write(ent.GetIntProperty("sequence", 0));
-                    bw.Write(ent.GetFloatProperty("framerate", 0));
-                    bw.Write(ent.GetFloatProperty("scale", 1));
-                    bw.Write(ent.GetFloatProperty("radius", 0));
-
-                    bw.Write(new byte[28]); // unknown
-
-                    bw.Write(ent.SortedProperties.Count);
-                    foreach (var p in ent.SortedProperties)
-                    {
-                        WriteString(p.Key, bw);
-                        WriteString(p.Value, bw);
-                    }
-                    
-                    bw.Write(ent.Visgroups.Count);
-                    foreach (var visgroupId in ent.Visgroups)
-                    {
-                        bw.Write(visgroupId);
-                    }
-
-                    var solids = ent.Children.OfType<Solid>().ToList();
-                    bw.Write(solids.Count);
-                    foreach (var solid in solids)
-                    {
-                        WriteSolid(solid, groupId, rootGroupId, bw);
-                    }
+                    WriteString(p.Key, bw);
+                    WriteString(p.Value, bw);
                 }
 
-                var newGrp = grp;
-                var newRtt = rtt;
-                if (obj is Group g && groups.ContainsKey(g))
+                bw.Write(ent.Visgroups.Count);
+                foreach (var visgroupId in ent.Visgroups)
                 {
-                    // if this is a group and it's in the collection (i.e. valid for this format), update the group
-                    newGrp = g;
-                    newRtt = newRtt ?? g; // only update the root group if the current root group is null
+                    bw.Write(visgroupId);
                 }
-                foreach (var ch in obj.Children)
+
+                var solids = allObjects.Where(x => x.MapObject is Solid && x.OwnerEntity == ent).ToList();
+                bw.Write(solids.Count);
+                foreach (var solid in solids)
                 {
-                    list.Enqueue(new EntityGroupRef(newRtt, newGrp, ch));
+                    WriteSolid((Solid) solid.MapObject, GetGroupID(groups, solid.Group), GetGroupID(groups, solid.RootGroup), bw);
                 }
             }
         }
 
-        private int GetGroupID(Dictionary<Group, JmfGroup> groups, Group grp)
+        private static int GetGroupID(Dictionary<Group, JmfGroup> groups, Group grp)
         {
             if (grp == null) return 0;
             if (!groups.ContainsKey(grp)) return 0;
             return groups[grp].ID;
         }
 
-        private void WriteSolid(Solid solid, int groupId, int rootGroupId, BinaryWriter bw)
+        private static void WriteSolid(Solid solid, int groupId, int rootGroupId, BinaryWriter bw)
         {
             bw.Write(solid.Meshes.Count);
             bw.Write(0); // flags
@@ -729,7 +743,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WriteFace(Face face, BinaryWriter bw)
+        private static void WriteFace(Face face, BinaryWriter bw)
         {
             bw.Write(0); // render flags
 
@@ -748,7 +762,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WritePatch(Mesh mesh, BinaryWriter bw)
+        private static void WritePatch(Mesh mesh, BinaryWriter bw)
         {
             bw.Write(mesh.Width);
             bw.Write(mesh.Height);
@@ -768,7 +782,7 @@ namespace Sledge.Formats.Map.Formats
             }
         }
 
-        private void WriteSurfaceProperties(Surface surface, BinaryWriter bw)
+        private static void WriteSurfaceProperties(Surface surface, BinaryWriter bw)
         {
             bw.WriteVector3(surface.UAxis);
             bw.Write(surface.XShift);

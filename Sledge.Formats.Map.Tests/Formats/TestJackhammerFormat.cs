@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sledge.Formats.Map.Formats;
 using Sledge.Formats.Map.Objects;
@@ -11,6 +12,107 @@ namespace Sledge.Formats.Map.Tests.Formats;
 [TestClass]
 public class TestJackhammerFormat
 {
+    [TestMethod]
+    public void TestGroupInEntity()
+    {
+        const string solidDef = @"
+        {
+            {
+            ( -48 -64 12 ) ( -48 -63 12 ) ( -48 -64 13 ) dev_64e [ 0 -1 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            ( -48 -96 12 ) ( -48 -96 13 ) ( -47 -96 12 ) dev_64e [ 1 0 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            ( -48 -64 8 ) ( -47 -64 8 ) ( -48 -63 8 ) dev_64e [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+            ( 64 32 16 ) ( 64 33 16 ) ( 65 32 16 ) dev_64e [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+            ( 64 32 28 ) ( 65 32 28 ) ( 64 32 29 ) dev_64e [ -1 0 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            ( 64 32 28 ) ( 64 32 29 ) ( 64 33 28 ) dev_64e [ 0 1 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            }
+        }";
+
+        var qmf = new QuakeMapFormat();
+        using var qms = new MemoryStream(Encoding.ASCII.GetBytes(solidDef));
+        var qmap = qmf.Read(qms);
+        var sourceSolid = qmap.Worldspawn.FindAll().OfType<Solid>().Single();
+
+        // add an entity with a group inside it, with a solid inside that
+        var inputMap = new MapFile();
+        inputMap.Worldspawn.Children.Add(new Entity
+        {
+            ClassName = "ent_test",
+            Children =
+            {
+                new Group
+                {
+                    Children =
+                    {
+                        sourceSolid
+                    }
+                }
+            }
+        });
+
+        // we should expect the group to be dropped since JMF doesn't support groups inside (non-worldspawn) entities
+        var format = new JackhammerJmfFormat();
+        var outputStream = new MemoryStream();
+        format.Write(outputStream, inputMap, "122");
+        outputStream.Position = 0;
+        var outputMap = format.Read(outputStream);
+
+        Assert.AreEqual(1, outputMap.Worldspawn.Children.Count);
+        Assert.IsInstanceOfType(outputMap.Worldspawn.Children[0], typeof(Entity));
+
+        var ent = (Entity)outputMap.Worldspawn.Children[0];
+        Assert.AreEqual(1, ent.Children.Count);
+        Assert.AreEqual("ent_test", ent.ClassName);
+        Assert.IsInstanceOfType(ent.Children[0], typeof(Solid));
+
+        Assert.IsTrue(TestUtils.AreEqualSolid(sourceSolid, (Solid)ent.Children[0]));
+    }
+
+    [TestMethod]
+    public void TestGroupInWorldspawn()
+    {
+        const string solidDef = @"
+        {
+            {
+            ( -48 -64 12 ) ( -48 -63 12 ) ( -48 -64 13 ) dev_64e [ 0 -1 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            ( -48 -96 12 ) ( -48 -96 13 ) ( -47 -96 12 ) dev_64e [ 1 0 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            ( -48 -64 8 ) ( -47 -64 8 ) ( -48 -63 8 ) dev_64e [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+            ( 64 32 16 ) ( 64 33 16 ) ( 65 32 16 ) dev_64e [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+            ( 64 32 28 ) ( 65 32 28 ) ( 64 32 29 ) dev_64e [ -1 0 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            ( 64 32 28 ) ( 64 32 29 ) ( 64 33 28 ) dev_64e [ 0 1 0 0 ] [ 0 0 -1 -4 ] 0 1 1
+            }
+        }";
+
+        var qmf = new QuakeMapFormat();
+        using var qms = new MemoryStream(Encoding.ASCII.GetBytes(solidDef));
+        var qmap = qmf.Read(qms);
+        var sourceSolid = qmap.Worldspawn.FindAll().OfType<Solid>().Single();
+
+        // add a group with a solid inside it
+        var inputMap = new MapFile();
+        inputMap.Worldspawn.Children.Add(new Group
+        {
+            Children =
+            {
+                sourceSolid
+            }
+        });
+
+        var format = new JackhammerJmfFormat();
+        var outputStream = new MemoryStream();
+        format.Write(outputStream, inputMap, "122");
+        outputStream.Position = 0;
+        var outputMap = format.Read(outputStream);
+
+        Assert.AreEqual(1, outputMap.Worldspawn.Children.Count);
+        Assert.IsInstanceOfType(outputMap.Worldspawn.Children[0], typeof(Group));
+
+        var group = (Group)outputMap.Worldspawn.Children[0];
+        Assert.AreEqual(1, group.Children.Count);
+        Assert.IsInstanceOfType(group.Children[0], typeof(Solid));
+
+        Assert.IsTrue(TestUtils.AreEqualMap(inputMap, outputMap));
+    }
+
     [TestMethod]
     public void TestJmf121()
     {

@@ -31,7 +31,7 @@ public static class TestUtils
     public static bool AreEqualBase(MapObject a, MapObject b)
     {
         // color
-        if (!a.Color.Equals(b.Color)) return false;
+        if (!a.Color.ToArgb().Equals(b.Color.ToArgb())) return false;
 
         // visgroups
         if (a.Visgroups.Count != b.Visgroups.Count) return false;
