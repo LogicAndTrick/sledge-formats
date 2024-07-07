@@ -28,6 +28,15 @@ namespace Sledge.Formats.Geometric
         }
 
         /// <summary>
+        /// Creates a polygon from a list of points
+        /// </summary>
+        /// <param name="vertices">The vertices of the polygon</param>
+        public Polygon(params Vector3[] vertices)
+        {
+            Vertices = vertices.ToList();
+        }
+
+        /// <summary>
         /// Creates a polygon from a plane and a radius.
         /// Expands the plane to the radius size to create a large polygon with 4 vertices.
         /// </summary>
