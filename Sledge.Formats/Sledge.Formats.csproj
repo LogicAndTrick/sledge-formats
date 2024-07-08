@@ -13,10 +13,10 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve liblist vdf</PackageTags>
-    <PackageReleaseNotes>Allow a quoted name for serialised objects</PackageReleaseNotes>
+    <PackageReleaseNotes>Add some basic colour utils</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.2.4</Version>
+    <Version>1.2.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

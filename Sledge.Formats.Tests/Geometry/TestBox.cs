@@ -67,12 +67,12 @@ public class TestBox
         var box = new Box(a, b);
         var expected = new[]
         {
-            new Plane(Vector3.UnitX, b.X),
-            new Plane(Vector3.UnitY, b.Y),
-            new Plane(Vector3.UnitZ, b.Z),
-            new Plane(-Vector3.UnitX, -a.X),
-            new Plane(-Vector3.UnitY, -a.Y),
-            new Plane(-Vector3.UnitZ, -a.Z),
+            new Plane(-Vector3.UnitX, -b.X),
+            new Plane(-Vector3.UnitY, -b.Y),
+            new Plane(-Vector3.UnitZ, -b.Z),
+            new Plane(Vector3.UnitX, a.X),
+            new Plane(Vector3.UnitY, a.Y),
+            new Plane(Vector3.UnitZ, a.Z),
         };
         CollectionAssert.AreEquivalent(expected, box.GetBoxPlanes().ToList());
     }

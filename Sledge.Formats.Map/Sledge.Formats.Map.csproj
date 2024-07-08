@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Fix issue with JMF format not being saved correctly</PackageReleaseNotes>
-    <Version>1.2.2</Version>
+    <PackageReleaseNotes>Add some basic factory classes to create known solid types</PackageReleaseNotes>
+    <Version>1.2.3</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>

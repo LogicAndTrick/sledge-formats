@@ -188,12 +188,12 @@ namespace Sledge.Formats.Geometric
 
             return new[]
             {
-                new Polygon(topLeftFront, topRightFront, bottomRightFront, bottomLeftFront),
-                new Polygon(topRightBack, topLeftBack, bottomLeftBack, bottomRightBack),
-                new Polygon(topLeftBack, topLeftFront, bottomLeftFront, bottomLeftBack),
-                new Polygon(topRightFront, topRightBack, bottomRightBack, bottomRightFront),
-                new Polygon(topLeftBack, topRightBack, topRightFront, topLeftFront),
-                new Polygon(bottomLeftFront, bottomRightFront, bottomRightBack, bottomLeftBack)
+                new Polygon(bottomLeftFront, bottomRightFront, topRightFront, topLeftFront),
+                new Polygon(bottomRightBack, bottomLeftBack, topLeftBack, topRightBack),
+                new Polygon(bottomLeftBack, bottomLeftFront, topLeftFront, topLeftBack),
+                new Polygon(bottomRightFront, bottomRightBack, topRightBack, topRightFront),
+                new Polygon(topLeftFront, topRightFront, topRightBack, topLeftBack),
+                new Polygon(bottomLeftBack, bottomRightBack, bottomRightFront, bottomLeftFront),
             };
         }
 
