@@ -1,4 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Numerics;
+using Sledge.Formats.Map.Objects;
 
 namespace Sledge.Formats.Map.Factories.Solids
 {
@@ -18,5 +22,21 @@ namespace Sledge.Formats.Map.Factories.Solids
         [DisplayName("Round decimals")]
         [Description("The number of decimals to round vertex positions to")]
         public int RoundDecimals { get; set; }
+
+        protected static Solid MakeSolid(IEnumerable<(string textureName, Vector3[] points)> faces, Color col)
+        {
+            var solid = new Solid { Color = col };
+            foreach (var (texture, arr) in faces)
+            {
+                var face = new Face
+                {
+                    Plane = Plane.CreateFromVertices(arr[0], arr[1], arr[2]),
+                    TextureName = texture
+                };
+                face.Vertices.AddRange(arr);
+                solid.Faces.Add(face);
+            }
+            return solid;
+        }
     }
 }

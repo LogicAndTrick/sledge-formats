@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Sledge.Formats.Map.Objects;
+﻿using Sledge.Formats.Map.Objects;
 
 namespace Sledge.Formats.Map.Factories.Solids
 {
