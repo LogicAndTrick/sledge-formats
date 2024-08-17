@@ -13,13 +13,13 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake source valve wad vtf</PackageTags>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <Version>1.0.0</Version>
+    <PackageReleaseNotes>Update ImageSharp version</PackageReleaseNotes>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BCnEncoder.Net.ImageSharp" Version="1.1.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
   </ItemGroup>
 
   <ItemGroup>
