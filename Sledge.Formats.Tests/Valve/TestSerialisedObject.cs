@@ -178,4 +178,37 @@ Test4
             return new SerialisedObject(ms);
         }
     }
+
+    [TestMethod]
+    public void TestNestedObjectsWithQuotedNames()
+    {
+        var input = @"
+""One""
+{
+    ""A"" ""B""
+    Two
+    {
+        ""Three""
+        {
+            ""Key"" ""Value""
+        }
+        ""C"" ""D""
+    }
+}";
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var fmt = new SerialisedObjectFormatter();
+        var output = fmt.Deserialize(stream).ToList();
+
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("One", output[0].Name);
+        Assert.AreEqual("B", output[0].Get<string>("A"));
+
+        Assert.AreEqual(1, output[0].Children.Count);
+        Assert.AreEqual("Two", output[0].Children[0].Name);
+        Assert.AreEqual("D", output[0].Children[0].Get<string>("C"));
+
+        Assert.AreEqual(1, output[0].Children[0].Children.Count);
+        Assert.AreEqual("Three", output[0].Children[0].Children[0].Name);
+        Assert.AreEqual("Value", output[0].Children[0].Children[0].Get<string>("Key"));
+    }
 }

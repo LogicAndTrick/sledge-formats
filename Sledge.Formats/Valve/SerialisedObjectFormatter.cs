@@ -57,7 +57,7 @@ namespace Sledge.Formats.Valve
         }
 
         #region Printer
-        
+
         /// <summary>
         /// Ensure a string doesn't exceed a length limit.
         /// </summary>
@@ -123,7 +123,7 @@ namespace Sledge.Formats.Valve
         {
             SerialisedObject current = null;
             var stack = new Stack<SerialisedObject>();
-            
+
             var tokens = Tokeniser.Tokenise(reader);
             using (var it = tokens.GetEnumerator())
             {
@@ -160,30 +160,46 @@ namespace Sledge.Formats.Valve
                             {
                                 throw new ArgumentOutOfRangeException();
                             }
-                        case TokenType.String when current == null:
+                        case TokenType.String:
                         case TokenType.Name:
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.Symbol || it.Current.Symbol != Tokens.Symbols.OpenBrace)
+                            if (!it.MoveNext() || it.Current == null)
+                            {
+                                throw new TokenParsingException(t, "Unexpected end of file");
+                            }
+
+                            if (it.Current.Type == TokenType.Symbol && it.Current.Symbol == Tokens.Symbols.OpenBrace)
+                            {
+                                var next = new SerialisedObject(t.Value);
+                                if (current == null)
+                                {
+                                    current = next;
+                                }
+                                else
+                                {
+                                    stack.Push(current);
+                                    current = next;
+                                }
+
+                                break;
+                            }
+                            else if (t.Type == TokenType.String && it.Current.Type == TokenType.String)
+                            {
+                                if (current == null) throw new TokenParsingException(t, "No structure to add key/values to");
+
+                                var key = t.Value;
+                                var value = it.Current.Value;
+                                current.Properties.Add(new KeyValuePair<string, string>(key, value));
+
+                                break;
+                            }
+                            else if (t.Type == TokenType.Name)
                             {
                                 throw new TokenParsingException(t, "Expected structure open brace");
                             }
-                            var next = new SerialisedObject(t.Value);
-                            if (current == null)
-                            {
-                                current = next;
-                            }
                             else
                             {
-                                stack.Push(current);
-                                current = next;
+                                throw new TokenParsingException(t, "Expected string value or open brace to follow string key");
                             }
-                            break;
-                        case TokenType.String:
-                            if (current == null) throw new TokenParsingException(t, "No structure to add key/values to");
-                            var key = t.Value;
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.String) throw new TokenParsingException(t, "Expected string value to follow key");
-                            var value = it.Current.Value;
-                            current.Properties.Add(new KeyValuePair<string, string>(key, value));
-                            break;
                         case TokenType.End:
                             if (current != null) throw new TokenParsingException(t, "Unterminated structure at end of file");
                             yield break;
