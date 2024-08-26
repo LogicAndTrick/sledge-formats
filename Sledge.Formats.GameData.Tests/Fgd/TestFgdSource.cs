@@ -444,4 +444,29 @@ public class TestFgdSource
         Assert.AreEqual(1, in1.Metadata.Count);
         Assert.AreEqual(1m, in1.Metadata["another_test"].Value);
     }
+
+    [TestMethod]
+    public void TestMetadataDictionaryWithNegativeValue()
+    {
+        const string fgd = @"@PointClass metadata { view_attach_offset = [ -10.0, 0.0, 0.0 ] } = test : ""test"" []";
+        var format = new FgdFormat();
+        var def = format.Read(fgd);
+
+        Assert.AreEqual(1, def.Classes.Count);
+
+        var ent = def.Classes[0];
+        Assert.AreEqual("test", ent.Name);
+        Assert.AreEqual(1, ent.Dictionaries.Count);
+
+        var meta = ent.Dictionaries[0];
+        var vao = meta["view_attach_offset"];
+        Assert.AreEqual(GameDataDictionaryValueType.Array, vao.Type);
+        Assert.IsInstanceOfType<List<GameDataDictionaryValue>>(vao.Value);
+
+        var values = (List<GameDataDictionaryValue>)vao.Value;
+        Assert.AreEqual(3, values.Count);
+        Assert.AreEqual(-10m, values[0].Value);
+        Assert.AreEqual(0m, values[1].Value);
+        Assert.AreEqual(0m, values[2].Value);
+    }
 }

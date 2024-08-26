@@ -592,7 +592,7 @@ namespace Sledge.Formats.GameData
                 else if (cur.Value == "false") return new GameDataDictionaryValue(false);
                 else throw new TokenParsingException(cur, $"Unknown dictionary value {cur.Value}");
             }
-            else if (it.Current?.Is(TokenType.Number) == true)
+            else if (it.Current?.Is(TokenType.Number) == true || it.Current?.Is(TokenType.Symbol, Symbols.Minus) == true)
             {
                 var metaValue = TokenParsing.ParseDecimal(it);
                 return new GameDataDictionaryValue(metaValue);
