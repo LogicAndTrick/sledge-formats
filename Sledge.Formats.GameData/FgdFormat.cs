@@ -658,6 +658,15 @@ namespace Sledge.Formats.GameData
 
                 var io = new IO(iotype, type.type, type.subType, name);
                 cls.InOuts.Add(io);
+
+                /* Source 2 dictionary-based metadata:
+                output OnStartTouchAll(void) { is_activator_important = true } : "..."
+                */
+                if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                {
+                    ParseGameDataDictionary(it, io.Metadata);
+                }
+
                 if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
                 {
                     // description

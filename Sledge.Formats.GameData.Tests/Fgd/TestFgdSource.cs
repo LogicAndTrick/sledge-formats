@@ -417,4 +417,31 @@ public class TestFgdSource
         Assert.AreEqual("clientSideEntity", dv["key"].Value);
         Assert.AreEqual(1m, dv["value"].Value);
     }
+
+    [TestMethod]
+    public void TestMetadataInInputOutput()
+    {
+        const string fgd = @"
+@BaseClass = Example
+[
+	output ExampleOutput(void) { is_some_test = true } : ""This is a test""
+    input ExampleInput(void) { another_test = 1 }
+]";
+        var format = new FgdFormat();
+        var def = format.Read(fgd);
+
+        Assert.AreEqual(1, def.Classes.Count);
+
+        var ent = def.Classes[0];
+        Assert.AreEqual(2, ent.InOuts.Count);
+
+        var out1 = ent.InOuts.Single(x => x.IOType == IOType.Output);
+        var in1 = ent.InOuts.Single(x => x.IOType == IOType.Input);
+
+        Assert.AreEqual(1, out1.Metadata.Count);
+        Assert.AreEqual(true, out1.Metadata["is_some_test"].Value);
+
+        Assert.AreEqual(1, in1.Metadata.Count);
+        Assert.AreEqual(1m, in1.Metadata["another_test"].Value);
+    }
 }
