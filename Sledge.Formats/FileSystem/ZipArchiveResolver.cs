@@ -7,7 +7,7 @@ using System.Linq;
 namespace Sledge.Formats.FileSystem
 {
     /// <summary>
-    /// A file resolver for a zip file.
+    /// A file resolver for a zip file. Zip archives are treated as case-sensitive on all platforms.
     /// </summary>
     public class ZipArchiveResolver : IFileResolver, IDisposable
     {
@@ -28,7 +28,7 @@ namespace Sledge.Formats.FileSystem
         /// Create an instance for a <see cref="ZipArchiveResolver"/>.
         /// </summary>
         /// <param name="zip">The ZipArchive instance</param>
-        /// <param name="leaveOpen">False to dispose the archive when this instance is dispose, true to leave it undisposed</param>
+        /// <param name="leaveOpen">False to dispose the archive when this instance is disposed, true to leave it undisposed</param>
         public ZipArchiveResolver(ZipArchive zip, bool leaveOpen = false)
         {
             _zip = zip;
@@ -40,49 +40,59 @@ namespace Sledge.Formats.FileSystem
             return path.TrimStart('/');
         }
 
+        public bool FolderExists(string path)
+        {
+            path = NormalisePath(path) + "/";
+            if (path == "/" || _zip.GetEntry(path) != null) return true; // directory entry exists
+            return _zip.Entries.Any(x => x.FullName.StartsWith(path));
+        }
+
         public bool FileExists(string path)
         {
             path = NormalisePath(path);
-            return _zip.GetEntry(path) != null;
+            var e = _zip.GetEntry(path);
+            return e != null && !e.FullName.EndsWith("/");
+        }
+
+        public long FileSize(string path)
+        {
+            path = NormalisePath(path);
+            var e = _zip.GetEntry(path);
+            if (e == null || e.FullName.EndsWith("/")) throw new FileNotFoundException();
+            return e.Length;
         }
 
         public Stream OpenFile(string path)
         {
             path = NormalisePath(path);
             var e = _zip.GetEntry(path) ?? throw new FileNotFoundException();
+            if (e.FullName.EndsWith("/")) throw new FileNotFoundException(); // its a directory entry
             return e.Open();
         }
 
         public IEnumerable<string> GetFiles(string path)
         {
-            path = NormalisePath(path);
-            var basePath = path;
+            if (!FolderExists(path)) throw new DirectoryNotFoundException();
+            path = NormalisePath(path) + "/";
+            if (path == "/") path = "";
 
-            if (basePath != string.Empty)
-            {
-                var e = _zip.GetEntry(basePath) ?? throw new FileNotFoundException();
-                if (e.Length != 0) throw new FileNotFoundException();
-            }
-
-            return _zip.Entries.Where(x => x.Name != String.Empty && x.FullName.StartsWith(basePath) && !x.FullName.EndsWith("/"))
-                .Select(x => x.FullName.Substring(basePath.Length))
-                .Where(x => !x.Contains('/'));
+            return _zip.Entries.Where(x => x.FullName != path && x.FullName.StartsWith(path))
+                .Select(x => x.FullName.Substring(path.Length))
+                .Where(x => !x.Contains('/'))
+                .Select(x => path + x);
         }
 
         public IEnumerable<string> GetFolders(string path)
         {
-            path = NormalisePath(path);
-            var basePath = path;
+            if (!FolderExists(path)) throw new DirectoryNotFoundException();
+            path = NormalisePath(path) + "/";
+            if (path == "/") path = "";
 
-            if (basePath != string.Empty)
-            {
-                var e = _zip.GetEntry(basePath) ?? throw new FileNotFoundException();
-                if (e.Length != 0) throw new FileNotFoundException();
-            }
-
-            return _zip.Entries.Where(x => x.Name == String.Empty && x.FullName.StartsWith(basePath) && x.FullName.EndsWith("/"))
-                .Select(x => x.FullName.Substring(basePath.Length, x.FullName.Length - basePath.Length - 1))
-                .Where(x => !x.Contains('/'));
+            return _zip.Entries.Where(x => x.FullName != path && x.FullName.StartsWith(path))
+                .Select(x => x.FullName.Substring(path.Length))
+                .Where(x => x.Contains('/'))
+                .Select(x => path + x.Split('/').First())
+                .Distinct();
         }
 
         public void Dispose()
