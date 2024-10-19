@@ -25,7 +25,7 @@ namespace Sledge.Formats.FileSystem
         }
 
         /// <summary>
-        /// Create an instance for a <see cref="ZipArchiveResolver"/>.
+        /// Create an instance for a <see cref="ZipArchive"/>.
         /// </summary>
         /// <param name="zip">The ZipArchive instance</param>
         /// <param name="leaveOpen">False to dispose the archive when this instance is disposed, true to leave it undisposed</param>

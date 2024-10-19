@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sledge.Formats.Packages\Sledge.Formats.Packages.csproj" />
     <ProjectReference Include="..\Sledge.Formats\Sledge.Formats.csproj" />
   </ItemGroup>
 

@@ -11,8 +11,8 @@
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>Add standard Stream constructor to PakPackage and VpkPackage</PackageReleaseNotes>
-    <Version>1.0.2</Version>
+    <PackageReleaseNotes>Implement PackageFileResolver as an IFileResolver for VPK/PAK packages</PackageReleaseNotes>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

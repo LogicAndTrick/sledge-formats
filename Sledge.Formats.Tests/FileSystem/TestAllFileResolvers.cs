@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using Sledge.Formats.FileSystem;
 using System.IO;
+using Sledge.Formats.Packages;
+using Sledge.Formats.Packages.FileSystem;
 
 namespace Sledge.Formats.Tests.FileSystem;
 
@@ -48,7 +50,8 @@ public class TestAllFileResolvers
             { "Disk", CreateDiskFileResolver() },
             { "ZipArchive", CreateZipArchiveResolver() },
             { "VirtualSubdirectory", CreateVirtualSubdirectoryFileResolver() },
-            { "Composite", CreateCompositeFileResolver() }
+            { "Composite", CreateCompositeFileResolver() },
+            { "Package", CreatePackageResolver() }
         };
     }
 
@@ -121,6 +124,22 @@ public class TestAllFileResolvers
         return resolver;
     }
 
+    private static IFileResolver CreatePackageResolver()
+    {
+        // since this library can't create pak files (yet???), I made this in PakScape manually
+        const string pakFile = "UEFDS5UAAABAAgAAZm9sZGVyMy9mMy50eHRmb2xkZXIyL2RhdGEyLmxvZ2ZvbGRlcjIvZGF0YTEubG9nZm9sZGVyL2RhdGEyLmxvZ2ZvbGRlci9kYXRhMS5sb2d0ZXN0Mi50eHR0ZXN0MS50eHRmb2xkZXI1L2ZvbGRlcjUuMS9hYWEudHh0Zm9sZGVyNC9mNC50eHRmb2xkZXIzL2YzLnR4dAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAOAAAAZm9sZGVyMi9kYXRhMi5sb2cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaAAAAEQAAAGZvbGRlcjIvZGF0YTEubG9nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKwAAABEAAABmb2xkZXIvZGF0YTIubG9nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAAAQAAAAZm9sZGVyL2RhdGExLmxvZwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMAAAAEAAAAHRlc3QyLnR4dAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAkAAAB0ZXN0MS50eHQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGUAAAAJAAAAZm9sZGVyNS9mb2xkZXI1LjEvYWFhLnR4dAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABuAAAAGQAAAGZvbGRlcjQvZjQudHh0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwAAAA4AAAA=";
+        var ms = new MemoryStream(Convert.FromBase64String(pakFile));
+        var package = new PakPackage(ms);
+        var resolver = new PackageFileResolver(package, true);
+        CleanupActions.Add(() =>
+        {
+            resolver.Dispose();
+            package.Dispose();
+            ms.Dispose();
+        });
+        return resolver;
+    }
+
     private static IFileResolver CreateCompositeFileResolver()
     {
         var ms = new MemoryStream();
@@ -183,6 +202,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestRootDirectory(string implementationName)
     {
         // test that "" and "/" both take us to the root folder
@@ -200,6 +220,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestFolderExists(string implementationName)
     {
         var resolver = _resolvers[implementationName];
@@ -222,6 +243,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestFileExists(string implementationName)
     {
         var resolver = _resolvers[implementationName];
@@ -244,6 +266,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestOpenFile(string implementationName)
     {
         var resolver = _resolvers[implementationName];
@@ -260,6 +283,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestFileSize(string implementationName)
     {
         var resolver = _resolvers[implementationName];
@@ -274,6 +298,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestFileNotFound(string implementationName)
     {
         var resolver = _resolvers[implementationName];
@@ -300,6 +325,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestGetFiles(string implementationName)
     {
         var resolver = _resolvers[implementationName];
@@ -316,6 +342,7 @@ public class TestAllFileResolvers
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
     [DataRow("Composite")]
+    [DataRow("Package")]
     public void TestGetFolders(string implementationName)
     {
         var resolver = _resolvers[implementationName];
