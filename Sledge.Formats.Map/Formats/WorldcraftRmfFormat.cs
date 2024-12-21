@@ -293,9 +293,9 @@ namespace Sledge.Formats.Map.Formats
             if (version <= RmfVersion.Version18)
             {
                 // We need to use quake editor logic to work out the texture axes, for that we need the plane data - see below
+                face.Rotation = br.ReadSingle();
                 face.XShift = br.ReadSingle();
                 face.YShift = br.ReadSingle();
-                face.Rotation = br.ReadSingle();
             }
             else // if (version == RmfVersion.Version22)
             {

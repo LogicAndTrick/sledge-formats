@@ -19,6 +19,8 @@
     <None Remove="Resources\rmf\16.rmf" />
     <None Remove="Resources\rmf\18.rmf" />
     <None Remove="Resources\rmf\22.rmf" />
+    <None Remove="Resources\rmf\test-cube-1.6.rmf" />
+    <None Remove="Resources\rmf\test-cube-2.2.rmf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +35,8 @@
     <EmbeddedResource Include="Resources\rmf\16.rmf" />
     <EmbeddedResource Include="Resources\rmf\18.rmf" />
     <EmbeddedResource Include="Resources\rmf\22.rmf" />
+    <EmbeddedResource Include="Resources\rmf\test-cube-1.6.rmf" />
+    <EmbeddedResource Include="Resources\rmf\test-cube-2.2.rmf" />
   </ItemGroup>
 
   <ItemGroup>

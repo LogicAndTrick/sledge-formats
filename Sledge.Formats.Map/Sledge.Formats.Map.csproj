@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Add some basic factory classes to create known solid types</PackageReleaseNotes>
-    <Version>1.2.3</Version>
+    <PackageReleaseNotes>Fix incorrect loading of texture rotation and shift values for pre-2.2 RMF files</PackageReleaseNotes>
+    <Version>1.2.4</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
