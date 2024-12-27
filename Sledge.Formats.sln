@@ -38,6 +38,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sledge.Formats.Model.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sledge.Formats.Texture.ImageSharp", "Sledge.Formats.Texture.ImageSharp\Sledge.Formats.Texture.ImageSharp.csproj", "{841D69BB-CED0-4A44-A434-9D1272EBA0BA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sledge.Formats.Configuration", "Sledge.Formats.Configuration\Sledge.Formats.Configuration.csproj", "{83B158CD-C365-4AA2-8629-AFBC544BA50B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sledge.Formats.Configuration.Tests", "Sledge.Formats.Configuration.Tests\Sledge.Formats.Configuration.Tests.csproj", "{DA30E2F5-6B37-45C2-9D88-C148D8AF0EDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +104,14 @@ Global
 		{841D69BB-CED0-4A44-A434-9D1272EBA0BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{841D69BB-CED0-4A44-A434-9D1272EBA0BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{841D69BB-CED0-4A44-A434-9D1272EBA0BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83B158CD-C365-4AA2-8629-AFBC544BA50B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83B158CD-C365-4AA2-8629-AFBC544BA50B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83B158CD-C365-4AA2-8629-AFBC544BA50B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83B158CD-C365-4AA2-8629-AFBC544BA50B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA30E2F5-6B37-45C2-9D88-C148D8AF0EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA30E2F5-6B37-45C2-9D88-C148D8AF0EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA30E2F5-6B37-45C2-9D88-C148D8AF0EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA30E2F5-6B37-45C2-9D88-C148D8AF0EDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
