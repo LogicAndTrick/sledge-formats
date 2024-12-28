@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Fix incorrect loading of texture rotation and shift values for pre-2.2 RMF files</PackageReleaseNotes>
-    <Version>1.2.4</Version>
+    <PackageReleaseNotes>Initial support for JACK prefab libraries (the JACK version with prefabs is in beta, so compatibility might change)</PackageReleaseNotes>
+    <Version>1.2.5</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>

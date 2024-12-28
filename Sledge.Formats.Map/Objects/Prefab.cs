@@ -5,6 +5,7 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public MapFile Map { get; set; }
+        public byte[] PreviewImage { get; set; }
 
         public Prefab()
         {
