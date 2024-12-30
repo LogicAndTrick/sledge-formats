@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Worldcraft\GameCfg-wc20.wc" />
+    <None Remove="Resources\Worldcraft\GameCfg-wc33.wc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Worldcraft\GameCfg-wc20.wc" />
+    <EmbeddedResource Include="Resources\Worldcraft\GameCfg-wc33.wc" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Sledge.Formats.Configuration\Sledge.Formats.Configuration.csproj" />
   </ItemGroup>
 

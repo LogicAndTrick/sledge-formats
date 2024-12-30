@@ -42,7 +42,7 @@ namespace Sledge.Formats.Configuration.Worldcraft
         /// <summary>
         /// Time to top speed (0-10 seconds)
         /// </summary>
-        public float TimeToTopSpeed { get; set; }
+        public decimal TimeToTopSpeed { get; set; }
 
         /// <summary>
         /// Reverse selection order
@@ -52,6 +52,6 @@ namespace Sledge.Formats.Configuration.Worldcraft
         /// <summary>
         /// Background color
         /// </summary>
-        public Color BackgroundColor { get; set; }
+        public Color BackgroundColor { get; set; } = Color.Black;
     }
 }

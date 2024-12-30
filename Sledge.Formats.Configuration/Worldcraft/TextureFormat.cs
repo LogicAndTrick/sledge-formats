@@ -4,8 +4,8 @@ namespace Sledge.Formats.Configuration.Worldcraft
 {
     public enum TextureFormat
     {
-        Wad3,
-        [Obsolete] Wad2,
-        [Obsolete] Wal,
+        Wad3 = 2,
+        [Obsolete] Wad2 = 0,
+        [Obsolete] Wal = 1,
     }
 }

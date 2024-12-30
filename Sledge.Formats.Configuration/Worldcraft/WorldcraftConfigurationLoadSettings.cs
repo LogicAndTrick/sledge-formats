@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Sledge.Formats.Configuration.Registry;
 
 namespace Sledge.Formats.Configuration.Worldcraft
@@ -8,7 +6,8 @@ namespace Sledge.Formats.Configuration.Worldcraft
     public class WorldcraftConfigurationLoadSettings
     {
         /// <summary>
-        /// True to attempt to autodetect the registry location from the known default registry locations
+        /// True to attempt to autodetect the registry location from the known default registry locations.
+        /// Ignored if <see cref="RegistryLocation">RegistryLocation</see> is not null.
         /// </summary>
         public bool AutodetectRegistryLocation { get; set; } = true;
 
@@ -23,7 +22,7 @@ namespace Sledge.Formats.Configuration.Worldcraft
         public RegistryView RegistryView { get; set; } = RegistryView.Default;
 
         /// <summary>
-        /// Set to a non-null value and set <see cref="AutodetectRegistryLocation">AutodetectRegistryLocation</see> to false to specify the registry location.
+        /// Set to a non-null value to specify the registry location.
         /// The registry location will usually be called "Worldcraft" or "Valve Hammer Editor" and contain subkeys called "General", "2D Views", "3D Views", etc.
         /// </summary>
         public IRegistryKey RegistryLocation { get; set; }
@@ -36,11 +35,12 @@ namespace Sledge.Formats.Configuration.Worldcraft
         /// <summary>
         /// True to attempt to autodetect the install directory from the registry ([Worldcraft/General/Directory] registry key).
         /// All worldcraft versions store the install directory in the registry except for version 1.0.
+        /// Ignored if <see cref="InstallDirectory">InstallDirectory</see> is not null.
         /// </summary>
         public bool AutodetectInstallDirectory { get; set; } = true;
 
         /// <summary>
-        /// Set to a non-null value and set <see cref="AutodetectInstallDirectory">AutodetectInstallDirectory</see> to false to specify the install directory
+        /// Set to a non-null value to specify the install directory
         /// </summary>
         public string InstallDirectory { get; set; }
 

@@ -4,9 +4,9 @@ namespace Sledge.Formats.Configuration.Worldcraft
 {
     public enum MapType
     {
-        HalfLife,
-        [Obsolete] Quake,
-        [Obsolete] Quake2,
-        [Obsolete] Hexen2,
+        HalfLife = 3,
+        [Obsolete] Quake = 0,
+        [Obsolete] Quake2 = 2,
+        [Obsolete] Hexen2 = 1,
     }
 }

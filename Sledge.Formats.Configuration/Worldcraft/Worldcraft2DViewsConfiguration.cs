@@ -65,6 +65,6 @@
         /// <summary>
         /// Grid configuration
         /// </summary>
-        public WorldcraftGridOptions Grid { get; set; }
+        public WorldcraftGridOptions Grid { get; } = new WorldcraftGridOptions();
     }
 }

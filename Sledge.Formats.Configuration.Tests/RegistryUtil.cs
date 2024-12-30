@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Sledge.Formats.Configuration.Registry;
 
 namespace Sledge.Formats.Configuration.Tests;
