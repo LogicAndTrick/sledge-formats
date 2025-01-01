@@ -11,14 +11,23 @@ namespace Sledge.Formats.Configuration.Tests;
 public sealed class TestWorldcraftConfiguration
 {
     /// <summary>
-    /// If you don't have worldcraft settings in your registry, this test will fail
+    /// This test is just for information from your local PC, it will not fail.
     /// </summary>
     [TestMethod]
     public void TestLoadSettingsFromLocalComputer()
     {
-        var config = WorldcraftConfiguration.LoadFromRegistry(WorldcraftConfigurationLoadSettings.Default);
-        Console.WriteLine("Undo levels: " + config.General.UndoLevels);
-        Console.WriteLine("Textures: " + string.Join("; ", config.TextureDirectories));
+        try
+        {
+            var config = WorldcraftConfiguration.LoadFromRegistry(WorldcraftConfigurationLoadSettings.Default);
+            Console.WriteLine("Install directory: " + config.General.InstallDirectory);
+            Console.WriteLine("Undo levels: " + config.General.UndoLevels);
+            Console.WriteLine("Textures: " + string.Join("; ", config.TextureDirectories));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unable to load config from local computer.");
+            Console.WriteLine(ex.Message);
+        }
     }
 
     [TestMethod]
@@ -28,6 +37,7 @@ public sealed class TestWorldcraftConfiguration
         var config = WorldcraftConfiguration.LoadFromRegistry(new WorldcraftConfigurationLoadSettings
         {
             LoadGameConfigurations = false,
+            LoadCommandSequences = false,
             RegistryLocation = reg.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"Software\Valve\Worldcraft")
         });
 
@@ -36,6 +46,7 @@ public sealed class TestWorldcraftConfiguration
         Assert.IsNotNull(config.Views3D);
         Assert.IsNotNull(config.TextureDirectories);
         Assert.IsNull(config.GameConfigurations);
+        Assert.IsNull(config.CommandSequences);
 
         Assert.AreEqual(@"C:\Users\WDAGUtilityAccount\Desktop\Worldcraft 3.3", config.General.InstallDirectory, StringComparer.InvariantCultureIgnoreCase);
         Assert.AreEqual(true, config.General.UseIndependentWindowConfigurations);
@@ -232,6 +243,180 @@ public sealed class TestWorldcraftConfiguration
         Assert.AreEqual(file.Configurations[0].BuildPrograms.VisExecutable, file2.Configurations[0].BuildPrograms.VisExecutable);
         Assert.AreEqual(file.Configurations[0].BuildPrograms.RadExecutable, file2.Configurations[0].BuildPrograms.RadExecutable);
         Assert.AreEqual(file.Configurations[0].BuildPrograms.BspDirectory, file2.Configurations[0].BuildPrograms.BspDirectory);
+    }
+
+    [TestMethod]
+    public void TestReadCommandSequenceFile15()
+    {
+        using var file = typeof(TestWorldcraftConfiguration).Assembly.GetManifestResourceStream("Sledge.Formats.Configuration.Tests.Resources.Worldcraft.CmdSeq-wc15.wc");
+        var sequences = new WorldcraftCommandSequenceFile(file).CommandSequences;
+
+        Assert.AreEqual(2, sequences.Count);
+        var (seq1, seq2) = (sequences[0], sequences[1]);
+
+        Assert.AreEqual("Default", seq1.Name);
+
+        Assert.AreEqual(true, seq1.Steps[0].IsEnabled);
+        Assert.AreEqual("a", seq1.Steps[0].Command);
+        Assert.AreEqual("b", seq1.Steps[0].Arguments);
+        Assert.AreEqual(true, seq1.Steps[0].UseLongFileNames);
+        Assert.AreEqual(true, seq1.Steps[0].EnsureFileExists);
+        Assert.AreEqual("", seq1.Steps[0].FileExistsName);
+        Assert.AreEqual(false, seq1.Steps[0].UseProcessWindow);
+
+        Assert.AreEqual(false, seq1.Steps[1].IsEnabled);
+        Assert.AreEqual("c", seq1.Steps[1].Command);
+        Assert.AreEqual("d", seq1.Steps[1].Arguments);
+        Assert.AreEqual(false, seq1.Steps[1].UseLongFileNames);
+        Assert.AreEqual(false, seq1.Steps[1].EnsureFileExists);
+        Assert.AreEqual("", seq1.Steps[1].FileExistsName);
+        Assert.AreEqual(true, seq1.Steps[1].UseProcessWindow);
+
+        Assert.AreEqual("Test", seq2.Name);
+
+        Assert.AreEqual(false, seq2.Steps[0].IsEnabled);
+        Assert.AreEqual("test1", seq2.Steps[0].Command);
+        Assert.AreEqual("test2", seq2.Steps[0].Arguments);
+        Assert.AreEqual(false, seq2.Steps[0].UseLongFileNames);
+        Assert.AreEqual(true, seq2.Steps[0].EnsureFileExists);
+        Assert.AreEqual("test3", seq2.Steps[0].FileExistsName);
+        Assert.AreEqual(true, seq2.Steps[0].UseProcessWindow);
+    }
+
+    [TestMethod]
+    public void TestReadCommandSequenceFile33()
+    {
+        using var file = typeof(TestWorldcraftConfiguration).Assembly.GetManifestResourceStream("Sledge.Formats.Configuration.Tests.Resources.Worldcraft.CmdSeq-wc33.wc"); var sequences = new WorldcraftCommandSequenceFile(file).CommandSequences;
+
+        Assert.AreEqual(4, sequences.Count);
+        var (seq1, seq2, seq3, seq4) = (sequences[0], sequences[1], sequences[2], sequences[3]);
+
+        Assert.AreEqual("Half-Life (full)", seq1.Name);
+        Assert.AreEqual("Half-Life: Counterstrike (full)", seq2.Name);
+        Assert.AreEqual("Half-Life: Opposing Force (full)", seq3.Name);
+        Assert.AreEqual("Half-Life: Team Fortress (full)", seq4.Name);
+
+        AssertSteps("valve", seq1);
+        AssertSteps("cstrike", seq2);
+        AssertSteps("gearbox", seq3);
+        AssertSteps("tfc", seq4);
+
+        static void AssertSteps(string game, WorldcraftCommandSequence sequence)
+        {
+            Assert.AreEqual(8, sequence.Steps.Count);
+
+            AssertStep(true, "Change Directory", "$exedir", true, false, "", true, sequence.Steps[0]);
+            AssertStep(true, "$csg_exe", @"$path\$file", true, false, "", true, sequence.Steps[1]);
+            AssertStep(true, "$bsp_exe", @"$path\$file", true, false, "", true, sequence.Steps[2]);
+            AssertStep(true, "$vis_exe", @"$path\$file", true, false, "", true, sequence.Steps[3]);
+            AssertStep(true, "$light_exe", @"$path\$file", true, false, "", true, sequence.Steps[4]);
+            AssertStep(true, "Copy File", @"$path\$file.bsp $bspdir\$file.bsp", true, false, "", true, sequence.Steps[5]);
+            AssertStep(true, "Copy File", @"$path\$file.pts $bspdir\$file.pts", true, false, "", true, sequence.Steps[6]);
+            switch (game)
+            {
+                case "valve":
+                    AssertStep(true, "$game_exe", "+map $file -dev -console", true, false, "", false, sequence.Steps[7]);
+                    break;
+                case "cstrike":
+                    AssertStep(true, "$game_exe", "+map $file -game cstrike -dev -console +deathmatch 1", true, false, "", false, sequence.Steps[7]);
+                    break;
+                case "gearbox":
+                    AssertStep(true, "$game_exe", "+map $file -game gearbox -dev -console", true, false, "", false, sequence.Steps[7]);
+                    break;
+                case "tfc":
+                    AssertStep(true, "$game_exe", "+map $file -game tfc -dev -console -toconsole +sv_lan 1", true, false, "", false, sequence.Steps[7]);
+                    break;
+            }
+        }
+
+        static void AssertStep(bool isEnabled, string command, string args, bool useLongFileNames, bool ensureFileExists, string fileExistsName, bool useProcessWindow, WorldcraftCommandSequenceStep step)
+        {
+            Assert.AreEqual(isEnabled, step.IsEnabled);
+            Assert.AreEqual(command, step.Command);
+            Assert.AreEqual(args, step.Arguments);
+            Assert.AreEqual(useLongFileNames, step.UseLongFileNames);
+            Assert.AreEqual(ensureFileExists, step.EnsureFileExists);
+            Assert.AreEqual(fileExistsName, step.FileExistsName);
+            Assert.AreEqual(useProcessWindow, step.UseProcessWindow);
+        }
+    }
+
+    [DataTestMethod]
+    [DataRow(0.1f)]
+    [DataRow(0.2f)]
+    public void TestWriteCommandSequencesFile(float version)
+    {
+        // The two known versions are identical aside from an unused field, so we can test them together
+        var file = new WorldcraftCommandSequenceFile();
+        file.CommandSequences.Add(new WorldcraftCommandSequence
+        {
+            Name = "Test1",
+            Steps =
+            [
+                new WorldcraftCommandSequenceStep
+                {
+                    IsEnabled = true,
+                    Command = "test1.step1.command",
+                    Arguments = "test1.step1.args",
+                    UseLongFileNames = true,
+                    EnsureFileExists = false,
+                    FileExistsName = "",
+                    UseProcessWindow = true
+                },
+                new WorldcraftCommandSequenceStep
+                {
+                    IsEnabled = false,
+                    Command = "test1.step2.command",
+                    Arguments = "test1.step2.args",
+                    UseLongFileNames = false,
+                    EnsureFileExists = true,
+                    FileExistsName = "test1.step2.filename",
+                    UseProcessWindow = false
+                },
+            ],
+        });
+        file.CommandSequences.Add(new WorldcraftCommandSequence
+        {
+            Name = "Test2",
+            Steps =
+            [
+                new WorldcraftCommandSequenceStep
+                {
+                    IsEnabled = true,
+                    Command = "test2.step1.command",
+                    Arguments = "test2.step1.args",
+                    UseLongFileNames = true,
+                    EnsureFileExists = false,
+                    FileExistsName = "",
+                    UseProcessWindow = true
+                },
+            ],
+        });
+
+        var ms = new MemoryStream();
+        file.Write(ms, version);
+        ms.Position = 0;
+
+        var file2 = new WorldcraftCommandSequenceFile(ms);
+        Assert.AreEqual(file.CommandSequences.Count, file2.CommandSequences.Count);
+        AssertSequence(file.CommandSequences[0], file2.CommandSequences[0]);
+        AssertSequence(file.CommandSequences[1], file2.CommandSequences[1]);
+
+        static void AssertSequence(WorldcraftCommandSequence expected, WorldcraftCommandSequence actual)
+        {
+            Assert.AreEqual(expected.Name, actual.Name);
+            Assert.AreEqual(expected.Steps.Count, actual.Steps.Count);
+            for (var i = 0; i < expected.Steps.Count; i++)
+            {
+                Assert.AreEqual(expected.Steps[i].IsEnabled, actual.Steps[i].IsEnabled);
+                Assert.AreEqual(expected.Steps[i].Command, actual.Steps[i].Command);
+                Assert.AreEqual(expected.Steps[i].Arguments, actual.Steps[i].Arguments);
+                Assert.AreEqual(expected.Steps[i].UseLongFileNames, actual.Steps[i].UseLongFileNames);
+                Assert.AreEqual(expected.Steps[i].EnsureFileExists, actual.Steps[i].EnsureFileExists);
+                Assert.AreEqual(expected.Steps[i].FileExistsName, actual.Steps[i].FileExistsName);
+                Assert.AreEqual(expected.Steps[i].UseProcessWindow, actual.Steps[i].UseProcessWindow);
+            }
+        }
     }
 
     private const string Worldcraft33RegString = """

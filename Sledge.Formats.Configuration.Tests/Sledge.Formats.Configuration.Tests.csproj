@@ -9,11 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Worldcraft\CmdSeq-wc15.wc" />
+    <None Remove="Resources\Worldcraft\CmdSeq-wc33.wc" />
     <None Remove="Resources\Worldcraft\GameCfg-wc20.wc" />
     <None Remove="Resources\Worldcraft\GameCfg-wc33.wc" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Worldcraft\CmdSeq-wc15.wc" />
+    <EmbeddedResource Include="Resources\Worldcraft\CmdSeq-wc33.wc" />
     <EmbeddedResource Include="Resources\Worldcraft\GameCfg-wc20.wc" />
     <EmbeddedResource Include="Resources\Worldcraft\GameCfg-wc33.wc" />
   </ItemGroup>

@@ -13,6 +13,7 @@ namespace Sledge.Formats.Configuration.Worldcraft
         public Worldcraft3DViewsConfiguration Views3D { get; set; }
         public List<string> TextureDirectories { get; set; }
         public List<WorldcraftGameConfiguration> GameConfigurations { get; set; }
+        public List<WorldcraftCommandSequence> CommandSequences { get; set; }
 
         public static WorldcraftConfiguration LoadFromRegistry(WorldcraftConfigurationLoadSettings settings = null)
         {
@@ -37,15 +38,31 @@ namespace Sledge.Formats.Configuration.Worldcraft
                 installDir = config.General.InstallDirectory;
             }
 
-            if (settings.LoadGameConfigurations && Directory.Exists(installDir))
+            if (Directory.Exists(installDir))
             {
-                var configFile = Path.Combine(installDir, "GameCfg.wc");
-                if (File.Exists(configFile))
+                if (settings.LoadGameConfigurations)
                 {
-                    using (var fs = File.OpenRead(configFile))
+                    var configFile = Path.Combine(installDir, "GameCfg.wc");
+                    if (File.Exists(configFile))
                     {
-                        var cfg = new WorldcraftGameConfigurationFile(fs);
-                        config.GameConfigurations = cfg.Configurations;
+                        using (var fs = File.OpenRead(configFile))
+                        {
+                            var cfg = new WorldcraftGameConfigurationFile(fs);
+                            config.GameConfigurations = cfg.Configurations;
+                        }
+                    }
+                }
+
+                if (settings.LoadCommandSequences)
+                {
+                    var cmdSeqFile = Path.Combine(installDir, "CmdSeq.wc");
+                    if (File.Exists(cmdSeqFile))
+                    {
+                        using (var fs = File.OpenRead(cmdSeqFile))
+                        {
+                            var cfg = new WorldcraftCommandSequenceFile(fs);
+                            config.CommandSequences = cfg.CommandSequences;
+                        }
                     }
                 }
             }

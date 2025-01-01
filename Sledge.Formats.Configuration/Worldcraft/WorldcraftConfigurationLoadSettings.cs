@@ -33,6 +33,11 @@ namespace Sledge.Formats.Configuration.Worldcraft
         public bool LoadGameConfigurations { get; set; } = true;
 
         /// <summary>
+        /// True to attempt to load command sequences from the install directory
+        /// </summary>
+        public bool LoadCommandSequences { get; set; } = true;
+
+        /// <summary>
         /// True to attempt to autodetect the install directory from the registry ([Worldcraft/General/Directory] registry key).
         /// All worldcraft versions store the install directory in the registry except for version 1.0.
         /// Ignored if <see cref="InstallDirectory">InstallDirectory</see> is not null.
@@ -51,6 +56,7 @@ namespace Sledge.Formats.Configuration.Worldcraft
         {
             AutodetectRegistryLocation = true,
             LoadGameConfigurations = true,
+            LoadCommandSequences = true,
             AutodetectInstallDirectory = true,
         };
     }
