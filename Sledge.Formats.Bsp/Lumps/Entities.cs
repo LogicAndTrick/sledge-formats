@@ -21,23 +21,10 @@ namespace Sledge.Formats.Bsp.Lumps
         {
             var text = Encoding.ASCII.GetString(br.ReadBytes(blob.Length));
 
-            // Remove comments
-            var cleaned = new StringBuilder();
-            foreach (var line in text.Split('\n'))
-            {
-                var l = line;
-                var idx = l.IndexOf("//", StringComparison.Ordinal);
-                if (idx >= 0) l = l.Substring(0, idx);
-                l = l.Trim();
-                cleaned.Append(l).Append('\n');
-            }
-
-            var data = cleaned.ToString();
-
             Entity cur = null;
             int i;
             string key = null;
-            for (i = 0; i < data.Length; i++)
+            for (i = 0; i < text.Length; i++)
             {
                 var token = GetToken();
                 if (token == "{")
@@ -79,29 +66,38 @@ namespace Sledge.Formats.Bsp.Lumps
             {
                 if (!ScanToNonWhitespace()) return null;
 
-                if (data[i] == '{' || data[i] == '}')
+                if (text[i] == '/' && i + 1 < text.Length && text[i + 1] == '/')
                 {
-                    // Start/end entity
-                    return data[i].ToString();
+                    // Comment, find end of line and then skip whitespace again
+                    var idx = text.IndexOf('\n', i + 1);
+                    if (idx < 0) return null;
+                    i = idx + 1;
+                    if (!ScanToNonWhitespace()) return null;
                 }
 
-                if (data[i] == '"')
+                if (text[i] == '{' || text[i] == '}')
+                {
+                    // Start/end entity
+                    return text[i].ToString();
+                }
+
+                if (text[i] == '"')
                 {
                     // Quoted string, find end quote
-                    var idx = data.IndexOf('"', i + 1);
+                    var idx = text.IndexOf('"', i + 1);
                     if (idx < 0) return null;
-                    var tok = data.Substring(i + 1, idx - i - 1);
+                    var tok = text.Substring(i + 1, idx - i - 1);
                     i = idx + 1;
                     return tok;
                 }
 
-                if (data[i] > 32)
+                if (text[i] > 32)
                 {
                     // Not whitespace
                     var s = "";
-                    while (data[i] > 32)
+                    while (text[i] > 32)
                     {
-                        s += data[i++];
+                        s += text[i++];
                     }
                     return s;
                 }
@@ -111,9 +107,9 @@ namespace Sledge.Formats.Bsp.Lumps
 
             bool ScanToNonWhitespace()
             {
-                while (i < data.Length)
+                while (i < text.Length)
                 {
-                    if (data[i] == ' ' || data[i] == '\n') i++;
+                    if (text[i] == ' ' || text[i] == '\n') i++;
                     else return true;
                 }
 
