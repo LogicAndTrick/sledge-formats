@@ -13,10 +13,10 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve liblist vdf</PackageTags>
-    <PackageReleaseNotes>Additions to the IFileSystem interface</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix parsing issues when serialised object keys/values are unquoted and contain special characters</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

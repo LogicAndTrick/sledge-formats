@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Sledge.Formats.Tokens;
+using Sledge.Formats.Tokens.Readers;
 
 namespace Sledge.Formats.Valve
 {
@@ -112,7 +113,23 @@ namespace Sledge.Formats.Valve
             Tokens.Symbols.CloseBrace
         };
 
-        private static readonly Tokeniser Tokeniser = new Tokeniser(Symbols);
+        private static readonly Tokeniser Tokeniser;
+
+        static SerialisedObjectFormatter()
+        {
+            Tokeniser = new Tokeniser(
+                new SingleLineCommentTokenReader(),
+                new StringTokenReader(),
+                new UnsignedIntegerTokenReader(),
+                new SymbolTokenReader(Symbols),
+                new NameTokenReader(IsValidNameCharacter, IsValidNameCharacter)
+            );
+        }
+
+        private static bool IsValidNameCharacter(char c)
+        {
+            return c != '"' && c != '{' && c != '}' && !char.IsWhiteSpace(c) && !char.IsControl(c);
+        }
 
         /// <summary>
         /// Parse a structure from a stream
@@ -182,7 +199,7 @@ namespace Sledge.Formats.Valve
 
                                 break;
                             }
-                            else if (t.Type == TokenType.String && it.Current.Type == TokenType.String)
+                            else if (it.Current.Type == TokenType.String || it.Current.Type == TokenType.Name)
                             {
                                 if (current == null) throw new TokenParsingException(t, "No structure to add key/values to");
 
@@ -191,10 +208,6 @@ namespace Sledge.Formats.Valve
                                 current.Properties.Add(new KeyValuePair<string, string>(key, value));
 
                                 break;
-                            }
-                            else if (t.Type == TokenType.Name)
-                            {
-                                throw new TokenParsingException(t, "Expected structure open brace");
                             }
                             else
                             {

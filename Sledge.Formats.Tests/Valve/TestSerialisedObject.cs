@@ -211,4 +211,44 @@ Test4
         Assert.AreEqual("Three", output[0].Children[0].Children[0].Name);
         Assert.AreEqual("Value", output[0].Children[0].Children[0].Get<string>("Key"));
     }
+
+    [TestMethod]
+    public void TestSpecialCharactersInKeyValues()
+    {
+        var input = """
+                    One
+                    {
+                    $key1 "$value1"
+                    $key2 $value2
+                    !key3 &value3
+                    !@#$%^&*()_+ value4
+                    A B
+                    "C" D
+                    E "F"
+                    "G" "H"
+                    $I { }
+                    "$J" { }
+                    }
+                    """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var fmt = new SerialisedObjectFormatter();
+        var output = fmt.Deserialize(stream).ToList();
+        
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("One", output[0].Name);
+        Assert.AreEqual("$value1", output[0].Get<string>("$key1"));
+        Assert.AreEqual("$value2", output[0].Get<string>("$key2"));
+        Assert.AreEqual("&value3", output[0].Get<string>("!key3"));
+        Assert.AreEqual("value4", output[0].Get<string>("!@#$%^&*()_+"));
+        Assert.AreEqual("B", output[0].Get<string>("A"));
+        Assert.AreEqual("D", output[0].Get<string>("C"));
+        Assert.AreEqual("F", output[0].Get<string>("E"));
+        Assert.AreEqual("H", output[0].Get<string>("G"));
+        Assert.AreEqual(2, output[0].Children.Count);
+        Assert.AreEqual("$I", output[0].Children[0].Name);
+        Assert.AreEqual(0, output[0].Children[0].Children.Count);
+        Assert.AreEqual("$J", output[0].Children[1].Name);
+        Assert.AreEqual(0, output[0].Children[1].Children.Count);
+    }
 }
