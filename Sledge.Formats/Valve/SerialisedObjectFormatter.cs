@@ -120,7 +120,6 @@ namespace Sledge.Formats.Valve
             Tokeniser = new Tokeniser(
                 new SingleLineCommentTokenReader(),
                 new StringTokenReader(),
-                new UnsignedIntegerTokenReader(),
                 new SymbolTokenReader(Symbols),
                 new NameTokenReader(IsValidNameCharacter, IsValidNameCharacter)
             );

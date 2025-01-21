@@ -228,6 +228,8 @@ Test4
                     "G" "H"
                     $I { }
                     "$J" { }
+                    1 2
+                    3 4
                     }
                     """;
 
@@ -250,5 +252,7 @@ Test4
         Assert.AreEqual(0, output[0].Children[0].Children.Count);
         Assert.AreEqual("$J", output[0].Children[1].Name);
         Assert.AreEqual(0, output[0].Children[1].Children.Count);
+        Assert.AreEqual("2", output[0].Get<string>("1"));
+        Assert.AreEqual("4", output[0].Get<string>("3"));
     }
 }
