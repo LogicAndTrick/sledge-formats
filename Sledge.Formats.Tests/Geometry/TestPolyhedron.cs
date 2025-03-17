@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sledge.Formats.Geometric;
 using Sledge.Formats.Geometric.Precision;
 
 namespace Sledge.Formats.Tests.Geometry;

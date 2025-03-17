@@ -32,6 +32,15 @@ namespace Sledge.Formats.Geometric.Precision
             Vertices = vertices.ToList();
         }
 
+        /// <summary>
+        /// Creates a polygon from a list of points
+        /// </summary>
+        /// <param name="vertices">The vertices of the polygon</param>
+        public Polygond(params Vector3d[] vertices)
+        {
+            Vertices = vertices.ToList();
+        }
+
         public Polygond(Plane plane, float radius = 1000000f) : this(plane.ToPlaned(), radius)
         {
             //

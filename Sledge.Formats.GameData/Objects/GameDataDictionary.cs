@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Sledge.Formats.GameData.Objects
 {
@@ -11,6 +10,11 @@ namespace Sledge.Formats.GameData.Objects
         public GameDataDictionary(string name)
         {
             Name = name;
+        }
+
+        public override string ToString()
+        {
+            return Name + " { " + string.Join(", ", this.Select(kv => kv.Key + " = " + kv.Value)) + " }";
         }
     }
 }

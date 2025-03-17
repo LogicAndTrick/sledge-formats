@@ -1,0 +1,48 @@
+<Project Sdk="MSTest.Sdk/3.6.1">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseVSTest>true</UseVSTest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Worldcraft\CmdSeq-wc15.wc" />
+    <None Remove="Resources\Worldcraft\CmdSeq-wc33.wc" />
+    <None Remove="Resources\Worldcraft\GameCfg-wc20.wc" />
+    <None Remove="Resources\Worldcraft\GameCfg-wc33.wc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Worldcraft\CmdSeq-wc15.wc" />
+    <EmbeddedResource Include="Resources\Worldcraft\CmdSeq-wc33.wc" />
+    <EmbeddedResource Include="Resources\Worldcraft\GameCfg-wc20.wc" />
+    <EmbeddedResource Include="Resources\Worldcraft\GameCfg-wc33.wc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sledge.Formats.Configuration\Sledge.Formats.Configuration.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.Analyzers" Version="3.7.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestAdapter" Version="3.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestFramework" Version="3.7.0" />
+  </ItemGroup>
+
+</Project>

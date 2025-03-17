@@ -13,6 +13,8 @@ namespace Sledge.Formats.Bsp.Lumps
         private readonly IList<Lightmap> _lightmaps;
         private byte[] _lightmapData;
 
+        public byte[] RawLightmapData => _lightmapData;
+
         public Lightmaps()
         {
             _lightmaps = new List<Lightmap>();

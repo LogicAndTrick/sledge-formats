@@ -280,17 +280,16 @@ namespace Sledge.Formats.Model.Goldsource
 
                 var seqGroup = SequenceGroups[sequence.SequenceGroup];
 
-                // Only load seqence group 0 for now (others are in other files)
+                // Load sequence group 0 from the main file, the other sequence groups are in sub files
                 if (sequence.SequenceGroup == 0)
                 {
                     var pos = br.BaseStream.Position;
                     sequence.Blends = LoadAnimationBlends(br, sequence, numBones);
                     br.BaseStream.Position = pos;
                 }
-                else if (sequenceGroups.ContainsKey(seqGroup.Name))
+                else if (sequenceGroups.TryGetValue(seqGroup.Name, out var group))
                 {
-                    var reader = sequenceGroups[seqGroup.Name];
-                    sequence.Blends = LoadAnimationBlends(reader, sequence, numBones);
+                    sequence.Blends = LoadAnimationBlends(group, sequence, numBones);
                 }
 
                 Sequences.Add(sequence);

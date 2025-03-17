@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using Sledge.Formats.Geometric.Precision;
 using Sledge.Formats.Map.Objects;
 using Sledge.Formats.Tokens;
 using Sledge.Formats.Tokens.Readers;
@@ -211,12 +212,14 @@ namespace Sledge.Formats.Map.Formats
             var c = ReadFacePoint(it);
 
             // map planes are clockwise, flip them around when computing the plane to get a counter-clockwise plane
-            var plane = Plane.CreateFromVertices(c, b, a);
+            var plane = Plane.CreateFromVertices(c.ToVector3(), b.ToVector3(), a.ToVector3());
 
             var face = new Face
             {
                 Plane = plane,
-                TextureName = ""
+                TextureName = "",
+                Vertices = { a.ToVector3(), b.ToVector3(), c.ToVector3() },
+                OriginalPlaneVertices = new [] { c, b, a }
             };
 
             var wht = Expect(it, TokenType.Whitespace);
@@ -297,19 +300,19 @@ namespace Sledge.Formats.Map.Formats
             return face;
         }
 
-        private Vector3 ReadFacePoint(IEnumerator<Token> it)
+        private Vector3d ReadFacePoint(IEnumerator<Token> it)
         {
             Expect(it, TokenType.Symbol, Symbols.OpenParen);
             Expect(it, TokenType.Whitespace, " ");
-            var x = (float) ParseDecimal(it);
+            var x = (double) ParseDecimal(it);
             Expect(it, TokenType.Whitespace, " ");
-            var y = (float) ParseDecimal(it);
+            var y = (double) ParseDecimal(it);
             Expect(it, TokenType.Whitespace, " ");
-            var z = (float) ParseDecimal(it);
+            var z = (double) ParseDecimal(it);
             Expect(it, TokenType.Whitespace, " ");
             Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
-            return new Vector3(x, y, z);
+            return new Vector3d(x, y, z);
         }
 
         private (Vector3, float) ReadTextureAxis(IEnumerator<Token> it)

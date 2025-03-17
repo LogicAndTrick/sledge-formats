@@ -31,8 +31,27 @@ namespace Sledge.Formats.FileSystem
             return path.Substring(_basePath.Length).TrimStart('/');
         }
 
+        public bool FolderExists(string path) => Directory.Exists(MakePath(path));
         public bool FileExists(string path) => File.Exists(MakePath(path));
-        public Stream OpenFile(string path) => File.Open(MakePath(path), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+        public long FileSize(string path)
+        {
+            var fi = new FileInfo(MakePath(path));
+            return fi.Length;
+        }
+
+        public Stream OpenFile(string path)
+        {
+            try
+            {
+                return File.Open(MakePath(path), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                throw new FileNotFoundException(ex.Message, ex);
+            }
+        }
+
         public IEnumerable<string> GetFiles(string path) => Directory.GetFiles(MakePath(path)).Select(NormalisePath);
         public IEnumerable<string> GetFolders(string path) => Directory.GetDirectories(MakePath(path)).Select(NormalisePath);
     }

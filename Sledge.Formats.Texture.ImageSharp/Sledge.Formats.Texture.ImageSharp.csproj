@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Authors>LogicAndTrick</Authors>
+    <Description>ImageSharp extensions for texture formats used by Quake, Half-Life, and the Source engine. Currently supported format is Source's VTF.</Description>
+    <Copyright>2024 LogicAndTrick</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
+    <PackageIcon>sledge-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>half-life quake source valve wad vtf</PackageTags>
+    <PackageReleaseNotes>Update ImageSharp version</PackageReleaseNotes>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCnEncoder.Net.ImageSharp" Version="1.1.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sledge.Formats.Texture\Sledge.Formats.Texture.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\sledge-logo.png" Link="sledge-logo.png">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+</Project>

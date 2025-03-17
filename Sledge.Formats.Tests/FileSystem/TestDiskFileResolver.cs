@@ -97,7 +97,7 @@ public class TestDiskFileResolver
         {
             dfs.OpenFile("not_found.txt");
         });
-        Assert.ThrowsException<DirectoryNotFoundException>(() =>
+        Assert.ThrowsException<FileNotFoundException>(() =>
         {
             dfs.OpenFile("not/found");
         });

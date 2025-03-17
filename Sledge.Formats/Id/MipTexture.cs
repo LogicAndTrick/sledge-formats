@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sledge.Formats.Valve;
+using System;
 using System.IO;
 using System.Text;
 
@@ -14,6 +15,46 @@ namespace Sledge.Formats.Id
         public byte[] Palette { get; set; }
 
         const int NameLength = 16;
+
+        /// <summary>
+        /// Create an empty <see cref="MipTexture"/>
+        /// </summary>
+        public MipTexture()
+        {
+            //
+        }
+
+        /// <summary>
+        /// Create a <see cref="MipTexture"/> from a stream.
+        /// </summary>
+        /// <param name="stream">The stream to read from</param>
+        /// <param name="readPalette">True to read the palette (i.e. Goldsource formats: BSP30 / WAD3)</param>
+        public MipTexture(Stream stream, bool readPalette)
+        {
+            using (var br = new BinaryReader(stream))
+            {
+                var mt = Read(br, readPalette);
+                Name = mt.Name;
+                Width = mt.Width;
+                Height = mt.Height;
+                NumMips = mt.NumMips;
+                MipData = mt.MipData;
+                Palette = mt.Palette;
+            }
+        }
+
+        /// <summary>
+        /// Write this <see cref="MipTexture"/> to the provided stream.
+        /// </summary>
+        /// <param name="stream">The stream to write to</param>
+        /// <param name="writePalette">True to write the palette (i.e. Goldsource formats: BSP30 / WAD3)</param>
+        public void WriteTo(Stream stream, bool writePalette)
+        {
+            using (var bw = new BinaryWriter(stream))
+            {
+                Write(bw, writePalette, this);
+            }
+        }
 
         public static MipTexture Read(BinaryReader br, bool readPalette)
         {
@@ -32,8 +73,8 @@ namespace Sledge.Formats.Id
             if (offsets[0] == 0)
             {
                 texture.NumMips = 0;
-                texture.MipData = new byte[0][];
-                texture.Palette = readPalette ? QuakePalette.Data : new byte[0];
+                texture.MipData = Array.Empty<byte[]>();
+                texture.Palette = readPalette ? QuakePalette.Data : Array.Empty<byte>();
                 return texture;
             }
 

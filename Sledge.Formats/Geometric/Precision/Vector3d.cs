@@ -7,7 +7,7 @@ namespace Sledge.Formats.Geometric.Precision
     /// <summary>
     /// A 3-dimensional immutable vector that uses double precision floating points.
     /// </summary>
-    public readonly struct Vector3d
+    public struct Vector3d
     {
         public static readonly Vector3d MaxValue = new Vector3d(double.MaxValue, double.MaxValue, double.MaxValue);
         public static readonly Vector3d MinValue = new Vector3d(double.MinValue, double.MinValue, double.MinValue);
@@ -17,9 +17,9 @@ namespace Sledge.Formats.Geometric.Precision
         public static readonly Vector3d UnitY = new Vector3d(0, 1, 0);
         public static readonly Vector3d UnitZ = new Vector3d(0, 0, 1);
 
-        public double X { get; }
-        public double Y { get; }
-        public double Z { get; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
 
         public Vector3d(double x, double y, double z)
         {
@@ -183,6 +183,11 @@ namespace Sledge.Formats.Geometric.Precision
         public Vector3 ToVector3()
         {
             return new Vector3((float)X, (float)Y, (float)Z);
+        }
+
+        public static Vector3d Transform(Vector3d vec, Matrix4x4 transform)
+        {
+            return Vector3.Transform(vec.ToVector3(), transform).ToVector3d();
         }
     }
 }

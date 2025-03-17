@@ -592,7 +592,7 @@ namespace Sledge.Formats.GameData
                 else if (cur.Value == "false") return new GameDataDictionaryValue(false);
                 else throw new TokenParsingException(cur, $"Unknown dictionary value {cur.Value}");
             }
-            else if (it.Current?.Is(TokenType.Number) == true)
+            else if (it.Current?.Is(TokenType.Number) == true || it.Current?.Is(TokenType.Symbol, Symbols.Minus) == true)
             {
                 var metaValue = TokenParsing.ParseDecimal(it);
                 return new GameDataDictionaryValue(metaValue);
@@ -658,6 +658,15 @@ namespace Sledge.Formats.GameData
 
                 var io = new IO(iotype, type.type, type.subType, name);
                 cls.InOuts.Add(io);
+
+                /* Source 2 dictionary-based metadata:
+                output OnStartTouchAll(void) { is_activator_important = true } : "..."
+                */
+                if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
+                {
+                    ParseGameDataDictionary(it, io.Metadata);
+                }
+
                 if (it.Current?.Is(TokenType.Symbol, Symbols.Colon) == true)
                 {
                     // description

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Sledge.Formats.Tokens;
+using Sledge.Formats.Tokens.Readers;
 
 namespace Sledge.Formats.Valve
 {
@@ -12,6 +13,11 @@ namespace Sledge.Formats.Valve
     /// </summary>
     public class SerialisedObjectFormatter
     {
+        /// <summary>
+        /// Singleton instance of a <see cref="SerialisedObjectFormatter"/>.
+        /// </summary>
+        public static readonly SerialisedObjectFormatter Instance = new SerialisedObjectFormatter();
+
         /// <summary>
         /// Serialise an array of objects
         /// </summary>
@@ -52,7 +58,7 @@ namespace Sledge.Formats.Valve
         }
 
         #region Printer
-        
+
         /// <summary>
         /// Ensure a string doesn't exceed a length limit.
         /// </summary>
@@ -70,7 +76,7 @@ namespace Sledge.Formats.Valve
         /// <param name="obj">The object to print</param>
         /// <param name="tw">The output stream to write to</param>
         /// <param name="tabs">The number of tabs to indent this value to</param>
-        private static void Print(SerialisedObject obj, TextWriter tw, int tabs = 0)
+        public static void Print(SerialisedObject obj, TextWriter tw, int tabs = 0)
         {
             var preTabStr = new string(' ', tabs * 4);
             var postTabStr = new string(' ', (tabs + 1) * 4);
@@ -107,7 +113,22 @@ namespace Sledge.Formats.Valve
             Tokens.Symbols.CloseBrace
         };
 
-        private static readonly Tokeniser Tokeniser = new Tokeniser(Symbols);
+        private static readonly Tokeniser Tokeniser;
+
+        static SerialisedObjectFormatter()
+        {
+            Tokeniser = new Tokeniser(
+                new SingleLineCommentTokenReader(),
+                new StringTokenReader(),
+                new SymbolTokenReader(Symbols),
+                new NameTokenReader(IsValidNameCharacter, IsValidNameCharacter)
+            );
+        }
+
+        private static bool IsValidNameCharacter(char c)
+        {
+            return c != '"' && c != '{' && c != '}' && !char.IsWhiteSpace(c) && !char.IsControl(c);
+        }
 
         /// <summary>
         /// Parse a structure from a stream
@@ -118,7 +139,7 @@ namespace Sledge.Formats.Valve
         {
             SerialisedObject current = null;
             var stack = new Stack<SerialisedObject>();
-            
+
             var tokens = Tokeniser.Tokenise(reader);
             using (var it = tokens.GetEnumerator())
             {
@@ -155,29 +176,42 @@ namespace Sledge.Formats.Valve
                             {
                                 throw new ArgumentOutOfRangeException();
                             }
+                        case TokenType.String:
                         case TokenType.Name:
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.Symbol || it.Current.Symbol != Tokens.Symbols.OpenBrace)
+                            if (!it.MoveNext() || it.Current == null)
                             {
-                                throw new TokenParsingException(t, "Expected structure open brace");
+                                throw new TokenParsingException(t, "Unexpected end of file");
                             }
-                            var next = new SerialisedObject(t.Value);
-                            if (current == null)
+
+                            if (it.Current.Type == TokenType.Symbol && it.Current.Symbol == Tokens.Symbols.OpenBrace)
                             {
-                                current = next;
+                                var next = new SerialisedObject(t.Value);
+                                if (current == null)
+                                {
+                                    current = next;
+                                }
+                                else
+                                {
+                                    stack.Push(current);
+                                    current = next;
+                                }
+
+                                break;
+                            }
+                            else if (it.Current.Type == TokenType.String || it.Current.Type == TokenType.Name)
+                            {
+                                if (current == null) throw new TokenParsingException(t, "No structure to add key/values to");
+
+                                var key = t.Value;
+                                var value = it.Current.Value;
+                                current.Properties.Add(new KeyValuePair<string, string>(key, value));
+
+                                break;
                             }
                             else
                             {
-                                stack.Push(current);
-                                current = next;
+                                throw new TokenParsingException(t, "Expected string value or open brace to follow string key");
                             }
-                            break;
-                        case TokenType.String:
-                            if (current == null) throw new TokenParsingException(t, "No structure to add key/values to");
-                            var key = t.Value;
-                            if (!it.MoveNext() || it.Current == null || it.Current.Type != TokenType.String) throw new TokenParsingException(t, "Expected string value to follow key");
-                            var value = it.Current.Value;
-                            current.Properties.Add(new KeyValuePair<string, string>(key, value));
-                            break;
                         case TokenType.End:
                             if (current != null) throw new TokenParsingException(t, "Unterminated structure at end of file");
                             yield break;

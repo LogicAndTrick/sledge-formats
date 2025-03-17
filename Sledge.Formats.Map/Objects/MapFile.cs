@@ -12,6 +12,7 @@ namespace Sledge.Formats.Map.Objects
         public List<Camera> Cameras { get; set; }
         public List<SerialisedObject> AdditionalObjects { get; set; }
         public (Vector3 min, Vector3 max) CordonBounds { get; set; }
+        public List<BackgroundImage> BackgroundImages { get; set; }
 
         public MapFile()
         {
@@ -21,6 +22,7 @@ namespace Sledge.Formats.Map.Objects
             Cameras = new List<Camera>();
             AdditionalObjects = new List<SerialisedObject>();
             CordonBounds = (Vector3.Zero, Vector3.Zero);
+            BackgroundImages = new List<BackgroundImage>();
         }
     }
 }
