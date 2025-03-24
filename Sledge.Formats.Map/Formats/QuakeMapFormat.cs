@@ -398,7 +398,6 @@ namespace Sledge.Formats.Map.Formats
             switch (styleHint)
             {
                 case "idTech2":
-                    strings.Add("[");
                     strings.Add(face.XShift.ToString("0.######", CultureInfo.InvariantCulture));
                     strings.Add(face.YShift.ToString("0.######", CultureInfo.InvariantCulture));
                     strings.Add(face.Rotation.ToString("0.######", CultureInfo.InvariantCulture));

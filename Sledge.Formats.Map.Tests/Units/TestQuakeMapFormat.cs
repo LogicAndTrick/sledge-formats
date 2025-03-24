@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -235,12 +237,12 @@ public class TestQuakeMapFormat
         Assert.AreEqual(2, map.Worldspawn.Children.Count);
     }
 
+    [DataTestMethod]
     [DataRow(QuakeFormatFile, DisplayName = nameof(QuakeFormatFile))]
     [DataRow(ValveFormatFile, DisplayName = nameof(ValveFormatFile))]
     [DataRow(Quake2StandardFormatFile, DisplayName = nameof(Quake2StandardFormatFile))]
     [DataRow(Quake2ValveFormatFile, DisplayName = nameof(Quake2ValveFormatFile))]
     [DataRow(LotsOfWhitespace, DisplayName = nameof(LotsOfWhitespace))]
-    [DataTestMethod]
     public void TestAddCommentToEveryRow(string file)
     {
         var commented = String.Join('\n', file.Split('\n').Select(x => x + " // this is a comment "));
@@ -262,5 +264,41 @@ public class TestQuakeMapFormat
         var map = format.Read(stream);
 
         Assert.AreEqual(4, map.Worldspawn.Children.Count);
+    }
+
+    private static readonly string[] ReparseHints = { "idTech2", "Worldcraft" };
+
+    public static IEnumerable<object[]> GetFileHintCombinations()
+    {
+        foreach (var h in ReparseHints)
+        {
+            yield return new object[] { nameof(QuakeFormatFile), h, QuakeFormatFile };
+            yield return new object[] { nameof(ValveFormatFile), h, ValveFormatFile };
+            yield return new object[] { nameof(Quake2StandardFormatFile), h, Quake2StandardFormatFile };
+            yield return new object[] { nameof(Quake2ValveFormatFile), h, Quake2ValveFormatFile };
+            yield return new object[] { nameof(LotsOfWhitespace), h, LotsOfWhitespace };
+        }
+    }
+
+    public static string GetFileHintCombinationDisplayName(MethodInfo method, object[] data)
+    {
+        return $"{method.Name} ({data[0]}, {data[1]})";
+    }
+
+    [DataTestMethod]
+    [DynamicData(nameof(GetFileHintCombinations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetFileHintCombinationDisplayName))]
+    public void TestReParse(string name, string hint, string file)
+    {
+        var format = new QuakeMapFormat();
+        var stream = new MemoryStream(Encoding.ASCII.GetBytes(file));
+        var expected = format.Read(stream);
+
+        using var ms = new MemoryStream();
+        format.Write(ms, expected, hint);
+        ms.Seek(0, SeekOrigin.Begin);
+        Console.Write(Encoding.ASCII.GetString(ms.ToArray()));
+
+        var actual = format.Read(ms);
+        TestUtils.AreEqualMap(expected, actual);
     }
 }
