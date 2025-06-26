@@ -35,9 +35,26 @@ namespace Sledge.Formats.GameData.Objects
         {
             foreach (var gdo in parents)
             {
+                if(ClassType == ClassType.OverrideClass)
+                {
+                    Description = gdo.Description;
+                }
+
+                MergeDictionaries(gdo.Dictionaries);
                 MergeBehaviours(gdo.Behaviours);
                 MergeProperties(gdo.Properties);
                 MergeInOuts(gdo.InOuts);
+            }
+        }
+
+        private void MergeDictionaries(IEnumerable<GameDataDictionary> dictionaries)
+        {
+            var inc = 0;
+            foreach (var d in dictionaries)
+            {
+                var existing = Dictionaries.FirstOrDefault(x => x.Name == d.Name);
+                if (existing != null) existing.ToList().ForEach(x => existing[x.Key] = x.Value);
+                else Dictionaries.Insert(inc++, d);
             }
         }
 
