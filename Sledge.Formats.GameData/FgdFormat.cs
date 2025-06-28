@@ -517,6 +517,17 @@ namespace Sledge.Formats.GameData
 
                 if (bname.ToLower() == "base")
                 {
+                    foreach (var bvalue in bvalues)
+                    {
+                        foreach (var clsBase in def.Classes)
+                        {
+                            if (clsBase.Name == bvalue)
+                            {
+                                cls.Inherit(new List<GameDataClass> { clsBase });
+                            }
+                        }
+                    }
+
                     cls.BaseClasses.AddRange(bvalues);
                 }
                 else
