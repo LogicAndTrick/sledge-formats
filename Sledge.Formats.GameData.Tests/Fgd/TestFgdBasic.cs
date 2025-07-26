@@ -211,7 +211,8 @@ public class TestFgdBasic
         2 : ""flag2"" : 1
     ]
     nine(string) report readonly
-    ten(string) readonly report
+    ten(array:struct:light_style_event) readonly report
+    eleven(unknown_type)
 ]
 ";
         var format = new FgdFormatter();
@@ -220,19 +221,20 @@ public class TestFgdBasic
         var cls = def.Classes[0];
         Assert.AreEqual("Test", cls.Name);
 
-        Assert.AreEqual(11, cls.Properties.Count);
+        Assert.AreEqual(12, cls.Properties.Count);
 
-        AssertProperty(cls.Properties[0], "one", VariableType.Integer, "", "", "", false, false);
-        AssertProperty(cls.Properties[1], "two", VariableType.String, "description", "", "", false, false);
-        AssertProperty(cls.Properties[2], "three", VariableType.String, "desc", "default", "", false, false);
-        AssertProperty(cls.Properties[3], "four", VariableType.Color255, "", "", "", true, false);
-        AssertProperty(cls.Properties[4], "five", VariableType.String, "desc", "def", "", false, true);
-        AssertProperty(cls.Properties[5], "six", VariableType.String, "d", "-123", "details", false, false);
-        AssertProperty(cls.Properties[6], "seven", VariableType.String, "d", "", "details", false, false);
-        AssertProperty(cls.Properties[7], "eight", VariableType.Choices, "eight", "0", "", false, false);
-        AssertProperty(cls.Properties[8], "spawnflags", VariableType.Flags, "", "", "", false, false);
-        AssertProperty(cls.Properties[9], "nine", VariableType.String, "", "", "", true, true);
-        AssertProperty(cls.Properties[10], "ten", VariableType.String, "", "", "", true, true);
+        AssertProperty(cls.Properties[0], "one", VariableType.Integer, "", null, "", "", "", false, false);
+        AssertProperty(cls.Properties[1], "two", VariableType.String, "", null, "description", "", "", false, false);
+        AssertProperty(cls.Properties[2], "three", VariableType.String, "", null, "desc", "default", "", false, false);
+        AssertProperty(cls.Properties[3], "four", VariableType.Color255, "", null, "", "", "", true, false);
+        AssertProperty(cls.Properties[4], "five", VariableType.String, "", null, "desc", "def", "", false, true);
+        AssertProperty(cls.Properties[5], "six", VariableType.String, "", null, "d", "-123", "details", false, false);
+        AssertProperty(cls.Properties[6], "seven", VariableType.String, "", null, "d", "", "details", false, false);
+        AssertProperty(cls.Properties[7], "eight", VariableType.Choices, "", null, "eight", "0", "", false, false);
+        AssertProperty(cls.Properties[8], "spawnflags", VariableType.Flags, "", null, "", "", "", false, false);
+        AssertProperty(cls.Properties[9], "nine", VariableType.String, "", null, "", "", "", true, true);
+        AssertProperty(cls.Properties[10], "ten", VariableType.Array, "struct:light_style_event", null, "", "", "", true, true);
+        AssertProperty(cls.Properties[11], "eleven", VariableType.Unknown, "", "unknown_type", "", "", "", false, false);
 
         AssertOption(cls.Properties[7].Options[0], "0", "c1", false, "");
         AssertOption(cls.Properties[7].Options[1], "1", "c2", false, "details");
@@ -240,10 +242,12 @@ public class TestFgdBasic
         AssertOption(cls.Properties[8].Options[0], "1", "flag1", false, "");
         AssertOption(cls.Properties[8].Options[1], "2", "flag2", true, "");
 
-        void AssertProperty(Property actual, string name, VariableType type, string desc, string dfault, string details, bool ro, bool report)
+        void AssertProperty(Property actual, string name, VariableType type, string subType, string unknownVariableTypeName, string desc, string dfault, string details, bool ro, bool report)
         {
             Assert.AreEqual(name, actual.Name);
             Assert.AreEqual(type, actual.VariableType);
+            Assert.AreEqual(subType, actual.SubType);
+            Assert.AreEqual(unknownVariableTypeName, actual.UnknownVariableTypeName);
             Assert.AreEqual(desc, actual.Description);
             Assert.AreEqual(dfault, actual.DefaultValue);
             Assert.AreEqual(details, actual.Details);

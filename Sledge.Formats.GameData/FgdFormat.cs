@@ -656,7 +656,7 @@ namespace Sledge.Formats.GameData
                 var type = ParseVariableType(it);
                 TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
-                var io = new IO(iotype, type.type, type.subType, name);
+                var io = new IO(iotype, type.type, type.subType, name) { UnknownVariableTypeName = type.unknownVariableTypeName };
                 cls.InOuts.Add(io);
 
                 /* Source 2 dictionary-based metadata:
@@ -682,7 +682,7 @@ namespace Sledge.Formats.GameData
                 var type = ParseVariableType(it);
                 TokenParsing.Expect(it, TokenType.Symbol, Symbols.CloseParen);
 
-                var prop = new Property(name, type.type, type.subType);
+                var prop = new Property(name, type.type, type.subType) { UnknownVariableTypeName = type.unknownVariableTypeName };
                 cls.Properties.Add(prop);
 
                 var next = it.Current;
@@ -869,7 +869,7 @@ namespace Sledge.Formats.GameData
             opt.Details = TokenParsing.ParseAppendedString(it);
         }
 
-        private (VariableType type, string subType) ParseVariableType(IEnumerator<Token> it)
+        private static (VariableType type, string subType, string unknownVariableTypeName) ParseVariableType(IEnumerator<Token> it)
         {
             var token = it.Current;
             Debug.Assert(token != null, nameof(token) + " != null");
@@ -891,13 +891,13 @@ namespace Sledge.Formats.GameData
                 }
             }
 
-            type = type.Replace("_", "").ToLower();
-            if (Enum.TryParse(type, true, out VariableType vt))
+            var typeRepl = type.Replace("_", "").ToLower();
+            if (Enum.TryParse(typeRepl, true, out VariableType vt))
             {
-                return (vt, subType);
+                return (vt, subType, null);
             }
 
-            throw new TokenParsingException(token, $"Unknown variable type {type}");
+            return (VariableType.Unknown, subType, type);
         }
     }
 }

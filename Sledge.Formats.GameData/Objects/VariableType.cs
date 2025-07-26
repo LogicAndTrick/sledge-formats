@@ -2,6 +2,11 @@
 {
     public enum VariableType
     {
+        /// <summary>
+        /// Generic for unrecognised variable types. Check UnknownVariableTypeName for the actual type name.
+        /// </summary>
+        Unknown,
+
         Axis,
         Angle,
         AngleNegativePitch,
