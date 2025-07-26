@@ -2,7 +2,7 @@
 
 namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Hitbox
+    public class Hitbox
     {
         public int Bone;
         public int Group;

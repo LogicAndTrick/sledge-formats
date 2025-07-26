@@ -2,7 +2,7 @@
 
 namespace Sledge.Formats.Model.Goldsource
 {
-    public struct MeshVertex
+    public class MeshVertex
     {
         public int VertexBone;
         public int NormalBone;

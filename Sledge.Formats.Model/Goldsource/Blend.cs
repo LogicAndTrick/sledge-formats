@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Blend
+    public class Blend
     {
         public AnimationFrame[] Frames;
     }
