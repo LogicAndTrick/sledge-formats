@@ -95,10 +95,18 @@
 	
 	generictype(string) : "Generic Hint" : "" : "String identifying what the hint type is, if generic."
 
+	priority(choices): "Priority" : 0 : "Relative importance of this hint. Will factor into how NPCs will choose a hint." =
+	[
+		0: "Low"
+		1: "Medium"
+		2: "High"
+		3: "Critical"
+	]
+
+	animgraph_entry_action(string) : "Animgraph Entry Action" : "" : "Animgraph action that NPCs using this hint should use to initiate a handshake when they start using it."
+	animgraph_exit_action(string) : "Animgraph Exit Action" : "" : "Animgraph action that NPCs using this hint should use to initiate a handshake when they want to stop using it."
 	animgraph_entry_cmd(string) : "Animgraph Entry Command" : "" : "Animgraph command that NPCs using this hint should apply to their animgraph when they start using it."
-	animgraph_entry_tag(string) : "Animgraph Entry Finish Tag" : "" : "The name of the Animgraph tag that will be fired when the NPC has finished playing the animgraph entry."
 	animgraph_exit_cmd(string) : "Animgraph Exit Command" : "" : "Animgraph command that NPCs using this hint should apply to their animgraph when they want to stop using it."
-	animgraph_exit_tag(string) : "Animgraph Exit Finish Tag" : "" : "The name of the Animgraph tag that will be fired when the NPC has finished playing the animgraph exit."
 	animgraph_navlink_target(target_destination) : "Navlink Target" : "" : "The name of an info_target entity that specifies the location that the animgraph's 'v_navlink_target' parameter should be set to when an NPC uses this node."
 
 	nodeFOV(choices) : "Node FOV" : 180 : "Imagine this node requires that an NPC be in the node's field of view in order to use this hint." =
@@ -136,6 +144,8 @@
 		2 : "Alert"
 		3 : "Combat"
 	]
+
+	cooldown(float) : "Cooldown" : 0 : "After use, how long does another NPC has to wait in order to use this hint (in seconds)."
 
 	// Inputs
 	input EnableHint(void) : "Enable hint."
@@ -247,11 +257,15 @@
 //-------------------------------------------------------------------------
 @BaseClass base(Targetname, RenderFields, DamageFilter, ResponseContext, Shadow, PosableSkeleton) 
 	color(0 200 200) 
+	metadata
+	{
+		input_output_cpp = [ "base_npc" ]
+	}
 = BaseNPC
 [
 	subclass_name( vdata_choice:scripts/npc_units.vdata ) : "Unit Name" : "" : "Name of the NPC Unit."
 	squadname(String) [ group="NPC Properties" ] : "Squad Name" : : "NPCs that are in the same squad (i.e. have matching squad names) will share information about enemies, and will take turns attacking and covering each other."
-	hintgroup(String) [ group="NPC Properties" ] : "Hint Group" : "" : "Hint groups are used by NPCs to restrict their hint-node searching to a subset of the map's hint nodes. Only hint nodes with matching hint group names will be considered by this NPC."
+	hintgroup(String) [ group="NPC Properties" ] : "Hint Groups" : "" : "Comma-separated list of hint groups. Hint groups are used by NPCs to restrict their hint-node searching to a subset of the map's hint nodes. Only hint nodes with matching hint group names will be considered by this NPC. If this is empty, the NPC will only be able to use hint nodes that do not have a group."
 
 	spawnflags(Flags) = 
 	[
@@ -260,6 +274,7 @@
 		4 : "Fall to ground (unchecked means *teleport* to ground)" : 1
 		8 : "Drop Healthkit" : 0
 		16 : "Efficient - Don't acquire enemies or avoid obstacles" : 0
+		32 : "Spawn Upright - Remove any pitch / roll from the initial transform" : 0
 		128: "Wait For Script" : 0
 		256: "Long Visibility/Shoot" : 0
 		512: "Fade Corpse" : 1
@@ -270,40 +285,208 @@
 		16384 : "Ignore player push (dont give way to player)" : 0
 	]
 
-	//initialidle(string) [ group="NPC Properties" ] : "Initial Idle Activity" :: "Activity the NPC should use to idle until becomes alert"
-	sleepstate(choices) [ group="NPC Properties" ] : "Sleep State" : 0 : "Holds the NPC in stasis until specified condition. See also 'Wake Radius' and 'Wake Squad'." =
-	[
-		0 : "None"
-		1 : "Waiting for threat"
-		2 : "Waiting for PVS"
-		3 : "Waiting for input, ignore PVS"
-		4 : "Auto PVS"
-		5 : "Auto PVS after PVS"
-	]
-
-	wakeradius(float) [ group="NPC Properties" ] : "Wake Radius" : 0 : "Auto-wake if player within this distance"
-	wakesquad(boolean) [ group="NPC Properties" ] : "Wake Squad" : 0 : "Wake all of the NPCs squadmates if the NPC is woken"
-
 	enemyfilter(target_destination) [ group="NPC Properties" ] : "Enemy Filter" : "" : "Filter by which to filter potential enemies"
 
 	ignoreunseenenemies(boolean) [ group="NPC Properties" ] : "Ignore unseen enemies" : 0 : "Prefer visible enemies, regardless of distance or relationship priority"
 
+	forcedynamichull(boolean) [ group="Physics Properties" ] : "Force Dynamic Hull" : 0 : "Force this NPC to use a dynamic hull even if its vdata doesn't request it"
 	physdamagescale(float) [ group="Physics Properties" ] : "Physics Impact Damage Scale" : "1.0" : "Scales damage energy when this character is hit by a physics object. With a value of 0 the NPC will take no damage from physics."
 
 	NavRestrictionVolume(target_destination) [ group="NPC Properties" ] : "Nav Restriction Volume" : "" : "Markup volume entity to restrict unit navigation"
 
-	UseAltNpcAvoid(choices) [ group="NPC Properties" ] : "Use Alt NPC Avoidance" : 0 : "Specifies if the NPC should be using any algorithm variants when avoiding other NPCs." =
+	DefaultAnim(sequence) : "Preview Animation" : "" : "Name of an animation to preview in Hammer, does not do anything in game."
+
+	ai_lod(choices) : "AI LOD" : "0" : "Determines what AI features are enabled/disabled for performance reasons" =
 	[
-		0 : "Disabled"
-		1 : "Alt 1"
+	"-1": "Auto"
+	"0" : "High"
+	"1" : "Medium"
+	"2" : "Low"
+	"3" : "Very Low"
 	]
 
-	DefaultAnim(sequence) : "Preview Animation" : "" : "Name of an animation to preview in Hammer, does not do anything in game."
+	destructible_part_initial_state_destructed_1(choices) [ group="Initially Destroyed Destructable Parts" ] : "Hit Group 1" : "-1" : "Parts assigned to this hit group will be initialized as destructed." =
+	[
+	"-1" : "HITGROUP_INVALID"
+	"0" : "HITGROUP_GENERIC"
+	"1" : "HITGROUP_HEAD"
+	"2" : "HITGROUP_CHEST"
+	"3" : "HITGROUP_STOMACH"
+	"4" : "HITGROUP_LEFTARM"
+	"5" : "HITGROUP_RIGHTARM"
+	"6" : "HITGROUP_LEFTLEG"
+	"7" : "HITGROUP_RIGHTLEG"
+	"8" : "HITGROUP_NECK"
+	"9" : "HITGROUP_UNUSED"
+	"10" : "HITGROUP_GEAR"
+	"11" : "HITGROUP_SPECIAL"
+
+	"12" : "HITGROUP_EQUIPMENT_1"
+	"13" : "HITGROUP_EQUIPMENT_2"
+	"14" : "HITGROUP_EQUIPMENT_3"
+	"15" : "HITGROUP_EQUIPMENT_4"
+	"16" : "HITGROUP_EQUIPMENT_5"
+	"17" : "HITGROUP_EQUIPMENT_6"
+	"18" : "HITGROUP_EQUIPMENT_7"
+	"19" : "HITGROUP_EQUIPMENT_8"
+	"20" : "HITGROUP_EQUIPMENT_9"
+	"21" : "HITGROUP_EQUIPMENT_10"
+	"22" : "HITGROUP_EQUIPMENT_11"
+	"23" : "HITGROUP_EQUIPMENT_12"
+	"24" : "HITGROUP_EQUIPMENT_13"
+	"25" : "HITGROUP_EQUIPMENT_14"
+	"26" : "HITGROUP_EQUIPMENT_15"
+	"27" : "HITGROUP_EQUIPMENT_16"
+	]
+
+	destructible_part_initial_state_destructed_1_part_index(integer) [ group="Initially Destroyed Destructable Parts" ] : "Part Index 1" : "0" : "Index of the part to be initialized as destructed."
+
+	destructible_part_initial_state_destructed_2(choices) [ group="Initially Destroyed Destructable Parts" ] : "Hit Group 2" : "-1" : "Parts assigned to this hit group will be initialized as destructed." =
+	[
+	"-1" : "HITGROUP_INVALID"
+	"0" : "HITGROUP_GENERIC"
+	"1" : "HITGROUP_HEAD"
+	"2" : "HITGROUP_CHEST"
+	"3" : "HITGROUP_STOMACH"
+	"4" : "HITGROUP_LEFTARM"
+	"5" : "HITGROUP_RIGHTARM"
+	"6" : "HITGROUP_LEFTLEG"
+	"7" : "HITGROUP_RIGHTLEG"
+	"8" : "HITGROUP_NECK"
+	"9" : "HITGROUP_UNUSED"
+	"10" : "HITGROUP_GEAR"
+	"11" : "HITGROUP_SPECIAL"
+
+	"12" : "HITGROUP_EQUIPMENT_1"
+	"13" : "HITGROUP_EQUIPMENT_2"
+	"14" : "HITGROUP_EQUIPMENT_3"
+	"15" : "HITGROUP_EQUIPMENT_4"
+	"16" : "HITGROUP_EQUIPMENT_5"
+	"17" : "HITGROUP_EQUIPMENT_6"
+	"18" : "HITGROUP_EQUIPMENT_7"
+	"19" : "HITGROUP_EQUIPMENT_8"
+	"20" : "HITGROUP_EQUIPMENT_9"
+	"21" : "HITGROUP_EQUIPMENT_10"
+	"22" : "HITGROUP_EQUIPMENT_11"
+	"23" : "HITGROUP_EQUIPMENT_12"
+	"24" : "HITGROUP_EQUIPMENT_13"
+	"25" : "HITGROUP_EQUIPMENT_14"
+	"26" : "HITGROUP_EQUIPMENT_15"
+	"27" : "HITGROUP_EQUIPMENT_16"
+	]
+	destructible_part_initial_state_destructed_2_part_index(integer) [ group="Initially Destroyed Destructable Parts" ] : "Part Index 2" : "0" : "Index of the part to be initialized as destructed."
+
+	destructible_part_initial_state_destructed_3(choices) [ group="Initially Destroyed Destructable Parts" ] : "Hit Group 3" : "-1" : "Parts assigned to this hit group will be initialized as destructed." =
+	[
+	"-1" : "HITGROUP_INVALID"
+	"0" : "HITGROUP_GENERIC"
+	"1" : "HITGROUP_HEAD"
+	"2" : "HITGROUP_CHEST"
+	"3" : "HITGROUP_STOMACH"
+	"4" : "HITGROUP_LEFTARM"
+	"5" : "HITGROUP_RIGHTARM"
+	"6" : "HITGROUP_LEFTLEG"
+	"7" : "HITGROUP_RIGHTLEG"
+	"8" : "HITGROUP_NECK"
+	"9" : "HITGROUP_UNUSED"
+	"10" : "HITGROUP_GEAR"
+	"11" : "HITGROUP_SPECIAL"
+
+	"12" : "HITGROUP_EQUIPMENT_1"
+	"13" : "HITGROUP_EQUIPMENT_2"
+	"14" : "HITGROUP_EQUIPMENT_3"
+	"15" : "HITGROUP_EQUIPMENT_4"
+	"16" : "HITGROUP_EQUIPMENT_5"
+	"17" : "HITGROUP_EQUIPMENT_6"
+	"18" : "HITGROUP_EQUIPMENT_7"
+	"19" : "HITGROUP_EQUIPMENT_8"
+	"20" : "HITGROUP_EQUIPMENT_9"
+	"21" : "HITGROUP_EQUIPMENT_10"
+	"22" : "HITGROUP_EQUIPMENT_11"
+	"23" : "HITGROUP_EQUIPMENT_12"
+	"24" : "HITGROUP_EQUIPMENT_13"
+	"25" : "HITGROUP_EQUIPMENT_14"
+	"26" : "HITGROUP_EQUIPMENT_15"
+	"27" : "HITGROUP_EQUIPMENT_16"
+	]
+	destructible_part_initial_state_destructed_3_part_index(integer) [ group="Initially Destroyed Destructable Parts" ] : "Part Index 3" : "0" : "Index of the part to be initialized as destructed."
+
+	destructible_part_initial_state_destructed_4(choices) [ group="Initially Destroyed Destructable Parts" ] : "Hit Group 4" : "-1" : "Parts assigned to this hit group will be initialized as destructed." =
+	[
+	"-1" : "HITGROUP_INVALID"
+	"0" : "HITGROUP_GENERIC"
+	"1" : "HITGROUP_HEAD"
+	"2" : "HITGROUP_CHEST"
+	"3" : "HITGROUP_STOMACH"
+	"4" : "HITGROUP_LEFTARM"
+	"5" : "HITGROUP_RIGHTARM"
+	"6" : "HITGROUP_LEFTLEG"
+	"7" : "HITGROUP_RIGHTLEG"
+	"8" : "HITGROUP_NECK"
+	"9" : "HITGROUP_UNUSED"
+	"10" : "HITGROUP_GEAR"
+	"11" : "HITGROUP_SPECIAL"
+
+	"12" : "HITGROUP_EQUIPMENT_1"
+	"13" : "HITGROUP_EQUIPMENT_2"
+	"14" : "HITGROUP_EQUIPMENT_3"
+	"15" : "HITGROUP_EQUIPMENT_4"
+	"16" : "HITGROUP_EQUIPMENT_5"
+	"17" : "HITGROUP_EQUIPMENT_6"
+	"18" : "HITGROUP_EQUIPMENT_7"
+	"19" : "HITGROUP_EQUIPMENT_8"
+	"20" : "HITGROUP_EQUIPMENT_9"
+	"21" : "HITGROUP_EQUIPMENT_10"
+	"22" : "HITGROUP_EQUIPMENT_11"
+	"23" : "HITGROUP_EQUIPMENT_12"
+	"24" : "HITGROUP_EQUIPMENT_13"
+	"25" : "HITGROUP_EQUIPMENT_14"
+	"26" : "HITGROUP_EQUIPMENT_15"
+	"27" : "HITGROUP_EQUIPMENT_16"
+	]
+	destructible_part_initial_state_destructed_4_part_index(integer) [ group="Initially Destroyed Destructable Parts" ] : "Part Index 4" : "0" : "Index of the part to be initialized as destructed."
+
+	destructible_part_initial_state_destructed_5(choices) [ group="Initially Destroyed Destructable Parts" ] : "Hit Group 5" : "-1" : "Parts assigned to this hit group will be initialized as destructed." =
+	[
+	"-1" : "HITGROUP_INVALID"
+	"0" : "HITGROUP_GENERIC"
+	"1" : "HITGROUP_HEAD"
+	"2" : "HITGROUP_CHEST"
+	"3" : "HITGROUP_STOMACH"
+	"4" : "HITGROUP_LEFTARM"
+	"5" : "HITGROUP_RIGHTARM"
+	"6" : "HITGROUP_LEFTLEG"
+	"7" : "HITGROUP_RIGHTLEG"
+	"8" : "HITGROUP_NECK"
+	"9" : "HITGROUP_UNUSED"
+	"10" : "HITGROUP_GEAR"
+	"11" : "HITGROUP_SPECIAL"
+
+	"12" : "HITGROUP_EQUIPMENT_1"
+	"13" : "HITGROUP_EQUIPMENT_2"
+	"14" : "HITGROUP_EQUIPMENT_3"
+	"15" : "HITGROUP_EQUIPMENT_4"
+	"16" : "HITGROUP_EQUIPMENT_5"
+	"17" : "HITGROUP_EQUIPMENT_6"
+	"18" : "HITGROUP_EQUIPMENT_7"
+	"19" : "HITGROUP_EQUIPMENT_8"
+	"20" : "HITGROUP_EQUIPMENT_9"
+	"21" : "HITGROUP_EQUIPMENT_10"
+	"22" : "HITGROUP_EQUIPMENT_11"
+	"23" : "HITGROUP_EQUIPMENT_12"
+	"24" : "HITGROUP_EQUIPMENT_13"
+	"25" : "HITGROUP_EQUIPMENT_14"
+	"26" : "HITGROUP_EQUIPMENT_15"
+	"27" : "HITGROUP_EQUIPMENT_16"
+	]
+	destructible_part_initial_state_destructed_5_part_index(integer) [ group="Initially Destroyed Destructable Parts" ] : "Part Index 5" : "0" : "Index of the part to be initialized as destructed."
 
 	// Outputs
 	output OnDamaged(void) : "Fired when this NPC takes damage."
 	output OnDeath(void) : "Fired when this NPC is killed." 
-	output OnHalfHealth(void) : "Fired when this NPC reaches half of its maximum health."
+	output OnThreeQuarterHealth(void) : "Fired when this NPC reaches 75% of its maximum health (even if they die)."
+	output OnHalfHealth(void) : "Fired when this NPC reaches half of its maximum health (even if they die)."
+	output OnQuarterHealth(void) : "Fired when this NPC reaches 25% of its maximum health (even if they die)."
 	output OnFoundEnemy(string) : "Fired when this NPC establishes line of sight to its enemy (outputs entity)."
 	output OnLostEnemyLOS(void) : "Fired when this NPC loses line of sight to its enemy."
 	output OnLostEnemy(void) : "Fired when this NPC loses its enemy. Usually due to the enemy being killed/removed, or because this NPC has selected a newer, more dangerous enemy."
@@ -312,10 +495,10 @@
 	output OnDamagedByPlayer(void) : "Fired when this NPC is hurt by a player."
 	output OnDamagedByPlayerSquad(void) : "Fired when this NPC is hurt by a player OR by one of the player's squadmates."
 	output OnDenyCommanderUse(void) : "Fired when this NPC has refused to join the player's squad."
-	output OnSleep(void) : "Fired when this NPC enters a sleep state."
-	output OnWake(void) : "Fired when this NPC comes out of a sleep state."
 	output OnPlayerUse(void) : "Fired when a player +Uses this npc."
 	output OnUse(void) : "Fired when ANYTHING calls Use on this npc (such as other NPCs)."
+	output OnStartTouchMaterial(void) : "Fired when NPC touches a surface material defined in the touch material modifier."
+	output OnEndTouchMaterial(void) : "Fired when NPC leaves a surface material defined in the touch material modifier."
 
 	// Inputs
 	input OverrideHealth(integer) : "Overrides this entity's health, ignoring max health constraints. This is for prototyping only and all uses of this input should be audited before shipping! Values <=0 are ignored."
@@ -328,15 +511,19 @@
 	input IgniteLifetime(float) : "Ignite, with a parameter lifetime."
 	input IgniteNumHitboxFires(integer) : "Ignite, with a parameter number of hitbox fires."
 	input IgniteHitboxFireScale(float) : "Ignite, with a parameter hitbox fire scale."
+	input Extinguish(void) : "Extinguish ourself if we're on fire"
 	input Break(void) : "Break, smash into pieces"
 	input SetSquad(string) : "Set the name of this NPC's squad. It will be removed from any existing squad automatically. Leaving the parameter blank will remove the NPC from any existing squad."
-	input Wake(void) : "Wakes up the NPC if it is sleeping."
 	input ForgetEntity(string) : "Clears out the NPC's knowledge of a named entity."
 	input GagEnable(void) : "Turn on the NPC Gag flag. NPC won't speak outside of choreographed scenes."
 	input GagDisable(void) : "Turn off the NPC Gag flag."
 	input UpdateEnemyMemory(string) : "Update (or Create) this NPC's memory of an enemy and its location"
 	input BecomeRagdoll(void) : "This NPC will instantly become a ragdoll with ZERO force (just go limp). OnDeath, OnHalfHealth, etc. Outputs will **NOT** BE FIRED."
 	input SetEasingParameter(string) : "Set an easing parameter Format: <name=value>"
+	input SetNavRestrictionVolume(string) : "Set the nav restriction volume. Parameter is the name of the target markup volume. Empty parameter will clear the nav restriction."
+
+	// API Inputs
+	input SetAILOD(cpp)
 ]
 
 @BaseClass base(Targetname, Parentname) iconsprite("editor/npc_maker.vmat") color(0 0 255) = BaseNPCMaker
@@ -357,9 +544,13 @@
 	DestinationGroup(target_destination) : "Name of Destination Group" : : "If you'd like spawned NPCs to be created at an info_npc_spawn_destination entity, enter the name of that entity here. If you have more than one destination entity by that name, the Destination Criteria will be used to select one from the group."
 	CriterionVisibility(Choices) : "Dest. Criterion: Visible to player?" : 2 : "Should the NPC try to spawn at a destination that the player can see? Only applicable if a Destination Group is being used." =
 	[
-		0 : "Yes"
-		1 : "No"
+		0 : "Has LOS"
+		1 : "No LOS"
 		2 : "Don't Care"
+		3 : "In View Cone"
+		4 : "Not In View Cone"
+		5 : "Has LOS and In View Cone"
+		6 : "No LOS and Not View Cone"
 	]
 	CriterionDistance(Choices) : "Dest. Criterion: Distance to player?" : 2 : "Should the NPC try to spawn nearest to or farthest from the player's current location? Only applicable if a Destination Group is being used." =
 	[
@@ -371,15 +562,32 @@
 	MinSpawnDistance(integer) : "Minimum spawn distance from player" : 0 : "The spawn destination node distance to the player will have to be further or equal than this value."
 
 	MaxNPCCount(integer) : "Num. of NPCs" : 1 : "Number of NPCs that will spawn before this spawner is exhausted."
+	BatchCount(integer) : "Batch Count" : 1 : "Number of NPCs to spawn at once, before delaying next spawn by Frequency. (If you change this, you usually want to set Spawn Threshold too)"
 	SpawnFrequency(integer) : "Frequency" : 5 : "How often (in seconds) a new NPC will be spawned. If set to -1, a new NPC will be made when the last NPC dies."
 	RetryFrequency(integer) : "Retry Frequency" : -1 : "How long (in seconds) to wait before trying again after failing to spawn an NPC when no valid spot could be found. If set to -1, Spawn Frequency is used."
 	MaxLiveChildren(integer) : "Max Live NPCs" : 5 : "Maximum number of live children allowed at any one time (new ones will not be made until one dies). If set to -1, no limit is applied."
+	SpawnThreshold(integer) : "Spawn Threshold" : 1 : "Number of NPCs below max before we start spawning new ones. (ie, if set to 3, no NPCs will be spawned until we're 3 below our max, at which point we spawn until max)"
 	HullCheckMode(Choices) : "Hull Check Mode" : 0 : "How NPC's hull should be checked at spawn destination?" =
 	[
 		0 : "Default"
 		1 : "No hull check"
+		2 : "Oriented"
 	]
-	
+
+	ZeroPitchAndRoll(boolean) : "Zero Pitch and Roll on Spawn" : 1 : "Should we only orient the NPC using the YAW of the destination or spawner, or should we allow any angle?"
+
+	// Tactical Search Spawn		
+	centered_entity(target_destination) [ group="Tactical Search Spawn" ]: "Centered Entity" : "" : "Entity to center the tactical search spawn test around.  Filling in this field will enable this spawning path.  Requiers AI_DefaultNPC currently."
+	near_dist_min(float) [ group="Tactical Search Spawn" ]: "Distance Min" : "128" : "Minimum distance allowed from the origin of the centered entity."
+	near_dist_max(float) [ group="Tactical Search Spawn" ]: "Distance Max" : "1024" : "Maximum distance allowed from the origin of the centered entity."
+	vis_view_angle(float)  [group="Tactical Search Spawn" ]: "View Angle" : "-1" : "View angle used, if other than -1, to create side planes of a view frustum."
+	view_angle_optional(boolean) [group="Tactical Search Spawn" ]: "View Angle Optional" : "0" : "If enalbed, allow the search to fallback to outside the defined view angle in order to find a spawn position."
+	nav_filter_tag(string) [ group="Tactical Search Spawn" ]: "Nav Filter Tag Name" : "" : "Nav tag filter constraint requirement."
+	material_filter_name(string) [ group="Tactical Search Spawn" ]: "Material Filter Name" : "" : "Ground material contraint requirement.  Defined in material's surface properties."
+	spawn_randomization_radius(float) [ group="Tactical Search Spawn" ]: "Spawn Randomization Radius" : "0" : "Calculate a random spawn point within this radius centered around the center entity (WIP)."
+	allow_non_z_nav(boolean) [ group="Tactical Search Spawn" ]: "Allow Non-Z Nav" : 0 : "Allow non-Z up nav meshes as part of the path search."
+
+
 	// Outputs
 	output OnSpawnNPC(string) : "Fired when an NPC is spawned. The activator is the NPC, and the string is the name of the NPC." 
 	output OnAllSpawned(void) : "Fired when the spawned is exhausted (all children have been spawned)."
@@ -398,8 +606,11 @@
 	input SpawnInRadius(void) : "Spawn an NPC somewhere within the maker's radius."
 	input SpawnInLine(void) : "Spawn an NPC somewhere within a line behind the maker."
 	input SpawnMultiple(integer) : "Spawn multiple NPCs (uses destination group, else radius)."
-	input ChangeDestinationGroup(string) : "Switch to a different set of Destination entities."
+	input ChangeDestinationGroup(target_destination) : "Switch to a different set of Destination entities."
 	input SetMinimumSpawnDistance(integer) : "Set the minimum spawn distance from player to destination node."
+	input SetSpawnEntity(target_destination) : "Select (override) the entity to center the spawn destination around."
+	input EnableInfiniteSpawns(void) : "Set this maker to keep spawning NPCs forever."
+	input DisableInfiniteSpawns(bool) : "Set this maker to no longer infinitely spawn, using MaxChildren instead. By default, MaxChildren will be reduced by the number of live children (pass in 1 to disable)."
 ]
 
 @BaseClass base(BaseNPC) = VehicleDriverNPC
@@ -429,7 +640,7 @@
 	input Stop(void) : "Tell the driver to stop driving."
 ]
 
-@PointClass base(Targetname, Parentname) tags( Info ) drawangles() iconsprite("editor/info_npc_spawn_destination.vmat") = info_npc_spawn_destination : 
+@PointClass base(Targetname, Parentname) tags( Info ) drawangles{} iconsprite("editor/info_npc_spawn_destination.vmat") = info_npc_spawn_destination : 
 	"NPC Spawn Destination. (Consult npc_template_maker help for more info)"
 [
 	ReuseDelay(float) : "Reuse Delay" : 1 : "After an NPC is spawned at this destination, the delay before this destination is eligible for selection again."
@@ -525,6 +736,18 @@
 [
 	subject(target_name_or_class) : "Subject NPC(s) whose opinion of Target(s) will change" : "" : "This is the NPC(s) whose disposition about the Target(s) will change. May be a targetname or a classname."
 	target(target_name_or_class) : "Target player or NPC(s) about whom Subject(s) will feel differently" : "" : "This is the player or NPC(s) about whom the Subject(s) will change their disposition. May be a targetname or a classname."
+	subjectclassify(choices) : "Subject NPC(s) Classification" : "0" : "This is the Classification of the NPC who's disposition will change. Optionally used instead of the subject targetname or classname." =
+	[
+		0 : "CLASS_NONE"
+		1 : "CLASS_PLAYER"
+		2 : "CLASS_PLAYER_ALLY"
+	]
+	targetclassify(choices) : "Target NPC(s) Classification" : "0" : "This is the Classification of the target(s) about whom the Subject(s) will change their disposition. Optionally used instead of the target targetname or classname." =
+	[
+		0 : "CLASS_NONE"
+		1 : "CLASS_PLAYER"
+		2 : "CLASS_PLAYER_ALLY"
+	]
 ]
 
 @BaseClass base(Targetname) = LeadGoalBase
@@ -532,41 +755,57 @@
 	actor(target_name_or_class) : "Actor(s) to affect"
 	goal(target_destination) : "Target Entity"
 	WaitPointName(target_destination) : "Point to wait at if the target's not visible"
-	WaitDistance(float) : "Wait until player gets this close"
-	LeadDistance(float) : "Lead Distance" : "64" : "The player is considered to be lagging if he's beyond this distance.  The Actor will consider retrieving when the player is 4x 'Lead Distance' away."
-	RetrieveDistance(float) : "Retrieve Distance" : "96" : "The distance from the player that the NPC should return to when retrieving a lagging player. Must be between ('Lead Distance' + 24) and ('Lead Distance' * 4) to avoid the leader ping-ponging."
-	SuccessDistance(float) : "Success Distance" : "0" : "The distance from the player (to the NPC) that the player must be within for the Lead to succeed, once the NPC has reached the goal. If set to 0, it'll use the lead distance instead (for legacy support)."
-	Run(boolean) : "Run instead of Walk" : "0"
+	GoalTolerance(float) : "Goal Tolerance" : "-1" : "If the Actor doesn't get to the lead goal exactly, but gets within this distance, it considers itself as having reached the goal. -1 means use the NPC's default tolerance (which is half their hull width)."
+	WaitDistance(float) : "Wait until player gets within this distance before starting to Lead them. If set to 0, start Leading as soon as the player is visible."
+	StartSpeechDistance(float) : "Starting Speech Distance" : "48" : "The distance from the player that this NPC should move to before speaking the TLK_LEAD_START concept."
+	CloseDistance(float) : "Close Distance" : "64" : "The player is considered to be Close if they're within this distance."
+	LaggingDistance(float) : "Lagging Distance" : "96" : "The player is considered to be Lagging if they're beyond this distance. If the player is Lagging > 3-4s, they're considered Lost, and the NPC will go back to retrieve them. If the Retrieve Player option is set to 'No', the NPC will stop moving and wait instead."
+	SuccessDistance(float) : "Success Distance" : "64" : "The distance from the player (to the NPC) that the player must be within for the Lead to succeed, once the NPC has reached the goal. If set to 0, it'll use the lead distance instead (for legacy support)."
 
-	Retrieve(choices) : "Retrieve player?" : 1 =
+	Retrieve(choices) : "Retrieve Lost players?" : 1 =
 	[
-		0 : "No, just idle and wait"
-		1 : "Yes, move to retrieve"
+		0 : "No, just idle and wait."
+		1 : "Yes, move to retrieve."
 	]	
 	ComingBackWaitForSpeak(choices) : "Before Coming Back, Wait for speech?" : 1 =
 	[
-		0 : "No, come back while speaking"
-		1 : "Yes, wait for speech to finish"
+		0 : "No, come back while speaking."
+		1 : "Yes, wait for speech to finish."
 	]
 	RetrieveWaitForSpeak(choices) : "On Retrieve, Wait for speech?" : 1 =
 	[
-		0 : "No, start leading while speaking"
-		1 : "Yes, wait for speech to finish"
+		0 : "No, start leading while speaking."
+		1 : "Yes, wait for speech to finish before starting to lead."
 	]
 	DontSpeakStart(choices) : "Speak start greeting?" : 0 =
 	[
-		0 : "Yes, speak the start greeting"
-		1 : "No, don't speak the greeting"
+		0 : "Yes, speak the start greeting before starting to lead."
+		1 : "No, don't speak the greeting."
 	]
 	LeadDuringCombat(choices) : "Lead during combat?" : 0 =
 	[
 		0 : "No. Stop to fight, resume leading when safe."
 		1 : "Yes, lead while fighting."
 	]
-	GagLeader(choices) : "Gag Leader?" : 0 =
+	StopScenesWhenPlayerLost(choices) : "Stop Scenes When Player Lagging?" : 1 : "If set, pause any choreo scenes the Leader is running when the player lags. They'll be resumed after the player has been retrieved." =
 	[
-		0 : "No. Speak lead concepts normally, respecting other lead speech settings."
-		1 : "Yes, don't speak any lead concepts at all, overriding all other lead speech settings."
+		0 : "No, don't pause."
+		1 : "Yes, pause scenes player lags."
+	]
+	GagLeader(choices) : "Gag Leader?" : 0 : "Prevent the Leader from speaking any concepts related to the Lead behavior." = 
+	[
+		0 : "No."
+		1 : "Yes, prevent speech."
+	]
+	PreventSuccess(choices) : "Prevent Success?" : 0 : "If set, the Lead won't be allowed to succeed and finish. Use this when you want the Lead to continue forever, until some other external logic intervenes and tells it to stop." = 
+	[
+		0 : "No."
+		1 : "Yes. "
+	]
+	UseGoalFacing(choices) : "Use Goal Facing?" : 1 : "While waiting at the lead goal for the player to arrive, should the Leader face along the yaw specified by the goal entity?" =
+	[
+		0 : "No, let other AI dictate facing while waiting."
+		1 : "Yes, turn to face while waiting."
 	]
 	
 	AttractPlayerConceptModifier(string)	: "Attract player concept modifier" : "" : "Appended to the keyvalues passed into the response rules when the 'TLK_LEAD_ATTRACTPLAYER' concept is spoken."
@@ -578,17 +817,10 @@
 	ComingBackConceptModifier(string)	: "Coming Back concept modifier" : "" : "Appended to the keyvalues passed into the response rules when the 'TLK_LEAD_RETRIEVE' concept is spoken. Spoken as the NPC starts returning to the player to retrieve him."
 	RetrieveConceptModifier(string)		: "Retrieve concept modifier" : "" : "Appended to the keyvalues passed into the response rules when the 'TLK_LEAD_COMINGBACK' concept is spoken. Spoken when NPC has finally reached the player to retrieve him."
 	
-	// Spawnflags
-	spawnflags(Flags) = 
-	[
-		1 : "No def success" : 0
-		2 : "No def failure" : 0
-		4 : "Use goal facing" : 1
-	]
-
 	// Inputs
 	input Activate( void )  : "Begin the leading behavior"
 	input Deactivate( void )  : "Stop the leading behavior"
+	input UpdateLeadGoal( string ) : "Updates the Target Entity to the entity matching the string parameter."
 	
 	input SetSuccess( void ) : "Notify success of leading"
 	input SetFailure( void ) : "Notify failure of leading"
@@ -601,49 +833,33 @@
 	output OnDone( void ) : "Fires when NPC completes behavior (any post-success or fail acting is complete)"
 ]
 
-
-@PointClass base(LeadGoalBase) tags( AI ) iconsprite("editor/ai_goal_lead.vmat") = ai_goal_lead : "AI Goal Lead"
+@BaseClass base(Targetname) = AIGoalBase
 [
+	actor(target_destination) : "Actor(s) to affect"
+
 	SearchType(choices) : "Search Type" : 0 : "How to search for the entities using the targetname." = 
 	[
 		0 : "Entity Name"
 		1 : "Classname"
 	]
+
+	StartActive(boolean) : "Start Active" : 0
+
+	// Inputs
+	input Activate(void)
+	input Deactivate(void)
 ]
 
+@PointClass base(LeadGoalBase, AIGoalBase) tags( AI ) iconsprite("editor/ai_goal_lead.vmat") = ai_goal_lead : "A goal used to make the target NPC lead the player to a location in the world. It will move ahead of the player, pausing if the player lags behind, and moving back to retrieve the player if necessary.<p>
+	<img src='game:tools/images/hammer/ai_goal_lead_distances.png' />"
+[
+	
+]
 
-//@PointClass base(LeadGoalBase) tags( AI ) iconsprite("editor/ai_goal_lead.vmat") = ai_goal_lead_weapon : 
-//	"AI Goal Lead (Weapon). A version of the ai_goal_lead entity that requires the player to have the specified weapon before the Actor(s) will lead the player to their target."
-//[
-//	WeaponName(choices) : "Weapon" : "weapon_bugbait" =
-//	[
-//		"weapon_bugbait" : "Bugbait"
-//		"weapon_smg1" : "SMG1"
-//		"weapon_ar2"  : "AR2"
-//	]
-//
-//	MissingWeaponConceptModifier(string) : "Missing weapon concept modifier"
-//	
-//	SearchType(choices) : "Search Type" : 0 : "How to search for the entities using the targetname." = 
-//	[
-//		0 : "Entity Name"
-//		1 : "Classname"
-//	] 
-//]
-
-
-@BaseClass base(Targetname) = FollowGoal
+@BaseClass base(AIGoalBase) = FollowGoal
 [
 	actor(target_name_or_class) : "Actor(s) to affect"
 	goal(target_destination) : "Target Entity" : : "The name of the entity to follow. If blank, and the actor likes the player, then defaults to player"
-
-	SearchType(choices) : "Search Type" : 0 : "How to search for the entities using the targetname." = 
-	[
-		0 : "Entity Name"
-		1 : "Classname"
-	] 
-
-	StartActive(boolean) : "Start Active" : 0
 
 	MaximumState(choices) : "Maximum state" : 1 =
 	[
@@ -652,18 +868,15 @@
 		3 : "Combat"
 	]
 
-	Formation(choices) : "Formation" : 0 =
+	Formation(choices) : "Formation" : -1 =
 	[
+		-1 : "Default"
 		0 : "Close circle"
 		1 : "Wide circle"
 		5 : "Medium circle"
 		6 : "Sidekick"
 		8 : "Vortigaunt (FIXME)"
 	]
-
-	// Inputs
-	input Activate( void ) : "Begin the follow behavior"
-	input Deactivate( void ) : "Cease the follow behavior"
 ]
 
 
@@ -697,229 +910,14 @@
 	input Deactivate(void)
 ]
 
-
-@PointClass base(Targetname) tags( AI ) iconsprite("editor/ai_goal_follow.vmat") = ai_goal_fightfromcover : "AI Fight from Cover"
-[
-	actor(target_destination) : "Actor(s) to affect"
-	goal(target_destination) : "Target Entity" : : "The name of the entity to follow. If blank, and the actor likes the player, then defaults to player"
-
-	DirectionalMarker(target_destination) : "Directional Marker" : "" : "Specify the entity that indicates the direction of battle"
-	GenericHintType(string) : "Generic Hint Type" : "" : "Behavior looks for 'generic' hints, and requires a text tag to search for"
-	width(float) : "Zone Width" : "600" : "Width of the hint search area"
-	length(float) : "Zone Length" : "480" : "Length of the hint search area"
-	height(float) : "Zone Height" : "2400" : "Offset in the direction of the hint search area"
-	bias(float) : "Zone Bias" : "60" : "Offset in the direction of the hint search area"
-
-	StartActive(boolean) : "Start Active" : 0
-
-	// Inputs
-	input Activate(void)
-	input Deactivate(void)
-	input SetDirectionalMarker(string) : "Specify the entity that indicates the direction of battle"
-]
-
-
-@PointClass base(Targetname) tags( AI ) iconsprite("editor/ai_goal_standoff.vmat") = ai_goal_standoff : "AI Goal Standoff"
-[
-	actor(target_name_or_class) : "Actor(s) to affect"
-//	goal(string) : "Target Entity (self by default) [NOT IMPLEMENTED]"
-
-	SearchType(choices) : "Search Type" : 0 : "How to search for the entities using the targetname." = 
-	[
-		0 : "Entity Name"
-		1 : "Classname"
-	] 
-
-	StartActive(boolean) : "Start Active" : 0
-
-	HintGroupChangeReaction(Choices) : "Reaction to tactical change" : 1 : "What to do if leader moves, threat is neutralized, hint group changes, etc" =
-	[
-		0 : "Move when ready (default AI)"
-		1 : "Move when seek cover"
-		2 : "Move immediately"
-	]
-
-	Aggressiveness(Choices) : "Aggressiveness" : 2 =
-	[
-		0 : "Very low"
-		1 : "Low"
-		2 : "Medium"
-		3 : "High"
-		4 : "Very High"
-		// Custom agression disabled
-		// 		100 : "Custom"
-	]
-
-	PlayerBattleline(boolean) : "Player battleline" : 1 : "Player defines a battle line, applies to allies only"
-
-	StayAtCover(boolean) : "Stay at cover location" : 0 : "When have suitable cover, don't change it (disables advancing to battle line)" 
-
-	AbandonIfEnemyHides(boolean) : "Abandon if enemies hide" : 0 : "If no enemy detected recently, stop the standoff"
-
-	// Custom aggression
-//	CustomCoverOnReload(boolean) : "Custom: Take cover to reload" : 1
-//	CustomMinTimeShots(float) : "Custom: Min time wait to shoot"	  : 2 : "Minimum duration of time after a burst of shooting before trying again"
-//	CustomMaxTimeShots(float) : "Custom: Max time wait to shoot"	  : 4 : "Minimum duration of time after a burst of shooting before trying again"
-//	CustomMinShots(integer) : "Custom: Min shots in a burst"	  : 1
-//	CustomMaxShots(integer) : "Custom: Max shots in a burst"	  : 4
-//	CustomOddsCover(integer) : "Custom: Odds cover on damage"	  : 25 : "If damaged, the chances react by taking immediate cover"
-
-	// Inputs
-	input Activate( void ) : "Begin contesting position"
-	input Deactivate( void ) : "Cease contesting position"
-	input SetAggressiveness(integer) : "Set aggressiveness"
-]
-
-
-@PointClass base(Targetname, Parentname) tags( AI ) sphere(policeradius) iconsprite("editor/ai_goal_police.vmat") = ai_goal_police : "AI Goal Police"
-[
-	spawnflags(Flags) = 
-	[
-		2 : "Knock-out target past crossing plane" : 0
-		4 : "Do not leave post" : 0
-	]
-
-	policeradius(float) : "Radius" : 512 : "Radius to police"
-	policetarget(string) : "Target" : "" : "Target to police"
-
-	// Inputs
-	input EnableKnockOut(void) : "Tells the goal to make the active policing NPC knock out its target"
-	input DisableKnockOut(void) : "Stop the active policing NPC from trying to knock out its target"
-
-	// Outputs
-	output OnFirstWarning(void) : "Fires the first time a policing cop warns a target"
-	output OnSecondWarning(void) : "Fires the second time a policing cop warns a target"
-	output OnLastWarning(void) : "Fires when a policing cop warns a target for the last time"
-	output OnSupressingTarget(void) : "Fires when a policing cop starts to suppress (ie. beat) a target"
-	output OnKnockOut(void) : "Fires when a target has been knocked out"
-]
-
-
-@PointClass base(Targetname, Parentname) iconsprite("editor/assault_rally.vmat") line(255 255 255, targetname, assaultpoint) = assault_rallypoint : 
-	"(Assault) rally point"
-[
-	assaultpoint(target_destination)  : "Assault Point" : "" : "Location to move to as assault begins"
-	assaultdelay(float) : "Assault Delay" : 0 : "How long to wait after cue is given before assault begins."
-	rallysequence(string) : "Rally Sequence" : "" : "Override the NPC's wait activity by entering a sequence name."
-	priority(integer) : "Priority" : 1 : "Higher priority rally points get selected first."
-
-	forcecrouch(boolean) : "Force Crouch" : 0 : "NPCs using this assault point are forced into crouching while holding it."
-
-	urgent(boolean) : "Urgent" : 0 : "If true, NPCs will consider movement to this rally point as Urgent Navigation."
-
-	lockpoint(boolean) : "Lock Point" : 1 : "Should this point be locked by a character using it."
-
-	output OnArrival(void) : "Fires when the NPC reaches this rally point"
-]
-
-
-@PointClass base(Targetname, Parentname) iconsprite("editor/assault_point.vmat") line(255 255 255, targetname, nextassaultpoint) = assault_assaultpoint : 
-	"(Assault) assault point"
-[
-	assaultgroup(string)  : "Assault Hint Group" : "" : "NPC's movements are constrained to this hint group once assault has begun"
-	nextassaultpoint(target_destination) : "Next assault point (optional)"
-	assaulttimeout(float) : "Assault time out" : "3.0" : "This point is cleared when no enemies are seen for this long (seconds)"
-	clearoncontact(boolean) : "Clear on contact with enemies" : 0 : "If you come in contact with enemies while approaching the assault point, clear our assault point"
-	allowdiversion(boolean) : "Allow diversion" : 0 : "If you come in contact with enemies while approaching the assault point, divert to kill them. Resume the assault once contact is lost."
-
-	allowdiversionradius(float) : "Diversion Proximity" : 0 : "If Allow Diversion is set, NPC will only divert from assault to attack an enemy that is within this distance of the assault point. 0 = No limit."
-
-	nevertimeout(boolean) : "Never Timeout" : 0 : "If set, the assault never ends for NPCs assaulting this point. Useful for forcing NPCs back to a point."
-
-	strict(choices) : "Strict?" : 0 =
-	[
-		0 : "No, NPC may move from point to attack"
-		1 : "Yes, NPC may not move to attack"
-	]
-
-	spawnflags(Flags) = 
-	[
-		1 : "Clear this point upon arrival, UNCONDITIONALLY" : 0
-	]
-
-	forcecrouch(boolean) : "Force Crouch" : 0 : "NPCs using this assault point are forced into crouching while holding it."
-
-	urgent(boolean) : "Urgent" : 0 : "If true, NPCs will consider movement to this assault point as Urgent Navigation."
-
-	assaulttolerance(choices) : "Attack Tolerance" : 36 : "How far this NPC may move from the assault point to try to attack an enemy." =
-	[
-		36 : "Tight (3ft)"
-		72 : "Medium (6ft)"
-		120 : "Large (10ft)"
-	]
-
-
-	// Inputs
-	input SetClearOnContact(integer) : "Set the clear on contact flag. NPCs who spot enemies while running to the assault point, or while waiting at it, will immediately Clear it."
-	input SetAllowDiversion(integer) : "Set the allow diversion flag. NPCs who spot enemies whil running to the assault point, or while waiting on it, will divert away (leave Assault mode) to deal with the enemies. Upon losing enemies, they'll go back to Assault mode, and return to this assault point."
-	input SetForceClear(integer) : "Set the Force Clear flag. NPCs who are currently running to the assault point will Clear it immediately. NPCs who acquire it in the future will Clear it automatically."
-
-	// Outputs
-	output OnArrival(void) : "Fires when the NPC reaches this assault point"
-	output OnAssaultClear(void) : "Fires when this assault point is cleared of enemies"
-]
-
-
-@PointClass base(Targetname) tags( AI ) = ai_goal_assault : 
-	"AI Goal Assault"
-[
-	actor(target_name_or_class) : "Actor(s) to affect" : "" : "NPC's that should perform this assault"
-	rallypoint(target_destination) : "Rally Point Set" : "" : "Root name of rally points for this assault. Use an asterisk '*' after the root name to match all with the same root."
-
-	SearchType(choices) : "Search Type" : 0 : "How to search for the entities using the targetname." = 
-	[
-		0 : "Entity Name"
-		1 : "Classname"
-	] 
-
-	StartActive(boolean) : "Start Active" : 0
-
-	AssaultCue(choices) : "Assault Cue" : 1 =
-	[
-		1 : "Entity System Input"
-		2 : "Gunfire"
-		3 : "Don't wait for a cue."
-	]
-
-	RallySelectMethod(choices) : "Rally Point Selection Method" : 0 = 
-	[
-		0 : "Priority, Closest (default)"
-		1 : "Random"
-		2 : "Priority, Furthest"
-	]
-
-	BranchingMethod(choices) : "Branching Assault Selection Method" : 0 = 
-	[
-		0 : "Random (default)"
-		1 : "Closest"
-		2 : "Furthest"
-	]
-
-	// Inputs
-	input Activate( void ) : "Begin the assault behavior"
-	input Deactivate( void ) : "Cease the assault behavior"
-	input BeginAssault( void ) : "Begin assault phase"
-]
-
-
-@BaseClass base(Targetname) = BaseActBusy
+@BaseClass base(AIGoalBase) = BaseActBusy
 [
 	actor(target_name_or_class) : "Actor(s) to affect" : "" : "NPC's that should act busy"
-
-	StartActive(boolean) : "Start Active" : 0
-
-	SearchType(choices) : "Search Type" : 0 : "How to search for the entities using the targetname." = 
-	[
-		0 : "Entity Name"
-		1 : "Classname"
-	] 
 
 	busysearchrange(float) : "Search Range for Busy Hints" : 2048
 	visibleonly(boolean) : "Visible Busy Hints Only" : 0
 
 	// Inputs
-	input Activate( void ) : "Begin acting busy"
-	input Deactivate( void ) : "Cease acting busy"
 	input SetBusySearchRange( float ) : "Update the busy search range for all actors."
 	input ForceNPCToActBusy( string ) : "Force an NPC to act busy. Takes parameters, separated by spaces: <Targetname> <hint node targetname> <optional:teleport> <optional:$customactivityorsequence> <maximum time to actbusy>. If no hint node targetname is specified, it'll search for a random one. If no max time is specified, it'll use the default. Specifying 0 as the max time will make the NPC act busy until disturbed. If the optional teleport parameter is specified, the NPC will teleport to the act busy point. A custom move animation can be specified by prepending $ to the name of it. i.e. $ACT_RUN will make the NPC Run. Sequence names can be used instead of activities."
 	input ForceThisNPCToActBusy( string ) : "Force an NPC outputted from another entity to act busy. (only usable from an output that specifies an entity)"
@@ -1015,17 +1013,6 @@
 	output OnQueueMoved(float) : "Fired when the queue moves. Outputs the number of NPCs left in the queue."
 	output OnNPCStartedLeavingQueue(string) : "Fired when the NPC at the head of the queue starts to leave. The activator is the NPC, and the string is the name of the NPC."
 	output OnNPCLeftQueue(string) : "Fired when the NPC at the head of the queue leaves. The activator is the NPC, and the string is the name of the NPC."
-]
-
-
-@PointClass base(Targetname) tags( AI ) size(-8 -8 -8, 8 8 8) = ai_changetarget : "Change Target"
-[
-	target(target_destination) : "Target entity" : : "Name of entity whose target will be changed."
-	m_iszNewTarget(string) : "New Target"
-
-	// Inputs
-	input Kill( void ) : "Removes this entity from the world"
-	input Activate( void ) : "Changes the entities target"
 ]
 
 
@@ -1189,28 +1176,24 @@
 // Logic Entities
 //
 //-------------------------------------------------------------------------c
-@PointClass color(0 0 255) base(Targetname) tags( Choreo )  iconsprite("editor/choreo_scene.vmat") = logic_scripted_scenario :
-	"Manages the flow of scenes with branches and stuff like that"
+@PointClass color(0 0 255) 
+	base(Targetname) 
+	tags( Choreo )  
+	selected_line( 255 255 255, targetname, target1 )
+	selected_line( 255 255 255, targetname, target2 )
+	selected_line( 255 255 255, targetname, target3 )
+	selected_line( 255 255 255, targetname, target4 )
+	selected_line( 255 255 255, targetname, target5 )
+	selected_line( 255 255 255, targetname, target6 )
+	selected_line( 255 255 255, targetname, target7 )
+	selected_line( 255 255 255, targetname, target8 )
+	iconsprite("editor/choreo_scene.vmat") = logic_choreographed_scene :
+		"Manages a choreographed scene of one or more actors."
 
 [
-	subclass_name( subclass_choice:scripts/misc.vdata ) : "Scenario Class" : "" : ""
-
-	input BeginScenario(void) : "Starts playback of the scenario"
-	input SetBlackboardValue(string) : "Set the value of a blackboard variable"
-	input TriggerEvent(string) : "Trigger an event by name. Events are handled by event listener nodes"
-	input SwitchToNode(string) : "Switch to a node by name. Current active node will be canceled"
-]
-
-
-@PointClass color(0 0 255) base(Targetname) tags( Choreo )  iconsprite("editor/choreo_scene.vmat") = logic_choreographed_scene :
-	"Manages a choreographed scene of one or more actors."
-
-[
-	// vcd_def( scene ) { asset_specific_keys_destination="vcd_keys" }
-	// vcd_keys(kv3) <-- populated based on whatever 'vcd_def' needs
-
 	// Keys
 	SceneFile(scene) { asset_specific_keys_destination="vcd_keys" } : "Scene file"
+	// vcd_keys( string ) <-- populated based on whatever 'SceneFile' needs
 
 	// Links
 	target1(target_destination) : "Target 1"
@@ -1325,34 +1308,52 @@
 
 	soundtype(choices) : "Sound Type" : 0 : "The type of sound or smell will determine the reaction of NPCs that sense it." =
 	[
-		0: "Select one"
-		1: "Combat"
-		2: "World"
-		//4: "Player (Don't use)"
-		8: "Danger"
-		16: "Bullet Impact"
-		32: "Carcass"
-		64: "Meat"
-		128: "Garbage"
-		256: "Thumper"
-		4096: "Move Away - Most NPCs will clear the radius of this sound when heard."
-		16384 : "Readiness - Low"
-		32768 : "Readiness - Medium"
-		65536 : "Readiness - High"
+		0 : "Select one"
+		1 : "Combat"
+		//2 : "Player (Don't use)"
+		4 : "Danger"
+		8 : "Bullet Impact"
+		16 : "Thumper"
+		//32 : "Physics Danger"
+		64 : "Move Away - Most NPCs will clear the radius of this sound when heard."
+		//128 : "Player Vehicle"
+		256 : "Glass Break"
+		//512 : "Physics Object"
+		1024 : "Warn Friends"
+		2048 : "Food"
 	]
 
 	soundcontext(choices) : "Additional sound context (optional)" : 0 : "Optional settings specifying such things as who can or cannot hear the sound." =
 	[
 		0 : "Select one"
-		8388608 : "Only Combine hear"
-		67108864 : "Combine cannot hear"
+		1 : "Gunfire"
+		2 : "Only Combine hear"
+		//4 : "React to Source"
+		8 : "Explosion"
+		16 : "Combine cannot hear"
+		//32 : "Danger Approaching"
+		64 : "Player Allies only hear"
+		128 : "Cause Hearers to blindly panic"
 	]
 
 	locationproxy(target_destination) : "Location Proxy" : "" : "The name of an entity to use as a proxy to determine the location at which to make the sound. If you specify an entity here, the sound will be made at that entity's location (!player included)" 
 ]
 
 
-@PointClass base( BaseNPCMaker) tags( Logic ) iconsprite("editor/npc_maker.vmat") = npc_template_maker : 
+@PointClass base( BaseNPCMaker) tags( Logic ) iconsprite("editor/npc_maker.vmat")
+	metadata
+	{
+		create_entity_template_lumps = 
+		[
+			{
+				lumpMode = "SingleTemplate"
+				sourceKey = "TemplateName"
+				targetWorldKey = "worldName"
+				targetLumpKey = "entityLumpName"
+			}
+		]
+	}
+= npc_template_maker : 
 	"An entity that creates NPCs. The NPCs it creates are clones of a template NPC. NPCs are spawned around this maker's origin, or at specified destination points."
 [
 	spawnflags(Flags) = 
