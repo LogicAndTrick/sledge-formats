@@ -116,6 +116,21 @@ namespace Sledge.Formats
         }
 
         /// <summary>
+        /// Write an array of short unsigned integers
+        /// </summary>
+        /// <param name="bw">Binary writer</param>
+        /// <param name="num">The number of value to write</param>
+        /// <param name="arr">The source array</param>
+        public static void WriteUShortArray(this BinaryWriter bw, int num, ushort[] arr)
+        {
+            for (var i = 0; i < num; i++)
+            {
+                var val = i < arr.Length ? arr[i] : (ushort)0;
+                bw.Write(val);
+            }
+        }
+
+        /// <summary>
         /// Read an array of short integers
         /// </summary>
         /// <param name="br">Binary reader</param>
@@ -129,6 +144,21 @@ namespace Sledge.Formats
         }
 
         /// <summary>
+        /// Write an array of short integers
+        /// </summary>
+        /// <param name="bw">Binary writer</param>
+        /// <param name="num">The number of value to write</param>
+        /// <param name="arr">The source array</param>
+        public static void WriteShortArray(this BinaryWriter bw, int num, short[] arr)
+        {
+            for (var i = 0; i < num; i++)
+            {
+                var val = i < arr.Length ? arr[i] : (short)0;
+                bw.Write(val);
+            }
+        }
+
+        /// <summary>
         /// Read an array of integers
         /// </summary>
         /// <param name="br">Binary reader</param>
@@ -139,6 +169,21 @@ namespace Sledge.Formats
             var arr = new int[num];
             for (var i = 0; i < num; i++) arr[i] = br.ReadInt32();
             return arr;
+        }
+
+        /// <summary>
+        /// Write an array of integers
+        /// </summary>
+        /// <param name="bw">Binary writer</param>
+        /// <param name="num">The number of value to write</param>
+        /// <param name="arr">The source array</param>
+        public static void WriteIntArray(this BinaryWriter bw, int num, int[] arr)
+        {
+            for (var i = 0; i < num; i++)
+            {
+                var val = i < arr.Length ? arr[i] : 0;
+                bw.Write(val);
+            }
         }
 
         /// <summary>
@@ -167,8 +212,23 @@ namespace Sledge.Formats
             return arr;
         }
 
+        /// <summary>
+        /// Write an array of floats
+        /// </summary>
+        /// <param name="bw">Binary writer</param>
+        /// <param name="num">The number of value to write</param>
+        /// <param name="arr">The source array</param>
+        public static void WriteSingleArray(this BinaryWriter bw, int num, float[] arr)
+        {
+            for (var i = 0; i < num; i++)
+            {
+                var val = i < arr.Length ? arr[i] : 0f;
+                bw.Write(val);
+            }
+        }
+
         // Decimal <-> Single
-        
+
         /// <summary>
         /// Read a float and cast it to decimal
         /// </summary>
@@ -245,6 +305,15 @@ namespace Sledge.Formats
             var arr = new Vector3[num];
             for (var i = 0; i < num; i++) arr[i] = br.ReadVector3();
             return arr;
+        }
+
+        public static void WriteVector3Array(this BinaryWriter bw, int num, Vector3[] arr)
+        {
+            for (var i = 0; i < num; i++)
+            {
+                var val = i < arr.Length ? arr[i] : Vector3.Zero;
+                bw.WriteVector3(val);
+            }
         }
 
         public static Vector3 ReadVector3(this BinaryReader br)
