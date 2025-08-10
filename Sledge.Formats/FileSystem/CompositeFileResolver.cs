@@ -27,9 +27,20 @@ namespace Sledge.Formats.FileSystem
             _resolvers = resolvers.ToList();
         }
 
+        public bool FolderExists(string path)
+        {
+            return _resolvers.Any(x => x.FolderExists(path));
+        }
+
         public bool FileExists(string path)
         {
             return _resolvers.Any(x => x.FileExists(path));
+        }
+
+        public long FileSize(string path)
+        {
+            var resolver = _resolvers.FirstOrDefault(x => x.FileExists(path)) ?? throw new FileNotFoundException();
+            return resolver.FileSize(path);
         }
 
         public Stream OpenFile(string path)
@@ -40,12 +51,16 @@ namespace Sledge.Formats.FileSystem
 
         public IEnumerable<string> GetFiles(string path)
         {
-            return _resolvers.SelectMany(x => x.GetFiles(path)).Distinct();
+            var resolvers = _resolvers.Where(x => x.FolderExists(path)).ToList();
+            if (resolvers.Count == 0) throw new DirectoryNotFoundException();
+            return resolvers.SelectMany(x => x.GetFiles(path)).Distinct();
         }
 
         public IEnumerable<string> GetFolders(string path)
         {
-            return _resolvers.SelectMany(x => x.GetFolders(path)).Distinct();
+            var resolvers = _resolvers.Where(x => x.FolderExists(path)).ToList();
+            if (resolvers.Count == 0) throw new DirectoryNotFoundException();
+            return resolvers.SelectMany(x => x.GetFolders(path)).Distinct();
         }
     }
 }

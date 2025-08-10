@@ -4,6 +4,7 @@
     {
         public const int MaxLightmaps = 4;
 
+        public uint ID { get; set; }
         public ushort Plane { get; set; }
         public ushort Side { get; set; }
         public int FirstEdge { get; set; }

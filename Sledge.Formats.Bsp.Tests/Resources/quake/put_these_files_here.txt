@@ -1,0 +1,4 @@
+I've ignored these files because including them is questionable in terms of copyright.
+put them here so it loads the stuff
+
+e1m3: Quake 1 (original, not remaster)

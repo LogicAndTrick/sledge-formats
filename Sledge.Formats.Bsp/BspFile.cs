@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using Sledge.Formats.Bsp.Algorithms;
 using Sledge.Formats.Bsp.Lumps;
+using Sledge.Formats.Bsp.Objects;
 using Sledge.Formats.Bsp.Readers;
 using Sledge.Formats.Bsp.Writers;
 
@@ -149,5 +152,10 @@ namespace Sledge.Formats.Bsp
         public Textures Textures => GetLump<Textures>();
         public Vertices Vertices => GetLump<Vertices>();
         public Visibility Visibility => GetLump<Visibility>();
+
+        public Hull GetHull(Model model, int hullNum)
+        {
+            return hullNum == 0 ? new Hull0(this, model) : (Hull)new Cliphull(this, model, hullNum);
+        }
     }
 }

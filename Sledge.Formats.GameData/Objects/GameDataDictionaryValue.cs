@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Sledge.Formats.GameData.Objects
@@ -42,5 +43,20 @@ namespace Sledge.Formats.GameData.Objects
         public static implicit operator GameDataDictionaryValue(decimal val) => new GameDataDictionaryValue(val);
         public static implicit operator GameDataDictionaryValue(bool val) => new GameDataDictionaryValue(val);
         public static implicit operator GameDataDictionaryValue(GameDataDictionary val) => new GameDataDictionaryValue(val);
+
+        public override string ToString()
+        {
+            switch (Value)
+            {
+                case null:
+                    return "null";
+                case string s:
+                    return '"' + s.Replace("\"", "\\\"") + '"';
+                case IList<GameDataDictionaryValue> list:
+                    return "[ " + String.Join(",", list) + "]";
+                default:
+                    return Value.ToString();
+            }
+        }
     }
 }

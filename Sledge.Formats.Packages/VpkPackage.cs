@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using Sledge.Formats.FileSystem;
 
 namespace Sledge.Formats.Packages
 {
@@ -20,14 +23,38 @@ namespace Sledge.Formats.Packages
 
         public IEnumerable<PackageEntry> Entries => _entries;
 
-        public VpkPackage(string directoryFile)
+        /// <summary>
+        /// Create a <see cref="VpkPackage"/> for the given file path.
+        /// </summary>
+        public VpkPackage(string directoryFile) : this(new FileStream(directoryFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.RandomAccess))
+        {
+
+        }
+
+        /// <summary>
+        /// Create a <see cref="VpkPackage"/> from the given file stream.
+        /// The stream must be for the directory file of the VPK (i.e. should end with _dir.vpk)
+        /// The stream will be disposed when this package is disposed.
+        /// </summary>
+        public VpkPackage(FileStream directoryFileStream) : this(directoryFileStream, directoryFileStream.Name, new DiskFileResolver(Path.GetDirectoryName(directoryFileStream.Name)))
+        {
+
+        }
+
+        /// <summary>
+        /// Create a <see cref="VpkPackage"/> from the given stream, package name, and file resolver.
+        /// The stream must be for the directory file of the VPK (i.e. should end with _dir.vpk)
+        /// The directory file name can be a full path or just the file name, but it must contain the extension.
+        /// The stream will be disposed when this package is disposed.
+        /// </summary>
+        public VpkPackage(Stream directoryStream, string directoryFileName, IFileResolver fileResolver)
         {
             _entries = new List<PackageEntry>();
-            _stream = OpenFile(directoryFile);
+            _stream = Stream.Synchronized(directoryStream);
 
-            var folder = Path.GetDirectoryName(directoryFile) ?? "";
-            var nameWithoutExt = Path.GetFileNameWithoutExtension(directoryFile) ?? "";
-            var ext = Path.GetExtension(directoryFile);
+            var folder = Path.GetDirectoryName(directoryFileName) ?? "";
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(directoryFileName) ?? "";
+            var ext = Path.GetExtension(directoryFileName);
 
             if (!nameWithoutExt.EndsWith(DirString)) throw new Exception("This is not a valid VPK directory file.");
             
@@ -35,14 +62,15 @@ namespace Sledge.Formats.Packages
 
             // Scan and find all chunk files that match this vpk directory
             _chunks = new Dictionary<int, Stream>();
-            var matchingFiles = Directory.GetFiles(folder, baseName + "_???" + ext);
+            var regex = new Regex(Regex.Escape(baseName + "_") + @"\d{3}" + Regex.Escape(ext), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var matchingFiles = fileResolver.GetFiles(folder).Where(x => regex.IsMatch(x));
             foreach (var mf in matchingFiles)
             {
                 var fn = Path.GetFileNameWithoutExtension(mf);
                 var index = fn.Substring(fn.Length - 3);
                 if (UInt16.TryParse(index, out var num))
                 {
-                    _chunks[num] = OpenFile(mf);
+                    _chunks[num] = OpenFile(fileResolver, mf);
                 }
             }
 
@@ -118,9 +146,9 @@ namespace Sledge.Formats.Packages
             };
         }
 
-        private static Stream OpenFile(string file)
+        private static Stream OpenFile(IFileResolver fileResolver, string file)
         {
-            return Stream.Synchronized(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.RandomAccess));
+            return Stream.Synchronized(fileResolver.OpenFile(file));
         }
 
         public Stream Open(PackageEntry entry)

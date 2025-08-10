@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Mesh
+    public class Mesh
     {
         public int NumTriangles;
         public int TriangleIndex;

@@ -11,8 +11,8 @@
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>Included XML documentation</PackageReleaseNotes>
-    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Implement PackageFileResolver as an IFileResolver for VPK/PAK packages</PackageReleaseNotes>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

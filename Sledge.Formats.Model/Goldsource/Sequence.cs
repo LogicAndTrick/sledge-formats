@@ -2,7 +2,7 @@
 
 namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Sequence
+    public class Sequence
     {
         public string Name;
 
@@ -23,8 +23,8 @@ namespace Sledge.Formats.Model.Goldsource
         public int MotionType;
         public int MotionBone;
         public Vector3 LinearMovement;
-        public int AutoMovePositionIndex;
-        public int AutoMoveAngleIndex;
+        public int AutoMovePositionIndex; // unused
+        public int AutoMoveAngleIndex; // unused
 
         public Vector3 Min;
         public Vector3 Max;
@@ -45,5 +45,7 @@ namespace Sledge.Formats.Model.Goldsource
         public int NextSequence;
 
         public Blend[] Blends;
+        public AnimationEvent[] Events { get; set; }
+        public Pivot[] Pivots { get; set; }
     }
 }

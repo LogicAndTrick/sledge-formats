@@ -27,5 +27,22 @@ namespace Sledge.Formats.Map
             array = new float[expected];
             return false;
         }
+
+        public static bool ParseDoubleArray(string input, char[] splitChars, int expected, out double[] array)
+        {
+            var spl = input.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
+            if (spl.Length == expected)
+            {
+                var parsed = spl.Select(x => double.TryParse(x, NumberStyles.Float, CultureInfo.InvariantCulture, out var o) ? (double?)o : null).ToList();
+                if (parsed.All(x => x.HasValue))
+                {
+                    // ReSharper disable once PossibleInvalidOperationException
+                    array = parsed.Select(x => x.Value).ToArray();
+                    return true;
+                }
+            }
+            array = new double[expected];
+            return false;
+        }
     }
 }

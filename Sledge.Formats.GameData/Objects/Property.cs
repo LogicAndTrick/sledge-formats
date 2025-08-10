@@ -8,6 +8,10 @@ namespace Sledge.Formats.GameData.Objects
         public string Name { get; set; }
         public VariableType VariableType { get; set; }
         public string SubType { get; set; }
+        /// <summary>
+        /// If the <see cref="VariableType"/> is <see cref="Objects.VariableType.Unknown"/>, this will contain the specified type of the property. Otherwise, it will be null.
+        /// </summary>
+        public string UnknownVariableTypeName { get; set; }
         public string Description { get; set; }
         public string Details { get; set; }
         public string DefaultValue { get; set; }

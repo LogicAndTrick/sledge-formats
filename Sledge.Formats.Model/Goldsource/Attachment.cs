@@ -2,7 +2,7 @@
 
 namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Attachment
+    public class Attachment
     {
         public string Name;
         public int Type;

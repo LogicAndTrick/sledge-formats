@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Model
+    public class Model
     {
         public string Name;
         public int Type;

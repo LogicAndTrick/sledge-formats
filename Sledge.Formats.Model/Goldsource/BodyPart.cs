@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct BodyPart
+    public class BodyPart
     {
         public string Name;
         public int NumModels;

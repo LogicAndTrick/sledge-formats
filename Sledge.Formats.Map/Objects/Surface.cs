@@ -6,10 +6,10 @@ namespace Sledge.Formats.Map.Objects
     {
         public string TextureName { get; set; }
 
-        public Vector3 UAxis { get; set; }
-        public Vector3 VAxis { get; set; }
-        public float XScale { get; set; }
-        public float YScale { get; set; }
+        public Vector3 UAxis { get; set; } = Vector3.UnitX;
+        public Vector3 VAxis { get; set; } = -Vector3.UnitZ;
+        public float XScale { get; set; } = 1;
+        public float YScale { get; set; } = 1;
         public float XShift { get; set; }
         public float YShift { get; set; }
         public float Rotation { get; set; }

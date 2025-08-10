@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve bsp</PackageTags>
-    <PackageReleaseNotes>Getting started creating a BspBuilder class</PackageReleaseNotes>
-    <Version>1.0.11</Version>
+    <PackageReleaseNotes>Remove unnecessary and incorrect fraction setting logic</PackageReleaseNotes>
+    <Version>1.0.17</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

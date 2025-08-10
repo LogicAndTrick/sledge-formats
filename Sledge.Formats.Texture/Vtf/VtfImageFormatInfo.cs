@@ -143,6 +143,9 @@ namespace Sledge.Formats.Texture.Vtf
             // No format, return blank array
             if (Format == VtfImageFormat.None) return buffer;
 
+            // Unsupported format
+            else if (!IsSupported) throw new NotImplementedException($"Unsupported format: {Format}");
+
             // This is the exact format we want, take the fast path
             else if (Format == VtfImageFormat.Bgra8888)
             {
@@ -304,7 +307,7 @@ namespace Sledge.Formats.Texture.Vtf
             {VtfImageFormat.A8, new VtfImageFormatInfo(VtfImageFormat.A8, 8, 1, 0, 0, 0, 8, -1, -1, -1, 0, false, true)},
             {VtfImageFormat.Rgb888Bluescreen, new VtfImageFormatInfo(VtfImageFormat.Rgb888Bluescreen, 24, 3, 8, 8, 8, 8, 0, 1, 2, -1, false, true, TransformBluescreen)},
             {VtfImageFormat.Bgr888Bluescreen, new VtfImageFormatInfo(VtfImageFormat.Bgr888Bluescreen, 24, 3, 8, 8, 8, 8, 2, 1, 0, -1, false, true, TransformBluescreen)},
-            {VtfImageFormat.Argb8888, new VtfImageFormatInfo(VtfImageFormat.Argb8888, 32, 4, 8, 8, 8, 8, 3, 0, 1, 2, false, true)},
+            {VtfImageFormat.Argb8888, new VtfImageFormatInfo(VtfImageFormat.Argb8888, 32, 4, 8, 8, 8, 8, 1, 2, 3, 0, false, true)},
             {VtfImageFormat.Bgra8888, new VtfImageFormatInfo(VtfImageFormat.Bgra8888, 32, 4, 8, 8, 8, 8, 2, 1, 0, 3, false, true)},
             {VtfImageFormat.Dxt1, new VtfImageFormatInfo(VtfImageFormat.Dxt1, 4, 0, 0, 0, 0, 0, -1, -1, -1, -1, true, true)},
             {VtfImageFormat.Dxt3, new VtfImageFormatInfo(VtfImageFormat.Dxt3, 8, 0, 0, 0, 0, 8, -1, -1, -1, -1, true, true)},

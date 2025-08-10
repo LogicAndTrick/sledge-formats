@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Texture
+    public class Texture
     {
         public string Name;
         public TextureFlags Flags;

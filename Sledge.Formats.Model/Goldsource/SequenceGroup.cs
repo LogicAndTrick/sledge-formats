@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct SequenceGroup
+    public class SequenceGroup
     {
         public string Label;
         public string Name;
