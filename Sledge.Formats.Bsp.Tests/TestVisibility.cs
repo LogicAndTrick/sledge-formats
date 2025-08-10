@@ -21,6 +21,12 @@ public class TestVisibility
         {
             dir = Path.GetDirectoryName(dir);
         }
+        // if this is true, the file with the name provied couldn't be found
+        if (dir == null)
+        {
+            throw new System.IO.FileNotFoundException($"Coudln't find file {name}");
+        }
+
         var file = Path.Combine(dir, "Resources", name);
         using var res = File.OpenRead(file);
 
