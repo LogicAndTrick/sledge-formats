@@ -31,18 +31,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="MSTest.Analyzers" Version="3.7.0">
+    <PackageReference Update="MSTest.Analyzers" Version="3.10.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="MSTest.TestAdapter" Version="3.7.0" />
+    <PackageReference Update="MSTest.TestAdapter" Version="3.10.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="MSTest.TestFramework" Version="3.7.0" />
+    <PackageReference Update="MSTest.TestFramework" Version="3.10.1" />
   </ItemGroup>
 
 </Project>

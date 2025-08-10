@@ -237,7 +237,7 @@ public class TestQuakeMapFormat
         Assert.AreEqual(2, map.Worldspawn.Children.Count);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(QuakeFormatFile, DisplayName = nameof(QuakeFormatFile))]
     [DataRow(ValveFormatFile, DisplayName = nameof(ValveFormatFile))]
     [DataRow(Quake2StandardFormatFile, DisplayName = nameof(Quake2StandardFormatFile))]
@@ -251,7 +251,7 @@ public class TestQuakeMapFormat
         var map = format.Read(stream);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("en")]
     [DataRow("es")]
     [DataRow("hi")]
@@ -285,7 +285,7 @@ public class TestQuakeMapFormat
         return $"{method.Name} ({data[0]}, {data[1]})";
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(GetFileHintCombinations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetFileHintCombinationDisplayName))]
     public void TestReParse(string name, string hint, string file)
     {

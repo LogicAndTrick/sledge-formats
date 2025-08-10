@@ -114,7 +114,7 @@ public class TestGoldsource
         Assert.AreEqual(1, runs[1].Values[0]);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("cube.mdl")]
     [DataRow("cube-tex.mdl", "cube-texT.mdl")]
     public void TestMdl10Header(params string[] fileNames)

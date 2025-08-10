@@ -14,7 +14,7 @@ public class TestFgdBasic
         const string fgd = @"
 @include ""test.fgd""
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         CollectionAssert.AreEqual(new [] { "test.fgd" }, def.Includes);
     }
@@ -25,7 +25,7 @@ public class TestFgdBasic
         const string fgd = @"
 @mapsize(-16384, 16384)
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(-16384, def.MapSizeLow);
         Assert.AreEqual(16384, def.MapSizeHigh);
@@ -42,7 +42,7 @@ public class TestFgdBasic
     ""three""
 ]
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         CollectionAssert.AreEquivalent(new [] { "one", "two", "three" }, def.MaterialExclusions);
     }
@@ -65,7 +65,7 @@ public class TestFgdBasic
     ]
 ]
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.AutoVisgroups.Count);
         var vg = def.AutoVisgroups[0];
@@ -85,7 +85,7 @@ public class TestFgdBasic
         const string fgd = @"
 @BaseClass = Test []
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -105,7 +105,7 @@ public class TestFgdBasic
         const string fgd = @"
 @BaseClass base(Appearflags, Angles) size(-16 -16 -36, 16 16 36) color(0 255 0) halfgridsnap = PlayerClass []
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -138,7 +138,7 @@ public class TestFgdBasic
         const string fgd = @"
 @BaseClass = Test : ""Descr"" + ""iption""  []
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -158,7 +158,7 @@ public class TestFgdBasic
         const string fgd = @"
 @BaseClass = Test : ""Descr"" + ""iption"" : ""Additional information""  []
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -179,7 +179,7 @@ public class TestFgdBasic
 @BaseClass = Test1 : ""A""+""B""+""C""
 @BaseClass = Test2
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(2, def.Classes.Count);
         var cls1 = def.Classes[0];
@@ -215,7 +215,7 @@ public class TestFgdBasic
     eleven(unknown_type)
 ]
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         var cls = def.Classes[0];
@@ -272,7 +272,7 @@ public class TestFgdBasic
 [
 	test(integer) : ""Description"" : 1.5
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
     }
@@ -285,7 +285,7 @@ public class TestFgdBasic
 [
 	test0-test1(integer) : ""Test""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         Assert.AreEqual("test0-test1", def.Classes[0].Properties[0].Name);
@@ -300,14 +300,14 @@ public class TestFgdBasic
 	test(integer) : ""New
 Line""
 ]";
-        var format = new FgdFormatter { AllowNewlinesInStrings = true };
+        var format = new FgdFormat { AllowNewlinesInStrings = true };
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         Assert.AreEqual("New\nLine", def.Classes[0].Properties[0].Description);
 
         Assert.ThrowsException<TokenParsingException>(() =>
         {
-            var format2 = new FgdFormatter { AllowNewlinesInStrings = false };
+            var format2 = new FgdFormat { AllowNewlinesInStrings = false };
             var def2 = format2.Read(fgd);
         });
     }
@@ -330,7 +330,7 @@ Line""
 ""template_map"": ""{dir()}\monster_warp.rmf""
 @MESS;
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(expectedPreamble.Trim().Replace("\r", ""), string.Join("", def.Classes[0].Preamble.Select(x => x.Value.Trim(' '))).Trim());
     }
@@ -403,7 +403,7 @@ Line""
 	]
 ]
 ";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(3, def.Classes.Count);
     }

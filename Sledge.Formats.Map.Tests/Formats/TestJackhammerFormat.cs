@@ -140,7 +140,7 @@ public class TestJackhammerFormat
         Assert.AreEqual(new Vector2(6, -7), front.Offset);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("default-room-121", "121")]
     [DataRow("default-room-121")]
     [DataRow("default-room-122")]

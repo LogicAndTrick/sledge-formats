@@ -216,7 +216,7 @@ namespace Sledge.Formats.Bsp.Builder
         public int AddTextureInfo(TextureInfo textureInfo) => AddItem<Texinfo, TextureInfo>(textureInfo);
 
         /// <summary>
-        /// Adds a texture info & associated miptexture to the bsp, if it's not already present.
+        /// Adds a texture info and associated miptexture to the bsp, if it's not already present.
         /// </summary>
         /// <returns>The index of the texture info in the bsp</returns>
         public int AddTextureInfo(TextureInfo textureInfo, MipTexture mipTexture)

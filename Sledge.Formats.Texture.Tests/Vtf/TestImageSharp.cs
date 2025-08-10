@@ -15,7 +15,7 @@ namespace Sledge.Formats.Texture.Tests.Vtf;
 [TestClass]
 public class TestImageSharp
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(VtfImageFormat.Rgba8888)]
     [DataRow(VtfImageFormat.Abgr8888)]
     [DataRow(VtfImageFormat.Rgb888)]
@@ -92,7 +92,7 @@ public class TestImageSharp
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(VtfImageFormat.Rgb565)]
     [DataRow(VtfImageFormat.Bgr565)]
     [DataRow(VtfImageFormat.Bgrx5551)]

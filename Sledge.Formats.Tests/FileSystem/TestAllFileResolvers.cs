@@ -197,7 +197,7 @@ public class TestAllFileResolvers
         );
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -215,7 +215,7 @@ public class TestAllFileResolvers
         CollectionAssert.AreEquivalent(resolver.GetFolders("/").ToList(), resolver.GetFolders("").ToList());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -238,7 +238,7 @@ public class TestAllFileResolvers
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -261,7 +261,7 @@ public class TestAllFileResolvers
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -278,7 +278,7 @@ public class TestAllFileResolvers
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -293,7 +293,7 @@ public class TestAllFileResolvers
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -320,7 +320,7 @@ public class TestAllFileResolvers
         });
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]
@@ -337,7 +337,7 @@ public class TestAllFileResolvers
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Disk")]
     [DataRow("ZipArchive")]
     [DataRow("VirtualSubdirectory")]

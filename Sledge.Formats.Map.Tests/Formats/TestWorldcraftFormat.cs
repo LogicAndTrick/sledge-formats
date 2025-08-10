@@ -14,7 +14,7 @@ public class TestWorldcraftFormat
     [DataRow("16")]
     [DataRow("18")]
     [DataRow("22")]
-    [DataTestMethod]
+    [TestMethod]
     public void TestRmfVersions(string version)
     {
         using var file = typeof(TestWorldcraftFormat).Assembly.GetManifestResourceStream($"Sledge.Formats.Map.Tests.Resources.rmf.{version}.rmf");
