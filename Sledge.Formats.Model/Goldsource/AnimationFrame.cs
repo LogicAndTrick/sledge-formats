@@ -2,7 +2,7 @@
 
 namespace Sledge.Formats.Model.Goldsource
 {
-    public struct AnimationFrame
+    public class AnimationFrame
     {
         public Vector3[] Positions;
         public Vector3[] Rotations;

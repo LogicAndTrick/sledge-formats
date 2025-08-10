@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct SkinFamily
+    public class SkinFamily
     {
         public short[] Textures;
     }

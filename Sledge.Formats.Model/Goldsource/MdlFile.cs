@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Sledge.Formats.FileSystem;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using Sledge.Formats.FileSystem;
 
 namespace Sledge.Formats.Model.Goldsource
 {
@@ -20,6 +21,7 @@ namespace Sledge.Formats.Model.Goldsource
         public List<SkinFamily> Skins { get; set; }
         public List<BodyPart> BodyParts { get; set; }
         public List<Attachment> Attachments { get; set; }
+        public List<Transition> Transitions { get; set; }
 
         public MdlFile(IEnumerable<Stream> streams, bool leaveOpen = false)
         {
@@ -32,6 +34,7 @@ namespace Sledge.Formats.Model.Goldsource
             Skins = new List<SkinFamily>();
             BodyParts = new List<BodyPart>();
             Attachments = new List<Attachment>();
+            Transitions = new List<Transition>();
 
             var readers = streams.Select(x => new BinaryReader(x, Encoding.ASCII, leaveOpen)).ToList();
             try
@@ -100,7 +103,6 @@ namespace Sledge.Formats.Model.Goldsource
                     var version = (Version)br.ReadInt32();
                     return id == ID.Idst && KnownVersions.Contains(version);
                 }
-
             }
             catch
             {
@@ -149,7 +151,7 @@ namespace Sledge.Formats.Model.Goldsource
         
         private void Read(BinaryReader br, Dictionary<string, BinaryReader> sequenceGroups)
         {
-            Header = new Header
+            var header = new Header
             {
                 ID = ID.Idst,
                 Version = Version.Goldsource,
@@ -197,6 +199,12 @@ namespace Sledge.Formats.Model.Goldsource
                     RotationScale = br.ReadVector3()
                 };
                 Bones.Add(bone);
+            }
+
+            // Assume this is a texture file if there's no bones, only overwrite the header when this isn't the case
+            if (numBones > 0 || Header == null)
+            {
+                Header = header;
             }
 
             // Bone controllers
@@ -284,12 +292,44 @@ namespace Sledge.Formats.Model.Goldsource
                 if (sequence.SequenceGroup == 0)
                 {
                     var pos = br.BaseStream.Position;
-                    sequence.Blends = LoadAnimationBlends(br, sequence, numBones);
+                    sequence.Blends = ReadAnimationBlends(br, sequence, numBones);
                     br.BaseStream.Position = pos;
                 }
                 else if (sequenceGroups.TryGetValue(seqGroup.Name, out var group))
                 {
-                    sequence.Blends = LoadAnimationBlends(group, sequence, numBones);
+                    sequence.Blends = ReadAnimationBlends(group, sequence, numBones);
+                }
+
+                // read events and pivot data
+                {
+                    var pos = br.BaseStream.Position;
+
+                    br.BaseStream.Seek(sequence.EventIndex, SeekOrigin.Begin);
+                    sequence.Events = new AnimationEvent[sequence.NumEvents];
+                    for (var ei = 0; ei < sequence.NumEvents; ei++)
+                    {
+                        sequence.Events[ei] = new AnimationEvent
+                        {
+                            Frame = br.ReadInt32(),
+                            Event = br.ReadInt32(),
+                            Type = br.ReadInt32(),
+                            Options = br.ReadFixedLengthString(Encoding.ASCII, 64)
+                        };
+                    }
+
+                    br.BaseStream.Seek(sequence.PivotIndex, SeekOrigin.Begin);
+                    sequence.Pivots = new Pivot[sequence.NumPivots];
+                    for (var pi = 0; pi < sequence.NumPivots; pi++)
+                    {
+                        sequence.Pivots[pi] = new Pivot
+                        {
+                            Origin = br.ReadVector3(),
+                            Start = br.ReadInt32(),
+                            End = br.ReadInt32()
+                        };
+                    }
+
+                    br.BaseStream.Position = pos;
                 }
 
                 Sequences.Add(sequence);
@@ -368,6 +408,20 @@ namespace Sledge.Formats.Model.Goldsource
             }
 
             // Transitions
+            num = SeekToSection(br, Section.Transition, sections);
+            var transitions = br.ReadBytes(num * num);
+            for (var i = 0; i < num; i++)
+            {
+                for (var j = 0; j < num; j++)
+                {
+                    Transitions.Add(new Transition
+                    {
+                        FromNode = i + 1,
+                        ToNode = j + 1,
+                        ViaNode = transitions[i * num + j]
+                    });
+                }
+            }
 
             // Sounds & Sound groups aren't used
         }
@@ -381,15 +435,15 @@ namespace Sledge.Formats.Model.Goldsource
 
         #endregion
 
-        #region Animations
+        #region Reading animations
 
-        private static Blend[] LoadAnimationBlends(BinaryReader br, Sequence sequence, int numBones)
+        private static Blend[] ReadAnimationBlends(BinaryReader br, Sequence sequence, int numBones)
         {
             var blends = new Blend[sequence.NumBlends];
             var blendLength = 6 * numBones;
 
             br.BaseStream.Seek(sequence.AnimationIndex, SeekOrigin.Begin);
-
+            
             var animPosition = br.BaseStream.Position;
             var offsets = br.ReadUshortArray(blendLength * sequence.NumBlends);
             for (var i = 0; i < sequence.NumBlends; i++)
@@ -398,19 +452,25 @@ namespace Sledge.Formats.Model.Goldsource
                 Array.Copy(offsets, blendLength * i, blendOffsets, 0, blendLength);
 
                 var startPosition = animPosition + i * blendLength * 2;
-                blends[i].Frames = LoadAnimationFrames(br, sequence, numBones, startPosition, blendOffsets);
+                blends[i] = new Blend
+                {
+                    Frames = ReadAnimationFrames(br, sequence, numBones, startPosition, blendOffsets)
+                };
             }
 
             return blends;
         }
 
-        private static AnimationFrame[] LoadAnimationFrames(BinaryReader br, Sequence sequence, int numBones, long startPosition, ushort[] boneOffsets)
+        internal static AnimationFrame[] ReadAnimationFrames(BinaryReader br, Sequence sequence, int numBones, long startPosition, ushort[] boneOffsets)
         {
             var frames = new AnimationFrame[sequence.NumFrames];
             for (var i = 0; i < frames.Length; i++)
             {
-                frames[i].Positions = new Vector3[numBones];
-                frames[i].Rotations = new Vector3[numBones];
+                frames[i] = new AnimationFrame
+                {
+                    Positions = new Vector3[numBones],
+                    Rotations = new Vector3[numBones]
+                };
             }
             
             for (var i = 0; i < numBones; i++)
@@ -438,8 +498,8 @@ namespace Sledge.Formats.Model.Goldsource
 
             return frames;
         }
-        
-        private static short[] ReadAnimationFrameValues(BinaryReader br, int count)
+
+        internal static short[] ReadAnimationFrameValues(BinaryReader br, int count)
         {
             /*
              * RLE data:
@@ -465,7 +525,7 @@ namespace Sledge.Formats.Model.Goldsource
 
         #endregion
 
-        #region Models
+        #region Reading models
 
         private static Model[] LoadModels(BinaryReader br, BodyPart part)
         {
@@ -595,6 +655,537 @@ namespace Sledge.Formats.Model.Goldsource
         #endregion
 
         /// <summary>
+        /// Write the model to data streams.
+        /// </summary>
+        /// <param name="name">The name of the model. This is NOT the path on disk to the file, but rather the name of the model without the file extension. For example, for 'cube.mdl', this should be 'cube'. The header will be updated to match this name.</param>
+        /// <param name="options">Options for writing the file</param>
+        /// <returns>The output with information about the files. This must be disposed by the caller.</returns>
+        public MdlWriteOutput Write(string name, MdlFileWriteOptions options = null)
+        {
+            options = options ?? new MdlFileWriteOptions();
+
+            var str = new MemoryStream();
+            var bw = new BinaryWriter(str, Encoding.ASCII, true);
+
+            var result = new MdlWriteOutput();
+            var baseFile = new MdlWriteOutputFile
+            {
+                Type = MdlWriteOutputType.Base,
+                Suffix = "",
+                FileNumber = 0,
+                Stream = str
+            };
+            result.Files.Add(baseFile);
+
+            Header.Name = name;
+
+            // all sequence groups aside from 0 have their animation frames written to external files
+            for (var i = 1; i < SequenceGroups.Count; i++)
+            {
+                var sg = SequenceGroups[i];
+                var filename = $"{name}{i:00}";
+                sg.Name = $"models\\{filename}.mdl";
+
+                var seqStr = new MemoryStream();
+                var seqFile = new MdlWriteOutputFile
+                {
+                    Type = MdlWriteOutputType.Sequence,
+                    Suffix = i.ToString("00"),
+                    FileNumber = i,
+                    Stream = seqStr
+                };
+                result.Files.Add(seqFile);
+
+                using (var seqBw = new BinaryWriter(seqStr, Encoding.ASCII, true))
+                {
+                    WriteSequenceFile(seqBw, filename, i);
+                }
+            }
+
+            var splitTextures = options.ShouldSplitTextures(this);
+            if (splitTextures)
+            {
+                WriteFile(bw, Header, WriteType.DataOnly);
+
+                var texHeader = new Header
+                {
+                    ID = ID.Idst,
+                    Version = Version.Goldsource
+                };
+                var texStr = new MemoryStream();
+                var texFile = new MdlWriteOutputFile
+                {
+                    Type = MdlWriteOutputType.Texture,
+                    Suffix = "t",
+                    FileNumber = -1,
+                    Stream = texStr
+                };
+                result.Files.Add(texFile);
+
+                using (var texBw = new BinaryWriter(texStr, Encoding.ASCII, true))
+                {
+                    WriteFile(texBw, texHeader, WriteType.TexturesOnly);
+                }
+            }
+            else
+            {
+                WriteFile(bw, Header, WriteType.DataAndTextures);
+            }
+
+            bw.Dispose();
+
+            return result;
+        }
+
+        #region Writing
+
+        private enum WriteType
+        {
+            DataAndTextures,
+            DataOnly,
+            TexturesOnly
+        }
+
+        private void WriteFile(BinaryWriter bw, Header hdr, WriteType writeType)
+        {
+            WriteHeader(bw, hdr);
+
+            // an array for section offsets
+            var sections = new int[(int)Section.NumSections][];
+            var numSectionInts = sections.Length * 2 + 2; // textures and skins have 3 ints, all others have 2
+            var sectionsPos = bw.BaseStream.Position;
+            bw.Write(new byte[numSectionInts * sizeof(int)]); // this will write all zeros, we'll rewrite it again later
+
+            // setup all sections with zeroes
+            var pos = (int)bw.BaseStream.Position;
+            for (var i = 0; i < sections.Length; i++)
+            {
+                var section = (Section)i;
+                if (section == Section.Texture) sections[i] = new[] { 0, pos, pos };
+                else if (section == Section.Skin) sections[i] = new[] { 0, 0, pos };
+                else sections[i] = new[] { 0, pos };
+            }
+
+            // write each section in the same order as studiomdl
+            if (writeType == WriteType.DataAndTextures || writeType == WriteType.DataOnly)
+            {
+                sections[(int)Section.Bone] = WriteBones(bw);
+                sections[(int)Section.BoneController] = WriteBoneControllers(bw);
+                sections[(int)Section.Attachment] = WriteAttachments(bw);
+                sections[(int)Section.Hitbox] = WriteHitboxes(bw);
+
+                // write the animation frames for sequence group 0
+                foreach (var seq in Sequences.Where(x => x.SequenceGroup == 0))
+                {
+                    seq.AnimationIndex = (int)bw.BaseStream.Position;
+                    WriteAnimationBlends(bw, seq, Bones.Count);
+                }
+
+                sections[(int)Section.Sequence] = WriteSequences(bw);
+                sections[(int)Section.SequenceGroup] = WriteSequenceGroups(bw);
+                sections[(int)Section.Transition] = WriteTransitions(bw);
+                sections[(int)Section.BodyPart] = WriteBodyParts(bw);
+            }
+
+            if (writeType == WriteType.DataAndTextures || writeType == WriteType.TexturesOnly)
+            {
+                sections[(int)Section.Skin] = WriteSkins(bw);
+                sections[(int)Section.Texture] = WriteTextures(bw);
+            }
+
+            // section values are known now, go back and write them
+            bw.BaseStream.Seek(sectionsPos, SeekOrigin.Begin);
+            foreach (var s in sections)
+            {
+                foreach (var i in s)
+                {
+                    bw.Write(i);
+                }
+            }
+            bw.BaseStream.Seek(0, SeekOrigin.End);
+
+            // final size is known now, write it back into the header
+            SetSize(bw);
+        }
+
+        private void WriteSequenceFile(BinaryWriter bw, string filename, int sequenceGroup)
+        {
+            const int nameLength = 64;
+            const int sizeOffset = sizeof(int) + sizeof(int) + nameLength;
+
+            bw.Write((int) ID.Idsq);
+            bw.Write((int) Version.Goldsource);
+            bw.WriteFixedLengthString(Encoding.ASCII, nameLength, filename);
+            bw.Write(0); // length, written after we've finished writing
+
+            foreach (var seq in Sequences.Where(x => x.SequenceGroup == sequenceGroup))
+            {
+                seq.AnimationIndex = (int)bw.BaseStream.Position;
+                WriteAnimationBlends(bw, seq, Bones.Count);
+            }
+
+            // go back and write the size
+            var size = (int) bw.BaseStream.Position;
+            bw.Seek(sizeOffset, SeekOrigin.Begin);
+            bw.Write(size);
+
+            bw.Seek(0, SeekOrigin.End);
+        }
+
+        private static void WriteHeader(BinaryWriter bw, Header hdr)
+        {
+            bw.Write((int) hdr.ID);
+            bw.Write((int) hdr.Version);
+            bw.WriteFixedLengthString(Encoding.ASCII, 64, hdr.Name);
+            bw.Write((int) 0); // size - computed at the end
+            bw.WriteVector3(hdr.EyePosition);
+            bw.WriteVector3(hdr.HullMin);
+            bw.WriteVector3(hdr.HullMax);
+            bw.WriteVector3(hdr.BoundingBoxMin);
+            bw.WriteVector3(hdr.BoundingBoxMax);
+            bw.Write(hdr.Flags);
+        }
+
+        /// <summary>
+        /// Update the size field in the header to match the size of the stream
+        /// </summary>
+        private static void SetSize(BinaryWriter bw)
+        {
+            var pos = bw.BaseStream.Position;
+            bw.BaseStream.Seek(0, SeekOrigin.End);
+            var size = bw.BaseStream.Position;
+            bw.BaseStream.Seek(4 + 4 + 64, SeekOrigin.Begin);
+            bw.Write((int)size);
+            bw.BaseStream.Seek(pos, SeekOrigin.Begin);
+        }
+
+        private int[] WriteBones(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+            foreach (var bone in Bones)
+            {
+                bw.WriteFixedLengthString(Encoding.ASCII, 32, bone.Name);
+                bw.Write(bone.Parent);
+                bw.Write(bone.Flags);
+                bw.WriteIntArray(6, bone.Controllers);
+                bw.WriteVector3(bone.Position);
+                bw.WriteVector3(bone.Rotation);
+                bw.WriteVector3(bone.PositionScale);
+                bw.WriteVector3(bone.RotationScale);
+            }
+            return new [] { Bones.Count, startPos };
+        }
+
+        private int[] WriteBoneControllers(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+            foreach (var bc in BoneControllers)
+            {
+                bw.Write(bc.Bone);
+                bw.Write(bc.Type);
+                bw.Write(bc.Start);
+                bw.Write(bc.End);
+                bw.Write(bc.Rest);
+                bw.Write(bc.Index);
+            }
+            return new [] { BoneControllers.Count, startPos };
+        }
+
+        private int[] WriteHitboxes(BinaryWriter bw)
+        {
+            var startPos = (int) bw.BaseStream.Position;
+            foreach (var hb in Hitboxes)
+            {
+                bw.Write(hb.Bone);
+                bw.Write(hb.Group);
+                bw.WriteVector3(hb.Min);
+                bw.WriteVector3(hb.Max);
+            }
+            return new[] { Hitboxes.Count, startPos };
+        }
+
+        private int[] WriteSequences(BinaryWriter bw)
+        {
+            var startPos = (int) bw.BaseStream.Position;
+
+            const int sequenceSize = 176;
+
+            // write a blank sequence, we'll fill it in after writing events/piots/animations
+            var buffer = new byte[sequenceSize];
+            foreach (var seq in Sequences)
+            {
+                bw.Write(buffer);
+            }
+
+            // now write all the binary data for each sequence, storing the updated data indices
+            foreach (var seq in Sequences.Where(x => x.SequenceGroup == 0))
+            {
+                seq.EventIndex = (int)bw.BaseStream.Position;
+                WriteEvents(bw, seq);
+
+                seq.PivotIndex = (int)bw.BaseStream.Position;
+                WritePivots(bw, seq);
+
+                if (seq.SequenceGroup == 0)
+                {
+                    // only do animations for sequence group 0, the others are already written to external files and the index updated
+                    seq.AnimationIndex = (int)bw.BaseStream.Position;
+                    WriteAnimationBlends(bw, seq, Bones.Count);
+                }
+            }
+
+            var endPos = bw.BaseStream.Position;
+
+            // go back and write the actual sequence info
+            bw.BaseStream.Seek(startPos, SeekOrigin.Begin);
+            foreach (var seq in Sequences)
+            {
+                bw.WriteFixedLengthString(Encoding.ASCII, 32, seq.Name);
+                bw.Write(seq.Framerate);
+                bw.Write(seq.Flags);
+                bw.Write(seq.Activity);
+                bw.Write(seq.ActivityWeight);
+                bw.Write(seq.NumEvents);
+                bw.Write(seq.EventIndex);
+                bw.Write(seq.NumFrames);
+                bw.Write(seq.NumPivots);
+                bw.Write(seq.PivotIndex);
+                bw.Write(seq.MotionType);
+                bw.Write(seq.MotionBone);
+                bw.WriteVector3(seq.LinearMovement);
+                bw.Write(seq.AutoMovePositionIndex);
+                bw.Write(seq.AutoMoveAngleIndex);
+                bw.WriteVector3(seq.Min);
+                bw.WriteVector3(seq.Max);
+                bw.Write(seq.NumBlends);
+                bw.Write(seq.AnimationIndex);
+                bw.WriteIntArray(2, seq.BlendType);
+                bw.WriteSingleArray(2, seq.BlendStart);
+                bw.WriteSingleArray(2, seq.BlendEnd);
+                bw.Write(seq.BlendParent);
+                bw.Write(seq.SequenceGroup);
+                bw.Write(seq.EntryNode);
+                bw.Write(seq.ExitNode);
+                bw.Write(seq.NodeFlags);
+                bw.Write(seq.NextSequence);
+            }
+
+            bw.BaseStream.Seek(endPos, SeekOrigin.Begin);
+            return new[] { Sequences.Count, startPos };
+        }
+
+        private void WriteEvents(BinaryWriter bw, Sequence seq)
+        {
+            foreach (var ev in seq.Events)
+            {
+                bw.Write(ev.Frame);
+                bw.Write(ev.Event);
+                bw.Write(ev.Type);
+                bw.WriteFixedLengthString(Encoding.ASCII, 64, ev.Options);
+            }
+        }
+
+        private void WritePivots(BinaryWriter bw, Sequence seq)
+        {
+            foreach (var pivot in seq.Pivots)
+            {
+                bw.WriteVector3(pivot.Origin);
+                bw.Write(pivot.Start);
+                bw.Write(pivot.End);
+            }
+        }
+
+        private int[] WriteSequenceGroups(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+            foreach (var group in SequenceGroups)
+            {
+                bw.WriteFixedLengthString(Encoding.ASCII, 32, group.Label);
+                bw.WriteFixedLengthString(Encoding.ASCII, 64, group.Name);
+                bw.Write(new byte[8]); // unused
+            }
+            return new[] { SequenceGroups.Count, startPos };
+        }
+
+        private int[] WriteTextures(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+
+            // write textures
+            foreach (var tex in Textures)
+            {
+                bw.WriteFixedLengthString(Encoding.ASCII, 64, tex.Name);
+                bw.Write((int) tex.Flags);
+                bw.Write(tex.Width);
+                bw.Write(tex.Height);
+                bw.Write(tex.Index);
+            }
+
+            var dataPos = (int)bw.BaseStream.Position;
+
+            // write texture data
+            foreach (var tex in Textures)
+            {
+                tex.Index = (int)bw.BaseStream.Position;
+                bw.Write(tex.Data);
+                bw.Write(tex.Palette);
+            }
+
+            var endPos = (int)bw.BaseStream.Position;
+
+            // go back and write the texture indices
+            bw.BaseStream.Seek(startPos, SeekOrigin.Begin);
+            foreach (var tex in Textures)
+            {
+                bw.Seek(64 + sizeof(int) + 3, SeekOrigin.Current);
+                bw.Write(tex.Index);
+            }
+
+            bw.Seek(endPos, SeekOrigin.Begin);
+            return new[] { Textures.Count, startPos, dataPos };
+        }
+
+        private int[] WriteSkins(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+            var numSkinFamilies = Skins.Count;
+            var numSkinRefs = numSkinFamilies == 0 ? 0 : Skins[0].Textures.Length;
+            foreach (var skin in Skins)
+            {
+                bw.WriteShortArray(numSkinRefs, skin.Textures);
+            }
+            return new[] { numSkinRefs, numSkinFamilies, startPos };
+        }
+
+        private int[] WriteAttachments(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+            foreach (var att in Attachments)
+            {
+                bw.WriteFixedLengthString(Encoding.ASCII, 32, att.Name);
+                bw.Write(att.Type);
+                bw.Write(att.Bone);
+                bw.WriteVector3(att.Origin);
+                bw.WriteVector3Array(3, att.Vectors);
+            }
+            return new[] { Attachments.Count, startPos };
+        }
+
+        private int[] WriteTransitions(BinaryWriter bw)
+        {
+            var startPos = (int)bw.BaseStream.Position;
+            var numNodes = 0;
+            if (Sequences.Any() && Transitions.Any())
+            {
+                numNodes = Sequences.Select(x => x.ExitNode)
+                    .Union(Sequences.Select(x => x.EntryNode))
+                    .Union(Transitions.Select(x => x.FromNode))
+                    .Union(Transitions.Select(x => x.ToNode))
+                    .Union(Transitions.Select(x => (int) x.ViaNode))
+                    .Max();
+                var groupedTransitions = Transitions.GroupBy(x => x.FromNode).ToDictionary(x => x.Key, x => x.ToList());
+                for (var i = 0; i < numNodes; i++)
+                {
+                    var group = groupedTransitions.TryGetValue(i + 1, out var g) ? g : new List<Transition>();
+                    for (var j = 0; j < numNodes; j++)
+                    {
+                        var v = group.FirstOrDefault(x => x.ToNode == j + 1);
+                        byte val = v?.ViaNode ?? 0;
+                        bw.Write(val);
+                    }
+                }
+            }
+            return new[] { numNodes, startPos };
+        }
+
+        #endregion
+
+        #region Writing animations
+
+        private static void WriteAnimationBlends(BinaryWriter bw, Sequence seq, int numBones)
+        {
+            var pos = bw.BaseStream.Position;
+
+            var blendLength = 6 * numBones;
+            var offsets = new ushort[blendLength * seq.NumBlends];
+
+            // skip the offsets for now, we'll come back to write them
+            bw.BaseStream.Seek(sizeof(ushort) * offsets.Length, SeekOrigin.Current);
+
+            for (var i = 0; i < seq.Blends.Length; i++)
+            {
+                var blend = seq.Blends[i];
+                var blendOffsets = WriteAnimationFrames(bw, seq, blend, numBones);
+                Array.Copy(blendOffsets, 0, offsets, blendLength * i, blendLength);
+            }
+
+            // go back and write the offsets
+            var endPos = bw.BaseStream.Position;
+            bw.BaseStream.Seek(pos, SeekOrigin.Begin);
+            bw.WriteUShortArray(offsets.Length, offsets);
+            bw.BaseStream.Seek(endPos, SeekOrigin.Begin);
+        }
+
+        internal static ushort[] WriteAnimationFrames(BinaryWriter bw, Sequence seq, Blend blend, int numBones)
+        {
+            var ret = new ushort[6 * numBones];
+
+            ushort currentOffset = 0;
+            var idx = 0;
+
+            for (var i = 0; i < numBones; i++)
+            {
+                currentOffset += sizeof(ushort) * 6;
+                var b = i;
+                ret[idx++] = WriteVals(x => x.Positions[b].X);
+                ret[idx++] = WriteVals(x => x.Positions[b].Y);
+                ret[idx++] = WriteVals(x => x.Positions[b].Z);
+                ret[idx++] = WriteVals(x => x.Rotations[b].X);
+                ret[idx++] = WriteVals(x => x.Rotations[b].Y);
+                ret[idx++] = WriteVals(x => x.Rotations[b].Z);
+            }
+
+            return ret;
+
+            ushort WriteVals(Func<AnimationFrame, float> map)
+            {
+                var offs = currentOffset;
+                var vals = blend.Frames.Select(x => (short) map(x)).ToArray();
+                var len = (ushort) WriteAnimationFrameValues(bw, vals);
+                currentOffset += len;
+                return len == 0 ? (ushort) 0 : offs;
+            }
+        }
+
+        internal static long WriteAnimationFrameValues(BinaryWriter bw, short[] values)
+        {
+            if (values.Length == 0 || values.All(x => x == 0)) return 0; // no values, or every value is 0
+
+            var startPos = bw.BaseStream.Position;
+            foreach (var run in AnimationRle.Compress(values))
+            {
+                run.WriteTo(bw);
+            }
+            return bw.BaseStream.Position - startPos;
+        }
+
+        #endregion
+
+        #region Writing models
+
+        private int[] WriteBodyParts(BinaryWriter bw)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void WriteModels(BinaryWriter bw, BodyPart part)
+        {
+
+        }
+
+        #endregion
+
+        /// <summary>
         /// Get the transforms for the bones of this model
         /// </summary>
         /// <param name="sequence">The sequence id to use</param>
@@ -707,7 +1298,7 @@ namespace Sledge.Formats.Model.Goldsource
             Sound,      // Unused
             SoundGroup, // Unused
             Transition,
-            NumSections = 11
+            NumSections = 12
         }
     }
 }

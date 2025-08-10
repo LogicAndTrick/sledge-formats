@@ -1,6 +1,6 @@
 ﻿namespace Sledge.Formats.Model.Goldsource
 {
-    public struct BoneController
+    public class BoneController
     {
         public int Bone;
         public int Type;

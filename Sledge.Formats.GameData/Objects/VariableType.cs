@@ -2,6 +2,11 @@
 {
     public enum VariableType
     {
+        /// <summary>
+        /// Generic for unrecognised variable types. Check UnknownVariableTypeName for the actual type name.
+        /// </summary>
+        Unknown,
+
         Axis,
         Angle,
         AngleNegativePitch,
@@ -85,5 +90,7 @@
         Struct, // Source 2
         AnimGraph, // Source 2 (cs2)
         AnimGraphEnum, // Source 2 (cs2)
+        Cpp, // Source 2
+        CollisionProperty, // Source 2
     }
 }

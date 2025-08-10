@@ -2,7 +2,7 @@
 
 namespace Sledge.Formats.Model.Goldsource
 {
-    public struct Bone
+    public class Bone
     {
         public string Name;
         public int Parent;

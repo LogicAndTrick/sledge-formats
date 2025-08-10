@@ -33,12 +33,6 @@ namespace Sledge.Formats.Bsp.Algorithms
                 PassedThroughNonSolid = false
             };
             tl.Success = !TraceLineRecursive(hull, hull.GetRoot(), 0, 1, start, end, tl);
-            if (tl.Success)
-            {
-                var len1 = (tl.EndPoint - tl.StartPoint).Length();
-                var len2 = (end - start).Length();
-                tl.EndFraction = len1 == 0 ? 0 : len2 / len1;
-            }
             return tl;
         }
 
