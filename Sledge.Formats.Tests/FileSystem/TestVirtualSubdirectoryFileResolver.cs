@@ -86,27 +86,27 @@ public class TestVirtualSubdirectoryFileResolver
     public void TestFileNotFound()
     {
         var vsfr = new VirtualSubdirectoryFileResolver("something/", new ZipArchiveResolver(_instance));
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             vsfr.OpenFile("test1.txt");
         });
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             vsfr.OpenFile("not_found.txt");
         });
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             vsfr.OpenFile("something/not_found.txt");
         });
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             vsfr.OpenFile("something/not/found");
         });
-        Assert.ThrowsException<DirectoryNotFoundException>(() =>
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() =>
         {
             vsfr.GetFiles("something/not/found");
         });
-        Assert.ThrowsException<DirectoryNotFoundException>(() =>
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() =>
         {
             vsfr.GetFolders("something/not/found");
         });

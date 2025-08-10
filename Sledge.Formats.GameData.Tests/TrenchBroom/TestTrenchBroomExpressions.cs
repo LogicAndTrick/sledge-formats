@@ -50,16 +50,16 @@ public class TestTrenchBroomExpressions
         Assert.AreEqual(new Value("false"), new Value(false).ConvertTo(DataType.String));
         Assert.AreEqual(new Value(1), new Value(true).ConvertTo(DataType.Number));
         Assert.AreEqual(new Value(0), new Value(false).ConvertTo(DataType.Number));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Array));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Array));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Undefined));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Array));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Array));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Map));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Map));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(true).ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(false).ConvertTo(DataType.Undefined));
 
         Assert.AreEqual(new Value(true), new Value("asdf").ConvertTo(DataType.Boolean));
         Assert.AreEqual(new Value(false), new Value("false").ConvertTo(DataType.Boolean));
@@ -67,12 +67,12 @@ public class TestTrenchBroomExpressions
         Assert.AreEqual(new Value("asdf"), new Value("asdf").ConvertTo(DataType.String));
         Assert.AreEqual(new Value(2), new Value("2").ConvertTo(DataType.Number));
         Assert.AreEqual(new Value(-2), new Value("-2.0").ConvertTo(DataType.Number));
-        Assert.ThrowsException<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Number));
-        Assert.ThrowsException<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Array));
-        Assert.ThrowsException<InvalidCastException>(() => new Value("asfd").ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Number));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Array));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value("asfd").ConvertTo(DataType.Map));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value("asdf").ConvertTo(DataType.Undefined));
 
         Assert.AreEqual(new Value(true), new Value(1).ConvertTo(DataType.Boolean));
         Assert.AreEqual(new Value(true), new Value(2).ConvertTo(DataType.Boolean));
@@ -84,46 +84,46 @@ public class TestTrenchBroomExpressions
         Assert.AreEqual(new Value("-1.1000000000000001"), new Value(-1.1).ConvertTo(DataType.String));
         Assert.AreEqual(new Value(1), new Value(1.0).ConvertTo(DataType.Number));
         Assert.AreEqual(new Value(-1), new Value(-1.0).ConvertTo(DataType.Number));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(1).ConvertTo(DataType.Array));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(2).ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(3).ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(4).ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(5).ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(1).ConvertTo(DataType.Array));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(2).ConvertTo(DataType.Map));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(3).ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(4).ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(5).ConvertTo(DataType.Undefined));
 
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Boolean));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.String));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Number));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Boolean));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.String));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Number));
         Assert.AreEqual(new Value(arrayType), new Value(arrayType).ConvertTo(DataType.Array));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Map));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(arrayType).ConvertTo(DataType.Undefined));
 
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Boolean));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.String));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Number));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Array));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Boolean));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.String));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Number));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Array));
         Assert.AreEqual(new Value(mapType), new Value(mapType).ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => new Value(mapType).ConvertTo(DataType.Undefined));
 
         Assert.AreEqual(new Value(false), Value.Null.ConvertTo(DataType.Boolean));
         Assert.AreEqual(new Value(""), Value.Null.ConvertTo(DataType.String));
         Assert.AreEqual(new Value(0), Value.Null.ConvertTo(DataType.Number));
         Assert.AreEqual(new Value(arrayType), Value.Null.ConvertTo(DataType.Array));
         Assert.AreEqual(new Value(mapType), Value.Null.ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Null.ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Null.ConvertTo(DataType.Range));
         Assert.AreEqual(Value.Null, Value.Null.ConvertTo(DataType.Null));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Null.ConvertTo(DataType.Undefined));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Null.ConvertTo(DataType.Undefined));
 
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Boolean));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.String));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Number));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Array));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Map));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Range));
-        Assert.ThrowsException<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Null));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Boolean));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.String));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Number));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Array));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Map));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Range));
+        Assert.ThrowsExactly<InvalidCastException>(() => Value.Undefined.ConvertTo(DataType.Null));
         Assert.AreEqual(Value.Undefined, Value.Undefined.ConvertTo(DataType.Undefined));
     }
 
@@ -136,9 +136,9 @@ public class TestTrenchBroomExpressions
     [TestMethod]
     public void TestSubscriptOperator()
     {
-        Assert.ThrowsException<InvalidOperationException>(() => new Value(true).ValueAtIndex(new Value(0)));
-        Assert.ThrowsException<InvalidOperationException>(() => new Value(1).ValueAtIndex(new Value(0)));
-        Assert.ThrowsException<InvalidOperationException>(() => new Value().ValueAtIndex(new Value(0)));
+        Assert.ThrowsExactly<InvalidOperationException>(() => new Value(true).ValueAtIndex(new Value(0)));
+        Assert.ThrowsExactly<InvalidOperationException>(() => new Value(1).ValueAtIndex(new Value(0)));
+        Assert.ThrowsExactly<InvalidOperationException>(() => new Value().ValueAtIndex(new Value(0)));
 
         Assert.AreEqual(new Value("t"), new Value("test").ValueAtIndex(new Value(0)));
         Assert.AreEqual(new Value("e"), new Value("test").ValueAtIndex(new Value(1)));
@@ -162,18 +162,18 @@ public class TestTrenchBroomExpressions
         Assert.AreEqual(new Value("test"), arrayValue.ValueAtIndex(new Value(-1)));
         Assert.AreEqual(new Value(1), arrayValue.ValueAtIndex(new Value(-2)));
 
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(2)));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(-3)));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value("asdf")));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value("")));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(2)));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(-3)));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value("asdf")));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value("")));
 
         Assert.AreEqual(new Value(new[] { new Value(1) }), arrayValue.ValueAtIndex(new Value(new[] { new Value(0) })));
         Assert.AreEqual(new Value(new[] { new Value("test") }), arrayValue.ValueAtIndex(new Value(new[] { new Value(1) })));
         Assert.AreEqual(new Value(new[] { new Value(1), new Value("test") }), arrayValue.ValueAtIndex(new Value(new[] { new Value(0), new Value(1) })));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value(2) })));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value(1), new Value(2) })));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value("test") })));
-        Assert.ThrowsException<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value(0), new Value("test") })));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value(2) })));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value(1), new Value(2) })));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value("test") })));
+        Assert.ThrowsExactly<InvalidOperationException>(() => arrayValue.ValueAtIndex(new Value(new[] { new Value(0), new Value("test") })));
 
         var mapValue = new Value(new Dictionary<string, Value>
         {
@@ -195,8 +195,8 @@ public class TestTrenchBroomExpressions
         Assert.AreEqual(mapValue, mapValue.ValueAtIndex(new Value(new[] { new Value("huhu"), new Value("test") })));
         Assert.AreEqual(new Value(new Dictionary<string, Value>()), mapValue.ValueAtIndex(new Value(new[] { new Value("asdf") })));
         Assert.AreEqual(exp1, mapValue.ValueAtIndex(new Value(new[] { new Value("test"), new Value("asdf") })));
-        Assert.ThrowsException<InvalidCastException>(() => mapValue.ValueAtIndex(new Value(new[] { new Value(0) })));
-        Assert.ThrowsException<InvalidCastException>(() => mapValue.ValueAtIndex(new Value(new[] { new Value("test"), new Value(0) })));
+        Assert.ThrowsExactly<InvalidCastException>(() => mapValue.ValueAtIndex(new Value(new[] { new Value(0) })));
+        Assert.ThrowsExactly<InvalidCastException>(() => mapValue.ValueAtIndex(new Value(new[] { new Value("test"), new Value(0) })));
     }
 
     // https://github.com/TrenchBroom/TrenchBroom/blob/master/common/test/src/EL/tst_Expression.cpp
@@ -873,7 +873,7 @@ public class TestTrenchBroomExpressions
                     Evaluate(expression);
                     Assert.Fail($"Expected exception thrown by expression: {expression}");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // good
                 }
@@ -981,14 +981,14 @@ public class TestTrenchBroomExpressions
     [TestMethod]
     public void TestInterpolateStringWithUnknownVariable()
     {
-        Assert.ThrowsException<InvalidCastException>(() => Interpolate(" an \\${TEST} expression"));
+        Assert.ThrowsExactly<InvalidCastException>(() => Interpolate(" an \\${TEST} expression"));
     }
         
     [TestMethod]
     public void TestInterpolateStringWithUnterminatedEl()
     {
-        Assert.ThrowsException<TokenParsingException>(() => Interpolate(" an ${TEST"));
-        Assert.ThrowsException<TokenParsingException>(() => Interpolate(" an ${TEST expression"));
+        Assert.ThrowsExactly<TokenParsingException>(() => Interpolate(" an ${TEST"));
+        Assert.ThrowsExactly<TokenParsingException>(() => Interpolate(" an ${TEST expression"));
     }
 
     private static Value EvaluateInterpolate(string expression, Dictionary<string, Value> values = null)

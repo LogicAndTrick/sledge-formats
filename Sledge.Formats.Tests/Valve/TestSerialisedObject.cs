@@ -168,9 +168,9 @@ Test4
         var one = "Test { }";
         var two = one + "\n" + one;
 
-        Assert.ThrowsException<InvalidOperationException>(() => Create(zero));
+        Assert.ThrowsExactly<InvalidOperationException>(() => Create(zero));
         Assert.AreEqual("Test", Create(one).Name);
-        Assert.ThrowsException<InvalidOperationException>(() => Create(two));
+        Assert.ThrowsExactly<InvalidOperationException>(() => Create(two));
 
         static SerialisedObject Create(string str)
         {

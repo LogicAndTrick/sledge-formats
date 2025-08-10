@@ -2,6 +2,7 @@
 
 namespace Sledge.Formats.Tokens
 {
+    ///<summary>Class containing special symbols</summary>
     public static class Symbols
     {
         ///<summary>!</summary>
@@ -85,7 +86,7 @@ namespace Sledge.Formats.Tokens
         ///<summary>/</summary>
         public const char Slash = '/';
 
-        ///<summary><</summary>
+        ///<summary>&lt;</summary>
         public const char Less = '<';
 
         ///<summary>></summary>
@@ -95,6 +96,7 @@ namespace Sledge.Formats.Tokens
         public const char Question = '?';
 
         // ReSharper disable once UnusedMember.Global
+        ///<summary>Char array containing special symbols</summary>
         public static char[] All =
         {
             Bang,

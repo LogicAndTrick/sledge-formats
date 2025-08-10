@@ -53,6 +53,12 @@ namespace Sledge.Formats.Bsp.Tests
             {
                 dir = Path.GetDirectoryName(dir);
             }
+            // if this is true, the file with the name provied couldn't be found
+            if (dir == null)
+            {
+                throw new System.IO.FileNotFoundException($"Coudln't find file {name}");
+            }
+
             var file = Path.Combine(dir, "Resources", name);
             using var res = File.OpenRead(file);
 
@@ -74,7 +80,7 @@ namespace Sledge.Formats.Bsp.Tests
         [TestMethod]
         public void TestStandardFormatWithWrongFlag()
         {
-            Assert.ThrowsException<Exception>(() => {
+            Assert.ThrowsExactly<Exception>(() => {
                 try
                 {
                     using var file = GetFile("goldsource/aaa.bsp");
@@ -99,7 +105,7 @@ namespace Sledge.Formats.Bsp.Tests
         [TestMethod]
         public void TestBlueShiftFormatWithWrongFlag()
         {
-            Assert.ThrowsException<Exception>(() => {
+            Assert.ThrowsExactly<Exception>(() => {
                 try
                 {
                     using var file = GetFile("goldsource/ba_hazard6.bsp");

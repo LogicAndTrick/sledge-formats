@@ -36,7 +36,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                Assert.ThrowsException<TokenParsingException>(() => TokenParsing.ParseDecimal(it));
+                Assert.ThrowsExactly<TokenParsingException>(() => TokenParsing.ParseDecimal(it));
             }
         }
 
@@ -80,7 +80,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                Assert.ThrowsException<TokenParsingException>(() => TokenParsing.ParseDecimal(it));
+                Assert.ThrowsExactly<TokenParsingException>(() => TokenParsing.ParseDecimal(it));
             }
         }
 
@@ -113,7 +113,7 @@ namespace Sledge.Formats.Tests.Tokens
             {
                 using var it = tokeniser.Tokenise(text).GetEnumerator();
                 it.MoveNext();
-                Assert.ThrowsException<TokenParsingException>(() => TokenParsing.BalanceBrackets(it, '(', ')'));
+                Assert.ThrowsExactly<TokenParsingException>(() => TokenParsing.BalanceBrackets(it, '(', ')'));
             }
         }
 

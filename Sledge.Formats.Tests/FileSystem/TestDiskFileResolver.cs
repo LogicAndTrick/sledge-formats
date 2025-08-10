@@ -93,19 +93,19 @@ public class TestDiskFileResolver
     public void TestFileNotFound()
     {
         var dfs = new DiskFileResolver(_baseDir);
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             dfs.OpenFile("not_found.txt");
         });
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             dfs.OpenFile("not/found");
         });
-        Assert.ThrowsException<DirectoryNotFoundException>(() =>
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() =>
         {
             dfs.GetFiles("not/found");
         });
-        Assert.ThrowsException<DirectoryNotFoundException>(() =>
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() =>
         {
             dfs.GetFolders("not/found");
         });

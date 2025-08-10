@@ -100,11 +100,11 @@ public class TestCompositeFileResolver
     public void TestFileNotFound()
     {
         var cfs = new CompositeFileResolver(new DiskFileResolver(_baseDir2), new DiskFileResolver(_baseDir1));
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             cfs.OpenFile("not_found.txt");
         });
-        Assert.ThrowsException<FileNotFoundException>(() =>
+        Assert.ThrowsExactly<FileNotFoundException>(() =>
         {
             cfs.OpenFile("not/found");
         });
