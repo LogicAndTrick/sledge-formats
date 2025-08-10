@@ -34,9 +34,9 @@ public class TestBspBuilder
             Type = PlaneType.X
         };
 
-        builder.AddPlane(plane1);
-        builder.AddPlane(plane2);
-        builder.AddPlane(plane3);
+        builder.AddPlane(plane1, false);
+        builder.AddPlane(plane2, false);
+        builder.AddPlane(plane3, false);
 
         Assert.AreEqual(2, builder.BspFile.Planes.Count);
         Assert.AreEqual(plane1, builder.BspFile.Planes[0]);
