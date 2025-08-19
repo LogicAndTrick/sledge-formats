@@ -663,7 +663,17 @@ namespace Sledge.Formats.Map.Formats
 
                 WriteString(ent.ClassName, bw);
                 bw.WriteVector3(ent.GetVectorProperty("origin", Vector3.Zero));
-                bw.Write(0); // flags
+
+                // JACK needs at least the PointBased flag. The others are likely optional
+                // but since we can derive most of them, might as well set them.
+                var flags = JmfFlags.None;
+                if (ent.Children.Count == 0) flags |= JmfFlags.PointBased;
+                if (ent.GetIntProperty("rendermode", 0) != 0) flags |= JmfFlags.RenderMode;
+                if (ent.ClassName == "worldspawn") flags |= JmfFlags.IsWorld;
+                if (ent.ClassName.StartsWith("weapon_") || ent.ClassName.StartsWith("item_")) flags |= JmfFlags.WeaponOrItem;
+                if (ent.ClassName.StartsWith("path_")) flags |= JmfFlags.PathEntity;
+                bw.Write((int)flags);
+
                 bw.Write(GetGroupID(groups, egr.Group));
                 bw.Write(GetGroupID(groups, egr.RootGroup));
                 bw.WriteRGBAColour(ent.Color);
@@ -903,10 +913,14 @@ namespace Sledge.Formats.Map.Formats
         private enum JmfFlags
         {
             None = 0x00,
-            PointBased = 0x01,   // Or maybe 'HasOrigin'?
+            PointBased = 0x01,     // Or maybe 'HasOrigin'?
             Selected = 0x02,
             Hidden = 0x08,
-            RenderMode = 0x10,   // Any other render mode than 'normal'
+            RenderMode = 0x10,     // Any other render mode than 'normal'
+            IsWorld = 0x0020,      // The special "worldspawn" entity
+            WeaponOrItem = 0x0040, // Any entity whose name starts with "weapon" or "item_"
+            PathEntity = 0x0080,   // Any entity whose name starts with "path_"
+            Unknown1 = 0x8000,     // TODO: This appears to be related to models, and may have been introduced in a newer JACK version?
         }
     }
 }

@@ -4,15 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>LogicAndTrick</Authors>
     <Description>Parsers for map source files used by level editors. Currently supports MAP files in the idtech2 and valve formats, Worldcraft RMF v2.2, and partial support for Source Hammer VMF and Jackhammer/JACK JMF formats.</Description>
-    <Copyright>2022 LogicAndTrick</Copyright>
+    <Copyright>2025 LogicAndTrick</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LogicAndTrick/sledge-formats</PackageProjectUrl>
     <PackageIcon>sledge-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/LogicAndTrick/sledge-formats</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>half-life quake valve hammer worldcraft jackhammer jack rmf vmf map jmf</PackageTags>
-    <PackageReleaseNotes>Update to System.Numerics.Vectors 4.6.1</PackageReleaseNotes>
-    <Version>1.2.7</Version>
+    <PackageReleaseNotes>Add JMF flags to entities so JACK loads them properly</PackageReleaseNotes>
+    <Version>1.2.8</Version>
 	<DebugType>full</DebugType>
 	<DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
