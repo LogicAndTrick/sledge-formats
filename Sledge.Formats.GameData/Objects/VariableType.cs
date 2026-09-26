@@ -94,5 +94,8 @@
         CollisionProperty, // Source 2
         Api, // Source2 (cs2)
         Animgraph2Identifier, // Source2 (cs2)
+        IntChoices, // Source 2
+        FloatChoices, // Source 2
+        FlagChoices, // Source 2
     }
 }
