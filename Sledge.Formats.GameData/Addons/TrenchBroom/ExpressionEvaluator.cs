@@ -57,7 +57,6 @@ namespace Sledge.Formats.GameData.Addons.TrenchBroom
                     return new Value(l.ConvertTo(DataType.Number).NumberValue - r.ConvertTo(DataType.Number).NumberValue);
                 case BinaryOperatorType.Multiply:
                     return new Value(l.ConvertTo(DataType.Number).NumberValue * r.ConvertTo(DataType.Number).NumberValue);
-                    break;
                 case BinaryOperatorType.Divide:
                     return new Value(l.ConvertTo(DataType.Number).NumberValue / r.ConvertTo(DataType.Number).NumberValue);
                 case BinaryOperatorType.Modulus:
@@ -167,7 +166,6 @@ namespace Sledge.Formats.GameData.Addons.TrenchBroom
                     return new Value(!value.BooleanValue);
                 case UnaryOperatorType.BitwiseNot:
                     return new Value(~(int)value.ConvertTo(DataType.Number).NumberValue);
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(node.Operator), node.Operator, null);
             }

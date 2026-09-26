@@ -326,7 +326,6 @@ namespace Sledge.Formats.GameData.Addons.TrenchBroom
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            return false;
         }
 
         public override bool Equals(object obj)

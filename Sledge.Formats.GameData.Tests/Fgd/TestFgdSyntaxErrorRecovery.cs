@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Sledge.Formats.GameData.Tests.Fgd;
@@ -26,7 +22,7 @@ public class TestFgdSyntaxErrorRecovery
 	test(string) : ""Test""
 ]
 @SolidClass = valid2 []";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(2, def.Classes.Count);
     }
@@ -39,7 +35,7 @@ public class TestFgdSyntaxErrorRecovery
 [
 	model(studio) : ""Model"" : models/test-model.mdl : ""Select a model file.""
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         Assert.AreEqual("models/test-model.mdl", def.Classes[0].Properties[0].DefaultValue);
@@ -57,7 +53,7 @@ public class TestFgdSyntaxErrorRecovery
 		1: ""one""
 	]
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         Assert.AreEqual("0", def.Classes[0].Properties[0].DefaultValue);
@@ -82,7 +78,7 @@ public class TestFgdSyntaxErrorRecovery
 		3 : ""Fail
 	]
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
         Assert.AreEqual("Fail", def.Classes[0].Properties[0].Options.Last().Description);
@@ -96,7 +92,7 @@ public class TestFgdSyntaxErrorRecovery
 [
 	test(integer) : ""Description"" : 1.5
 ]";
-        var format = new FgdFormatter();
+        var format = new FgdFormat();
         var def = format.Read(fgd);
         Assert.AreEqual(1, def.Classes.Count);
     }

@@ -7,6 +7,7 @@ using System.Linq;
 using Sledge.Formats.FileSystem;
 using Sledge.Formats.GameData.Objects;
 using Sledge.Formats.Tokens;
+using Sledge.Formats.Tokens.Readers;
 
 namespace Sledge.Formats.GameData
 {
@@ -35,7 +36,7 @@ namespace Sledge.Formats.GameData
             Symbols.Greater,
         };
 
-        private static readonly Tokeniser Tokeniser = new Tokeniser(ValidSymbols);
+        private readonly Tokeniser _tokeniser;
 
         /// <summary>
         /// Set to true to allow strings to contain newlines. In a valid FGD, this option is always safe.
@@ -43,16 +44,23 @@ namespace Sledge.Formats.GameData
         /// </summary>
         public bool AllowNewlinesInStrings
         {
-            get => Tokeniser.AllowNewlinesInStrings;
-            set => Tokeniser.AllowNewlinesInStrings = value;
+            get => _tokeniser.AllowNewlinesInStrings;
+            set => _tokeniser.AllowNewlinesInStrings = value;
         }
 
         public FgdFormat()
         {
             // No file resolver, includes will be ignored
+            _tokeniser = new Tokeniser(
+                new SingleLineCommentTokenReader(),
+                new StringTokenReader('"', '\''),
+                new UnsignedIntegerTokenReader(),
+                new SymbolTokenReader(ValidSymbols),
+                new NameTokenReader()
+            );
         }
 
-        public FgdFormat(IFileResolver resolver)
+        public FgdFormat(IFileResolver resolver) : this()
         {
             FileResolver = resolver;
         }
@@ -79,7 +87,7 @@ namespace Sledge.Formats.GameData
         {
             var def = new GameDefinition();
             
-            var tokens = Tokeniser.Tokenise(reader);
+            var tokens = _tokeniser.Tokenise(reader);
             using (var it = tokens.GetEnumerator())
             {
                 it.MoveNext();
@@ -621,7 +629,7 @@ namespace Sledge.Formats.GameData
             TokenParsing.Expect(it, TokenType.Symbol, Symbols.OpenBrace);
             while (it.Current?.Is(TokenType.Symbol, Symbols.CloseBrace) == false)
             {
-                var metaKey = TokenParsing.Expect(it, TokenType.Name).Value;
+                var metaKey = TokenParsing.ExpectAny(it, TokenType.Name, TokenType.String).Value;
                 TokenParsing.Expect(it, TokenType.Symbol, Symbols.Equal);
                 if (it.Current?.Is(TokenType.Symbol, Symbols.OpenBrace) == true)
                 {

@@ -446,6 +446,39 @@ public class TestFgdSource
     }
 
     [TestMethod]
+    public void TestSingleQuotedStrings()
+    {
+        const string fgd =
+            """
+            @PointClass metadata { str1 = "str1" str2 = 'str2' } = test : 'test "asdf"' : "test '1234'"
+            [
+                prop(string) : '1' + "2"
+            ]
+            """;
+        var format = new FgdFormat();
+        var def = format.Read(fgd);
+
+        Assert.AreEqual(1, def.Classes.Count);
+        var ent = def.Classes[0];
+
+        Assert.AreEqual("test", ent.Name);
+        Assert.AreEqual("test \"asdf\"", ent.Description);
+        Assert.AreEqual("test '1234'", ent.AdditionalInformation);
+        Assert.AreEqual(1, ent.Dictionaries.Count);
+        Assert.AreEqual(1, ent.Properties.Count);
+
+        var meta = ent.Dictionaries[0];
+        Assert.AreEqual("metadata", meta.Name);
+        Assert.AreEqual("str1", meta["str1"].Value);
+        Assert.AreEqual("str2", meta["str2"].Value);
+
+        var prop = ent.Properties[0];
+        Assert.AreEqual("prop", prop.Name);
+        Assert.AreEqual(VariableType.String, prop.VariableType);
+        Assert.AreEqual("12", prop.Description);
+    }
+
+    [TestMethod]
     public void TestMetadataDictionaryWithNegativeValue()
     {
         const string fgd = @"@PointClass metadata { view_attach_offset = [ -10.0, 0.0, 0.0 ] } = test : ""test"" []";
@@ -468,5 +501,46 @@ public class TestFgdSource
         Assert.AreEqual(-10m, values[0].Value);
         Assert.AreEqual(0m, values[1].Value);
         Assert.AreEqual(0m, values[2].Value);
+    }
+
+    [TestMethod]
+    public void TestMetadataDictionaryWithQuotedStringNames()
+    {
+        const string fgd =
+            """
+            @BaseClass 
+            MetaData
+            {
+            	"Test 1" = { autoexpand=true color=[240,240,240] icon='test1.png' }
+            	"Test2" = { autoexpand=true color=[240,240,240] icon='test2.png' }
+            	"Test 3" = { autoexpand=true color=[242,218,197] icon='test3.png' }
+            } = Test_GroupNames []
+            """;
+        var format = new FgdFormat();
+        var def = format.Read(fgd);
+
+        Assert.AreEqual(1, def.Classes.Count);
+
+        var ent = def.Classes[0];
+        Assert.AreEqual("Test_GroupNames", ent.Name);
+        Assert.AreEqual(1, ent.Dictionaries.Count);
+
+        var meta = ent.Dictionaries[0];
+
+        AssertDict(meta["Test 1"], true, 240, 240, 240, "test1.png");
+        AssertDict(meta["Test2"], true, 240, 240, 240, "test2.png");
+        AssertDict(meta["Test 3"], true, 242, 218, 197, "test3.png");
+
+        static void AssertDict(GameDataDictionaryValue val, bool autoexpand, int r, int g, int b, string icon)
+        {
+            Assert.AreEqual(GameDataDictionaryValueType.Dictionary, val.Type);
+            Assert.IsInstanceOfType<GameDataDictionary>(val.Value);
+
+            var dict = (GameDataDictionary)val.Value;
+
+            Assert.AreEqual(new GameDataDictionaryValue(autoexpand), dict["autoexpand"]);
+            Assert.AreEqual(new GameDataDictionaryValue([new(r), new(g), new(b)]), dict["color"]);
+            Assert.AreEqual(new GameDataDictionaryValue(icon), dict["icon"]);
+        }
     }
 }

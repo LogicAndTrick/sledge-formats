@@ -264,7 +264,7 @@ public class TestTrenchBroomExpressions
         Assert.AreEqual(new Value(new[] { new Value(2), new Value(3) }), Evaluate("arr[1..]", vals));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(32, 5)]
     [DataRow(16, 4)]
     [DataRow(8, 3)]
@@ -295,7 +295,7 @@ public class TestTrenchBroomExpressions
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(2, "models/props/flag/flag1.md2")]
     [DataRow(1, "models/props/flag/flag3.md2")]
     [DataRow(0, "models/props/flag/tris.md2")]
